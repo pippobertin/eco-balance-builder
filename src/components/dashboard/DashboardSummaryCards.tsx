@@ -105,7 +105,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Emissioni di Carbonio"
-          value={hasCarbonData ? `${totalCarbon} ton` : "N/D"}
+          value={hasCarbonData ? `${totalCarbon.toFixed(2)} ton` : "N/D"}
           change={0}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
           description={formatCarbonDescription()}
