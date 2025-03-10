@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
-  // Update scrolled state on scroll
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -15,10 +16,13 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation links with active state
   const navLinks = [{
     name: 'Home',
     path: '/'
+  }, {
+    name: 'Companies',
+    path: '/companies',
+    icon: Building
   }, {
     name: 'Dashboard',
     path: '/dashboard'
@@ -29,6 +33,7 @@ const Navbar = () => {
     name: 'About',
     path: '/about'
   }];
+
   return <motion.header initial={{
     opacity: 0,
     y: -20
@@ -51,12 +56,19 @@ const Navbar = () => {
         </Link>
         
         <nav className="hidden md:flex items-center space-x-8">
-          {navLinks.map(link => <Link key={link.path} to={link.path} className="relative group">
-              <span className={cn('text-sm font-medium transition-colors', location.pathname === link.path ? 'text-esg-blue' : 'text-foreground hover:text-esg-blue')}>
+          {navLinks.map(link => (
+            <Link key={link.path} to={link.path} className="relative group">
+              <span className={cn('text-sm font-medium transition-colors flex items-center gap-2', 
+                location.pathname === link.path ? 'text-esg-blue' : 'text-foreground hover:text-esg-blue'
+              )}>
+                {link.icon && <link.icon className="h-4 w-4" />}
                 {link.name}
               </span>
-              {location.pathname === link.path && <motion.div layoutId="navbar-indicator" className="absolute -bottom-1 left-0 w-full h-0.5 rounded-full bg-emerald-500" />}
-            </Link>)}
+              {location.pathname === link.path && 
+                <motion.div layoutId="navbar-indicator" className="absolute -bottom-1 left-0 w-full h-0.5 rounded-full bg-emerald-500" />
+              }
+            </Link>
+          ))}
         </nav>
         
         <motion.button whileHover={{
@@ -69,4 +81,5 @@ const Navbar = () => {
       </div>
     </motion.header>;
 };
+
 export default Navbar;
