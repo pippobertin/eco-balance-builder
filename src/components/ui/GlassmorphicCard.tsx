@@ -31,11 +31,11 @@ const GlassmorphicCard = ({
       {...props}
     >
       <Card className="bg-white text-gray-900 border border-gray-200 shadow-sm">
-        {header && <CardHeader className="text-gray-900">{header}</CardHeader>}
-        <CardContent className="text-gray-800">
+        {header && <CardHeader className="bg-white text-gray-900">{header}</CardHeader>}
+        <CardContent className="bg-white text-gray-800">
           {children as React.ReactNode}
         </CardContent>
-        {footer && <CardFooter className="text-gray-900">{footer}</CardFooter>}
+        {footer && <CardFooter className="bg-white text-gray-900">{footer}</CardFooter>}
       </Card>
       
       <div 

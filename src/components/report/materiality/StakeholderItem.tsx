@@ -25,11 +25,11 @@ const StakeholderItem: React.FC<StakeholderItemProps> = ({
   getSurveyStatusText
 }) => {
   return (
-    <div className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+    <div className="p-4 border rounded-lg bg-white shadow-sm">
       <div className="flex justify-between items-start mb-2">
         <div>
           <div className="flex items-center space-x-2 flex-wrap gap-2">
-            <h4 className="font-medium">{stakeholder.name}</h4>
+            <h4 className="font-medium text-gray-900">{stakeholder.name}</h4>
             <span className={`text-xs px-2 py-1 rounded-full ${getStakeholderPriorityColor(stakeholder.priority)}`}>
               Priorità: {stakeholder.priority}
             </span>
@@ -39,8 +39,8 @@ const StakeholderItem: React.FC<StakeholderItemProps> = ({
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Categoria: {stakeholder.category}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-700 mt-1">Categoria: {stakeholder.category}</p>
+          <p className="text-sm text-gray-700">
             <Mail className="inline-block h-4 w-4 mr-1" /> 
             {stakeholder.email}
           </p>
@@ -58,7 +58,7 @@ const StakeholderItem: React.FC<StakeholderItemProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
         <div>
           <div className="flex justify-between mb-2">
-            <Label>Livello di influenza: {stakeholder.influence}%</Label>
+            <Label className="text-gray-900">Livello di influenza: {stakeholder.influence}%</Label>
           </div>
           <Slider
             value={[stakeholder.influence]}
@@ -72,7 +72,7 @@ const StakeholderItem: React.FC<StakeholderItemProps> = ({
         
         <div>
           <div className="flex justify-between mb-2">
-            <Label>Livello di interesse: {stakeholder.interest}%</Label>
+            <Label className="text-gray-900">Livello di interesse: {stakeholder.interest}%</Label>
           </div>
           <Slider
             value={[stakeholder.interest]}
@@ -87,20 +87,22 @@ const StakeholderItem: React.FC<StakeholderItemProps> = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
-          <Label>Informazioni di contatto</Label>
+          <Label className="text-gray-900">Informazioni di contatto</Label>
           <Input
             value={stakeholder.contactInfo}
             onChange={(e) => onStakeholderChange(stakeholder.id, 'contactInfo', e.target.value)}
             placeholder="Telefono, indirizzo, ecc."
+            className="bg-white text-gray-900"
           />
         </div>
         
         <div>
-          <Label>Note</Label>
+          <Label className="text-gray-900">Note</Label>
           <Input
             value={stakeholder.notes}
             onChange={(e) => onStakeholderChange(stakeholder.id, 'notes', e.target.value)}
             placeholder="Note aggiuntive"
+            className="bg-white text-gray-900"
           />
         </div>
       </div>

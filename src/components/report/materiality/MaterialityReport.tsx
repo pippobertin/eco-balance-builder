@@ -23,7 +23,7 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
         <FileText className="mr-2 h-5 w-5 text-green-500" />
-        <h3 className="text-xl font-semibold">Rapporto di Materialità</h3>
+        <h3 className="text-xl font-semibold text-gray-900">Rapporto di Materialità</h3>
       </div>
       
       {surveyProgress.total > 0 && (
@@ -38,13 +38,13 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
       
       <div className="space-y-4">
         {materialIssues.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-700">
             Nessuna questione è stata contrassegnata come materiale. 
             Utilizza i controlli sopra per valutare e selezionare le questioni materiali per la tua organizzazione.
           </p>
         ) : (
           <>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-700 mb-4">
               Le seguenti questioni sono state identificate come materiali per la tua organizzazione:
             </p>
             
@@ -54,23 +54,23 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
                   key={issue.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start space-x-2 p-3 border rounded-lg bg-gray-50 dark:bg-gray-900"
+                  className="flex items-start space-x-2 p-3 border rounded-lg bg-white"
                 >
                   <Check className="h-5 w-5 text-green-500 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium">{issue.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{issue.description}</p>
+                    <p className="font-medium text-gray-900">{issue.name}</p>
+                    <p className="text-sm text-gray-700">{issue.description}</p>
                     
                     <div className="flex flex-wrap gap-4 mt-2">
-                      <p className="text-xs">
+                      <p className="text-xs text-gray-700">
                         <span className="font-medium">Rilevanza dell'impatto:</span> {issue.impactRelevance}%
                       </p>
-                      <p className="text-xs">
+                      <p className="text-xs text-gray-700">
                         <span className="font-medium">Rilevanza finanziaria:</span> {issue.financialRelevance}%
                       </p>
                       
                       {issue.stakeholderRelevance !== undefined && (
-                        <p className="text-xs flex items-center">
+                        <p className="text-xs flex items-center text-gray-700">
                           <UsersRound className="h-3 w-3 mr-1 text-blue-500" />
                           <span className="font-medium">Rilevanza stakeholder:</span> {Math.round(issue.stakeholderRelevance)}%
                         </p>

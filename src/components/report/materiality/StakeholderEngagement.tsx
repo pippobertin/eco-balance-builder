@@ -17,7 +17,7 @@ const StakeholderEngagement: React.FC<StakeholderEngagementProps> = ({
   onOpenSurveyDialog
 }) => {
   return (
-    <GlassmorphicCard className="bg-green-50 border-green-200">
+    <GlassmorphicCard className="border-green-200">
       <div className="flex items-center mb-4">
         <Send className="mr-2 h-5 w-5 text-green-600" />
         <h4 className="text-lg font-medium text-gray-900">Coinvolgimento degli Stakeholder</h4>
@@ -40,7 +40,7 @@ const StakeholderEngagement: React.FC<StakeholderEngagementProps> = ({
         
         <Button 
           onClick={onOpenSurveyDialog}
-          className="w-full bg-green-600 hover:bg-green-700"
+          className="w-full bg-green-600 hover:bg-green-700 text-white"
         >
           <Send className="mr-2 h-4 w-4" />
           Crea e invia sondaggio agli stakeholder
