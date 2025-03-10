@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -77,7 +76,7 @@ const Dashboard = () => {
         toast({
           title: "Nessun report",
           description: `Non esiste un report per l'anno ${selectedYear}`,
-          variant: "default"  // Changed from "warning" to "default" as it's a valid variant
+          variant: "default"
         });
       }
     };

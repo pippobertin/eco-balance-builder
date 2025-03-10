@@ -15,34 +15,17 @@ interface DashboardHeaderProps {
 const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName, availableYears = [] }: DashboardHeaderProps) => {
   // Get the available years, ensuring they're sorted with current year last
   const getYearsToDisplay = (): string[] => {
-    if (availableYears && availableYears.length > 0) {
-      // Convert reportYear to number for comparison
-      const currentReportYear = parseInt(reportYear);
-      
-      // Filter and sort years
-      const yearsList = availableYears
-        .map(year => parseInt(year))
-        .sort((a, b) => a - b); // Sort ascending
-      
-      const currentYearIndex = yearsList.indexOf(currentReportYear);
-      if (currentYearIndex !== -1) {
-        // Get up to two years before the current year
-        const previousYears = yearsList
-          .slice(Math.max(0, currentYearIndex - 2), currentYearIndex)
-          .map(year => year.toString());
-        
-        // Add the current report year at the end
-        return [...previousYears, reportYear];
-      }
-    }
-    
-    // Fallback: generate previous years based on report year
+    // Always base our calculation on the current report year
     const currentReportYear = parseInt(reportYear) || new Date().getFullYear();
-    return [
+    
+    // Always generate the two previous years regardless of what's available
+    const previousYears = [
       (currentReportYear - 2).toString(),
-      (currentReportYear - 1).toString(),
-      currentReportYear.toString()
+      (currentReportYear - 1).toString()
     ];
+    
+    // Return previous years followed by the current report year
+    return [...previousYears, currentReportYear.toString()];
   };
   
   const yearsToDisplay = getYearsToDisplay();
