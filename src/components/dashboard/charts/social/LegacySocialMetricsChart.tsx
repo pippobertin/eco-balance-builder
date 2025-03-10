@@ -2,6 +2,7 @@
 import React from 'react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
+import { Info } from 'lucide-react';
 
 // Define the chart type using the correct type
 type ChartType = 'area' | 'bar' | 'pie' | 'empty';
@@ -51,6 +52,36 @@ const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ rep
     ];
   }
   
+  // Custom tooltip formatter for legacy metrics
+  const legacyTooltipFormatter = (value: number, name: string) => {
+    let description = '';
+    switch(name) {
+      case 'Diversità di Genere':
+        description = 'Indice di diversità nella forza lavoro (scala 0-100)';
+        break;
+      case 'Soddisfazione Dipendenti':
+        description = 'Livello di soddisfazione dei dipendenti (scala 0-100)';
+        break;
+      case 'Ore di Formazione':
+        description = 'Ore medie di formazione per dipendente all\'anno';
+        break;
+      case 'Impegno Comunitario':
+        description = 'Indice di impegno nella comunità locale (scala 0-100)';
+        break;
+    }
+    
+    return (
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{value} {name === 'Ore di Formazione' ? 'ore' : 'punti'}</p>
+        <p className="text-xs text-gray-500">{description}</p>
+        <div className="flex items-center text-xs text-amber-600 gap-1 mt-1">
+          <Info size={12} />
+          <span>Metrica sociale</span>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <MetricChart
       title="Diversità del Personale"
@@ -63,6 +94,7 @@ const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ rep
       categories={['value']}
       colors={['#FF9500']}
       height={300}
+      tooltipFormatter={legacyTooltipFormatter}
     />
   );
 };

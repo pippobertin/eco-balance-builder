@@ -29,6 +29,7 @@ interface MetricChartProps {
   categories?: string[];
   colors?: string[];
   height?: number;
+  tooltipFormatter?: (value: number, name: string, entry: any) => React.ReactNode;
 }
 
 const MetricChart = ({
@@ -40,6 +41,7 @@ const MetricChart = ({
   categories = ['value'],
   colors = ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'],
   height = 300,
+  tooltipFormatter,
 }: MetricChartProps) => {
   const defaultColors = ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   const chartColors = colors.length > 0 ? colors : defaultColors;
@@ -60,6 +62,17 @@ const MetricChart = ({
   
   const renderTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      // Use custom tooltip formatter if provided
+      if (tooltipFormatter && payload[0]) {
+        return (
+          <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+            <p className="font-medium text-gray-900">{label}</p>
+            {tooltipFormatter(payload[0].value, payload[0].name, payload[0])}
+          </div>
+        );
+      }
+      
+      // Default tooltip
       return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
           <p className="font-medium text-gray-900">{label}</p>

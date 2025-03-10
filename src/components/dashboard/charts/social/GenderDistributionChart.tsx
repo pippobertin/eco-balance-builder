@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users } from 'lucide-react';
+import { Users, Info } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 // Define the chart type using the correct type
@@ -18,6 +18,7 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   otherGenderEmployees
 }) => {
   const hasData = maleEmployees > 0 || femaleEmployees > 0 || otherGenderEmployees > 0;
+  const totalEmployees = maleEmployees + femaleEmployees + otherGenderEmployees;
   
   // Format data for gender distribution
   let chartData = [];
@@ -36,6 +37,23 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   // Colors for the chart
   const colors = ['#4299E1', '#F56565', '#ECC94B'];
   
+  // Custom tooltip formatter
+  const genderTooltipFormatter = (value: number, name: string) => {
+    const percentage = ((value / totalEmployees) * 100).toFixed(1);
+    return (
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{value} {name}</p>
+        <p className="text-xs text-gray-500">
+          {percentage}% del totale dei dipendenti
+        </p>
+        <div className="flex items-center text-xs text-blue-600 gap-1 mt-1">
+          <Info size={12} />
+          <span>Rappresentazione di genere</span>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -51,6 +69,7 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
           categories={["value"]}
           colors={colors}
           height={200}
+          tooltipFormatter={genderTooltipFormatter}
         />
       </div>
     </div>

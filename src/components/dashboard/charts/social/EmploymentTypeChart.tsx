@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Info } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 // Define the chart type using the correct type
@@ -16,6 +16,7 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   temporaryEmployees
 }) => {
   const hasData = permanentEmployees > 0 || temporaryEmployees > 0;
+  const totalEmployees = permanentEmployees + temporaryEmployees;
   
   // Format data for employment type
   let chartData = [];
@@ -32,6 +33,29 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   // Colors for the chart
   const colors = ['#38A169', '#F56565'];
   
+  // Custom tooltip formatter
+  const employmentTooltipFormatter = (value: number, name: string) => {
+    const percentage = ((value / totalEmployees) * 100).toFixed(1);
+    const isIndeterminato = name === 'Indeterminato';
+    
+    return (
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{value} dipendenti a {name}</p>
+        <p className="text-xs text-gray-500">
+          {percentage}% del totale dei dipendenti
+        </p>
+        <div className="flex items-center text-xs text-green-600 gap-1 mt-1">
+          <Info size={12} />
+          <span>
+            {isIndeterminato 
+              ? 'Contratto a tempo indeterminato' 
+              : 'Contratto a tempo determinato'}
+          </span>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -47,6 +71,7 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
           categories={["value"]}
           colors={colors}
           height={200}
+          tooltipFormatter={employmentTooltipFormatter}
         />
       </div>
     </div>
