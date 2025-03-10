@@ -13,7 +13,7 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName, availableYears = [] }: DashboardHeaderProps) => {
-  // Get the available years, ensuring they're sorted from oldest to newest
+  // Get the available years, ensuring they're sorted from newest to oldest
   const getYearsToDisplay = (): string[] => {
     if (availableYears && availableYears.length > 0) {
       // Sort years in descending order

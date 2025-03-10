@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -10,22 +9,37 @@ import { useReport } from '@/context/ReportContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { ReportData, Report } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { reportData, currentReport, currentCompany, reports, loadReports } = useReport();
+  const { toast } = useToast();
+  const { reportData, currentReport, currentCompany, reports, loadReports, loadReport } = useReport();
   
   // State for selected year and historical report data
-  const [selectedYear, setSelectedYear] = React.useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const [historicalReportData, setHistoricalReportData] = useState<{[key: string]: ReportData}>({});
   const [displayData, setDisplayData] = useState<ReportData | null>(null);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   
   // Load reports for the current company when component mounts
   useEffect(() => {
-    if (currentCompany) {
-      loadReports(currentCompany.id);
-    }
+    const loadCompanyReports = async () => {
+      if (currentCompany) {
+        try {
+          await loadReports(currentCompany.id);
+        } catch (error) {
+          console.error("Error loading reports:", error);
+          toast({
+            title: "Errore",
+            description: "Impossibile caricare i report dell'azienda",
+            variant: "destructive"
+          });
+        }
+      }
+    };
+    
+    loadCompanyReports();
   }, [currentCompany]);
   
   // Update the selected year when the current report changes
@@ -35,62 +49,52 @@ const Dashboard = () => {
     }
   }, [currentReport]);
   
-  // Group reports by year for easy access
+  // When selected year changes, load the appropriate report data
   useEffect(() => {
-    const reportsByYear: {[key: string]: Report} = {};
-    const dataByYear: {[key: string]: ReportData} = {};
-    
-    // Initialize with current report data
-    if (currentReport) {
-      reportsByYear[currentReport.report_year] = currentReport;
-      dataByYear[currentReport.report_year] = reportData;
-    }
-    
-    // Add other reports from the same company
-    reports.forEach(report => {
-      if (report.id !== currentReport?.id) {
-        reportsByYear[report.report_year] = report;
-        
-        // Create basic report data structure for each year
-        dataByYear[report.report_year] = {
-          environmentalMetrics: report.environmental_metrics || {},
-          socialMetrics: report.social_metrics || {},
-          conductMetrics: report.conduct_metrics || {},
-          materialityAnalysis: report.materiality_analysis || { issues: [], stakeholders: [] },
-          narrativePATMetrics: report.narrative_pat_metrics || {}
-        };
-      }
-    });
-    
-    setHistoricalReportData(dataByYear);
-  }, [reports, currentReport, reportData]);
-  
-  // Update display data when selected year changes
-  useEffect(() => {
-    if (selectedYear) {
-      if (selectedYear === currentReport?.report_year) {
-        // If selected year is current report, use current report data
+    const handleYearChange = async () => {
+      if (!selectedYear || !currentCompany) return;
+      
+      // If selected year is current report, we already have the data
+      if (currentReport && selectedYear === currentReport.report_year) {
         setDisplayData(reportData);
         setSelectedReport(currentReport);
-      } else if (historicalReportData[selectedYear]) {
-        // If selected year exists in historical data, use that
-        setDisplayData(historicalReportData[selectedYear]);
-        
-        // Find the corresponding report
-        const report = reports.find(r => r.report_year === selectedYear);
-        setSelectedReport(report || null);
+        return;
+      }
+      
+      // Otherwise find the report for the selected year
+      const reportForYear = reports.find(r => r.report_year === selectedYear);
+      
+      if (reportForYear) {
+        // Load this report's data
+        await loadReport(reportForYear.id);
+        setSelectedReport(reportForYear);
+        // Note: reportData will be updated by loadReport via context
       } else {
-        // If no data available for selected year
+        // If no report exists for this year
         setDisplayData(null);
         setSelectedReport(null);
+        toast({
+          title: "Nessun report",
+          description: `Non esiste un report per l'anno ${selectedYear}`,
+          variant: "warning"
+        });
       }
-    }
-  }, [selectedYear, historicalReportData, reportData, currentReport, reports]);
+    };
+    
+    handleYearChange();
+  }, [selectedYear, reports, currentReport, currentCompany]);
   
-  // Log the report data to console for debugging
+  // Update display data when report data changes
+  useEffect(() => {
+    if (selectedReport && selectedReport.id === currentReport?.id) {
+      setDisplayData(reportData);
+    }
+  }, [reportData, selectedReport, currentReport]);
+  
+  // Debug logs
   console.log("Current report year:", currentReport?.report_year);
   console.log("Selected year:", selectedYear);
-  console.log("Available years:", Object.keys(historicalReportData));
+  console.log("Available reports:", reports.map(r => r.report_year));
   console.log("Display data for selected year:", displayData);
   
   const goToCompanies = () => {
@@ -114,7 +118,7 @@ const Dashboard = () => {
               setSelectedYear={setSelectedYear} 
               reportYear={currentReport?.report_year || ""} 
               companyName={currentCompany?.name}
-              availableYears={Object.keys(historicalReportData)}
+              availableYears={reports.map(r => r.report_year)}
             />
             
             <div className="flex gap-3">

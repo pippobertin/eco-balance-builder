@@ -144,7 +144,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Load reports for a company
-  const loadReports = async (companyId: string) => {
+  const loadReports = async (companyId: string): Promise<Report[]> => {
     setLoading(true);
     const data = await fetchReports(companyId);
     setReports(data);
@@ -192,11 +192,6 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       };
       
       setReportData(newReportData);
-      
-      // Also fetch all other reports for this company
-      if (report.company_id) {
-        await loadReports(report.company_id);
-      }
     }
     
     setLoading(false);

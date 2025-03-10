@@ -81,7 +81,7 @@ export interface ReportContextType {
   loadCompanies: () => Promise<void>;
   createCompany: (company: Omit<Company, 'id'>) => Promise<string | null>;
   createReport: (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => Promise<string | null>;
-  loadReports: (companyId: string) => Promise<void>;
+  loadReports: (companyId: string) => Promise<Report[]>;
   loadReport: (reportId: string) => Promise<void>;
   setCurrentCompany: (company: Company | null) => void;
   setCurrentReport: (report: Report | null) => void;
