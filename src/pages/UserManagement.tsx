@@ -36,34 +36,36 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Get all users from auth schema (only available to admins)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        throw authError;
-      }
-
-      // Get profile data
+      // Ottieni tutti i profili dalla tabella profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, role');
+        .select('*');
       
       if (profilesError) {
         throw profilesError;
       }
 
-      // Join the data
-      const combinedUsers = authUsers.users.map(user => {
-        const profile = profiles.find(p => p.id === user.id);
-        return {
-          id: user.id,
-          email: user.email || 'No email',
-          role: profile?.role || 'user',
-          created_at: user.created_at
-        };
-      });
+      // Per ottenere le email, dobbiamo fare una query separata perché non possiamo
+      // accedere direttamente alle informazioni degli utenti in auth.users
+      const usersWithEmail = await Promise.all(
+        profiles.map(async (profile) => {
+          // Per l'utente corrente, possiamo usare l'email dalla sessione
+          if (profile.id === supabase.auth.getSession().then(({data}) => data.session?.user.id)) {
+            const session = await supabase.auth.getSession();
+            return {
+              ...profile,
+              email: session.data.session?.user?.email || 'Email non disponibile'
+            };
+          }
+          // Per gli altri utenti, mostriamo solo l'ID
+          return {
+            ...profile,
+            email: `Utente ${profile.id.substring(0, 8)}...`
+          };
+        })
+      );
 
-      setUsers(combinedUsers);
+      setUsers(usersWithEmail);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -133,7 +135,7 @@ const UserManagement = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                    Utente
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Data Registrazione
@@ -153,7 +155,7 @@ const UserManagement = () => {
                       <div className="text-sm font-medium text-gray-900">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{formatDate(user.created_at)}</div>
+                      <div className="text-sm text-gray-500">{user.created_at ? formatDate(user.created_at) : 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
