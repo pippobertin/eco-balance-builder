@@ -20,15 +20,20 @@ const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyNam
       const currentReportYear = parseInt(reportYear);
       
       // Filter and sort years
-      const previousYears = availableYears
+      const yearsList = availableYears
         .map(year => parseInt(year))
-        .filter(year => year < currentReportYear)
-        .sort((a, b) => b - a)
-        .slice(0, 2)
-        .map(year => year.toString());
+        .sort((a, b) => a - b); // Sort ascending
       
-      // Add the current report year at the end
-      return [...previousYears, reportYear];
+      const currentYearIndex = yearsList.indexOf(currentReportYear);
+      if (currentYearIndex !== -1) {
+        // Get up to two years before the current year
+        const previousYears = yearsList
+          .slice(Math.max(0, currentYearIndex - 2), currentYearIndex)
+          .map(year => year.toString());
+        
+        // Add the current report year at the end
+        return [...previousYears, reportYear];
+      }
     }
     
     // Fallback: generate previous years based on report year
