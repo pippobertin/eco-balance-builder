@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -14,7 +13,9 @@ import {
   CalendarDays, 
   Briefcase, 
   ChevronRight, 
-  FileBarChart
+  FileBarChart,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useReport, Company, Report } from '@/context/ReportContext';
@@ -40,6 +41,7 @@ const Companies = () => {
     reports, 
     loadReports, 
     createReport,
+    deleteReport,
     setCurrentCompany,
     setCurrentReport,
     loadReport
@@ -60,6 +62,9 @@ const Companies = () => {
     report_type: 'A',
     is_consolidated: false
   });
+  
+  const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   useEffect(() => {
     loadCompanies();
@@ -120,40 +125,48 @@ const Companies = () => {
     });
     
     if (reportId) {
-      // Resettare i dati del form
       setNewReportData({
         report_year: new Date().getFullYear().toString(),
         report_type: 'A',
         is_consolidated: false
       });
       
-      // Vai alla pagina del report
       navigate('/report');
     }
   };
   
   const handleOpenReport = async (report: Report) => {
-    // Imposta l'azienda corrente
     const company = companies.find(c => c.id === report.company_id) || null;
     setCurrentCompany(company);
     
-    // Carica il report
     await loadReport(report.id);
     
-    // Vai alla pagina del report
     navigate('/report');
   };
   
   const handleViewDashboard = async (report: Report) => {
-    // Imposta l'azienda corrente
     const company = companies.find(c => c.id === report.company_id) || null;
     setCurrentCompany(company);
     
-    // Carica il report
     await loadReport(report.id);
     
-    // Vai alla dashboard
     navigate('/dashboard');
+  };
+  
+  const handleDeleteReport = async () => {
+    if (!reportToDelete) return;
+    
+    const success = await deleteReport(reportToDelete.id);
+    if (success) {
+      setReportToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+  
+  const openDeleteDialog = (report: Report, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setReportToDelete(report);
+    setIsDeleteDialogOpen(true);
   };
   
   return (
@@ -175,7 +188,6 @@ const Companies = () => {
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Pannello Aziende */}
             <div className="md:col-span-1">
               <GlassmorphicCard className="h-full">
                 <div className="flex items-center justify-between mb-4">
@@ -306,7 +318,6 @@ const Companies = () => {
               </GlassmorphicCard>
             </div>
             
-            {/* Pannello Report */}
             <div className="md:col-span-2">
               <GlassmorphicCard className="h-full">
                 <div className="flex items-center justify-between mb-4">
@@ -444,6 +455,14 @@ const Companies = () => {
                             >
                               Apri Report
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 border-red-200 hover:bg-red-50"
+                              onClick={(e) => openDeleteDialog(report, e)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                         
@@ -474,6 +493,41 @@ const Companies = () => {
           </div>
         </div>
       </main>
+      
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Conferma eliminazione
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="mb-2">Sei sicuro di voler eliminare questo report?</p>
+            {reportToDelete && (
+              <div className="p-3 bg-gray-50 rounded-md text-sm">
+                <div><span className="font-medium">Anno:</span> {reportToDelete.report_year}</div>
+                <div><span className="font-medium">Tipo:</span> Opzione {reportToDelete.report_type}</div>
+                <div><span className="font-medium">Rendicontazione:</span> {reportToDelete.is_consolidated ? "Consolidata" : "Individuale"}</div>
+              </div>
+            )}
+            <p className="mt-4 text-red-600 text-sm">Questa azione non può essere annullata. Tutti i dati associati a questo report saranno eliminati definitivamente.</p>
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Annulla
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteReport}
+            >
+              Elimina Report
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>

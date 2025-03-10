@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCompanyOperations } from './companyOperations';
 import { useReportOperations } from './reportOperations';
@@ -32,7 +31,8 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     createReport: createNewReport, 
     loadReport: fetchReport, 
     saveReportData, 
-    saveSubsidiaries: saveSubsidiariesData 
+    saveSubsidiaries: saveSubsidiariesData,
+    deleteReport: deleteReportData
   } = useReportOperations();
 
   // Load companies on initial render
@@ -254,6 +254,27 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setReportData(defaultReportData);
   };
 
+  // Delete report
+  const handleDeleteReport = async (reportId: string): Promise<boolean> => {
+    setLoading(true);
+    const success = await deleteReportData(reportId);
+    
+    if (success) {
+      // Remove the deleted report from the reports list
+      setReports(prev => prev.filter(r => r.id !== reportId));
+      
+      // If the deleted report was the current report, clear it
+      if (currentReport && currentReport.id === reportId) {
+        setCurrentReport(null);
+        resetReportData();
+        localStorageOperations.removeCurrentReportId();
+      }
+    }
+    
+    setLoading(false);
+    return success;
+  };
+
   // Prepare context value
   const contextValue: ReportContextType = {
     reportData,
@@ -268,6 +289,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     createReport: handleCreateReport,
     loadReports,
     loadReport,
+    deleteReport: handleDeleteReport,
     setCurrentCompany,
     setCurrentReport,
     saveSubsidiaries,
