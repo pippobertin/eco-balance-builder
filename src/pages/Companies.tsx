@@ -30,6 +30,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useAuth } from '@/context/AuthContext';
 
 const Companies = () => {
   const navigate = useNavigate();
@@ -44,7 +45,9 @@ const Companies = () => {
     deleteReport,
     setCurrentCompany,
     setCurrentReport,
-    loadReport
+    loadReport,
+    user,
+    isAdmin
   } = useReport();
   
   const [newCompany, setNewCompany] = useState<Omit<Company, 'id'>>({
@@ -183,7 +186,10 @@ const Companies = () => {
           >
             <h1 className="text-3xl font-bold mb-2">Gestione Aziende e Report</h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Gestisci le tue aziende e i report di sostenibilità
+              {isAdmin 
+                ? "Gestisci tutte le aziende e i report nel sistema"
+                : "Gestisci le tue aziende e i report di sostenibilità"
+              }
             </p>
           </motion.div>
           
@@ -289,7 +295,10 @@ const Companies = () => {
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                   {companies.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
-                      <p>Nessuna azienda presente.</p>
+                      <p>{isAdmin 
+                        ? "Nessuna azienda presente nel sistema."
+                        : "Non hai ancora creato nessuna azienda."
+                      }</p>
                       <p className="text-sm">Crea la tua prima azienda per iniziare.</p>
                     </div>
                   ) : (
@@ -302,15 +311,17 @@ const Companies = () => {
                         onClick={() => handleSelectCompany(company)}
                       >
                         <div className="flex items-center justify-between">
-                          <h3 className="font-medium">{company.name}</h3>
+                          <div>
+                            <h3 className="font-medium">{company.name}</h3>
+                            {company.vat_number && (
+                              <p className="text-sm text-gray-500">P.IVA: {company.vat_number}</p>
+                            )}
+                            {company.country && (
+                              <p className="text-sm text-gray-500">{company.country}</p>
+                            )}
+                          </div>
                           <ChevronRight className="h-5 w-5 text-gray-400" />
                         </div>
-                        {company.vat_number && (
-                          <p className="text-sm text-gray-500">P.IVA: {company.vat_number}</p>
-                        )}
-                        {company.country && (
-                          <p className="text-sm text-gray-500">{company.country}</p>
-                        )}
                       </div>
                     ))
                   )}

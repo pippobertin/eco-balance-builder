@@ -16,6 +16,7 @@ export type Database = {
           contact_phone: string | null
           country: string | null
           created_at: string
+          created_by: string | null
           id: string
           name: string
           updated_at: string
@@ -27,6 +28,7 @@ export type Database = {
           contact_phone?: string | null
           country?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           name: string
           updated_at?: string
@@ -38,6 +40,7 @@ export type Database = {
           contact_phone?: string | null
           country?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           name?: string
           updated_at?: string
@@ -156,7 +159,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

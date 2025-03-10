@@ -2,9 +2,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Company } from './types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export const useCompanyOperations = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Load companies from the database
   const loadCompanies = async (): Promise<Company[]> => {
@@ -33,9 +35,13 @@ export const useCompanyOperations = () => {
   // Create a new company
   const createCompany = async (company: Omit<Company, 'id'>): Promise<string | null> => {
     try {
+      if (!user) {
+        throw new Error('User must be logged in to create a company');
+      }
+
       const { data, error } = await supabase
         .from('companies')
-        .insert([company])
+        .insert([{ ...company, created_by: user.id }])
         .select('*')
         .single();
 
