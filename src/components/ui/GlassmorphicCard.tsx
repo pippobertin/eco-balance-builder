@@ -1,16 +1,14 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { motion, MotionProps } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
-interface GlassmorphicCardProps extends React.HTMLAttributes<HTMLDivElement>, MotionProps {
-  className?: string;
+interface GlassmorphicCardProps extends HTMLMotionProps<"div"> {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   hover?: boolean;
   glowColor?: string;
-  children: React.ReactNode;
 }
 
 const GlassmorphicCard = ({

@@ -5,17 +5,27 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { 
-  Button,
-  Card,
-  Input,
-  Textarea,
+  Button 
+} from '@/components/ui/button';
+import {
+  Card
+} from '@/components/ui/card';
+import {
+  Input
+} from '@/components/ui/input';
+import {
+  Textarea
+} from '@/components/ui/textarea';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Progress,
-} from '@/components/ui';
+} from '@/components/ui/select';
+import {
+  Progress
+} from '@/components/ui/progress';
 import { 
   Building, 
   Users, 

@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 // Framer-Motion animation variants
 
 export const fadeIn = {
