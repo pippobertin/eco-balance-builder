@@ -273,10 +273,10 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+          <div className="p-4 rounded-md mb-4 bg-gray-100">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-slate-600">
                 Il prelievo idrico si riferisce alla quantità di acqua prelevata da qualsiasi fonte. Il consumo idrico è calcolato come differenza tra il prelievo e lo scarico. Per determinare se l'impresa opera in un'area ad elevato stress idrico, consultare le autorità idriche regionali o strumenti come il WRI's Aqueduct Water Risk Atlas.
               </p>
             </div>
