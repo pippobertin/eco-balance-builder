@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { Check, Send } from 'lucide-react';
+import { Check, Send, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from 'framer-motion';
-import { Alert, AlertCircle, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
