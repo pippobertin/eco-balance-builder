@@ -8,31 +8,40 @@ interface SocialChartProps {
 }
 
 const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
-  // Create social data only with actually available values
+  // Create social data from actual values
   const socialData = [
     { 
       name: 'Diversità di Genere', 
-      value: reportData.socialMetrics.employeeDiversity || 0 
+      value: reportData.socialMetrics && reportData.socialMetrics.employeeDiversity > 0 
+        ? reportData.socialMetrics.employeeDiversity 
+        : 0 
     },
     { 
       name: 'Soddisfazione Dipendenti', 
-      value: reportData.socialMetrics.employeeSatisfaction || 0 
+      value: reportData.socialMetrics && reportData.socialMetrics.employeeSatisfaction > 0 
+        ? reportData.socialMetrics.employeeSatisfaction 
+        : 0 
     },
     { 
       name: 'Ore di Formazione', 
-      value: reportData.socialMetrics.trainingHours || 0 
+      value: reportData.socialMetrics && reportData.socialMetrics.trainingHours > 0 
+        ? reportData.socialMetrics.trainingHours 
+        : 0 
     },
     { 
       name: 'Impegno Comunitario', 
-      value: reportData.socialMetrics.communityEngagement || 0 
+      value: reportData.socialMetrics && reportData.socialMetrics.communityEngagement > 0 
+        ? reportData.socialMetrics.communityEngagement 
+        : 0
     }
   ];
   
-  // Check if there is data for this category
-  const hasSocialData = reportData.socialMetrics.employeeDiversity > 0 || 
-                        reportData.socialMetrics.employeeSatisfaction > 0 || 
-                        reportData.socialMetrics.trainingHours > 0 || 
-                        reportData.socialMetrics.communityEngagement > 0;
+  // Check if there is any social data to show
+  const hasSocialData = 
+    (reportData.socialMetrics && reportData.socialMetrics.employeeDiversity > 0) || 
+    (reportData.socialMetrics && reportData.socialMetrics.employeeSatisfaction > 0) || 
+    (reportData.socialMetrics && reportData.socialMetrics.trainingHours > 0) || 
+    (reportData.socialMetrics && reportData.socialMetrics.communityEngagement > 0);
   
   return (
     <MetricChart
@@ -40,7 +49,7 @@ const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
       description={hasSocialData ? 
         "Performance nelle dimensioni sociali" : 
         "Nessun dato sociale disponibile"}
-      type="bar"
+      type={hasSocialData ? "bar" : "empty"}
       data={socialData}
       dataKey="name"
       categories={['value']}

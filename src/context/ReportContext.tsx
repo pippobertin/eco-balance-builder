@@ -41,32 +41,10 @@ const defaultReportData: ReportData = {
   environmentalMetrics: {},
   socialMetrics: {},
   conductMetrics: {},
-  materialityAnalysis: {}
-};
-
-// Mock data for development - will be replaced by actual data
-const mockReportData: ReportData = {
-  environmentalMetrics: {
-    carbonEmissions: 70,
-    energyConsumption: 1250,
-    wasteGeneration: 48,
-    waterUsage: 3200,
-    renewableEnergy: 35,
-  },
-  socialMetrics: {
-    employeeDiversity: 65,
-    trainingHours: 89,
-    communityEngagement: 72,
-    employeeSatisfaction: 78,
-  },
-  conductMetrics: {
-    governanceCompliance: 95,
-    policyAdherence: 85,
-    riskManagement: 12,
-  },
   materialityAnalysis: {
-    esgScore: 82,
-  },
+    issues: [],
+    stakeholders: []
+  }
 };
 
 interface ReportContextType {
@@ -82,11 +60,11 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [reportData, setReportData] = useState<ReportData>(() => {
     try {
       const savedData = localStorage.getItem('sustainabilityReportData');
-      // For now, use mock data if nothing is saved
-      return savedData ? JSON.parse(savedData) : mockReportData;
+      // Use saved data or default empty data
+      return savedData ? JSON.parse(savedData) : defaultReportData;
     } catch (error) {
       console.error('Error loading report data from localStorage:', error);
-      return mockReportData;
+      return defaultReportData;
     }
   });
 

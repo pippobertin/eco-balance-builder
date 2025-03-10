@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
@@ -74,12 +75,12 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     }
   };
   return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
-      <div className="p-4 rounded-md mb-6 bg-sky-800">
+      <div className="p-4 rounded-md mb-6 bg-blue-600">
         <div className="flex items-start">
-          <Info className="mt-0.5 mr-2 h-5 w-5 text-blue-500" />
+          <Info className="mt-0.5 mr-2 h-5 w-5 text-white" />
           <div>
-            <p className="text-sm font-medium text-slate-50">{getOptionDescription()}</p>
-            <p className="text-sm mt-1 text-slate-50">
+            <p className="text-sm font-medium text-white">{getOptionDescription()}</p>
+            <p className="text-sm mt-1 text-white">
               Completa le sezioni seguenti in base all'opzione selezionata. Le metriche ambientali, sociali e di condotta sono obbligatorie per tutte le opzioni.
             </p>
           </div>
@@ -130,7 +131,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna indietro
         </Button>
-        <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-400">
+        <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-400 text-white">
           Salva report
           <CheckCircle2 className="ml-2 h-4 w-4" />
         </Button>

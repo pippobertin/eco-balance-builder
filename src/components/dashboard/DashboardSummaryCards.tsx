@@ -31,14 +31,23 @@ const itemAnimation = {
 };
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
-  // Only use real data, no fallbacks
-  const esgScore = reportData.materialityAnalysis.esgScore || 0;
+  // Check if we have real data, don't use defaults
+  const hasEsgScore = reportData.materialityAnalysis && reportData.materialityAnalysis.esgScore > 0;
+  
   const totalCarbon = 
-    (reportData.environmentalMetrics.totalScope1Emissions || 0) +
-    (reportData.environmentalMetrics.totalScope2Emissions || 0) +
-    (reportData.environmentalMetrics.totalScope3Emissions || 0);
-  const employeeDiversity = reportData.socialMetrics.employeeDiversity || 0;
-  const governanceCompliance = reportData.conductMetrics.governanceCompliance || 0;
+    (reportData.environmentalMetrics?.totalScope1Emissions || 0) +
+    (reportData.environmentalMetrics?.totalScope2Emissions || 0) +
+    (reportData.environmentalMetrics?.totalScope3Emissions || 0);
+  
+  // Check if we have diversity data
+  const hasDiversityData = reportData.socialMetrics && 
+                          reportData.socialMetrics.employeeDiversity !== undefined && 
+                          reportData.socialMetrics.employeeDiversity > 0;
+  
+  // Check if we have governance data
+  const hasGovernanceData = reportData.conductMetrics && 
+                           reportData.conductMetrics.governanceCompliance !== undefined && 
+                           reportData.conductMetrics.governanceCompliance > 0;
   
   return (
     <motion.div
@@ -50,10 +59,10 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Punteggio ESG"
-          value={esgScore}
+          value={hasEsgScore ? reportData.materialityAnalysis.esgScore : "N/D"}
           change={0}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
-          description={esgScore > 0 ? "Performance di sostenibilità complessiva" : "Nessun dato disponibile"}
+          description={hasEsgScore ? "Performance di sostenibilità complessiva" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
@@ -61,7 +70,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Emissioni di Carbonio"
-          value={totalCarbon > 0 ? `${totalCarbon} ton` : "0 ton"}
+          value={totalCarbon > 0 ? `${totalCarbon} ton` : "N/D"}
           change={0}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
           description={totalCarbon > 0 ? "Emissioni totali per il periodo" : "Nessun dato disponibile"}
@@ -72,10 +81,10 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Diversità del Personale"
-          value={employeeDiversity > 0 ? `${employeeDiversity}%` : "0%"}
+          value={hasDiversityData ? `${reportData.socialMetrics.employeeDiversity}%` : "N/D"}
           change={0}
           icon={<Users className="h-5 w-5 text-esg-blue" />}
-          description={employeeDiversity > 0 ? "Miglioramento dell'equilibrio di genere" : "Nessun dato disponibile"}
+          description={hasDiversityData ? "Miglioramento dell'equilibrio di genere" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
@@ -83,10 +92,10 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Conformità Governance"
-          value={governanceCompliance > 0 ? `${governanceCompliance}%` : "0%"}
+          value={hasGovernanceData ? `${reportData.conductMetrics.governanceCompliance}%` : "N/D"}
           change={0}
           icon={<Building2 className="h-5 w-5 text-esg-blue" />}
-          description={governanceCompliance > 0 ? "Aderenza alle politiche" : "Nessun dato disponibile"}
+          description={hasGovernanceData ? "Aderenza alle politiche" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
