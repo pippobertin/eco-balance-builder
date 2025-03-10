@@ -112,39 +112,104 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
   const [currentReport, setCurrentReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [needsSaving, setNeedsSaving] = useState(false);
 
   // Carica le aziende al caricamento del componente
   useEffect(() => {
     loadCompanies();
   }, []);
 
-  // Carica i dati del report dal localStorage al primo caricamento
+  // Recupera company e report correnti dal localStorage se disponibili
   useEffect(() => {
     try {
-      const savedData = localStorage.getItem('sustainabilityReportData');
-      // Use saved data or default empty data
-      if (savedData) {
-        setReportData(JSON.parse(savedData));
+      const savedCompanyId = localStorage.getItem('currentCompanyId');
+      const savedReportId = localStorage.getItem('currentReportId');
+      
+      if (savedCompanyId && savedReportId) {
+        // Al caricamento iniziale, recupera azienda e report correnti
+        const loadCurrentData = async () => {
+          // Carica l'azienda
+          const { data: companyData, error: companyError } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', savedCompanyId)
+            .single();
+          
+          if (companyError) {
+            console.error('Errore nel caricamento dell\'azienda corrente:', companyError);
+            return;
+          }
+
+          if (companyData) {
+            setCurrentCompany(companyData);
+            
+            // Carica il report
+            const { data: reportData, error: reportError } = await supabase
+              .from('reports')
+              .select('*')
+              .eq('id', savedReportId)
+              .single();
+            
+            if (reportError) {
+              console.error('Errore nel caricamento del report corrente:', reportError);
+              return;
+            }
+
+            if (reportData) {
+              setCurrentReport(reportData);
+              
+              // Carica i dati del report
+              const newReportData: ReportData = {
+                environmentalMetrics: reportData.environmental_metrics || {},
+                socialMetrics: reportData.social_metrics || {},
+                conductMetrics: reportData.conduct_metrics || {},
+                materialityAnalysis: reportData.materiality_analysis || { issues: [], stakeholders: [] },
+                narrativePATMetrics: reportData.narrative_pat_metrics || {}
+              };
+              
+              setReportData(newReportData);
+            }
+          }
+        };
+        
+        loadCurrentData();
       }
     } catch (error) {
-      console.error('Error loading report data from localStorage:', error);
+      console.error('Errore nel recupero dei dati dal localStorage:', error);
     }
   }, []);
 
-  // Salva i dati nel localStorage quando cambiano
+  // Salva gli ID di company e report correnti nel localStorage quando cambiano
   useEffect(() => {
-    try {
-      localStorage.setItem('sustainabilityReportData', JSON.stringify(reportData));
-      console.log("Dati salvati nel localStorage:", reportData);
-      
-      // Se abbiamo un report corrente, salvalo anche nel database
-      if (currentReport) {
-        saveCurrentReport();
-      }
-    } catch (error) {
-      console.error('Error saving report data to localStorage:', error);
+    if (currentCompany) {
+      localStorage.setItem('currentCompanyId', currentCompany.id);
+    }
+    
+    if (currentReport) {
+      localStorage.setItem('currentReportId', currentReport.id);
+    }
+  }, [currentCompany, currentReport]);
+
+  // Imposta il flag needsSaving quando i dati del report cambiano
+  useEffect(() => {
+    if (currentReport) {
+      setNeedsSaving(true);
     }
   }, [reportData]);
+
+  // Salvataggio automatico dei dati ogni 30 secondi se ci sono modifiche da salvare
+  useEffect(() => {
+    if (!needsSaving || !currentReport) return;
+    
+    const timer = setTimeout(async () => {
+      await saveCurrentReport();
+      setNeedsSaving(false);
+      setLastSaved(new Date());
+    }, 30000); // 30 secondi
+    
+    return () => clearTimeout(timer);
+  }, [needsSaving, reportData, currentReport]);
 
   // Carica le aziende dal database
   const loadCompanies = async () => {
@@ -387,6 +452,8 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (error) throw error;
       
       console.log("Report salvato nel database con successo");
+      setNeedsSaving(false);
+      setLastSaved(new Date());
     } catch (error: any) {
       console.error('Errore nel salvataggio del report:', error.message);
       // Non mostriamo notifiche qui per evitare spam durante i salvataggi automatici

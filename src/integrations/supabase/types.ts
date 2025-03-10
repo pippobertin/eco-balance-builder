@@ -9,7 +9,130 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          company_id: string
+          conduct_metrics: Json | null
+          created_at: string
+          environmental_metrics: Json | null
+          id: string
+          is_consolidated: boolean | null
+          materiality_analysis: Json | null
+          narrative_pat_metrics: Json | null
+          report_type: string
+          report_year: string
+          social_metrics: Json | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          conduct_metrics?: Json | null
+          created_at?: string
+          environmental_metrics?: Json | null
+          id?: string
+          is_consolidated?: boolean | null
+          materiality_analysis?: Json | null
+          narrative_pat_metrics?: Json | null
+          report_type: string
+          report_year: string
+          social_metrics?: Json | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          conduct_metrics?: Json | null
+          created_at?: string
+          environmental_metrics?: Json | null
+          id?: string
+          is_consolidated?: boolean | null
+          materiality_analysis?: Json | null
+          narrative_pat_metrics?: Json | null
+          report_type?: string
+          report_year?: string
+          social_metrics?: Json | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subsidiaries: {
+        Row: {
+          created_at: string
+          id: string
+          location: string
+          name: string
+          report_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          report_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subsidiaries_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
