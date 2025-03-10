@@ -6,16 +6,27 @@ import { useAuth } from '@/context/AuthContext';
 
 export const useCompanyOperations = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   // Load companies from the database - for admins, this loads all companies
-  // for regular users, this loads only their companies (handled by RLS)
+  // for regular users, this loads only their companies
   const loadCompanies = async (): Promise<Company[]> => {
     try {
-      const { data, error } = await supabase
+      if (!user) {
+        return [];
+      }
+
+      let query = supabase
         .from('companies')
         .select('*')
         .order('name');
+      
+      // If not admin, only load companies created by the current user
+      if (!isAdmin) {
+        query = query.eq('created_by', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;
@@ -70,11 +81,14 @@ export const useCompanyOperations = () => {
   // Load a specific company by ID
   const loadCompanyById = async (companyId: string): Promise<Company | null> => {
     try {
-      const { data, error } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('id', companyId)
-        .single();
+      // For admins, load any company, for regular users, ensure they can only load their own companies
+      let query = supabase.from('companies').select('*').eq('id', companyId);
+      
+      if (!isAdmin && user) {
+        query = query.eq('created_by', user.id);
+      }
+      
+      const { data, error } = await query.single();
       
       if (error) {
         console.error('Error loading company by ID:', error);
