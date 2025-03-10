@@ -33,7 +33,7 @@ const GlassmorphicCard = ({
       <Card className="backdrop-blur-xl bg-white/70 dark:bg-black/70 border border-white/20 dark:border-white/10">
         {header && <CardHeader>{header}</CardHeader>}
         <CardContent>
-          {children}
+          {children as React.ReactNode}
         </CardContent>
         {footer && <CardFooter>{footer}</CardFooter>}
       </Card>
