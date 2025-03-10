@@ -9,6 +9,7 @@ export interface Company {
   address?: string;
   contact_email?: string;
   contact_phone?: string;
+  created_by?: string;
 }
 
 export interface Report {

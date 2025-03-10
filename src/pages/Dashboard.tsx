@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -19,21 +18,18 @@ const Dashboard = () => {
   const { user, isAdmin } = useAuth();
   const { reportData, currentReport, currentCompany, reports, loadReports, loadReport } = useReport();
   
-  // State for selected year and historical report data
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [historicalReportData, setHistoricalReportData] = useState<{[key: string]: ReportData}>({});
   const [displayData, setDisplayData] = useState<ReportData | null>(null);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [accessError, setAccessError] = useState<boolean>(false);
   
-  // Load reports for the current company when component mounts
   useEffect(() => {
     const loadCompanyReports = async () => {
       if (currentCompany) {
         try {
           const loadedReports = await loadReports(currentCompany.id);
           if (loadedReports.length === 0) {
-            // Check if this is due to permissions
             setAccessError(true);
           } else {
             setAccessError(false);
@@ -54,34 +50,29 @@ const Dashboard = () => {
     loadCompanyReports();
   }, [currentCompany]);
   
-  // Update the selected year when the current report changes
   useEffect(() => {
     if (currentReport && currentReport.report_year) {
       setSelectedYear(currentReport.report_year);
     }
   }, [currentReport]);
   
-  // When selected year changes, load the appropriate report data
   useEffect(() => {
     const handleYearChange = async () => {
       if (!selectedYear || !currentCompany) return;
       
-      // If selected year is current report, we already have the data
       if (currentReport && selectedYear === currentReport.report_year) {
         setDisplayData(reportData);
         setSelectedReport(currentReport);
         return;
       }
       
-      // Otherwise find the report for the selected year
       const reportForYear = reports.find(r => r.report_year === selectedYear);
       
       if (reportForYear) {
         try {
-          // Load this report's data
-          const result = await loadReport(reportForYear.id);
-          if (result.report) {
-            setSelectedReport(result.report);
+          const loadedReportData = await loadReport(reportForYear.id);
+          if (loadedReportData.report) {
+            setSelectedReport(loadedReportData.report);
             setAccessError(false);
           } else {
             setSelectedReport(null);
@@ -95,7 +86,6 @@ const Dashboard = () => {
           setDisplayData(null);
         }
       } else {
-        // If no report exists for this year
         setDisplayData(null);
         setSelectedReport(null);
         toast({
@@ -109,14 +99,12 @@ const Dashboard = () => {
     handleYearChange();
   }, [selectedYear, reports, currentReport, currentCompany]);
   
-  // Update display data when report data changes
   useEffect(() => {
     if (selectedReport && selectedReport.id === currentReport?.id) {
       setDisplayData(reportData);
     }
   }, [reportData, selectedReport, currentReport]);
   
-  // Debug logs
   console.log("Current report year:", currentReport?.report_year);
   console.log("Selected year:", selectedYear);
   console.log("Available reports:", reports.map(r => r.report_year));
@@ -137,7 +125,6 @@ const Dashboard = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-6">
-          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <DashboardHeader 
               selectedYear={selectedYear} 
@@ -197,7 +184,6 @@ const Dashboard = () => {
           
           {currentCompany && !accessError && displayData && (
             <>
-              {/* Company Info */}
               <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <h3 className="text-lg font-medium text-blue-900">
                   {currentCompany.name}
@@ -211,10 +197,8 @@ const Dashboard = () => {
                 )}
               </div>
               
-              {/* Summary Cards */}
               <DashboardSummaryCards reportData={displayData} />
               
-              {/* ESG Breakdown */}
               <DashboardCharts reportData={displayData} companyName={currentCompany.name} />
             </>
           )}

@@ -27,7 +27,7 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
         try {
           const loadedReports = await loadReports(currentCompany.id);
           // If user can't access reports for this company
-          if (loadedReports.length === 0 && !isAdmin && user) {
+          if (loadedReports.length === 0 && !isAdmin && user && currentCompany.created_by) {
             const isOwnCompany = currentCompany.created_by === user.id;
             if (!isOwnCompany) {
               setAccessError(true);
