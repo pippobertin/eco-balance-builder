@@ -66,6 +66,20 @@ export interface ReportData {
     temporaryEmployees?: number;
     avgTrainingHoursMale?: number;
     avgTrainingHoursFemale?: number;
+    employeesByCountry?: string;
+    workAccidentsNumber?: number;
+    totalHoursWorked?: number;
+    workAccidentsRate?: number;
+    workAccidentDeaths?: number;
+    workDiseaseDeaths?: number;
+    entryWage?: number;
+    localMinimumWage?: number;
+    entryWageToMinimumWageRatio?: number;
+    genderPayGap?: number;
+    collectiveBargainingCoverage?: number;
+    totalEmployeesFTE?: number;
+    supplyChainImpactProcess?: string;
+    identifiedImpacts?: string;
   };
   conductMetrics: {
     governanceCompliance?: number;
