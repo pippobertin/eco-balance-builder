@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
@@ -5,6 +6,9 @@ import { ReportData } from '@/context/types';
 interface SocialChartProps {
   reportData: ReportData;
 }
+
+// Define ChartType to match the one in MetricChart
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
   // Check if we have gender data
@@ -18,7 +22,7 @@ const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
   
   // Format data for display
   let chartData = [];
-  let chartType = "empty";
+  let chartType: ChartType = "empty";
   
   if (hasGenderData) {
     // If we have gender data, create a pie chart
