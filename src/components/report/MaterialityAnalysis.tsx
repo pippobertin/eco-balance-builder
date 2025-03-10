@@ -156,6 +156,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
           onIssueChange={handleIssueChange}
           onAddCustomIssue={addCustomIssue}
           onRemoveIssue={removeIssue}
+          surveyProgress={surveyProgress}
         />
       )}
       

@@ -13,13 +13,19 @@ interface MaterialityIssuesTabProps {
   onIssueChange: (id: string, field: keyof MaterialityIssue, value: any) => void;
   onAddCustomIssue: (name: string, description: string) => void;
   onRemoveIssue: (id: string) => void;
+  surveyProgress?: {
+    sent: number;
+    completed: number;
+    total: number;
+  };
 }
 
 const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   issues,
   onIssueChange,
   onAddCustomIssue,
-  onRemoveIssue
+  onRemoveIssue,
+  surveyProgress = { sent: 0, completed: 0, total: 0 }
 }) => {
   return (
     <>
@@ -62,7 +68,10 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         </div>
       </GlassmorphicCard>
       
-      <MaterialityReport materialIssues={issues.filter(issue => issue.isMaterial)} />
+      <MaterialityReport 
+        materialIssues={issues.filter(issue => issue.isMaterial)}
+        surveyProgress={surveyProgress}
+      />
     </>
   );
 };

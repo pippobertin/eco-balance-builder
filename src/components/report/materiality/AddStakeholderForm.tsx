@@ -16,13 +16,26 @@ import {
 import { Stakeholder } from './types';
 
 interface AddStakeholderFormProps {
-  stakeholderCategories: string[];
+  stakeholderCategories?: string[];
   onAddStakeholder: (stakeholder: Omit<Stakeholder, 'id' | 'priority' | 'surveyStatus'>) => void;
+  onCancel?: () => void;
 }
 
 const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({ 
-  stakeholderCategories,
-  onAddStakeholder 
+  stakeholderCategories = [
+    "Dipendenti",
+    "Clienti",
+    "Fornitori",
+    "Investitori",
+    "Comunità locali",
+    "ONG",
+    "Istituzioni",
+    "Media",
+    "Partner commerciali",
+    "Altro"
+  ],
+  onAddStakeholder,
+  onCancel
 }) => {
   const [newStakeholder, setNewStakeholder] = useState<Omit<Stakeholder, 'id' | 'priority' | 'surveyStatus'>>({
     name: '',
@@ -46,6 +59,9 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
         email: '',
         notes: '',
       });
+      if (onCancel) {
+        onCancel();
+      }
     }
   };
 
@@ -160,14 +176,23 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
           </div>
         </div>
         
-        <Button 
-          onClick={handleAddStakeholder}
-          className="w-full"
-          disabled={!newStakeholder.name.trim() || !newStakeholder.category || !newStakeholder.email.trim()}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Aggiungi stakeholder
-        </Button>
+        <div className="flex justify-between space-x-4">
+          <Button 
+            variant="outline" 
+            onClick={onCancel}
+            className="flex-1"
+          >
+            Annulla
+          </Button>
+          <Button 
+            onClick={handleAddStakeholder}
+            className="flex-1"
+            disabled={!newStakeholder.name.trim() || !newStakeholder.category || !newStakeholder.email.trim()}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Aggiungi stakeholder
+          </Button>
+        </div>
       </div>
     </GlassmorphicCard>
   );
