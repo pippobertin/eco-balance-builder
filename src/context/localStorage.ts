@@ -1,6 +1,4 @@
 
-import { Company, Report } from './types';
-
 // Local storage keys
 const CURRENT_COMPANY_ID = 'currentCompanyId';
 const CURRENT_REPORT_ID = 'currentReportId';
@@ -32,5 +30,15 @@ export const localStorageOperations = {
   // Get current report ID from localStorage
   getCurrentReportId: (): string | null => {
     return localStorage.getItem(CURRENT_REPORT_ID);
+  },
+
+  // Remove current company ID from localStorage
+  removeCurrentCompanyId: () => {
+    localStorage.removeItem(CURRENT_COMPANY_ID);
+  },
+
+  // Remove current report ID from localStorage
+  removeCurrentReportId: () => {
+    localStorage.removeItem(CURRENT_REPORT_ID);
   }
 };

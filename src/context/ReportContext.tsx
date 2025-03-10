@@ -254,7 +254,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setReportData(defaultReportData);
   };
 
-  // Delete report
+  // Handle delete report
   const handleDeleteReport = async (reportId: string): Promise<boolean> => {
     setLoading(true);
     const success = await deleteReportData(reportId);
@@ -267,7 +267,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (currentReport && currentReport.id === reportId) {
         setCurrentReport(null);
         resetReportData();
-        localStorageOperations.removeCurrentReportId();
+        localStorageOperations.saveCurrentReportId(null);
       }
     }
     

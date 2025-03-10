@@ -1,5 +1,3 @@
-import { type } from '@/lib/utils';
-
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
