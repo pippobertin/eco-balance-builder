@@ -31,7 +31,7 @@ const Dashboard = () => {
     // Social data check
     (reportData.socialMetrics && (
       (typeof reportData.socialMetrics.employeeDiversity === 'number' && reportData.socialMetrics.employeeDiversity > 0) ||
-      (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > a) ||
+      (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > 0) ||
       (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0) ||
       (typeof reportData.socialMetrics.employeeSatisfaction === 'number' && reportData.socialMetrics.employeeSatisfaction > 0)
     )) ||
