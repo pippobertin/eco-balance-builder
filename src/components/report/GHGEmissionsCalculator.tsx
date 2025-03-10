@@ -14,7 +14,7 @@ import {
   Bolt,
   Truck,
   Package,
-  Water,
+  Droplet, // Changed Water to Droplet as it doesn't exist in lucide-react
   Trash,
   Info,
   Plus,
@@ -53,7 +53,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   };
   
   // Funzione per gestire i cambiamenti nei dati Scope 1
-  const handleScope1Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, category?: string, subCategory?: string, index?: number) => {
+  const handleScope1Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, category?: string, index?: number) => {
     const { name, value } = e.target;
     
     if (category && index !== undefined) {
@@ -472,7 +472,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`fuel-type-${index}`} className="text-xs">Tipo</Label>
                       <Select 
                         value={fuel.type || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'fuels', undefined, index)}
+                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'fuels', index)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Tipo" />
@@ -496,7 +496,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         type="number"
                         placeholder="0.0"
                         value={fuel.quantity || ""}
-                        onChange={(e) => handleScope1Change(e, 'fuels', undefined, index)}
+                        onChange={(e) => handleScope1Change(e, 'fuels', index)}
                       />
                     </div>
                     
@@ -504,7 +504,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`fuel-unit-${index}`} className="text-xs">Unità</Label>
                       <Select 
                         value={fuel.unit || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'unit', value } } as any, 'fuels', undefined, index)}
+                        onValueChange={(value) => handleScope1Change({ target: { name: 'unit', value } } as any, 'fuels', index)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Unità" />
@@ -526,7 +526,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         name="emissionFactor"
                         placeholder="0.0"
                         value={fuel.emissionFactor || ""}
-                        onChange={(e) => handleScope1Change(e, 'fuels', undefined, index)}
+                        onChange={(e) => handleScope1Change(e, 'fuels', index)}
                       />
                     </div>
                   </div>
@@ -538,7 +538,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       name="gwp"
                       placeholder="Es. 1 per CO2, 28 per CH4, 265 per N2O"
                       value={fuel.gwp || ""}
-                      onChange={(e) => handleScope1Change(e, 'fuels', undefined, index)}
+                      onChange={(e) => handleScope1Change(e, 'fuels', index)}
                     />
                   </div>
                 </div>
@@ -605,7 +605,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`vehicle-type-${index}`} className="text-xs">Categoria</Label>
                       <Select 
                         value={vehicle.type || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'vehicles', undefined, index)}
+                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'vehicles', index)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Categoria" />
@@ -628,7 +628,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         type="number"
                         placeholder="0"
                         value={vehicle.kilometers || ""}
-                        onChange={(e) => handleScope1Change(e, 'vehicles', undefined, index)}
+                        onChange={(e) => handleScope1Change(e, 'vehicles', index)}
                       />
                     </div>
                     
@@ -636,7 +636,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`vehicle-fuelType-${index}`} className="text-xs">Carburante</Label>
                       <Select 
                         value={vehicle.fuelType || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'fuelType', value } } as any, 'vehicles', undefined, index)}
+                        onValueChange={(value) => handleScope1Change({ target: { name: 'fuelType', value } } as any, 'vehicles', index)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Carburante" />
@@ -659,7 +659,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         type="number"
                         placeholder="0.0"
                         value={vehicle.fuelConsumption || ""}
-                        onChange={(e) => handleScope1Change(e, 'vehicles', undefined, index)}
+                        onChange={(e) => handleScope1Change(e, 'vehicles', index)}
                       />
                     </div>
                   </div>
@@ -873,7 +873,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
             </div>
 
             <h4 className="font-medium text-lg flex items-center">
-              <Water className="mr-2 h-4 w-4" />
+              <Droplet className="mr-2 h-4 w-4" />
               Consumi di Acqua
             </h4>
             
@@ -989,7 +989,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`trip-type-${index}`} className="text-xs">Tipo trasporto</Label>
                       <Select 
                         value={trip.type || ""}
-                        onValueChange={(value) => handleScope3Change({ target: { name: 'type', value } } as any, 'businessTrips', undefined, index)}
+                        onValueChange={(value) => handleScope3Change({ target: { name: 'type', value } } as any, 'businessTrips')}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Tipo" />
@@ -1013,7 +1013,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         type="number"
                         placeholder="0"
                         value={trip.distance || ""}
-                        onChange={(e) => handleScope3Change(e, 'businessTrips', undefined, index)}
+                        onChange={(e) => handleScope3Change(e, 'businessTrips')}
                       />
                     </div>
                     
@@ -1021,7 +1021,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                       <Label htmlFor={`trip-unit-${index}`} className="text-xs">Unità</Label>
                       <Select 
                         value={trip.unit || ""}
-                        onValueChange={(value) => handleScope3Change({ target: { name: 'unit', value } } as any, 'businessTrips', undefined, index)}
+                        onValueChange={(value) => handleScope3Change({ target: { name: 'unit', value } } as any, 'businessTrips')}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Unità" />
@@ -1040,7 +1040,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                         name="emissionFactor"
                         placeholder="0.0"
                         value={trip.emissionFactor || ""}
-                        onChange={(e) => handleScope3Change(e, 'businessTrips', undefined, index)}
+                        onChange={(e) => handleScope3Change(e, 'businessTrips')}
                       />
                     </div>
                   </div>
