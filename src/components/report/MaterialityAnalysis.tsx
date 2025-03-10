@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Check, PlusCircle, Trash2, Target, FileText, Users, Send } from 'lucide-react';
+import { Check, PlusCircle, Trash2, Target, FileText, Users, Send, Mail, AlertCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { motion } from 'framer-motion';
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 
 interface MaterialityAnalysisProps {
   formValues: any;
@@ -38,8 +53,17 @@ interface Stakeholder {
   influence: number;
   interest: number;
   contactInfo: string;
+  email: string;
   notes: string;
   priority: string;
+  surveyStatus?: 'pending' | 'sent' | 'completed';
+}
+
+interface SurveyTemplate {
+  title: string;
+  description: string;
+  issues: MaterialityIssue[];
+  additionalComments: boolean;
 }
 
 const stakeholderCategories = [
@@ -73,6 +97,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   formValues, 
   setFormValues 
 }) => {
+  const { toast } = useToast();
   const [issues, setIssues] = useState<MaterialityIssue[]>(
     formValues.materialityAnalysis?.issues || 
     predefinedIssues.map(issue => ({
@@ -95,11 +120,22 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     influence: 50,
     interest: 50,
     contactInfo: '',
+    email: '',
     notes: '',
     priority: 'Media'
   });
   
   const [activeTab, setActiveTab] = useState('issues');
+  const [surveyTemplate, setSurveyTemplate] = useState<SurveyTemplate>({
+    title: 'Analisi di Materialità - Valutazione degli Stakeholder',
+    description: 'Vi chiediamo di valutare l\'importanza delle seguenti questioni di sostenibilità per la nostra organizzazione',
+    issues: [],
+    additionalComments: true
+  });
+  const [surveyDialogOpen, setSurveyDialogOpen] = useState(false);
+  const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
+  const [surveyPreviewMode, setSurveyPreviewMode] = useState(false);
+  const [showSurveySuccess, setShowSurveySuccess] = useState(false);
 
   // Update formValues whenever issues change
   React.useEffect(() => {
@@ -122,6 +158,14 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
       }
     }));
   }, [stakeholders, setFormValues]);
+
+  // Update survey template issues whenever material issues change
+  React.useEffect(() => {
+    setSurveyTemplate(prev => ({
+      ...prev,
+      issues: issues.filter(issue => issue.isMaterial)
+    }));
+  }, [issues]);
 
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     setIssues(prevIssues => 
@@ -154,7 +198,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   };
   
   const addStakeholder = () => {
-    if (newStakeholder.name.trim() && newStakeholder.category) {
+    if (newStakeholder.name.trim() && newStakeholder.category && newStakeholder.email.trim()) {
       const id = `stakeholder-${Date.now()}`;
       const priority = calculatePriority(newStakeholder.influence, newStakeholder.interest);
       
@@ -163,7 +207,8 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
         {
           ...newStakeholder,
           id,
-          priority
+          priority,
+          surveyStatus: 'pending'
         }
       ]);
       
@@ -174,8 +219,20 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
         influence: 50,
         interest: 50,
         contactInfo: '',
+        email: '',
         notes: '',
         priority: 'Media'
+      });
+
+      toast({
+        title: "Stakeholder aggiunto",
+        description: `${newStakeholder.name} è stato aggiunto alla mappatura degli stakeholder.`
+      });
+    } else {
+      toast({
+        title: "Dati incompleti",
+        description: "Il nome, la categoria e l'email dello stakeholder sono campi obbligatori.",
+        variant: "destructive"
       });
     }
   };
@@ -212,11 +269,89 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     return 'Media';
   };
   
-  const createStakeholderSurvey = () => {
-    // Logic to create and send surveys to stakeholders based on material issues
-    // This would typically involve generating a survey link or email template
-    console.log("Creating stakeholder surveys for material issues:", issues.filter(i => i.isMaterial));
-    console.log("Target stakeholders:", stakeholders);
+  const openSurveyDialog = () => {
+    const materialIssues = issues.filter(i => i.isMaterial);
+    
+    if (materialIssues.length === 0) {
+      toast({
+        title: "Nessuna questione materiale",
+        description: "Devi identificare almeno una questione materiale prima di creare un sondaggio.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (stakeholders.length === 0) {
+      toast({
+        title: "Nessuno stakeholder",
+        description: "Devi aggiungere almeno uno stakeholder prima di creare un sondaggio.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setSurveyDialogOpen(true);
+    setSelectedStakeholders([]);
+    setSurveyPreviewMode(false);
+  };
+  
+  const handleStakeholderSelection = (id: string) => {
+    setSelectedStakeholders(prev => 
+      prev.includes(id) 
+        ? prev.filter(s => s !== id) 
+        : [...prev, id]
+    );
+  };
+  
+  const toggleSelectAllStakeholders = () => {
+    if (selectedStakeholders.length === stakeholders.length) {
+      setSelectedStakeholders([]);
+    } else {
+      setSelectedStakeholders(stakeholders.map(s => s.id));
+    }
+  };
+  
+  const sendSurveys = () => {
+    if (selectedStakeholders.length === 0) {
+      toast({
+        title: "Nessuno stakeholder selezionato",
+        description: "Seleziona almeno uno stakeholder a cui inviare il sondaggio.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Update stakeholder survey status
+    const updatedStakeholders = stakeholders.map(stakeholder => {
+      if (selectedStakeholders.includes(stakeholder.id)) {
+        return { ...stakeholder, surveyStatus: 'sent' as const };
+      }
+      return stakeholder;
+    });
+    
+    setStakeholders(updatedStakeholders);
+    
+    // In a real application, here you would make an API call to send emails
+    console.log("Sending survey to stakeholders:", selectedStakeholders);
+    console.log("Survey template:", surveyTemplate);
+    
+    // Show success message
+    setShowSurveySuccess(true);
+    
+    // Close dialog after a delay
+    setTimeout(() => {
+      setSurveyDialogOpen(false);
+      setShowSurveySuccess(false);
+      
+      toast({
+        title: "Sondaggi inviati",
+        description: `I sondaggi sono stati inviati a ${selectedStakeholders.length} stakeholder.`
+      });
+    }, 3000);
+  };
+  
+  const toggleSurveyPreviewMode = () => {
+    setSurveyPreviewMode(!surveyPreviewMode);
   };
 
   const determineQuadrant = (impactRelevance: number, financialRelevance: number) => {
@@ -234,6 +369,22 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
       case 'Media': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'Bassa': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+  
+  const getSurveyStatusColor = (status?: string): string => {
+    switch (status) {
+      case 'sent': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+  
+  const getSurveyStatusText = (status?: string): string => {
+    switch (status) {
+      case 'sent': return 'Inviato';
+      case 'completed': return 'Completato';
+      default: return 'In attesa';
     }
   };
 
@@ -473,13 +624,22 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                     <div key={stakeholder.id} className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 flex-wrap gap-2">
                             <h4 className="font-medium">{stakeholder.name}</h4>
                             <span className={`text-xs px-2 py-1 rounded-full ${getStakeholderPriorityColor(stakeholder.priority)}`}>
                               Priorità: {stakeholder.priority}
                             </span>
+                            {stakeholder.surveyStatus && (
+                              <span className={`text-xs px-2 py-1 rounded-full ${getSurveyStatusColor(stakeholder.surveyStatus)}`}>
+                                Sondaggio: {getSurveyStatusText(stakeholder.surveyStatus)}
+                              </span>
+                            )}
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Categoria: {stakeholder.category}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Categoria: {stakeholder.category}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <Mail className="inline-block h-4 w-4 mr-1" /> 
+                            {stakeholder.email}
+                          </p>
                         </div>
                         <Button 
                           variant="ghost" 
@@ -527,7 +687,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                           <Input
                             value={stakeholder.contactInfo}
                             onChange={(e) => handleStakeholderChange(stakeholder.id, 'contactInfo', e.target.value)}
-                            placeholder="Email, telefono, ecc."
+                            placeholder="Telefono, indirizzo, ecc."
                           />
                         </div>
                         
@@ -591,6 +751,24 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                     </div>
                   </div>
                   
+                  <div>
+                    <Label htmlFor="stakeholderEmail" className="flex items-center">
+                      Email <span className="text-red-500 ml-1">*</span>
+                    </Label>
+                    <Input
+                      id="stakeholderEmail"
+                      type="email"
+                      value={newStakeholder.email}
+                      onChange={(e) => setNewStakeholder({...newStakeholder, email: e.target.value})}
+                      placeholder="email@esempio.com"
+                      required
+                      className="border-red-200 focus-visible:ring-red-300"
+                    />
+                    <p className="text-xs text-red-500 mt-1">
+                      Campo obbligatorio per l'invio dei sondaggi di materialità
+                    </p>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label>Livello di influenza: {newStakeholder.influence}%</Label>
@@ -625,12 +803,12 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="stakeholderContact">Informazioni di contatto</Label>
+                      <Label htmlFor="stakeholderContact">Altre informazioni di contatto</Label>
                       <Input
                         id="stakeholderContact"
                         value={newStakeholder.contactInfo}
                         onChange={(e) => setNewStakeholder({...newStakeholder, contactInfo: e.target.value})}
-                        placeholder="Email, telefono, ecc."
+                        placeholder="Telefono, indirizzo, ecc."
                       />
                     </div>
                     
@@ -648,7 +826,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                   <Button 
                     onClick={addStakeholder}
                     className="w-full"
-                    disabled={!newStakeholder.name.trim() || !newStakeholder.category}
+                    disabled={!newStakeholder.name.trim() || !newStakeholder.category || !newStakeholder.email.trim()}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Aggiungi stakeholder
@@ -679,11 +857,11 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
                     </div>
                     
                     <Button 
-                      onClick={createStakeholderSurvey}
+                      onClick={openSurveyDialog}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
                       <Send className="mr-2 h-4 w-4" />
-                      Crea sondaggio per stakeholder
+                      Crea e invia sondaggio agli stakeholder
                     </Button>
                     
                     <p className="text-xs text-gray-500 text-center">
@@ -697,6 +875,281 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
           </GlassmorphicCard>
         </>
       )}
+
+      {/* Survey Dialog */}
+      <Dialog open={surveyDialogOpen} onOpenChange={setSurveyDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {surveyPreviewMode 
+                ? "Anteprima del sondaggio di materialità" 
+                : "Crea e invia sondaggio agli stakeholder"}
+            </DialogTitle>
+            <DialogDescription>
+              {surveyPreviewMode 
+                ? "Questa è un'anteprima di come apparirà il sondaggio agli stakeholder."
+                : "Seleziona gli stakeholder a cui inviare il sondaggio di materialità."
+              }
+            </DialogDescription>
+          </DialogHeader>
+
+          {showSurveySuccess ? (
+            <div className="py-6 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="bg-green-100 dark:bg-green-900/30 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4"
+              >
+                <Check className="h-10 w-10 text-green-600 dark:text-green-400" />
+              </motion.div>
+              <h3 className="text-xl font-medium mb-2">Sondaggi inviati con successo!</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                I sondaggi sono stati inviati a {selectedStakeholders.length} stakeholder selezionati.
+              </p>
+            </div>
+          ) : surveyPreviewMode ? (
+            <div className="space-y-6 py-4">
+              <div className="border rounded-md p-6 bg-white dark:bg-gray-800">
+                <h3 className="text-xl font-bold mb-4">{surveyTemplate.title}</h3>
+                <p className="mb-6">{surveyTemplate.description}</p>
+                
+                <div className="space-y-8">
+                  {surveyTemplate.issues.map((issue) => (
+                    <div key={issue.id} className="space-y-3">
+                      <h4 className="font-medium">{issue.name}</h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{issue.description}</p>
+                      
+                      <div className="pt-2">
+                        <Label className="mb-2 block">
+                          Quanto ritieni rilevante questa questione per la nostra organizzazione?
+                        </Label>
+                        <div className="flex flex-col space-y-2">
+                          {[
+                            { value: '5', label: 'Estremamente rilevante' },
+                            { value: '4', label: 'Molto rilevante' },
+                            { value: '3', label: 'Moderatamente rilevante' },
+                            { value: '2', label: 'Poco rilevante' },
+                            { value: '1', label: 'Non rilevante' }
+                          ].map((option) => (
+                            <div key={option.value} className="flex items-center space-x-2">
+                              <input 
+                                type="radio" 
+                                name={`relevance-${issue.id}`} 
+                                id={`relevance-${issue.id}-${option.value}`}
+                                className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                                disabled
+                              />
+                              <Label 
+                                htmlFor={`relevance-${issue.id}-${option.value}`}
+                                className="text-sm"
+                              >
+                                {option.label}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Label htmlFor={`comments-${issue.id}`} className="mb-2 block">
+                          Commenti o suggerimenti su questa questione (opzionale)
+                        </Label>
+                        <Textarea 
+                          id={`comments-${issue.id}`}
+                          placeholder="Inserisci qui i tuoi commenti..."
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {surveyTemplate.additionalComments && (
+                  <div className="mt-8 space-y-3">
+                    <h4 className="font-medium">Altri temi rilevanti</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Ci sono altre questioni di sostenibilità che ritieni rilevanti e che non sono state incluse in questo sondaggio?
+                    </p>
+                    <Textarea 
+                      placeholder="Inserisci qui le tue osservazioni..."
+                      disabled
+                    />
+                  </div>
+                )}
+                
+                <div className="mt-8 pt-6 border-t">
+                  <Button disabled className="w-full">Invia le tue risposte</Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 py-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Seleziona gli stakeholder</h3>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={toggleSelectAllStakeholders}
+                  >
+                    {selectedStakeholders.length === stakeholders.length 
+                      ? "Deseleziona tutti" 
+                      : "Seleziona tutti"}
+                  </Button>
+                </div>
+                
+                <div className="border rounded-md overflow-hidden">
+                  <div className="max-h-64 overflow-y-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Seleziona
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Nome
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Categoria
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Priorità
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Email
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                        {stakeholders.map((stakeholder) => (
+                          <tr key={stakeholder.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <Checkbox 
+                                checked={selectedStakeholders.includes(stakeholder.id)} 
+                                onCheckedChange={() => handleStakeholderSelection(stakeholder.id)}
+                                id={`select-${stakeholder.id}`}
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <Label 
+                                htmlFor={`select-${stakeholder.id}`}
+                                className="font-medium text-gray-900 dark:text-gray-100"
+                              >
+                                {stakeholder.name}
+                              </Label>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {stakeholder.category}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 text-xs rounded-full ${getStakeholderPriorityColor(stakeholder.priority)}`}>
+                                {stakeholder.priority}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {stakeholder.email}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Nota</AlertTitle>
+                  <AlertDescription>
+                    Solo gli stakeholder selezionati riceveranno il sondaggio via email.
+                  </AlertDescription>
+                </Alert>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Personalizza il sondaggio</h3>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="surveyTitle">Titolo del sondaggio</Label>
+                    <Input 
+                      id="surveyTitle"
+                      value={surveyTemplate.title}
+                      onChange={(e) => setSurveyTemplate({...surveyTemplate, title: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="surveyDescription">Descrizione</Label>
+                    <Textarea 
+                      id="surveyDescription"
+                      value={surveyTemplate.description}
+                      onChange={(e) => setSurveyTemplate({...surveyTemplate, description: e.target.value})}
+                      className="min-h-20"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="additionalComments" 
+                      checked={surveyTemplate.additionalComments}
+                      onCheckedChange={(checked) => 
+                        setSurveyTemplate({...surveyTemplate, additionalComments: checked === true})
+                      }
+                    />
+                    <Label htmlFor="additionalComments">
+                      Includere una sezione per commenti addizionali e altre questioni
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-between items-center space-x-2">
+            {surveyPreviewMode ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={toggleSurveyPreviewMode}
+                >
+                  Torna alle impostazioni
+                </Button>
+                <Button 
+                  onClick={sendSurveys}
+                  disabled={selectedStakeholders.length === 0}
+                >
+                  <Send className="mr-2 h-4 w-4" />
+                  Invia sondaggio a {selectedStakeholders.length} stakeholder
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSurveyDialogOpen(false)}
+                >
+                  Annulla
+                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="secondary" 
+                    onClick={toggleSurveyPreviewMode}
+                  >
+                    Anteprima sondaggio
+                  </Button>
+                  <Button 
+                    onClick={sendSurveys}
+                    disabled={selectedStakeholders.length === 0}
+                  >
+                    <Send className="mr-2 h-4 w-4" />
+                    Invia sondaggio
+                  </Button>
+                </div>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
