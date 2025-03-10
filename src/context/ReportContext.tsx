@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCompanyOperations } from './companyOperations';
 import { useReportOperations } from './reportOperations';
 import { localStorageOperations } from './localStorage';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Company, 
   Report, 
@@ -23,6 +24,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loading, setLoading] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  const { toast } = useToast();
 
   // Hooks
   const { loadCompanies: fetchCompanies, createCompany, loadCompanyById } = useCompanyOperations();
