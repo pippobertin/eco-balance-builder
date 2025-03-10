@@ -18,7 +18,7 @@ import {
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
 // Define supported chart types
-type ChartType = 'area' | 'bar' | 'pie';
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 interface MetricChartProps {
   title: string;
@@ -151,6 +151,9 @@ const MetricChart = ({
           </ResponsiveContainer>
         );
       
+      case 'empty':
+        return renderEmptyState();
+        
       default:
         return <div>Unsupported chart type</div>;
     }
@@ -168,7 +171,7 @@ const MetricChart = ({
       }
     >
       <div className="pt-4">
-        {hasData ? renderChart() : renderEmptyState()}
+        {type === 'empty' ? renderEmptyState() : renderChart()}
       </div>
     </GlassmorphicCard>
   );
