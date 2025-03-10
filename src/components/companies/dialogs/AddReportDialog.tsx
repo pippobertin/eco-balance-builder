@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/context/ReportContext';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useReportContext } from '../hooks/useReportContext';
 
 interface AddReportDialogProps {
   open: boolean;
@@ -24,7 +25,8 @@ interface AddReportDialogProps {
 const AddReportDialog = ({ open, onOpenChange }: AddReportDialogProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createReport, selectedCompany } = useReport();
+  const { createReport } = useReport();
+  const { selectedCompany } = useReportContext();
   
   const [newReportData, setNewReportData] = useState({
     report_year: new Date().getFullYear().toString(),
