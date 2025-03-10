@@ -56,6 +56,13 @@ export interface ReportData {
     trainingHours?: number;
     communityEngagement?: number;
     employeeSatisfaction?: number;
+    genderRatio?: number;
+    permanentEmployeePercentage?: number;
+    maleEmployees?: number;
+    femaleEmployees?: number;
+    otherGenderEmployees?: number;
+    totalEmployees?: number;
+    permanentEmployees?: number;
   };
   conductMetrics: {
     governanceCompliance?: number;

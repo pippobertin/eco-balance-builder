@@ -74,10 +74,39 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
     return description + scopeItems.join(", ");
   };
   
+  // Calculate gender diversity data
+  const totalEmployees = reportData.socialMetrics?.totalEmployees || 0;
+  const maleEmployees = reportData.socialMetrics?.maleEmployees || 0;
+  const femaleEmployees = reportData.socialMetrics?.femaleEmployees || 0;
+  const otherGenderEmployees = reportData.socialMetrics?.otherGenderEmployees || 0;
+  
+  // Calculate permanent employee percentage
+  const permanentEmployees = reportData.socialMetrics?.permanentEmployees || 0;
+  const permanentPercentage = totalEmployees > 0 ? Math.round((permanentEmployees / totalEmployees) * 100) : 0;
+  
   // Check if we have diversity data
-  const hasDiversityData = reportData.socialMetrics && 
-                          typeof reportData.socialMetrics.employeeDiversity === 'number' && 
-                          reportData.socialMetrics.employeeDiversity > 0;
+  const hasDiversityData = totalEmployees > 0 && (maleEmployees > 0 || femaleEmployees > 0 || otherGenderEmployees > 0);
+  
+  // Format the description for diversity
+  const formatDiversityDescription = () => {
+    if (!hasDiversityData) return "Nessun dato disponibile";
+    
+    const malePercentage = totalEmployees > 0 ? Math.round((maleEmployees / totalEmployees) * 100) : 0;
+    const femalePercentage = totalEmployees > 0 ? Math.round((femaleEmployees / totalEmployees) * 100) : 0;
+    const otherPercentage = totalEmployees > 0 ? Math.round((otherGenderEmployees / totalEmployees) * 100) : 0;
+    
+    const parts = [];
+    if (malePercentage > 0) parts.push(`M: ${malePercentage}%`);
+    if (femalePercentage > 0) parts.push(`F: ${femalePercentage}%`);
+    if (otherPercentage > 0) parts.push(`Altro: ${otherPercentage}%`);
+    
+    let description = parts.join(", ");
+    if (permanentPercentage > 0) {
+      description += ` | Tempo indeterminato: ${permanentPercentage}%`;
+    }
+    
+    return description;
+  };
   
   // Check if we have governance data
   const hasGovernanceData = reportData.conductMetrics && 
@@ -116,10 +145,10 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Diversità del Personale"
-          value={hasDiversityData ? `${reportData.socialMetrics.employeeDiversity}%` : "N/D"}
+          value={hasDiversityData ? `${totalEmployees} dip.` : "N/D"}
           change={0}
           icon={<Users className="h-5 w-5 text-esg-blue" />}
-          description={hasDiversityData ? "Miglioramento dell'equilibrio di genere" : "Nessun dato disponibile"}
+          description={formatDiversityDescription()}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
