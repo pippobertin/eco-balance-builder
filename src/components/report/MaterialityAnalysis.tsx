@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Target, Users } from 'lucide-react';
@@ -70,8 +69,11 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     setSurveyDialogOpen, 
     selectedStakeholders, 
     setSelectedStakeholders, 
+    stakeholderGroups,
+    forceResend,
+    toggleForceResend,
     openSurveyDialog 
-  } = useSurveyDialog(materialIssues);
+  } = useSurveyDialog(materialIssues, stakeholders);
 
   const openSurveyDialogWithValidation = () => {
     if (materialIssues.length === 0) {
@@ -161,10 +163,13 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
         open={surveyDialogOpen}
         onOpenChange={setSurveyDialogOpen}
         stakeholders={stakeholders}
+        stakeholderGroups={stakeholderGroups}
         surveyTemplate={surveyTemplate}
         setSurveyTemplate={setSurveyTemplate}
         selectedStakeholders={selectedStakeholders}
         setSelectedStakeholders={setSelectedStakeholders}
+        forceResend={forceResend}
+        toggleForceResend={toggleForceResend}
         getStakeholderPriorityColor={getStakeholderPriorityColor}
         onSendSurveys={sendSurveys}
       />

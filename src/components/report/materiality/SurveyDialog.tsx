@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { MaterialityIssue, Stakeholder, SurveyTemplate } from './types';
+import { Stakeholder, SurveyTemplate } from './types';
 import StakeholderSelector from './survey/StakeholderSelector';
 import SurveyCustomizer from './survey/SurveyCustomizer';
 import SurveyPreview from './survey/SurveyPreview';
@@ -19,10 +19,17 @@ interface SurveyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   stakeholders: Stakeholder[];
+  stakeholderGroups: {
+    pending: Stakeholder[];
+    sent: Stakeholder[];
+    completed: Stakeholder[];
+  };
   surveyTemplate: SurveyTemplate;
   setSurveyTemplate: React.Dispatch<React.SetStateAction<SurveyTemplate>>;
   selectedStakeholders: string[];
   setSelectedStakeholders: React.Dispatch<React.SetStateAction<string[]>>;
+  forceResend: boolean;
+  toggleForceResend: () => void;
   getStakeholderPriorityColor: (priority: string) => string;
   onSendSurveys: () => void;
 }
@@ -31,10 +38,13 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
   open,
   onOpenChange,
   stakeholders,
+  stakeholderGroups,
   surveyTemplate,
   setSurveyTemplate,
   selectedStakeholders,
   setSelectedStakeholders,
+  forceResend,
+  toggleForceResend,
   getStakeholderPriorityColor,
   onSendSurveys
 }) => {
@@ -42,10 +52,15 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
   const [showSurveySuccess, setShowSurveySuccess] = useState(false);
 
   const toggleSelectAllStakeholders = () => {
-    if (selectedStakeholders.length === stakeholders.length) {
+    const allStakeholdersIds = [
+      ...stakeholderGroups.pending,
+      ...(forceResend ? [...stakeholderGroups.sent, ...stakeholderGroups.completed] : [])
+    ].map(s => s.id);
+    
+    if (selectedStakeholders.length === allStakeholdersIds.length) {
       setSelectedStakeholders([]);
     } else {
-      setSelectedStakeholders(stakeholders.map(s => s.id));
+      setSelectedStakeholders(allStakeholdersIds);
     }
   };
 
@@ -101,11 +116,13 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
         ) : (
           <div className="space-y-6 py-4">
             <StakeholderSelector 
-              stakeholders={stakeholders}
+              stakeholderGroups={stakeholderGroups}
               selectedStakeholders={selectedStakeholders}
               onStakeholderSelection={handleStakeholderSelection}
               toggleSelectAllStakeholders={toggleSelectAllStakeholders}
               getStakeholderPriorityColor={getStakeholderPriorityColor}
+              forceResend={forceResend}
+              onToggleForceResend={toggleForceResend}
             />
             
             <SurveyCustomizer 
