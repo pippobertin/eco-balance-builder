@@ -24,13 +24,21 @@ const UserDialog = ({ open, onOpenChange, onSuccess }: UserDialogProps) => {
     setLoading(true);
 
     try {
-      // Chiamata alla funzione edge di Supabase per creare un nuovo utente
+      console.log('Invoking create-user function');
+      
+      // Call the Edge Function
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: { email, password },
       });
 
+      console.log('Function response:', { data, error });
+
       if (error) {
-        throw error;
+        throw new Error(error.message || 'Failed to create user');
+      }
+
+      if (!data) {
+        throw new Error('No data returned from the server');
       }
 
       toast({

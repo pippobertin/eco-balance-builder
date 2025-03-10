@@ -13,10 +13,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  // Get request body
-  const { email, password } = await req.json()
-  
   try {
+    // Get request body
+    const { email, password } = await req.json()
+    
+    if (!email || !password) {
+      throw new Error('Email and password are required')
+    }
+
+    console.log(`Creating user with email: ${email}`)
+    
     // Create a Supabase client with the service role (admin privileges)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -36,13 +42,19 @@ serve(async (req) => {
       email_confirm: true,
     })
 
-    if (error) throw error
+    if (error) {
+      console.error('Error creating user:', error)
+      throw error
+    }
+
+    console.log('User created successfully:', data.user.id)
 
     return new Response(JSON.stringify({ data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
   } catch (error) {
+    console.error('Error in create-user function:', error.message)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
