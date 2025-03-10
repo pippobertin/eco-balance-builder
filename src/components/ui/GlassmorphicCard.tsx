@@ -31,15 +31,15 @@ const GlassmorphicCard = ({
       {...props}
     >
       <Card className="bg-white text-gray-900 border border-gray-200 shadow-sm">
-        {header && <CardHeader>{header}</CardHeader>}
-        <CardContent>
+        {header && <CardHeader className="text-gray-900">{header}</CardHeader>}
+        <CardContent className="text-gray-800">
           {children as React.ReactNode}
         </CardContent>
-        {footer && <CardFooter>{footer}</CardFooter>}
+        {footer && <CardFooter className="text-gray-900">{footer}</CardFooter>}
       </Card>
       
       <div 
-        className="absolute -inset-0.5 rounded-xl opacity-30 blur-xl"
+        className="absolute -inset-0.5 rounded-xl opacity-20 blur-xl"
         style={{
           background: `radial-gradient(circle at top right, ${glowColor}, transparent 70%)`,
           zIndex: -1
