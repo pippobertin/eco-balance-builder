@@ -30,7 +30,7 @@ const GlassmorphicCard = ({
       )}
       {...props}
     >
-      <Card className="backdrop-blur-xl bg-white/70 dark:bg-black/70 border border-white/20 dark:border-white/10">
+      <Card className="backdrop-blur-xl bg-white dark:bg-black/70 border border-white/20 dark:border-white/10">
         {header && <CardHeader>{header}</CardHeader>}
         <CardContent>
           {children as React.ReactNode}

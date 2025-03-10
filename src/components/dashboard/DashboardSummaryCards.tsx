@@ -31,10 +31,18 @@ const itemAnimation = {
 };
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
-  const esgScore = reportData.materialityAnalysis.esgScore || 82;
-  const carbonEmissions = reportData.environmentalMetrics.carbonEmissions || 70;
-  const employeeDiversity = reportData.socialMetrics.employeeDiversity || 65;
-  const governanceCompliance = reportData.conductMetrics.governanceCompliance || 95;
+  // Usa dati reali con fallback ai valori di default
+  const esgScore = reportData.materialityAnalysis.esgScore || 0;
+  
+  // Considera le emissioni totali di carbonio (Scope 1 + Scope 2 + Scope 3 se disponibili)
+  const totalCarbon = 
+    (reportData.environmentalMetrics.totalScope1Emissions || 0) +
+    (reportData.environmentalMetrics.totalScope2Emissions || 0) +
+    (reportData.environmentalMetrics.totalScope3Emissions || 0) || 
+    reportData.environmentalMetrics.carbonEmissions || 0;
+    
+  const employeeDiversity = reportData.socialMetrics.employeeDiversity || 0;
+  const governanceCompliance = reportData.conductMetrics.governanceCompliance || 0;
   
   return (
     <motion.div
@@ -57,7 +65,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Emissioni di Carbonio"
-          value={`${carbonEmissions} ton`}
+          value={`${totalCarbon} ton`}
           change={-12}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
           description="Emissioni totali per il periodo"

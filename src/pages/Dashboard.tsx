@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -8,7 +8,7 @@ import DashboardCharts from '@/components/dashboard/DashboardCharts';
 import { useReport } from '@/context/ReportContext';
 
 const Dashboard = () => {
-  const [selectedYear, setSelectedYear] = useState<string>("2023");
+  const [selectedYear, setSelectedYear] = React.useState<string>("2023");
   const { reportData } = useReport();
   
   // Log the report data to console for debugging

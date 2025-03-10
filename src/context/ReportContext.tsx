@@ -10,6 +10,12 @@ export interface ReportData {
     wasteGeneration?: number;
     waterUsage?: number;
     renewableEnergy?: number;
+    scope1Data?: any;
+    scope2Data?: any;
+    scope3Data?: any;
+    totalScope1Emissions?: number;
+    totalScope2Emissions?: number;
+    totalScope3Emissions?: number;
   };
   socialMetrics: {
     employeeDiversity?: number;
@@ -27,6 +33,7 @@ export interface ReportData {
     stakeholders?: Stakeholder[];
     esgScore?: number;
   };
+  narrativePATMetrics?: any;
 }
 
 // Default empty report data
@@ -87,32 +94,38 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     try {
       localStorage.setItem('sustainabilityReportData', JSON.stringify(reportData));
+      console.log("Dati salvati nel localStorage:", reportData);
     } catch (error) {
       console.error('Error saving report data to localStorage:', error);
     }
   }, [reportData]);
 
   const updateReportData = (newData: Partial<ReportData>) => {
-    setReportData(prevData => ({
-      ...prevData,
-      ...newData,
-      environmentalMetrics: {
-        ...prevData.environmentalMetrics,
-        ...(newData.environmentalMetrics || {})
-      },
-      socialMetrics: {
-        ...prevData.socialMetrics,
-        ...(newData.socialMetrics || {})
-      },
-      conductMetrics: {
-        ...prevData.conductMetrics,
-        ...(newData.conductMetrics || {})
-      },
-      materialityAnalysis: {
-        ...prevData.materialityAnalysis,
-        ...(newData.materialityAnalysis || {})
-      }
-    }));
+    setReportData(prevData => {
+      const updatedData = {
+        ...prevData,
+        ...newData,
+        environmentalMetrics: {
+          ...prevData.environmentalMetrics,
+          ...(newData.environmentalMetrics || {})
+        },
+        socialMetrics: {
+          ...prevData.socialMetrics,
+          ...(newData.socialMetrics || {})
+        },
+        conductMetrics: {
+          ...prevData.conductMetrics,
+          ...(newData.conductMetrics || {})
+        },
+        materialityAnalysis: {
+          ...prevData.materialityAnalysis,
+          ...(newData.materialityAnalysis || {})
+        }
+      };
+      
+      console.log("Dati del report aggiornati:", updatedData);
+      return updatedData;
+    });
   };
 
   const resetReportData = () => {
