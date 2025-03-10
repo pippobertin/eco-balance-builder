@@ -71,9 +71,9 @@ const Dashboard = () => {
       
       if (reportForYear) {
         try {
-          const loadedReportData = await loadReport(reportForYear.id);
-          if (loadedReportData && loadedReportData.report) {
-            setSelectedReport(loadedReportData.report);
+          const result = await loadReport(reportForYear.id);
+          if (result && result.report) {
+            setSelectedReport(result.report);
             setAccessError(false);
           } else {
             setSelectedReport(null);
