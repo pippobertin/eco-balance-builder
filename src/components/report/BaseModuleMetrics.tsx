@@ -2,13 +2,14 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowLeft, FileText, Ruler, Target, Leaf, Users, Building2 } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, FileText, Target, Leaf, Users, Building2, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnvironmentalMetrics from './EnvironmentalMetrics';
 import SocialMetrics from './SocialMetrics';
 import ConductMetrics from './ConductMetrics';
 import NarrativePATMetrics from './NarrativePATMetrics';
 import MaterialityAnalysis from './MaterialityAnalysis';
+import BusinessPartnersMetrics from './BusinessPartnersMetrics';
 
 interface BaseModuleMetricsProps {
   formValues: any;
@@ -26,7 +27,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   selectedOption
 }) => {
   const { toast } = useToast();
-  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality'>('environmental');
+  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality' | 'business-partners'>('environmental');
 
   // Determina quali moduli devono essere mostrati in base all'opzione selezionata
   const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
@@ -36,10 +37,11 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   // Al cambio di opzione, se la sezione attiva non è disponibile, resetta alla sezione ambientale
   React.useEffect(() => {
     if ((activeSection === 'narrative' && !showNarrativeModule) || 
-        (activeSection === 'materiality' && !showMaterialityAnalysis)) {
+        (activeSection === 'materiality' && !showMaterialityAnalysis) ||
+        (activeSection === 'business-partners' && !showBusinessPartnersModule)) {
       setActiveSection('environmental');
     }
-  }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis]);
+  }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
 
   const handleSave = () => {
     toast({
@@ -111,6 +113,16 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
             Narrativo-PAT
           </Button>
         )}
+        {showBusinessPartnersModule && (
+          <Button 
+            variant={activeSection === 'business-partners' ? 'default' : 'outline'} 
+            onClick={() => setActiveSection('business-partners')}
+            className="flex items-center"
+          >
+            <Briefcase className="mr-2 h-4 w-4" />
+            Partner Commerciali
+          </Button>
+        )}
       </div>
 
       {activeSection === 'environmental' && (
@@ -131,6 +143,10 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       
       {activeSection === 'narrative' && showNarrativeModule && (
         <NarrativePATMetrics formValues={formValues} setFormValues={setFormValues} />
+      )}
+      
+      {activeSection === 'business-partners' && showBusinessPartnersModule && (
+        <BusinessPartnersMetrics formValues={formValues} setFormValues={setFormValues} />
       )}
 
       <div className="flex justify-between pt-6">
