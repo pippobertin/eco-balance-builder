@@ -8,7 +8,8 @@ export const useCompanyOperations = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Load companies from the database
+  // Load companies from the database - for admins, this loads all companies
+  // for regular users, this loads only their companies (handled by RLS)
   const loadCompanies = async (): Promise<Company[]> => {
     try {
       const { data, error } = await supabase

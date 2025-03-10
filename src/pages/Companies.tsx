@@ -45,10 +45,10 @@ const Companies = () => {
     deleteReport,
     setCurrentCompany,
     setCurrentReport,
-    loadReport,
-    user,
-    isAdmin
+    loadReport
   } = useReport();
+  
+  const { user, isAdmin } = useAuth();
   
   const [newCompany, setNewCompany] = useState<Omit<Company, 'id'>>({
     name: '',
