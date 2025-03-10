@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowLeft, FileText, Ruler, Target } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, FileText, Ruler, Target, Leaf, Users, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnvironmentalMetrics from './EnvironmentalMetrics';
 import SocialMetrics from './SocialMetrics';
@@ -28,6 +28,19 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   const { toast } = useToast();
   const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality'>('environmental');
 
+  // Determina quali moduli devono essere mostrati in base all'opzione selezionata
+  const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
+  const showBusinessPartnersModule = selectedOption === 'C' || selectedOption === 'D';
+  const showMaterialityAnalysis = showNarrativeModule; // La materialità è necessaria per il modulo narrativo
+
+  // Al cambio di opzione, se la sezione attiva non è disponibile, resetta alla sezione ambientale
+  React.useEffect(() => {
+    if ((activeSection === 'narrative' && !showNarrativeModule) || 
+        (activeSection === 'materiality' && !showMaterialityAnalysis)) {
+      setActiveSection('environmental');
+    }
+  }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis]);
+
   const handleSave = () => {
     toast({
       title: "Metriche salvate",
@@ -46,12 +59,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     }
   };
 
-  // Check if the Narrative-PAT module should be available based on selected option
-  const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
-  
-  // Determine if materiality analysis should be available
-  const showMaterialityAnalysis = selectedOption === 'B' || selectedOption === 'C' || selectedOption === 'D';
-
   return (
     <motion.div
       variants={containerAnimation}
@@ -63,29 +70,32 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
         <Button 
           variant={activeSection === 'environmental' ? 'default' : 'outline'} 
           onClick={() => setActiveSection('environmental')}
-          className="flex-1"
+          className="flex items-center"
         >
+          <Leaf className="mr-2 h-4 w-4" />
           Ambiente
         </Button>
         <Button 
           variant={activeSection === 'social' ? 'default' : 'outline'} 
           onClick={() => setActiveSection('social')}
-          className="flex-1"
+          className="flex items-center"
         >
+          <Users className="mr-2 h-4 w-4" />
           Sociale
         </Button>
         <Button 
           variant={activeSection === 'conduct' ? 'default' : 'outline'} 
           onClick={() => setActiveSection('conduct')}
-          className="flex-1"
+          className="flex items-center"
         >
+          <Building2 className="mr-2 h-4 w-4" />
           Condotta
         </Button>
         {showMaterialityAnalysis && (
           <Button 
             variant={activeSection === 'materiality' ? 'default' : 'outline'} 
             onClick={() => setActiveSection('materiality')}
-            className="flex-1"
+            className="flex items-center"
           >
             <Target className="mr-2 h-4 w-4" />
             Materialità
@@ -95,7 +105,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           <Button 
             variant={activeSection === 'narrative' ? 'default' : 'outline'} 
             onClick={() => setActiveSection('narrative')}
-            className="flex-1"
+            className="flex items-center"
           >
             <FileText className="mr-2 h-4 w-4" />
             Narrativo-PAT
