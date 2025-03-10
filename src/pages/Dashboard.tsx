@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -7,13 +8,15 @@ import DashboardSummaryCards from '@/components/dashboard/DashboardSummaryCards'
 import DashboardCharts from '@/components/dashboard/DashboardCharts';
 import { useReport } from '@/context/ReportContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, ShieldAlert } from 'lucide-react';
 import { ReportData, Report } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
   const { reportData, currentReport, currentCompany, reports, loadReports, loadReport } = useReport();
   
   // State for selected year and historical report data
@@ -21,15 +24,23 @@ const Dashboard = () => {
   const [historicalReportData, setHistoricalReportData] = useState<{[key: string]: ReportData}>({});
   const [displayData, setDisplayData] = useState<ReportData | null>(null);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [accessError, setAccessError] = useState<boolean>(false);
   
   // Load reports for the current company when component mounts
   useEffect(() => {
     const loadCompanyReports = async () => {
       if (currentCompany) {
         try {
-          await loadReports(currentCompany.id);
+          const loadedReports = await loadReports(currentCompany.id);
+          if (loadedReports.length === 0) {
+            // Check if this is due to permissions
+            setAccessError(true);
+          } else {
+            setAccessError(false);
+          }
         } catch (error) {
           console.error("Error loading reports:", error);
+          setAccessError(true);
           toast({
             title: "Errore",
             description: "Impossibile caricare i report dell'azienda",
@@ -39,6 +50,7 @@ const Dashboard = () => {
       }
     };
     
+    setAccessError(false);
     loadCompanyReports();
   }, [currentCompany]);
   
@@ -65,10 +77,23 @@ const Dashboard = () => {
       const reportForYear = reports.find(r => r.report_year === selectedYear);
       
       if (reportForYear) {
-        // Load this report's data
-        await loadReport(reportForYear.id);
-        setSelectedReport(reportForYear);
-        // Note: reportData will be updated by loadReport via context
+        try {
+          // Load this report's data
+          const result = await loadReport(reportForYear.id);
+          if (result.report) {
+            setSelectedReport(result.report);
+            setAccessError(false);
+          } else {
+            setSelectedReport(null);
+            setDisplayData(null);
+            setAccessError(true);
+          }
+        } catch (error) {
+          console.error("Error loading report:", error);
+          setAccessError(true);
+          setSelectedReport(null);
+          setDisplayData(null);
+        }
       } else {
         // If no report exists for this year
         setDisplayData(null);
@@ -96,6 +121,7 @@ const Dashboard = () => {
   console.log("Selected year:", selectedYear);
   console.log("Available reports:", reports.map(r => r.report_year));
   console.log("Display data for selected year:", displayData);
+  console.log("Access error:", accessError);
   
   const goToCompanies = () => {
     navigate('/companies');
@@ -131,7 +157,7 @@ const Dashboard = () => {
                 Torna alle Aziende
               </Button>
               
-              {selectedReport && (
+              {selectedReport && !accessError && (
                 <Button 
                   className="flex items-center gap-2"
                   onClick={editReport}
@@ -151,7 +177,16 @@ const Dashboard = () => {
             </div>
           )}
           
-          {currentCompany && !displayData && (
+          {currentCompany && accessError && (
+            <div className="text-center py-10 my-6 bg-red-50 rounded-lg border border-red-200">
+              <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-2" />
+              <h3 className="text-xl font-medium text-red-800 mb-2">Accesso non autorizzato</h3>
+              <p className="text-gray-700 mb-4">Non hai i permessi per visualizzare i report di questa azienda.</p>
+              <Button onClick={goToCompanies} variant="default">Torna alle tue aziende</Button>
+            </div>
+          )}
+          
+          {currentCompany && !accessError && !displayData && (
             <div className="text-center py-10 my-6 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="text-xl font-medium text-gray-800 mb-2">Nessun dato di sostenibilità disponibile</h3>
               <p className="text-gray-700 mb-4">Non sono stati trovati dati ESG per il periodo selezionato.</p>
@@ -160,7 +195,7 @@ const Dashboard = () => {
             </div>
           )}
           
-          {currentCompany && displayData && (
+          {currentCompany && !accessError && displayData && (
             <>
               {/* Company Info */}
               <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">

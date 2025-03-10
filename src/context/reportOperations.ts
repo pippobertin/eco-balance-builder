@@ -1,24 +1,50 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Report, Subsidiary, ReportData } from './types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export const useReportOperations = () => {
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
 
   // Load reports for a specific company
   const loadReports = async (companyId: string): Promise<Report[]> => {
     try {
-      const { data, error } = await supabase
+      if (!user) {
+        return [];
+      }
+
+      console.log("Loading reports for company", companyId, "isAdmin:", isAdmin);
+      
+      let query = supabase
         .from('reports')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: false });
+        .select('*, companies!inner(created_by)')
+        .eq('company_id', companyId);
+      
+      // For regular users, only load reports from companies they created
+      if (!isAdmin) {
+        console.log("Filtering reports for user:", user.id);
+        query = query.eq('companies.created_by', user.id);
+      }
+      
+      query = query.order('created_at', { ascending: false });
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;
       }
 
-      return data || [];
+      console.log("Reports loaded:", data?.length || 0);
+      
+      // Remove the companies data from the result
+      const cleanedData = data?.map(item => {
+        const { companies, ...reportData } = item;
+        return reportData;
+      });
+
+      return cleanedData || [];
     } catch (error: any) {
       console.error('Error loading reports:', error.message);
       toast({
@@ -33,6 +59,10 @@ export const useReportOperations = () => {
   // Create a new report
   const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
+      if (!user) {
+        throw new Error('User must be logged in to create a report');
+      }
+      
       const { data, error } = await supabase
         .from('reports')
         .insert([report])
@@ -63,30 +93,47 @@ export const useReportOperations = () => {
   // Load a specific report
   const loadReport = async (reportId: string): Promise<{ report: Report | null, subsidiaries?: Subsidiary[] }> => {
     try {
-      const { data, error } = await supabase
+      if (!user) {
+        return { report: null };
+      }
+
+      let query = supabase
         .from('reports')
-        .select('*')
-        .eq('id', reportId)
-        .single();
+        .select('*, companies!inner(created_by)')
+        .eq('id', reportId);
+      
+      // For regular users, only load reports from companies they created
+      if (!isAdmin) {
+        query = query.eq('companies.created_by', user.id);
+      }
+      
+      const { data, error } = await query.single();
 
       if (error) {
         throw error;
       }
 
-      // Load subsidiaries if the report is consolidated
-      let subsidiaries = undefined;
-      if (data.is_consolidated) {
-        const { data: subsData, error: subsError } = await supabase
-          .from('subsidiaries')
-          .select('*')
-          .eq('report_id', reportId);
+      // Remove the companies data from the result
+      if (data) {
+        const { companies, ...reportData } = data;
         
-        if (!subsError && subsData) {
-          subsidiaries = subsData;
+        // Load subsidiaries if the report is consolidated
+        let subsidiaries = undefined;
+        if (reportData.is_consolidated) {
+          const { data: subsData, error: subsError } = await supabase
+            .from('subsidiaries')
+            .select('*')
+            .eq('report_id', reportId);
+          
+          if (!subsError && subsData) {
+            subsidiaries = subsData;
+          }
         }
+
+        return { report: reportData, subsidiaries };
       }
 
-      return { report: data, subsidiaries };
+      return { report: null };
     } catch (error: any) {
       console.error('Error loading report:', error.message);
       toast({
@@ -101,6 +148,27 @@ export const useReportOperations = () => {
   // Delete a report
   const deleteReport = async (reportId: string): Promise<boolean> => {
     try {
+      if (!user) {
+        throw new Error('User must be logged in to delete a report');
+      }
+
+      // Check if user has access to this report
+      let query = supabase
+        .from('reports')
+        .select('*, companies!inner(created_by)')
+        .eq('id', reportId);
+      
+      // For regular users, only allow deleting reports from companies they created
+      if (!isAdmin) {
+        query = query.eq('companies.created_by', user.id);
+      }
+      
+      const { data, error: accessError } = await query.single();
+      
+      if (accessError || !data) {
+        throw new Error('You do not have permission to delete this report');
+      }
+      
       // First delete any subsidiaries associated with this report
       await supabase
         .from('subsidiaries')
@@ -135,6 +203,27 @@ export const useReportOperations = () => {
   // Save report data
   const saveReportData = async (reportId: string, reportData: ReportData): Promise<boolean> => {
     try {
+      if (!user) {
+        throw new Error('User must be logged in to save report data');
+      }
+      
+      // Check if user has access to this report
+      let query = supabase
+        .from('reports')
+        .select('*, companies!inner(created_by)')
+        .eq('id', reportId);
+      
+      // For regular users, only allow saving reports from companies they created
+      if (!isAdmin) {
+        query = query.eq('companies.created_by', user.id);
+      }
+      
+      const { data, error: accessError } = await query.single();
+      
+      if (accessError || !data) {
+        throw new Error('You do not have permission to save this report');
+      }
+      
       const { error } = await supabase
         .from('reports')
         .update({
@@ -159,6 +248,27 @@ export const useReportOperations = () => {
   // Save subsidiaries for a report
   const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<boolean> => {
     try {
+      if (!user) {
+        throw new Error('User must be logged in to save subsidiaries');
+      }
+      
+      // Check if user has access to this report
+      let query = supabase
+        .from('reports')
+        .select('*, companies!inner(created_by)')
+        .eq('id', reportId);
+      
+      // For regular users, only allow saving subsidiaries for reports from companies they created
+      if (!isAdmin) {
+        query = query.eq('companies.created_by', user.id);
+      }
+      
+      const { data, error: accessError } = await query.single();
+      
+      if (accessError || !data) {
+        throw new Error('You do not have permission to save subsidiaries for this report');
+      }
+      
       // First delete all existing subsidiaries for this report
       await supabase
         .from('subsidiaries')

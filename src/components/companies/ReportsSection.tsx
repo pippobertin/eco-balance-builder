@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { FileText, Plus, Briefcase } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { FileText, Plus, Briefcase, ShieldAlert } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
@@ -8,6 +8,7 @@ import { Report } from '@/context/types';
 import AddReportDialog from './dialogs/AddReportDialog';
 import ReportList from './ReportList';
 import { useReportContext } from './hooks/useReportContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface ReportsSectionProps {
   setReportToDelete: (report: Report) => void;
@@ -17,12 +18,33 @@ interface ReportsSectionProps {
 const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSectionProps) => {
   const { reports, loadReports, currentCompany } = useReport();
   const { isAddReportDialogOpen, setIsAddReportDialogOpen } = useReportContext();
+  const { user, isAdmin } = useAuth();
+  const [accessError, setAccessError] = useState(false);
   
   useEffect(() => {
-    if (currentCompany) {
-      loadReports(currentCompany.id);
-    }
-  }, [currentCompany]);
+    const loadReportsData = async () => {
+      if (currentCompany) {
+        try {
+          const loadedReports = await loadReports(currentCompany.id);
+          // If user can't access reports for this company
+          if (loadedReports.length === 0 && !isAdmin && user) {
+            const isOwnCompany = currentCompany.created_by === user.id;
+            if (!isOwnCompany) {
+              setAccessError(true);
+              return;
+            }
+          }
+          setAccessError(false);
+        } catch (error) {
+          console.error("Error loading reports:", error);
+          setAccessError(true);
+        }
+      }
+    };
+    
+    setAccessError(false);
+    loadReportsData();
+  }, [currentCompany, isAdmin, user]);
 
   const openDeleteDialog = (report: Report, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -43,7 +65,7 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
           )}
         </h2>
         
-        {currentCompany && (
+        {currentCompany && !accessError && (
           <Button 
             variant="outline" 
             size="sm" 
@@ -60,6 +82,12 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
         <div className="text-center py-12 text-gray-500">
           <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-300" />
           <p>Seleziona un'azienda per visualizzare i suoi report</p>
+        </div>
+      ) : accessError ? (
+        <div className="text-center py-12 text-red-500">
+          <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-red-400" />
+          <p className="font-medium">Accesso non autorizzato</p>
+          <p className="text-sm text-red-400 mt-1">Non hai i permessi per visualizzare i report di questa azienda.</p>
         </div>
       ) : reports.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
