@@ -4,6 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Session, User } from '@supabase/supabase-js';
 
+type Profile = {
+  id: string;
+  role: string;
+};
+
 type AuthContextType = {
   session: Session | null;
   user: User | null;
@@ -12,6 +17,9 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ error: any | null }>;
   signUp: (email: string, password: string) => Promise<{ error: any | null }>;
   signOut: () => Promise<void>;
+  updateRole: (userId: string, role: string) => Promise<{ error: any | null }>;
+  makeAdmin: (userId: string) => Promise<{ error: any | null }>;
+  removeAdmin: (userId: string) => Promise<{ error: any | null }>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,6 +68,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setIsAdmin(data?.role === 'admin');
+  };
+
+  const updateRole = async (userId: string, role: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role, updated_at: new Date().toISOString() })
+        .eq('id', userId);
+      
+      if (error) {
+        toast({
+          title: "Errore nell'aggiornamento del ruolo",
+          description: error.message,
+          variant: "destructive"
+        });
+        return { error };
+      }
+      
+      toast({
+        title: "Ruolo aggiornato con successo",
+        description: `L'utente ora ha il ruolo di ${role}`
+      });
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Update role error:', error);
+      return { error };
+    }
+  };
+
+  const makeAdmin = async (userId: string) => {
+    return updateRole(userId, 'admin');
+  };
+
+  const removeAdmin = async (userId: string) => {
+    return updateRole(userId, 'user');
   };
 
   const signIn = async (email: string, password: string) => {
@@ -125,7 +169,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAdmin,
       signIn, 
       signUp, 
-      signOut 
+      signOut,
+      updateRole,
+      makeAdmin,
+      removeAdmin
     }}>
       {children}
     </AuthContext.Provider>

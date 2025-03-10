@@ -18,7 +18,7 @@ interface UserProfile {
 const UserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isAdmin } = useAuth();
+  const { isAdmin, makeAdmin, removeAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -76,24 +76,18 @@ const UserManagement = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, role: string) => {
+  const updateUserRole = async (userId: string, isAdmin: boolean) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role, updated_at: new Date().toISOString() })
-        .eq('id', userId);
+      const { error } = isAdmin ? 
+        await makeAdmin(userId) : 
+        await removeAdmin(userId);
 
       if (error) throw error;
 
       // Update UI
       setUsers(users.map(user => 
-        user.id === userId ? { ...user, role } : user
+        user.id === userId ? { ...user, role: isAdmin ? 'admin' : 'user' } : user
       ));
-
-      toast({
-        title: "Ruolo aggiornato",
-        description: `L'utente ora ha il ruolo di ${role}`
-      });
     } catch (error) {
       console.error('Error updating user role:', error);
       toast({
@@ -178,7 +172,7 @@ const UserManagement = () => {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={() => updateUserRole(user.id, 'user')}
+                          onClick={() => updateUserRole(user.id, false)}
                         >
                           Rimuovi Admin
                           <X className="ml-1 h-3 w-3" />
@@ -187,7 +181,7 @@ const UserManagement = () => {
                         <Button 
                           size="sm" 
                           className="bg-esg-blue hover:bg-esg-blue/90"
-                          onClick={() => updateUserRole(user.id, 'admin')}
+                          onClick={() => updateUserRole(user.id, true)}
                         >
                           Promuovi ad Admin
                           <Check className="ml-1 h-3 w-3" />
