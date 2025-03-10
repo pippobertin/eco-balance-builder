@@ -324,10 +324,10 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+          <div className="p-4 rounded-md mb-4 bg-gray-100">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-slate-600">
                 I principi dell'economia circolare includono: eliminare gli sprechi e l'inquinamento, circolare i prodotti e i materiali al loro massimo valore, e rigenerare la natura. Il contenuto riciclato è il rapporto tra materiali riciclati utilizzati e peso totale dei materiali.
               </p>
             </div>
