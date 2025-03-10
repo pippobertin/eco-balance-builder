@@ -25,9 +25,9 @@ const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyNam
         className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold flex items-baseline gap-2">
             Dashboard delle Performance ESG
-            {companyName && <span className="text-esg-blue text-2xl ml-2">- {companyName}</span>}
+            {companyName && <span className="text-emerald-500 text-3xl font-bold">{companyName}</span>}
           </h1>
           <p className="text-esg-gray-medium">Monitora e analizza i tuoi indicatori di sostenibilità</p>
         </div>

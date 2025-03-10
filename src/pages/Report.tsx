@@ -173,9 +173,9 @@ const Report = () => {
             className="mb-4 flex flex-wrap items-center justify-between gap-4"
           >
             <div>
-              <h1 className="text-3xl font-bold mb-2">
+              <h1 className="text-3xl font-bold mb-2 flex items-baseline gap-2">
                 Report V-SME
-                {currentCompany && <span className="text-esg-blue ml-2">- {currentCompany.name}</span>}
+                {currentCompany && <span className="text-emerald-500 text-3xl font-bold">{currentCompany.name}</span>}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
                 Compila il tuo report di sostenibilità secondo lo standard V-SME

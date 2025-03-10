@@ -260,14 +260,15 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const success = await deleteReportData(reportId);
     
     if (success) {
-      // Remove the deleted report from the reports list
+      // Remove the deleted report from the reports array
       setReports(prev => prev.filter(r => r.id !== reportId));
-      
-      // If the deleted report was the current report, clear it
+      toast({
+        title: "Report eliminato con successo",
+      });
       if (currentReport && currentReport.id === reportId) {
         setCurrentReport(null);
         resetReportData();
-        localStorageOperations.saveCurrentReportId(null);
+        localStorageOperations.removeCurrentReportId();
       }
     }
     

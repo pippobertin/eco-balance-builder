@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building } from 'lucide-react';
+import { Building, Building2, LayoutDashboard, FileText, Info, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
@@ -18,20 +19,24 @@ const Navbar = () => {
 
   const navLinks = [{
     name: 'Home',
-    path: '/'
+    path: '/',
+    icon: Home
   }, {
     name: 'Companies',
     path: '/companies',
     icon: Building
   }, {
     name: 'Dashboard',
-    path: '/dashboard'
+    path: '/dashboard',
+    icon: LayoutDashboard
   }, {
     name: 'Report',
-    path: '/report'
+    path: '/report',
+    icon: FileText
   }, {
     name: 'About',
-    path: '/about'
+    path: '/about',
+    icon: Info
   }];
 
   return <motion.header initial={{
