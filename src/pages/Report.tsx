@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
@@ -20,6 +19,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import BaseModuleMetrics from '@/components/report/BaseModuleMetrics';
 
 const Report = () => {
   const { toast } = useToast();
@@ -29,6 +29,12 @@ const Report = () => {
   const [subsidiaries, setSubsidiaries] = useState<{ name: string; location: string }[]>([]);
   const [newSubsidiary, setNewSubsidiary] = useState<{ name: string; location: string }>({ name: '', location: '' });
   const [sustainabilityPractices, setSustainabilityPractices] = useState<string>('');
+  
+  const [formValues, setFormValues] = useState({
+    environmentalMetrics: {},
+    socialMetrics: {},
+    conductMetrics: {}
+  });
 
   const handleOptionChange = (value: string) => {
     setSelectedOption(value);
@@ -84,7 +90,14 @@ const Report = () => {
       title: "Informazioni salvate",
       description: "Le informazioni di base sono state salvate con successo.",
     });
-    // Qui potremmo procedere con la prossima fase o salvare i dati
+    setActiveTab('metrics');
+  };
+  
+  const saveMetrics = () => {
+    toast({
+      title: "Report completato",
+      description: "Il report V-SME è stato compilato e salvato con successo.",
+    });
   };
 
   const containerAnimation = {
@@ -116,9 +129,10 @@ const Report = () => {
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="modulo-selection">Selezione Modulo</TabsTrigger>
               <TabsTrigger value="basic-info">Informazioni Base</TabsTrigger>
+              <TabsTrigger value="metrics">Metriche Base</TabsTrigger>
             </TabsList>
 
             <TabsContent value="modulo-selection">
@@ -324,11 +338,20 @@ const Report = () => {
                     Torna indietro
                   </Button>
                   <Button onClick={saveBasicInfo} className="bg-blue-500 hover:bg-blue-600">
-                    Salva informazioni base
+                    Salva informazioni e continua
                     <CheckCircle2 className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </motion.div>
+            </TabsContent>
+            
+            <TabsContent value="metrics">
+              <BaseModuleMetrics 
+                formValues={formValues} 
+                setFormValues={setFormValues}
+                onPrevious={() => setActiveTab('basic-info')}
+                onSave={saveMetrics}
+              />
             </TabsContent>
           </Tabs>
         </div>
