@@ -130,7 +130,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna indietro
         </Button>
-        <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
+        <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-400">
           Salva report
           <CheckCircle2 className="ml-2 h-4 w-4" />
         </Button>
