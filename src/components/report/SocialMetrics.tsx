@@ -105,10 +105,10 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+          <div className="p-4 rounded-md mb-4 bg-orange-300">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-slate-600">
                 Il tasso di infortuni sul lavoro si calcola con la formula: (Numero di infortuni / Numero totale di ore lavorate in un anno da tutti i dipendenti) x 200.000. Questo indica il numero di infortuni per 100 lavoratori a tempo pieno in un anno.
               </p>
             </div>
@@ -159,10 +159,10 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+          <div className="p-4 rounded-md mb-4 bg-orange-300">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-slate-600">
                 Il divario retributivo di genere è la differenza tra i livelli retributivi medi tra dipendenti di sesso femminile e maschile, espressa come percentuale del livello retributivo medio maschile. La copertura della contrattazione collettiva è la percentuale di dipendenti a cui si applicano i contratti collettivi.
               </p>
             </div>
