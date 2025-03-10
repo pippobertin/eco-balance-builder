@@ -15,66 +15,81 @@ interface DashboardChartsProps {
 const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
   const navigate = useNavigate();
   
+  // Crea dati ambientali con valori reali o zero se non disponibili
   const environmentalData = [
-    { month: 'Gen', emissions: 120, waste: 65, energy: 45 },
-    { month: 'Feb', emissions: 132, waste: 59, energy: 49 },
-    { month: 'Mar', emissions: 101, waste: 80, energy: 40 },
-    { month: 'Apr', emissions: 94, waste: 81, energy: 38 },
-    { month: 'Mag', emissions: 85, waste: 56, energy: 35 },
-    { month: 'Giu', emissions: 90, waste: 55, energy: 40 },
-    { month: 'Lug', emissions: 97, waste: 66, energy: 45 },
-    { month: 'Ago', emissions: 88, waste: 50, energy: 38 },
-    { month: 'Set', emissions: 82, waste: 63, energy: 36 },
-    { month: 'Ott', emissions: 78, waste: 59, energy: 35 },
-    { month: 'Nov', emissions: 74, waste: 52, energy: 30 },
-    { month: 'Dic', emissions: 70, waste: 48, energy: 28 },
+    { month: 'Gen', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Feb', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Mar', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Apr', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Mag', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Giu', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Lug', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Ago', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Set', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Ott', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Nov', emissions: 0, waste: 0, energy: 0 },
+    { month: 'Dic', emissions: 0, waste: 0, energy: 0 },
   ];
   
+  // Se ci sono dati reali, utilizzali per l'ultimo mese
+  if (reportData.environmentalMetrics.carbonEmissions) {
+    environmentalData[11].emissions = reportData.environmentalMetrics.carbonEmissions;
+  }
+  if (reportData.environmentalMetrics.wasteGeneration) {
+    environmentalData[11].waste = reportData.environmentalMetrics.wasteGeneration;
+  }
+  if (reportData.environmentalMetrics.energyConsumption) {
+    environmentalData[11].energy = reportData.environmentalMetrics.energyConsumption / 30; // Convertito a scala relativa
+  }
+  
+  // Crea dati sociali con valori reali o zero
   const socialData = [
     { 
       name: 'Diversità di Genere', 
-      value: reportData.socialMetrics.employeeDiversity || 65 
+      value: reportData.socialMetrics.employeeDiversity || 0 
     },
     { 
       name: 'Soddisfazione Dipendenti', 
-      value: reportData.socialMetrics.employeeSatisfaction || 78 
+      value: reportData.socialMetrics.employeeSatisfaction || 0 
     },
     { 
       name: 'Ore di Formazione', 
-      value: reportData.socialMetrics.trainingHours || 89 
+      value: reportData.socialMetrics.trainingHours || 0 
     },
     { 
       name: 'Impegno Comunitario', 
-      value: reportData.socialMetrics.communityEngagement || 72 
+      value: reportData.socialMetrics.communityEngagement || 0 
     }
   ];
   
+  // Crea dati di governance con valori reali o zero
   const governanceData = [
     { 
       quarter: 'Q1', 
-      compliance: reportData.conductMetrics.governanceCompliance || 85,
-      risk: reportData.conductMetrics.riskManagement || 20,
-      policy: reportData.conductMetrics.policyAdherence || 70
+      compliance: reportData.conductMetrics.governanceCompliance || 0,
+      risk: reportData.conductMetrics.riskManagement || 0,
+      policy: reportData.conductMetrics.policyAdherence || 0
     },
-    { quarter: 'Q2', compliance: 88, risk: 18, policy: 75 },
-    { quarter: 'Q3', compliance: 92, risk: 15, policy: 80 },
-    { quarter: 'Q4', compliance: 95, risk: 12, policy: 85 },
+    { quarter: 'Q2', compliance: 0, risk: 0, policy: 0 },
+    { quarter: 'Q3', compliance: 0, risk: 0, policy: 0 },
+    { quarter: 'Q4', compliance: 0, risk: 0, policy: 0 },
   ];
   
+  // Crea dati di performance con valori reali o zero
   const performanceData = [
     { 
       name: 'Ambientale', 
-      value: reportData.environmentalMetrics.renewableEnergy ? 
-        Math.round((reportData.environmentalMetrics.renewableEnergy + 100 - reportData.environmentalMetrics.carbonEmissions) / 2) : 75 
+      value: reportData.environmentalMetrics.renewableEnergy || reportData.environmentalMetrics.carbonEmissions ? 
+        Math.round((reportData.environmentalMetrics.renewableEnergy || 0) + 100 - (reportData.environmentalMetrics.carbonEmissions || 0)) / 2 : 0 
     },
     { 
       name: 'Sociale', 
-      value: reportData.socialMetrics.employeeDiversity ? 
-        Math.round((reportData.socialMetrics.employeeDiversity + reportData.socialMetrics.employeeSatisfaction) / 2) : 82 
+      value: reportData.socialMetrics.employeeDiversity && reportData.socialMetrics.employeeSatisfaction ? 
+        Math.round((reportData.socialMetrics.employeeDiversity + reportData.socialMetrics.employeeSatisfaction) / 2) : 0 
     },
     { 
       name: 'Governance', 
-      value: reportData.conductMetrics.governanceCompliance || 88 
+      value: reportData.conductMetrics.governanceCompliance || 0 
     },
   ];
   
@@ -145,7 +160,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.environmentalMetrics.carbonEmissions 
                         ? `Emissioni di carbonio attuali: ${reportData.environmentalMetrics.carbonEmissions} tonnellate`
-                        : "Riduzione delle emissioni di carbonio del 12% attraverso iniziative di energia rinnovabile."}
+                        : "Nessun dato disponibile sulle emissioni di carbonio."}
                     </p>
                   </div>
                 </div>
@@ -159,7 +174,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.socialMetrics.employeeDiversity 
                         ? `Diversità attuale del personale: ${reportData.socialMetrics.employeeDiversity}%`
-                        : "Implementato nuovo programma di assunzioni per la diversità, aumentando la diversità della forza lavoro dell'8%."}
+                        : "Nessun dato disponibile sulla diversità del personale."}
                     </p>
                   </div>
                 </div>
@@ -173,7 +188,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.conductMetrics.governanceCompliance 
                         ? `Tasso di conformità attuale: ${reportData.conductMetrics.governanceCompliance}%`
-                        : "Politiche di conformità aggiornate con un tasso di aderenza del 95%."}
+                        : "Nessun dato disponibile sulla conformità di governance."}
                     </p>
                   </div>
                 </div>
