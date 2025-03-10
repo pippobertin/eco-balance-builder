@@ -31,24 +31,14 @@ const itemAnimation = {
 };
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
-  // Utilizza dati reali con fallback a 0, senza valori casuali
+  // Only use real data, no fallbacks
   const esgScore = reportData.materialityAnalysis.esgScore || 0;
-  
-  // Considera le emissioni totali di carbonio (Scope 1 + Scope 2 + Scope 3 se disponibili)
   const totalCarbon = 
     (reportData.environmentalMetrics.totalScope1Emissions || 0) +
     (reportData.environmentalMetrics.totalScope2Emissions || 0) +
-    (reportData.environmentalMetrics.totalScope3Emissions || 0) || 
-    reportData.environmentalMetrics.carbonEmissions || 0;
-    
+    (reportData.environmentalMetrics.totalScope3Emissions || 0);
   const employeeDiversity = reportData.socialMetrics.employeeDiversity || 0;
   const governanceCompliance = reportData.conductMetrics.governanceCompliance || 0;
-  
-  // Calcola le variazioni solo se ci sono dati reali, altrimenti 0
-  const esgChange = esgScore > 0 ? 5 : 0;
-  const carbonChange = totalCarbon > 0 ? -12 : 0;
-  const diversityChange = employeeDiversity > 0 ? 8 : 0;
-  const complianceChange = governanceCompliance > 0 ? 3 : 0;
   
   return (
     <motion.div
@@ -60,10 +50,10 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Punteggio ESG"
-          value={esgScore || 0}
-          change={esgChange}
+          value={esgScore}
+          change={0}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
-          description="Performance di sostenibilità complessiva"
+          description={esgScore > 0 ? "Performance di sostenibilità complessiva" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
@@ -72,9 +62,9 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
         <DashboardCard
           title="Emissioni di Carbonio"
           value={totalCarbon > 0 ? `${totalCarbon} ton` : "0 ton"}
-          change={carbonChange}
+          change={0}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
-          description="Emissioni totali per il periodo"
+          description={totalCarbon > 0 ? "Emissioni totali per il periodo" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
@@ -83,9 +73,9 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
         <DashboardCard
           title="Diversità del Personale"
           value={employeeDiversity > 0 ? `${employeeDiversity}%` : "0%"}
-          change={diversityChange}
+          change={0}
           icon={<Users className="h-5 w-5 text-esg-blue" />}
-          description="Miglioramento dell'equilibrio di genere"
+          description={employeeDiversity > 0 ? "Miglioramento dell'equilibrio di genere" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
@@ -94,9 +84,9 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
         <DashboardCard
           title="Conformità Governance"
           value={governanceCompliance > 0 ? `${governanceCompliance}%` : "0%"}
-          change={complianceChange}
+          change={0}
           icon={<Building2 className="h-5 w-5 text-esg-blue" />}
-          description="Aderenza alle politiche"
+          description={governanceCompliance > 0 ? "Aderenza alle politiche" : "Nessun dato disponibile"}
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>

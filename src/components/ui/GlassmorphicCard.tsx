@@ -30,7 +30,7 @@ const GlassmorphicCard = ({
       )}
       {...props}
     >
-      <Card className="bg-white border border-gray-200 text-gray-900">
+      <Card className="bg-white text-gray-900 border border-gray-200 shadow-sm">
         {header && <CardHeader>{header}</CardHeader>}
         <CardContent>
           {children as React.ReactNode}
@@ -38,7 +38,6 @@ const GlassmorphicCard = ({
         {footer && <CardFooter>{footer}</CardFooter>}
       </Card>
       
-      {/* Subtle glow effect */}
       <div 
         className="absolute -inset-0.5 rounded-xl opacity-30 blur-xl"
         style={{
