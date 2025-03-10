@@ -6,10 +6,10 @@ import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
+import { predefinedIssues } from './utils/materialityUtils';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
-  predefinedIssues: { id: string; name: string; description: string }[];
   onIssueChange: (id: string, field: keyof MaterialityIssue, value: any) => void;
   onAddCustomIssue: (name: string, description: string) => void;
   onRemoveIssue: (id: string) => void;
@@ -17,7 +17,6 @@ interface MaterialityIssuesTabProps {
 
 const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   issues,
-  predefinedIssues,
   onIssueChange,
   onAddCustomIssue,
   onRemoveIssue

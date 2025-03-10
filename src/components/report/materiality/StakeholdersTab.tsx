@@ -6,11 +6,11 @@ import StakeholderItem from './StakeholderItem';
 import AddStakeholderForm from './AddStakeholderForm';
 import StakeholderEngagement from './StakeholderEngagement';
 import { MaterialityIssue, Stakeholder } from './types';
+import { stakeholderCategories } from './utils/materialityUtils';
 
 interface StakeholdersTabProps {
   stakeholders: Stakeholder[];
   materialIssues: MaterialityIssue[];
-  stakeholderCategories: string[];
   onStakeholderChange: (id: string, field: keyof Stakeholder, value: any) => void;
   onAddStakeholder: (stakeholder: Omit<Stakeholder, 'id' | 'priority' | 'surveyStatus'>) => void;
   onRemoveStakeholder: (id: string) => void;
@@ -23,7 +23,6 @@ interface StakeholdersTabProps {
 const StakeholdersTab: React.FC<StakeholdersTabProps> = ({
   stakeholders,
   materialIssues,
-  stakeholderCategories,
   onStakeholderChange,
   onAddStakeholder,
   onRemoveStakeholder,
