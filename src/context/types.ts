@@ -63,6 +63,9 @@ export interface ReportData {
     otherGenderEmployees?: number;
     totalEmployees?: number;
     permanentEmployees?: number;
+    temporaryEmployees?: number;
+    avgTrainingHoursMale?: number;
+    avgTrainingHoursFemale?: number;
   };
   conductMetrics: {
     governanceCompliance?: number;

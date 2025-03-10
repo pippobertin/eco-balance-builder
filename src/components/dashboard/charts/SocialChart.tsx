@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Male, Female, Users, Briefcase, GraduationCap } from 'lucide-react';
+import { Users, Briefcase, GraduationCap } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
