@@ -8,9 +8,10 @@ interface DashboardHeaderProps {
   selectedYear: string;
   setSelectedYear: (year: string) => void;
   reportYear: string;
+  companyName?: string;
 }
 
-const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear }: DashboardHeaderProps) => {
+const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName }: DashboardHeaderProps) => {
   // We'll dynamically determine which years to show based on the report year
   const currentYear = new Date().getFullYear();
   
@@ -37,7 +38,10 @@ const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear }: Dashboar
         className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold">Dashboard delle Performance ESG</h1>
+          <h1 className="text-3xl font-bold">
+            Dashboard delle Performance ESG
+            {companyName && <span className="text-esg-blue text-2xl ml-2">- {companyName}</span>}
+          </h1>
           <p className="text-esg-gray-medium">Monitora e analizza i tuoi indicatori di sostenibilità</p>
         </div>
         

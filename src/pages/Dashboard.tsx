@@ -80,6 +80,7 @@ const Dashboard = () => {
               selectedYear={selectedYear} 
               setSelectedYear={setSelectedYear} 
               reportYear={currentReport?.report_year || ""} 
+              companyName={currentCompany?.name}
             />
             
             <div className="flex gap-3">
@@ -141,7 +142,7 @@ const Dashboard = () => {
               <DashboardSummaryCards reportData={reportData} />
               
               {/* ESG Breakdown */}
-              <DashboardCharts reportData={reportData} />
+              <DashboardCharts reportData={reportData} companyName={currentCompany.name} />
             </>
           )}
         </div>
