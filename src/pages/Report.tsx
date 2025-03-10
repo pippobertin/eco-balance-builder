@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
@@ -33,7 +34,9 @@ const Report = () => {
   const [formValues, setFormValues] = useState({
     environmentalMetrics: {},
     socialMetrics: {},
-    conductMetrics: {}
+    conductMetrics: {},
+    narrativePATMetrics: {},
+    materialityAnalysis: {}
   });
 
   const handleOptionChange = (value: string) => {
@@ -351,6 +354,7 @@ const Report = () => {
                 setFormValues={setFormValues}
                 onPrevious={() => setActiveTab('basic-info')}
                 onSave={saveMetrics}
+                selectedOption={selectedOption}
               />
             </TabsContent>
           </Tabs>
