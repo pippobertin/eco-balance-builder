@@ -13,22 +13,8 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName, availableYears = [] }: DashboardHeaderProps) => {
-  // Get the available years, ensuring they're sorted with current year last
-  const getYearsToDisplay = (): string[] => {
-    // Always base our calculation on the current report year
-    const currentReportYear = parseInt(reportYear) || new Date().getFullYear();
-    
-    // Always generate the two previous years regardless of what's available
-    const previousYears = [
-      (currentReportYear - 2).toString(),
-      (currentReportYear - 1).toString()
-    ];
-    
-    // Return previous years followed by the current report year
-    return [...previousYears, currentReportYear.toString()];
-  };
-  
-  const yearsToDisplay = getYearsToDisplay();
+  // Ordina gli anni disponibili in ordine crescente
+  const yearsToDisplay = [...availableYears].sort((a, b) => parseInt(a) - parseInt(b));
   
   return (
     <div className="mb-8">
@@ -47,19 +33,21 @@ const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyNam
         </div>
         
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <div className="glass p-2 rounded-lg flex items-center space-x-2">
-            {yearsToDisplay.map((year) => (
-              <Button 
-                key={year}
-                variant="ghost" 
-                size="sm" 
-                className={selectedYear === year ? "bg-esg-blue text-white" : ""} 
-                onClick={() => setSelectedYear(year)}
-              >
-                {year}
-              </Button>
-            ))}
-          </div>
+          {yearsToDisplay.length > 0 && (
+            <div className="glass p-2 rounded-lg flex items-center space-x-2">
+              {yearsToDisplay.map((year) => (
+                <Button 
+                  key={year}
+                  variant="ghost" 
+                  size="sm" 
+                  className={selectedYear === year ? "bg-esg-blue text-white" : ""} 
+                  onClick={() => setSelectedYear(year)}
+                >
+                  {year}
+                </Button>
+              ))}
+            </div>
+          )}
           
           <Button variant="outline" size="sm" className="border-esg-blue">
             <Filter className="h-4 w-4 mr-2" />
