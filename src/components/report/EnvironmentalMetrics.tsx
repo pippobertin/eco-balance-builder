@@ -10,15 +10,66 @@ import {
   Recycle,
   TreeDeciduous,
   Info,
-  Globe
+  Globe,
+  Plus,
+  Trash2
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import GHGEmissionsCalculator from './GHGEmissionsCalculator';
+
+interface PollutantEntry {
+  pollutant: string;
+  quantity: string;
+  unit: string;
+  medium: string;
+  source: string;
+  notes: string;
+}
 
 interface EnvironmentalMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
 }
+
+const COMMON_POLLUTANTS = [
+  "Ossidi di azoto (NOx)",
+  "Ossidi di zolfo (SOx)",
+  "Particolato (PM10)",
+  "Particolato (PM2.5)",
+  "Composti organici volatili (VOC)",
+  "Monossido di carbonio (CO)",
+  "Ammoniaca (NH3)",
+  "Metalli pesanti - Piombo",
+  "Metalli pesanti - Mercurio",
+  "Metalli pesanti - Cadmio",
+  "Metalli pesanti - Cromo",
+  "Benzene",
+  "Idrocarburi policiclici aromatici (IPA)",
+  "Altro"
+];
+
+const EMISSION_MEDIUMS = [
+  "Aria",
+  "Acqua",
+  "Suolo"
+];
+
+const MEASUREMENT_UNITS = [
+  "kg/anno",
+  "ton/anno",
+  "g/anno",
+  "mg/l",
+  "µg/m³",
+  "mg/kg"
+];
 
 const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({ 
   formValues, 
@@ -33,6 +84,50 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         [name]: value
       }
     }));
+  };
+
+  const handlePollutantChange = (index: number, field: keyof PollutantEntry, value: string) => {
+    setFormValues((prev: any) => {
+      const updatedPollutants = [...(prev.environmentalMetrics.pollutantEntries || [])];
+      updatedPollutants[index] = {
+        ...updatedPollutants[index],
+        [field]: value
+      };
+      return {
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          pollutantEntries: updatedPollutants
+        }
+      };
+    });
+  };
+
+  const addPollutantEntry = () => {
+    setFormValues((prev: any) => ({
+      ...prev,
+      environmentalMetrics: {
+        ...prev.environmentalMetrics,
+        pollutantEntries: [
+          ...(prev.environmentalMetrics.pollutantEntries || []),
+          { pollutant: "", quantity: "", unit: "", medium: "", source: "", notes: "" }
+        ]
+      }
+    }));
+  };
+
+  const removePollutantEntry = (index: number) => {
+    setFormValues((prev: any) => {
+      const updatedPollutants = [...(prev.environmentalMetrics.pollutantEntries || [])];
+      updatedPollutants.splice(index, 1);
+      return {
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          pollutantEntries: updatedPollutants
+        }
+      };
+    });
   };
 
   return (
@@ -57,19 +152,139 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                Riportare solo le sostanze inquinanti che sei tenuto per legge a comunicare alle autorità competenti (ad es. secondo la Industrial Emissions Directive) o che già comunichi in base a un sistema di gestione ambientale come l'EMAS.
+                Seleziona gli inquinanti dall'elenco predefinito o aggiungi inquinanti personalizzati. Per ciascun inquinante, specifica la quantità, l'unità di misura, il mezzo di rilascio e altre informazioni rilevanti.
               </p>
             </div>
           </div>
 
+          {/* Pollutant Entries */}
+          <div className="space-y-6">
+            {(formValues.environmentalMetrics?.pollutantEntries || []).map((entry: PollutantEntry, index: number) => (
+              <div key={index} className="p-4 border rounded-lg space-y-4 bg-white/50 dark:bg-gray-800/50">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Inquinante #{index + 1}
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removePollutantEntry(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tipo di inquinante</Label>
+                    <Select
+                      value={entry.pollutant}
+                      onValueChange={(value) => handlePollutantChange(index, 'pollutant', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona inquinante" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COMMON_POLLUTANTS.map((pollutant) => (
+                          <SelectItem key={pollutant} value={pollutant}>
+                            {pollutant}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Mezzo di rilascio</Label>
+                    <Select
+                      value={entry.medium}
+                      onValueChange={(value) => handlePollutantChange(index, 'medium', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona mezzo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EMISSION_MEDIUMS.map((medium) => (
+                          <SelectItem key={medium} value={medium}>
+                            {medium}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Quantità</Label>
+                    <Input
+                      type="number"
+                      value={entry.quantity}
+                      onChange={(e) => handlePollutantChange(index, 'quantity', e.target.value)}
+                      placeholder="Inserisci la quantità"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Unità di misura</Label>
+                    <Select
+                      value={entry.unit}
+                      onValueChange={(value) => handlePollutantChange(index, 'unit', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona unità" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MEASUREMENT_UNITS.map((unit) => (
+                          <SelectItem key={unit} value={unit}>
+                            {unit}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Fonte di emissione</Label>
+                    <Input
+                      value={entry.source}
+                      onChange={(e) => handlePollutantChange(index, 'source', e.target.value)}
+                      placeholder="Es: Processo produttivo, Caldaia, etc."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Note aggiuntive</Label>
+                    <Input
+                      value={entry.notes}
+                      onChange={(e) => handlePollutantChange(index, 'notes', e.target.value)}
+                      placeholder="Eventuali note o dettagli"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addPollutantEntry}
+              className="w-full"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Aggiungi inquinante
+            </Button>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* Additional free-form pollutants section */}
           <div>
-            <Label htmlFor="pollutants">Sostanze inquinanti emesse con relative quantità</Label>
+            <Label htmlFor="additionalPollutants">Altri inquinanti non presenti nell'elenco</Label>
             <Textarea
-              id="pollutants"
-              name="pollutants"
-              placeholder="Formato suggerito: Inquinante | Emissioni (kg) | Mezzo di rilascio (aria, acqua, suolo)
-Esempio: Cadmio e suoi composti | 10 | Acqua"
-              value={formValues.environmentalMetrics?.pollutants || ""}
+              id="additionalPollutants"
+              name="additionalPollutants"
+              placeholder="Inserisci qui eventuali altri inquinanti non presenti nell'elenco predefinito, specificando quantità e dettagli nel formato che preferisci."
+              value={formValues.environmentalMetrics?.additionalPollutants || ""}
               onChange={handleChange}
               className="min-h-[120px]"
             />
