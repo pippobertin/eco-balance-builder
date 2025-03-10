@@ -1,1236 +1,1060 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
-  Globe, 
-  Factory, 
-  Car,
-  Bolt,
-  Truck,
-  Package,
-  Droplet, // Changed Water to Droplet as it doesn't exist in lucide-react
-  Trash,
+  Leaf, 
+  Car, 
+  Factory,
+  Wind, 
+  Droplet, 
+  BatteryCharging, 
+  Trash2,
+  PlusCircle,
   Info,
-  Plus,
-  Check,
-  X
+  BarChart3
 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 interface GHGEmissionsCalculatorProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
 }
 
+interface Vehicle {
+  id: string;
+  type: string;
+  fuelType: string;
+  kilometers: string;
+  fuelConsumption: string;
+  emissionsFactor: string;
+}
+
+interface FuelConsumption {
+  id: string;
+  fuelType: string;
+  quantity: string;
+  unit: string;
+  emissionsFactor: string;
+  gwpValue: string;
+}
+
+interface BusinessTrip {
+  id: string;
+  transportType: string;
+  distance: string;
+  unit: string;
+  emissionsFactor: string;
+}
+
+interface Scope1Data {
+  reportingPeriod: string;
+  operationalUnit: string;
+  companyIdentifier: string;
+  notes: string;
+  totalEnergyGenerated: string;
+  vehicles: Vehicle[];
+  fuels: FuelConsumption[];
+  otherDirectProcesses: string;
+  calculationMethod: string;
+}
+
+interface Scope2Data {
+  electricityConsumption: string;
+  provider: string;
+  energyMix: string;
+  emissionsFactor: string;
+  otherEnergyServices: string;
+}
+
+interface Scope3Data {
+  waterConsumption: string;
+  businessTrips: BusinessTrip[];
+  rawMaterialsInfo: string;
+  totalWaste: string;
+  hazardousWaste: string;
+  recycledWaste: string;
+  wasteEmissionsFactor: string;
+  otherExternalServices: string;
+  calculationMethod: string;
+}
+
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ 
   formValues, 
   setFormValues 
 }) => {
-  const [activeTab, setActiveTab] = useState("common");
+  const [activeTab, setActiveTab] = useState<'scope1' | 'scope2' | 'scope3'>('scope1');
   
-  // Funzione per gestire i cambiamenti nei dati comuni
-  const handleCommonChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev: any) => ({
+  const [scope1Data, setScope1Data] = useState<Scope1Data>(() => {
+    return formValues.environmentalMetrics?.scope1Data || {
+      reportingPeriod: '',
+      operationalUnit: '',
+      companyIdentifier: '',
+      notes: '',
+      totalEnergyGenerated: '',
+      vehicles: [],
+      fuels: [],
+      otherDirectProcesses: '',
+      calculationMethod: ''
+    };
+  });
+  
+  const [scope2Data, setScope2Data] = useState<Scope2Data>(() => {
+    return formValues.environmentalMetrics?.scope2Data || {
+      electricityConsumption: '',
+      provider: '',
+      energyMix: '',
+      emissionsFactor: '',
+      otherEnergyServices: ''
+    };
+  });
+  
+  const [scope3Data, setScope3Data] = useState<Scope3Data>(() => {
+    return formValues.environmentalMetrics?.scope3Data || {
+      waterConsumption: '',
+      businessTrips: [],
+      rawMaterialsInfo: '',
+      totalWaste: '',
+      hazardousWaste: '',
+      recycledWaste: '',
+      wasteEmissionsFactor: '',
+      otherExternalServices: '',
+      calculationMethod: ''
+    };
+  });
+  
+  const [totalScope1Emissions, setTotalScope1Emissions] = useState<number>(0);
+  const [totalScope2Emissions, setTotalScope2Emissions] = useState<number>(0);
+  const [totalScope3Emissions, setTotalScope3Emissions] = useState<number>(0);
+  
+  // Update form values when scope data changes
+  useEffect(() => {
+    setFormValues(prev => ({
       ...prev,
       environmentalMetrics: {
         ...prev.environmentalMetrics,
-        ghgEmissions: {
-          ...prev.environmentalMetrics?.ghgEmissions,
-          common: {
-            ...prev.environmentalMetrics?.ghgEmissions?.common,
-            [name]: value
-          }
-        }
+        scope1Data,
+        scope2Data,
+        scope3Data,
+        totalScope1Emissions,
+        totalScope2Emissions,
+        totalScope3Emissions
       }
     }));
-  };
+  }, [scope1Data, scope2Data, scope3Data, totalScope1Emissions, totalScope2Emissions, totalScope3Emissions, setFormValues]);
   
-  // Funzione per gestire i cambiamenti nei dati Scope 1
-  const handleScope1Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, category?: string, index?: number) => {
-    const { name, value } = e.target;
+  // Calculate emissions when relevant data changes
+  useEffect(() => {
+    calculateScope1Emissions();
+    calculateScope2Emissions();
+    calculateScope3Emissions();
+  }, [scope1Data, scope2Data, scope3Data]);
+  
+  const calculateScope1Emissions = () => {
+    let total = 0;
     
-    if (category && index !== undefined) {
-      // Per campi in array come veicoli o combustibili
-      setFormValues((prev: any) => {
-        const updatedScope1 = { ...prev.environmentalMetrics?.ghgEmissions?.scope1 || {} };
-        if (!updatedScope1[category]) updatedScope1[category] = [];
-        if (!updatedScope1[category][index]) updatedScope1[category][index] = {};
-        updatedScope1[category][index][name] = value;
+    // Calculate emissions from vehicles
+    scope1Data.vehicles.forEach(vehicle => {
+      if (vehicle.kilometers && vehicle.fuelConsumption && vehicle.emissionsFactor) {
+        const kilometers = parseFloat(vehicle.kilometers);
+        const consumption = parseFloat(vehicle.fuelConsumption);
+        const factor = parseFloat(vehicle.emissionsFactor);
         
-        return {
-          ...prev,
-          environmentalMetrics: {
-            ...prev.environmentalMetrics,
-            ghgEmissions: {
-              ...prev.environmentalMetrics?.ghgEmissions,
-              scope1: updatedScope1
-            }
-          }
-        };
-      });
-    } else {
-      // Per campi diretti in scope1
-      setFormValues((prev: any) => ({
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope1: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope1,
-              [name]: value
-            }
-          }
-        }
-      }));
-    }
-  };
-  
-  // Funzione per gestire i cambiamenti nei dati Scope 2
-  const handleScope2Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev: any) => ({
-      ...prev,
-      environmentalMetrics: {
-        ...prev.environmentalMetrics,
-        ghgEmissions: {
-          ...prev.environmentalMetrics?.ghgEmissions,
-          scope2: {
-            ...prev.environmentalMetrics?.ghgEmissions?.scope2,
-            [name]: value
-          }
+        if (!isNaN(kilometers) && !isNaN(consumption) && !isNaN(factor)) {
+          total += (kilometers * consumption * factor) / 1000; // Convert to tCO2eq
         }
       }
-    }));
-  };
-  
-  // Funzione per gestire i cambiamenti nei dati Scope 3
-  const handleScope3Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, category?: string) => {
-    const { name, value } = e.target;
-    
-    if (category) {
-      // Per campi organizzati in categorie
-      setFormValues((prev: any) => {
-        const updatedScope3 = { ...prev.environmentalMetrics?.ghgEmissions?.scope3 || {} };
-        if (!updatedScope3[category]) updatedScope3[category] = {};
-        updatedScope3[category][name] = value;
-        
-        return {
-          ...prev,
-          environmentalMetrics: {
-            ...prev.environmentalMetrics,
-            ghgEmissions: {
-              ...prev.environmentalMetrics?.ghgEmissions,
-              scope3: updatedScope3
-            }
-          }
-        };
-      });
-    } else {
-      // Per campi diretti in scope3
-      setFormValues((prev: any) => ({
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope3: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope3,
-              [name]: value
-            }
-          }
-        }
-      }));
-    }
-  };
-  
-  // Funzioni per aggiungere elementi a liste (veicoli, combustibili, ecc.)
-  const addVehicle = () => {
-    setFormValues((prev: any) => {
-      const currentVehicles = prev.environmentalMetrics?.ghgEmissions?.scope1?.vehicles || [];
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope1: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope1,
-              vehicles: [...currentVehicles, { type: '', kilometers: '', fuelType: '', fuelConsumption: '' }]
-            }
-          }
-        }
-      };
     });
+    
+    // Calculate emissions from fuels
+    scope1Data.fuels.forEach(fuel => {
+      if (fuel.quantity && fuel.emissionsFactor) {
+        const quantity = parseFloat(fuel.quantity);
+        const factor = parseFloat(fuel.emissionsFactor);
+        const gwp = parseFloat(fuel.gwpValue || '1');
+        
+        if (!isNaN(quantity) && !isNaN(factor) && !isNaN(gwp)) {
+          total += quantity * factor * gwp / 1000; // Convert to tCO2eq
+        }
+      }
+    });
+    
+    setTotalScope1Emissions(parseFloat(total.toFixed(2)));
+  };
+  
+  const calculateScope2Emissions = () => {
+    let total = 0;
+    
+    // Calculate emissions from electricity consumption
+    if (scope2Data.electricityConsumption && scope2Data.emissionsFactor) {
+      const consumption = parseFloat(scope2Data.electricityConsumption);
+      const factor = parseFloat(scope2Data.emissionsFactor);
+      
+      if (!isNaN(consumption) && !isNaN(factor)) {
+        total += consumption * factor; // Already in tCO2eq if factor is in tCO2eq/MWh
+      }
+    }
+    
+    setTotalScope2Emissions(parseFloat(total.toFixed(2)));
+  };
+  
+  const calculateScope3Emissions = () => {
+    let total = 0;
+    
+    // Calculate emissions from business trips
+    scope3Data.businessTrips.forEach(trip => {
+      if (trip.distance && trip.emissionsFactor) {
+        const distance = parseFloat(trip.distance);
+        const factor = parseFloat(trip.emissionsFactor);
+        
+        if (!isNaN(distance) && !isNaN(factor)) {
+          total += distance * factor / 1000; // Convert to tCO2eq
+        }
+      }
+    });
+    
+    // Calculate emissions from waste if data available
+    if (scope3Data.totalWaste && scope3Data.wasteEmissionsFactor) {
+      const waste = parseFloat(scope3Data.totalWaste);
+      const factor = parseFloat(scope3Data.wasteEmissionsFactor);
+      
+      if (!isNaN(waste) && !isNaN(factor)) {
+        total += waste * factor; // Already in tCO2eq if factor is in correct units
+      }
+    }
+    
+    setTotalScope3Emissions(parseFloat(total.toFixed(2)));
+  };
+  
+  const handleScope1Change = (field: keyof Scope1Data, value: string) => {
+    setScope1Data(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handleScope2Change = (field: keyof Scope2Data, value: string) => {
+    setScope2Data(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handleScope3Change = (field: keyof Scope3Data, value: string) => {
+    setScope3Data(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handleVehicleChange = (id: string, field: keyof Vehicle, value: string) => {
+    setScope1Data(prev => ({
+      ...prev,
+      vehicles: prev.vehicles.map(vehicle => 
+        vehicle.id === id ? { ...vehicle, [field]: value } : vehicle
+      )
+    }));
+  };
+  
+  const handleFuelChange = (id: string, field: keyof FuelConsumption, value: string) => {
+    setScope1Data(prev => ({
+      ...prev,
+      fuels: prev.fuels.map(fuel => 
+        fuel.id === id ? { ...fuel, [field]: value } : fuel
+      )
+    }));
+  };
+  
+  const handleTripChange = (id: string, field: keyof BusinessTrip, value: string) => {
+    setScope3Data(prev => ({
+      ...prev,
+      businessTrips: prev.businessTrips.map(trip => 
+        trip.id === id ? { ...trip, [field]: value } : trip
+      )
+    }));
+  };
+  
+  const addVehicle = () => {
+    const newVehicle: Vehicle = {
+      id: `vehicle-${Date.now()}`,
+      type: '',
+      fuelType: '',
+      kilometers: '',
+      fuelConsumption: '',
+      emissionsFactor: ''
+    };
+    
+    setScope1Data(prev => ({
+      ...prev,
+      vehicles: [...prev.vehicles, newVehicle]
+    }));
+  };
+  
+  const removeVehicle = (id: string) => {
+    setScope1Data(prev => ({
+      ...prev,
+      vehicles: prev.vehicles.filter(vehicle => vehicle.id !== id)
+    }));
   };
   
   const addFuel = () => {
-    setFormValues((prev: any) => {
-      const currentFuels = prev.environmentalMetrics?.ghgEmissions?.scope1?.fuels || [];
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope1: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope1,
-              fuels: [...currentFuels, { type: '', quantity: '', unit: '', emissionFactor: '', gwp: '' }]
-            }
-          }
-        }
-      };
-    });
+    const newFuel: FuelConsumption = {
+      id: `fuel-${Date.now()}`,
+      fuelType: '',
+      quantity: '',
+      unit: '',
+      emissionsFactor: '',
+      gwpValue: '1'
+    };
+    
+    setScope1Data(prev => ({
+      ...prev,
+      fuels: [...prev.fuels, newFuel]
+    }));
   };
-
+  
+  const removeFuel = (id: string) => {
+    setScope1Data(prev => ({
+      ...prev,
+      fuels: prev.fuels.filter(fuel => fuel.id !== id)
+    }));
+  };
+  
   const addBusinessTrip = () => {
-    setFormValues((prev: any) => {
-      const currentTrips = prev.environmentalMetrics?.ghgEmissions?.scope3?.businessTrips || [];
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope3: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope3,
-              businessTrips: [...currentTrips, { type: '', distance: '', unit: '', emissionFactor: '' }]
-            }
-          }
-        }
-      };
-    });
+    const newTrip: BusinessTrip = {
+      id: `trip-${Date.now()}`,
+      transportType: '',
+      distance: '',
+      unit: 'km',
+      emissionsFactor: ''
+    };
+    
+    setScope3Data(prev => ({
+      ...prev,
+      businessTrips: [...prev.businessTrips, newTrip]
+    }));
   };
   
-  // Funzioni per rimuovere elementi dalle liste
-  const removeVehicle = (index: number) => {
-    setFormValues((prev: any) => {
-      const currentVehicles = [...(prev.environmentalMetrics?.ghgEmissions?.scope1?.vehicles || [])];
-      currentVehicles.splice(index, 1);
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope1: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope1,
-              vehicles: currentVehicles
-            }
-          }
-        }
-      };
-    });
+  const removeBusinessTrip = (id: string) => {
+    setScope3Data(prev => ({
+      ...prev,
+      businessTrips: prev.businessTrips.filter(trip => trip.id !== id)
+    }));
   };
   
-  const removeFuel = (index: number) => {
-    setFormValues((prev: any) => {
-      const currentFuels = [...(prev.environmentalMetrics?.ghgEmissions?.scope1?.fuels || [])];
-      currentFuels.splice(index, 1);
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope1: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope1,
-              fuels: currentFuels
-            }
-          }
-        }
-      };
-    });
-  };
-
-  const removeBusinessTrip = (index: number) => {
-    setFormValues((prev: any) => {
-      const currentTrips = [...(prev.environmentalMetrics?.ghgEmissions?.scope3?.businessTrips || [])];
-      currentTrips.splice(index, 1);
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          ghgEmissions: {
-            ...prev.environmentalMetrics?.ghgEmissions,
-            scope3: {
-              ...prev.environmentalMetrics?.ghgEmissions?.scope3,
-              businessTrips: currentTrips
-            }
-          }
-        }
-      };
-    });
-  };
-
-  // Recupera i valori attuali dell'oggetto ghgEmissions
-  const ghgEmissions = formValues.environmentalMetrics?.ghgEmissions || {
-    common: {},
-    scope1: { fuels: [], vehicles: [] },
-    scope2: {},
-    scope3: { businessTrips: [] }
-  };
-
   return (
-    <GlassmorphicCard>
+    <GlassmorphicCard className="mb-6">
       <div className="flex items-center mb-4">
-        <Globe className="mr-2 h-5 w-5 text-blue-500" />
-        <h3 className="text-xl font-semibold">Calcolo Dettagliato delle Emissioni GHG</h3>
+        <Leaf className="mr-2 h-5 w-5 text-green-500" />
+        <h3 className="text-xl font-semibold">B3 - Energia ed emissioni di gas a effetto serra (Dettagliato)</h3>
       </div>
       
-      <div className="space-y-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
-          <div className="flex items-start">
-            <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              In questa sezione puoi inserire i dati dettagliati relativi ai consumi energetici e alle emissioni di gas serra della tua impresa. 
-              I dati saranno organizzati secondo le tre categorie di emissioni: Scope 1 (emissioni dirette), Scope 2 (emissioni indirette da energia acquistata) e Scope 3 (altre emissioni indirette).
-            </p>
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-6">
+        <div className="flex items-start">
+          <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            Questo calcolatore ti permette di inserire dati dettagliati sui tuoi consumi energetici per calcolare le emissioni di gas a effetto serra secondo lo standard V-SME. I dati sono suddivisi in tre categorie (Scope 1, 2 e 3) in base alla fonte delle emissioni.
+          </p>
+        </div>
+      </div>
+      
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+          <div className="flex items-center bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-3 rounded-lg">
+            <BarChart3 className="h-5 w-5 mr-2" />
+            <div>
+              <span className="font-semibold">Totale emissioni GHG: </span>
+              <span className="font-bold">{(totalScope1Emissions + totalScope2Emissions + totalScope3Emissions).toFixed(2)} tCO₂eq</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 flex-wrap">
+            <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-3 py-2 rounded">
+              <span className="text-sm">Scope 1: <strong>{totalScope1Emissions} tCO₂eq</strong></span>
+            </div>
+            <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 px-3 py-2 rounded">
+              <span className="text-sm">Scope 2: <strong>{totalScope2Emissions} tCO₂eq</strong></span>
+            </div>
+            <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-3 py-2 rounded">
+              <span className="text-sm">Scope 3: <strong>{totalScope3Emissions} tCO₂eq</strong></span>
+            </div>
           </div>
         </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="common">Dati Comuni</TabsTrigger>
-            <TabsTrigger value="scope1">Scope 1</TabsTrigger>
-            <TabsTrigger value="scope2">Scope 2</TabsTrigger>
-            <TabsTrigger value="scope3">Scope 3</TabsTrigger>
-          </TabsList>
-
-          {/* ========== TAB: DATI COMUNI ========== */}
-          <TabsContent value="common" className="space-y-4 pt-4">
-            <h4 className="font-medium text-lg">Informazioni Generali</h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="reportingPeriod">Periodo di riferimento</Label>
-                <Select 
-                  value={ghgEmissions.common?.reportingPeriod || ""}
-                  onValueChange={(value) => handleCommonChange({ target: { name: 'reportingPeriod', value } } as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona un periodo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2024">Anno 2024</SelectItem>
-                    <SelectItem value="2023">Anno 2023</SelectItem>
-                    <SelectItem value="2022">Anno 2022</SelectItem>
-                    <SelectItem value="Q1-2024">Q1 2024</SelectItem>
-                    <SelectItem value="Q2-2024">Q2 2024</SelectItem>
-                    <SelectItem value="Q3-2024">Q3 2024</SelectItem>
-                    <SelectItem value="Q4-2023">Q4 2023</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="operationalUnit">Unità operativa o sede</Label>
-                <Input
-                  id="operationalUnit"
-                  name="operationalUnit"
-                  placeholder="Es. Sede centrale, Stabilimento A, ecc."
-                  value={ghgEmissions.common?.operationalUnit || ""}
-                  onChange={handleCommonChange}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="companyIdentifier">Identificativo dell'azienda</Label>
-                <Input
-                  id="companyIdentifier"
-                  name="companyIdentifier"
-                  placeholder="Nome o codice dell'azienda"
-                  value={ghgEmissions.common?.companyIdentifier || ""}
-                  onChange={handleCommonChange}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="calculationMethod">Metodo di calcolo adottato</Label>
-                <Select 
-                  value={ghgEmissions.common?.calculationMethod || ""}
-                  onValueChange={(value) => handleCommonChange({ target: { name: 'calculationMethod', value } } as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona un metodo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ghg-protocol">GHG Protocol</SelectItem>
-                    <SelectItem value="iso-14064">ISO 14064</SelectItem>
-                    <SelectItem value="ipcc">IPCC Guidelines</SelectItem>
-                    <SelectItem value="custom">Metodo personalizzato</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
+      </div>
+      
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'scope1' | 'scope2' | 'scope3')}>
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="scope1">Scope 1 - Emissioni Dirette</TabsTrigger>
+          <TabsTrigger value="scope2">Scope 2 - Energia Acquistata</TabsTrigger>
+          <TabsTrigger value="scope3">Scope 3 - Catena del Valore</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="scope1" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <Label htmlFor="notes">Note e commenti sul metodo di rilevazione</Label>
-              <Textarea
-                id="notes"
-                name="notes"
-                placeholder="Inserisci eventuali note sul metodo di rilevazione dei dati..."
-                value={ghgEmissions.common?.notes || ""}
-                onChange={handleCommonChange}
-                className="min-h-[100px]"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="documentationUrl">Link a documentazione o allegati</Label>
+              <Label htmlFor="reportingPeriod">Periodo di riferimento</Label>
               <Input
-                id="documentationUrl"
-                name="documentationUrl"
-                placeholder="URL a documenti o fogli di calcolo"
-                value={ghgEmissions.common?.documentationUrl || ""}
-                onChange={handleCommonChange}
+                id="reportingPeriod"
+                value={scope1Data.reportingPeriod}
+                onChange={(e) => handleScope1Change('reportingPeriod', e.target.value)}
+                placeholder="Es. Anno 2023"
               />
             </div>
-          </TabsContent>
-
-          {/* ========== TAB: SCOPE 1 ========== */}
-          <TabsContent value="scope1" className="space-y-4 pt-4">
-            <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md mb-4">
-              <div className="flex items-start">
-                <Info className="mt-0.5 mr-2 h-4 w-4 text-amber-500" />
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Lo Scope 1 comprende tutte le emissioni dirette da fonti di proprietà o controllate dall'impresa,
-                  come combustibili fossili bruciati in loco, veicoli aziendali e eventuali perdite di gas refrigeranti.
-                </p>
-              </div>
-            </div>
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Factory className="mr-2 h-4 w-4" />
-              Consumi energetici interni e combustione
-            </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="internalEnergyTotal">Quantità totale di energia generata internamente (MWh)</Label>
-                <Input
-                  id="internalEnergyTotal"
-                  name="internalEnergyTotal"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope1?.internalEnergyTotal || ""}
-                  onChange={handleScope1Change}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="energyType">Tipologia principale di energia generata</Label>
-                <Select 
-                  value={ghgEmissions.scope1?.energyType || ""}
-                  onValueChange={(value) => handleScope1Change({ target: { name: 'energyType', value } } as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona tipologia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fossil">Energia da combustibili fossili</SelectItem>
-                    <SelectItem value="renewable">Energia da fonti rinnovabili</SelectItem>
-                    <SelectItem value="mixed">Mix energetico</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="operationalUnit">Unità operativa o sede</Label>
+              <Input
+                id="operationalUnit"
+                value={scope1Data.operationalUnit}
+                onChange={(e) => handleScope1Change('operationalUnit', e.target.value)}
+                placeholder="Es. Sede Centrale"
+              />
             </div>
-
-            {/* Lista di combustibili */}
-            <div className="space-y-2 border p-4 rounded-md">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium">Dati specifici per combustibile</h5>
-                <Button variant="outline" size="sm" onClick={addFuel}>
-                  <Plus className="h-4 w-4 mr-1" /> Aggiungi combustibile
-                </Button>
-              </div>
-              
-              {(ghgEmissions.scope1?.fuels || []).length === 0 && (
-                <p className="text-sm text-gray-500 italic">Nessun combustibile aggiunto</p>
-              )}
-              
-              {(ghgEmissions.scope1?.fuels || []).map((fuel: any, index: number) => (
-                <div key={index} className="border p-3 rounded-md bg-gray-50 dark:bg-gray-900">
-                  <div className="flex justify-between items-start mb-2">
-                    <h6 className="font-medium">Combustibile #{index+1}</h6>
-                    <Button variant="ghost" size="sm" onClick={() => removeFuel(index)} className="h-6 w-6 p-0 text-red-500">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+            
+            <div>
+              <Label htmlFor="companyIdentifier">Identificativo dell'azienda</Label>
+              <Input
+                id="companyIdentifier"
+                value={scope1Data.companyIdentifier}
+                onChange={(e) => handleScope1Change('companyIdentifier', e.target.value)}
+                placeholder="Es. Nome Azienda S.p.A."
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="totalEnergyGenerated">Quantità totale di energia generata internamente (MWh)</Label>
+              <Input
+                id="totalEnergyGenerated"
+                type="number"
+                value={scope1Data.totalEnergyGenerated}
+                onChange={(e) => handleScope1Change('totalEnergyGenerated', e.target.value)}
+                placeholder="0.0"
+              />
+            </div>
+          </div>
+          
+          <Accordion type="single" collapsible defaultValue="vehicles">
+            <AccordionItem value="vehicles">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Car className="mr-2 h-4 w-4" />
+                  Flotta Auto Aziendale
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {scope1Data.vehicles.map((vehicle) => (
+                    <div key={vehicle.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Veicolo</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeVehicle(vehicle.id)}
+                          className="h-8 w-8 p-0 text-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor={`vehicleType-${vehicle.id}`}>Categoria del veicolo</Label>
+                          <Select 
+                            value={vehicle.type} 
+                            onValueChange={(value) => handleVehicleChange(vehicle.id, 'type', value)}
+                          >
+                            <SelectTrigger id={`vehicleType-${vehicle.id}`}>
+                              <SelectValue placeholder="Seleziona categoria" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="car">Auto</SelectItem>
+                              <SelectItem value="van">Furgone</SelectItem>
+                              <SelectItem value="truck">Camion</SelectItem>
+                              <SelectItem value="other">Altro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`fuelType-${vehicle.id}`}>Tipo di carburante</Label>
+                          <Select 
+                            value={vehicle.fuelType} 
+                            onValueChange={(value) => handleVehicleChange(vehicle.id, 'fuelType', value)}
+                          >
+                            <SelectTrigger id={`fuelType-${vehicle.id}`}>
+                              <SelectValue placeholder="Seleziona carburante" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="gasoline">Benzina</SelectItem>
+                              <SelectItem value="diesel">Diesel</SelectItem>
+                              <SelectItem value="lpg">GPL</SelectItem>
+                              <SelectItem value="cng">Metano</SelectItem>
+                              <SelectItem value="electric">Elettrico</SelectItem>
+                              <SelectItem value="hybrid">Ibrido</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`kilometers-${vehicle.id}`}>Chilometri percorsi</Label>
+                          <Input
+                            id={`kilometers-${vehicle.id}`}
+                            type="number"
+                            value={vehicle.kilometers}
+                            onChange={(e) => handleVehicleChange(vehicle.id, 'kilometers', e.target.value)}
+                            placeholder="0"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`fuelConsumption-${vehicle.id}`}>Consumo carburante (l/100km)</Label>
+                          <Input
+                            id={`fuelConsumption-${vehicle.id}`}
+                            type="number"
+                            value={vehicle.fuelConsumption}
+                            onChange={(e) => handleVehicleChange(vehicle.id, 'fuelConsumption', e.target.value)}
+                            placeholder="0.0"
+                          />
+                        </div>
+                        
+                        <div className="col-span-1 md:col-span-2">
+                          <Label htmlFor={`emissionsFactor-${vehicle.id}`}>Fattore di emissione (kgCO₂eq/l)</Label>
+                          <Input
+                            id={`emissionsFactor-${vehicle.id}`}
+                            type="number"
+                            value={vehicle.emissionsFactor}
+                            onChange={(e) => handleVehicleChange(vehicle.id, 'emissionsFactor', e.target.value)}
+                            placeholder="0.0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Esempio: Benzina ~2.3 kgCO₂eq/l, Diesel ~2.7 kgCO₂eq/l
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div>
-                      <Label htmlFor={`fuel-type-${index}`} className="text-xs">Tipo</Label>
-                      <Select 
-                        value={fuel.type || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'fuels', index)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="natural-gas">Gas naturale</SelectItem>
-                          <SelectItem value="diesel">Gasolio</SelectItem>
-                          <SelectItem value="petrol">Benzina</SelectItem>
-                          <SelectItem value="lpg">GPL</SelectItem>
-                          <SelectItem value="coal">Carbone</SelectItem>
-                          <SelectItem value="other">Altro</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  <Button 
+                    variant="outline" 
+                    onClick={addVehicle}
+                    className="flex items-center w-full justify-center"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Aggiungi veicolo
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="fuels">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Factory className="mr-2 h-4 w-4" />
+                  Consumi energetici interni
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {scope1Data.fuels.map((fuel) => (
+                    <div key={fuel.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Combustibile</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeFuel(fuel.id)}
+                          className="h-8 w-8 p-0 text-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor={`fuelType-${fuel.id}`}>Tipo di combustibile</Label>
+                          <Select 
+                            value={fuel.fuelType} 
+                            onValueChange={(value) => handleFuelChange(fuel.id, 'fuelType', value)}
+                          >
+                            <SelectTrigger id={`fuelType-${fuel.id}`}>
+                              <SelectValue placeholder="Seleziona combustibile" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="natural_gas">Gas naturale</SelectItem>
+                              <SelectItem value="lpg">GPL</SelectItem>
+                              <SelectItem value="diesel">Gasolio</SelectItem>
+                              <SelectItem value="fuel_oil">Olio combustibile</SelectItem>
+                              <SelectItem value="coal">Carbone</SelectItem>
+                              <SelectItem value="biomass">Biomassa</SelectItem>
+                              <SelectItem value="other">Altro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`unit-${fuel.id}`}>Unità di misura</Label>
+                          <Select 
+                            value={fuel.unit} 
+                            onValueChange={(value) => handleFuelChange(fuel.id, 'unit', value)}
+                          >
+                            <SelectTrigger id={`unit-${fuel.id}`}>
+                              <SelectValue placeholder="Seleziona unità" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="m3">m³ (gas)</SelectItem>
+                              <SelectItem value="l">Litri</SelectItem>
+                              <SelectItem value="kg">Kg</SelectItem>
+                              <SelectItem value="t">Tonnellate</SelectItem>
+                              <SelectItem value="kWh">kWh</SelectItem>
+                              <SelectItem value="MWh">MWh</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`quantity-${fuel.id}`}>Quantità consumata</Label>
+                          <Input
+                            id={`quantity-${fuel.id}`}
+                            type="number"
+                            value={fuel.quantity}
+                            onChange={(e) => handleFuelChange(fuel.id, 'quantity', e.target.value)}
+                            placeholder="0.0"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`emissionsFactor-${fuel.id}`}>Fattore di emissione (kgCO₂eq/unità)</Label>
+                          <Input
+                            id={`emissionsFactor-${fuel.id}`}
+                            type="number"
+                            value={fuel.emissionsFactor}
+                            onChange={(e) => handleFuelChange(fuel.id, 'emissionsFactor', e.target.value)}
+                            placeholder="0.0"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`gwpValue-${fuel.id}`}>Valore GWP (potenziale riscaldamento globale)</Label>
+                          <Input
+                            id={`gwpValue-${fuel.id}`}
+                            type="number"
+                            value={fuel.gwpValue}
+                            onChange={(e) => handleFuelChange(fuel.id, 'gwpValue', e.target.value)}
+                            placeholder="1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Di default 1 per CO₂. Metano: 29.8, N₂O: 273
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <Label htmlFor={`fuel-quantity-${index}`} className="text-xs">Quantità</Label>
-                      <Input
-                        id={`fuel-quantity-${index}`}
-                        name="quantity"
-                        type="number"
-                        placeholder="0.0"
-                        value={fuel.quantity || ""}
-                        onChange={(e) => handleScope1Change(e, 'fuels', index)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`fuel-unit-${index}`} className="text-xs">Unità</Label>
-                      <Select 
-                        value={fuel.unit || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'unit', value } } as any, 'fuels', index)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Unità" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="liters">Litri</SelectItem>
-                          <SelectItem value="kg">Kg</SelectItem>
-                          <SelectItem value="m3">m³</SelectItem>
-                          <SelectItem value="tons">Tonnellate</SelectItem>
-                          <SelectItem value="mwh">MWh</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`fuel-ef-${index}`} className="text-xs">Fattore di emissione</Label>
-                      <Input
-                        id={`fuel-ef-${index}`}
-                        name="emissionFactor"
-                        placeholder="0.0"
-                        value={fuel.emissionFactor || ""}
-                        onChange={(e) => handleScope1Change(e, 'fuels', index)}
-                      />
-                    </div>
-                  </div>
+                  ))}
                   
-                  <div className="mt-2">
-                    <Label htmlFor={`fuel-gwp-${index}`} className="text-xs">Valore GWP adottato</Label>
-                    <Input
-                      id={`fuel-gwp-${index}`}
-                      name="gwp"
-                      placeholder="Es. 1 per CO2, 28 per CH4, 265 per N2O"
-                      value={fuel.gwp || ""}
-                      onChange={(e) => handleScope1Change(e, 'fuels', index)}
+                  <Button 
+                    variant="outline" 
+                    onClick={addFuel}
+                    className="flex items-center w-full justify-center"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Aggiungi combustibile
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="otherProcesses">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Wind className="mr-2 h-4 w-4" />
+                  Altri Processi Diretti
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="otherDirectProcesses">Dati relativi a eventuali processi industriali con emissioni dirette</Label>
+                    <Textarea
+                      id="otherDirectProcesses"
+                      value={scope1Data.otherDirectProcesses}
+                      onChange={(e) => handleScope1Change('otherDirectProcesses', e.target.value)}
+                      placeholder="Descrivere i processi e le relative emissioni stimate (tCO₂eq)"
+                      className="min-h-[100px]"
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Car className="mr-2 h-4 w-4" />
-              Flotta Auto Aziendale
-            </h4>
+              </AccordionContent>
+            </AccordionItem>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="totalVehicles">Numero totale di veicoli</Label>
-                <Input
-                  id="totalVehicles"
-                  name="totalVehicles"
-                  type="number"
-                  placeholder="0"
-                  value={ghgEmissions.scope1?.totalVehicles || ""}
-                  onChange={handleScope1Change}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="totalVehicleEmissions">Emissioni totali della flotta (tCO2eq)</Label>
-                <Input
-                  id="totalVehicleEmissions"
-                  name="totalVehicleEmissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope1?.totalVehicleEmissions || ""}
-                  onChange={handleScope1Change}
-                />
-              </div>
-            </div>
-
-            {/* Lista di veicoli */}
-            <div className="space-y-2 border p-4 rounded-md">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium">Dettaglio veicoli</h5>
-                <Button variant="outline" size="sm" onClick={addVehicle}>
-                  <Plus className="h-4 w-4 mr-1" /> Aggiungi veicolo
-                </Button>
-              </div>
-              
-              {(ghgEmissions.scope1?.vehicles || []).length === 0 && (
-                <p className="text-sm text-gray-500 italic">Nessun veicolo aggiunto</p>
-              )}
-              
-              {(ghgEmissions.scope1?.vehicles || []).map((vehicle: any, index: number) => (
-                <div key={index} className="border p-3 rounded-md bg-gray-50 dark:bg-gray-900">
-                  <div className="flex justify-between items-start mb-2">
-                    <h6 className="font-medium">Veicolo #{index+1}</h6>
-                    <Button variant="ghost" size="sm" onClick={() => removeVehicle(index)} className="h-6 w-6 p-0 text-red-500">
-                      <X className="h-4 w-4" />
-                    </Button>
+            <AccordionItem value="calculationMethod">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Info className="mr-2 h-4 w-4" />
+                  Note tecniche e di calcolo
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="calculationMethod">Metodo di calcolo utilizzato</Label>
+                    <Textarea
+                      id="calculationMethod"
+                      value={scope1Data.calculationMethod}
+                      onChange={(e) => handleScope1Change('calculationMethod', e.target.value)}
+                      placeholder="Descrivi il metodo di calcolo, le fonti dei fattori di emissione, ecc."
+                      className="min-h-[100px]"
+                    />
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div>
-                      <Label htmlFor={`vehicle-type-${index}`} className="text-xs">Categoria</Label>
-                      <Select 
-                        value={vehicle.type || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'type', value } } as any, 'vehicles', index)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="car">Auto</SelectItem>
-                          <SelectItem value="van">Furgone</SelectItem>
-                          <SelectItem value="truck">Camion</SelectItem>
-                          <SelectItem value="bus">Bus</SelectItem>
-                          <SelectItem value="other">Altro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`vehicle-kilometers-${index}`} className="text-xs">Km percorsi</Label>
-                      <Input
-                        id={`vehicle-kilometers-${index}`}
-                        name="kilometers"
-                        type="number"
-                        placeholder="0"
-                        value={vehicle.kilometers || ""}
-                        onChange={(e) => handleScope1Change(e, 'vehicles', index)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`vehicle-fuelType-${index}`} className="text-xs">Carburante</Label>
-                      <Select 
-                        value={vehicle.fuelType || ""}
-                        onValueChange={(value) => handleScope1Change({ target: { name: 'fuelType', value } } as any, 'vehicles', index)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Carburante" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="petrol">Benzina</SelectItem>
-                          <SelectItem value="diesel">Diesel</SelectItem>
-                          <SelectItem value="lpg">GPL</SelectItem>
-                          <SelectItem value="electric">Elettrico</SelectItem>
-                          <SelectItem value="hybrid">Ibrido</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`vehicle-consumption-${index}`} className="text-xs">Consumo (l/100km)</Label>
-                      <Input
-                        id={`vehicle-consumption-${index}`}
-                        name="fuelConsumption"
-                        type="number"
-                        placeholder="0.0"
-                        value={vehicle.fuelConsumption || ""}
-                        onChange={(e) => handleScope1Change(e, 'vehicles', index)}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="notes">Note e commenti</Label>
+                    <Textarea
+                      id="notes"
+                      value={scope1Data.notes}
+                      onChange={(e) => handleScope1Change('notes', e.target.value)}
+                      placeholder="Note sul metodo di rilevazione o altri commenti"
+                      className="min-h-[100px]"
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Factory className="mr-2 h-4 w-4" />
-              Altri Processi Diretti
-            </h4>
-            
-            <div>
-              <Label htmlFor="otherDirectProcesses">Descrizione dei processi</Label>
-              <Textarea
-                id="otherDirectProcesses"
-                name="otherDirectProcesses"
-                placeholder="Descrivi eventuali altri processi industriali che comportano emissioni dirette (es. processi chimici, fumi di combustione, ecc.)"
-                value={ghgEmissions.scope1?.otherDirectProcesses || ""}
-                onChange={handleScope1Change}
-                className="min-h-[100px]"
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="otherDirectEmissions">Emissioni stimate (tCO2eq)</Label>
-                <Input
-                  id="otherDirectEmissions"
-                  name="otherDirectEmissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope1?.otherDirectEmissions || ""}
-                  onChange={handleScope1Change}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="otherDirectCalculationMethod">Metodo di calcolo utilizzato</Label>
-                <Input
-                  id="otherDirectCalculationMethod"
-                  name="otherDirectCalculationMethod"
-                  placeholder="Es. misurazione diretta, stima basata su fattori di emissione, ecc."
-                  value={ghgEmissions.scope1?.otherDirectCalculationMethod || ""}
-                  onChange={handleScope1Change}
-                />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* ========== TAB: SCOPE 2 ========== */}
-          <TabsContent value="scope2" className="space-y-4 pt-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
-              <div className="flex items-start">
-                <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  Lo Scope 2 comprende le emissioni indirette derivanti dalla generazione di elettricità, vapore, riscaldamento o raffreddamento acquistati e consumati dall'impresa.
-                </p>
-              </div>
-            </div>
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Bolt className="mr-2 h-4 w-4" />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+        
+        <TabsContent value="scope2" className="space-y-6">
+          <div className="p-4 border rounded-md bg-purple-50 dark:bg-purple-900/20">
+            <h4 className="font-semibold flex items-center mb-2">
+              <BatteryCharging className="mr-2 h-4 w-4" />
               Consumo di Energia Elettrica
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="electricityPurchased">Quantità di energia elettrica acquistata (MWh)</Label>
+                <Label htmlFor="electricityConsumption">Quantità di energia elettrica acquistata (MWh)</Label>
                 <Input
-                  id="electricityPurchased"
-                  name="electricityPurchased"
+                  id="electricityConsumption"
                   type="number"
+                  value={scope2Data.electricityConsumption}
+                  onChange={(e) => handleScope2Change('electricityConsumption', e.target.value)}
                   placeholder="0.0"
-                  value={ghgEmissions.scope2?.electricityPurchased || ""}
-                  onChange={handleScope2Change}
                 />
-                <p className="text-xs text-gray-500 mt-1">Dato ricavabile dalle bollette elettriche</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Dato generalmente disponibile dalle bollette elettriche
+                </p>
               </div>
               
               <div>
-                <Label htmlFor="electricitySupplier">Identificazione del fornitore</Label>
+                <Label htmlFor="provider">Identificazione del fornitore</Label>
                 <Input
-                  id="electricitySupplier"
-                  name="electricitySupplier"
-                  placeholder="Nome del fornitore di energia elettrica"
-                  value={ghgEmissions.scope2?.electricitySupplier || ""}
-                  onChange={handleScope2Change}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="renewablePercentage">Percentuale da fonti rinnovabili (%)</Label>
-                <Input
-                  id="renewablePercentage"
-                  name="renewablePercentage"
-                  type="number"
-                  min="0"
-                  max="100"
-                  placeholder="0"
-                  value={ghgEmissions.scope2?.renewablePercentage || ""}
-                  onChange={handleScope2Change}
-                />
-                <p className="text-xs text-gray-500 mt-1">Se noto dal mix energetico del fornitore</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="electricityEmissionFactor">Fattore di emissione (tCO2eq/MWh)</Label>
-                <Input
-                  id="electricityEmissionFactor"
-                  name="electricityEmissionFactor"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope2?.electricityEmissionFactor || ""}
-                  onChange={handleScope2Change}
-                />
-              </div>
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg">Altri Servizi Energetici Acquistati</h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="purchasedHeat">Consumo di calore acquistato (MWh)</Label>
-                <Input
-                  id="purchasedHeat"
-                  name="purchasedHeat"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope2?.purchasedHeat || ""}
-                  onChange={handleScope2Change}
+                  id="provider"
+                  value={scope2Data.provider}
+                  onChange={(e) => handleScope2Change('provider', e.target.value)}
+                  placeholder="Es. Nome del fornitore di energia"
                 />
               </div>
               
               <div>
-                <Label htmlFor="purchasedCooling">Consumo di refrigerazione acquistata (MWh)</Label>
+                <Label htmlFor="energyMix">Mix energetico del fornitore (% rinnovabili)</Label>
                 <Input
-                  id="purchasedCooling"
-                  name="purchasedCooling"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope2?.purchasedCooling || ""}
-                  onChange={handleScope2Change}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="heatEmissionFactor">Fattore di emissione calore (tCO2eq/MWh)</Label>
-                <Input
-                  id="heatEmissionFactor"
-                  name="heatEmissionFactor"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope2?.heatEmissionFactor || ""}
-                  onChange={handleScope2Change}
+                  id="energyMix"
+                  value={scope2Data.energyMix}
+                  onChange={(e) => handleScope2Change('energyMix', e.target.value)}
+                  placeholder="Es. 30% rinnovabile, 70% non rinnovabile"
                 />
               </div>
               
               <div>
-                <Label htmlFor="coolingEmissionFactor">Fattore di emissione refrigerazione (tCO2eq/MWh)</Label>
+                <Label htmlFor="emissionsFactor">Fattore di emissione (tCO₂eq/MWh)</Label>
                 <Input
-                  id="coolingEmissionFactor"
-                  name="coolingEmissionFactor"
+                  id="emissionsFactor"
                   type="number"
+                  value={scope2Data.emissionsFactor}
+                  onChange={(e) => handleScope2Change('emissionsFactor', e.target.value)}
                   placeholder="0.0"
-                  value={ghgEmissions.scope2?.coolingEmissionFactor || ""}
-                  onChange={handleScope2Change}
                 />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="scope2CalculationMethod">Metodo di calcolo utilizzato</Label>
-              <Select 
-                value={ghgEmissions.scope2?.scope2CalculationMethod || ""}
-                onValueChange={(value) => handleScope2Change({ target: { name: 'scope2CalculationMethod', value } } as any)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona metodo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="location-based">Location-based (fattori di emissione medi della rete)</SelectItem>
-                  <SelectItem value="market-based">Market-based (fattori specifici del fornitore)</SelectItem>
-                  <SelectItem value="hybrid">Metodo ibrido</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-gray-500 mt-1">
-                Il metodo location-based utilizza fattori di emissione medi della rete, mentre il metodo market-based considera gli accordi contrattuali con i fornitori
-              </p>
-            </div>
-          </TabsContent>
-
-          {/* ========== TAB: SCOPE 3 ========== */}
-          <TabsContent value="scope3" className="space-y-4 pt-4">
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-md mb-4">
-              <div className="flex items-start">
-                <Info className="mt-0.5 mr-2 h-4 w-4 text-green-500" />
-                <p className="text-sm text-green-800 dark:text-green-200">
-                  Lo Scope 3 comprende tutte le altre emissioni indirette che avvengono nella catena del valore dell'impresa, 
-                  incluse quelle a monte e a valle delle sue operazioni.
+                <p className="text-xs text-gray-500 mt-1">
+                  Media italiana: ~0.35 tCO₂eq/MWh. Varia in base al fornitore e al mix energetico.
                 </p>
               </div>
             </div>
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Droplet className="mr-2 h-4 w-4" />
-              Consumi di Acqua
-            </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="waterConsumption">Quantità di acqua consumata (m³)</Label>
-                <Input
-                  id="waterConsumption"
-                  name="waterConsumption"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.water?.waterConsumption || ""}
-                  onChange={(e) => handleScope3Change(e, 'water')}
-                />
-                <p className="text-xs text-gray-500 mt-1">Dato ricavabile dalle bollette idriche</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="waterEmissionFactor">Fattore di emissione (tCO2eq/m³)</Label>
-                <Input
-                  id="waterEmissionFactor"
-                  name="waterEmissionFactor"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.water?.waterEmissionFactor || ""}
-                  onChange={(e) => handleScope3Change(e, 'water')}
-                />
-              </div>
+            <div className="mt-4">
+              <Label htmlFor="otherEnergyServices">Altri servizi energetici acquistati</Label>
+              <Textarea
+                id="otherEnergyServices"
+                value={scope2Data.otherEnergyServices}
+                onChange={(e) => handleScope2Change('otherEnergyServices', e.target.value)}
+                placeholder="Es. calore o refrigerazione acquistata da terzi"
+                className="min-h-[100px]"
+              />
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="waterStressArea">Prelievo in area a stress idrico (m³)</Label>
-                <Input
-                  id="waterStressArea"
-                  name="waterStressArea"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.water?.waterStressArea || ""}
-                  onChange={(e) => handleScope3Change(e, 'water')}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="waterTreatment">Metodo di trattamento delle acque reflue</Label>
-                <Input
-                  id="waterTreatment"
-                  name="waterTreatment"
-                  placeholder="Es. depurazione interna, scarico in fognatura, ecc."
-                  value={ghgEmissions.scope3?.water?.waterTreatment || ""}
-                  onChange={(e) => handleScope3Change(e, 'water')}
-                />
-              </div>
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Truck className="mr-2 h-4 w-4" />
-              Trasporti e Viaggi
-            </h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="totalBusinessTravelEmissions">Emissioni totali da viaggi d'affari (tCO2eq)</Label>
-                <Input
-                  id="totalBusinessTravelEmissions"
-                  name="totalBusinessTravelEmissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.travel?.totalBusinessTravelEmissions || ""}
-                  onChange={(e) => handleScope3Change(e, 'travel')}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="commutingEmissions">Emissioni da pendolarismo dipendenti (tCO2eq)</Label>
-                <Input
-                  id="commutingEmissions"
-                  name="commutingEmissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.travel?.commutingEmissions || ""}
-                  onChange={(e) => handleScope3Change(e, 'travel')}
-                />
-              </div>
-            </div>
-
-            {/* Lista viaggi d'affari */}
-            <div className="space-y-2 border p-4 rounded-md">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium">Dettaglio viaggi d'affari</h5>
-                <Button variant="outline" size="sm" onClick={addBusinessTrip}>
-                  <Plus className="h-4 w-4 mr-1" /> Aggiungi viaggio
-                </Button>
-              </div>
-              
-              {(ghgEmissions.scope3?.businessTrips || []).length === 0 && (
-                <p className="text-sm text-gray-500 italic">Nessun viaggio aggiunto</p>
-              )}
-              
-              {(ghgEmissions.scope3?.businessTrips || []).map((trip: any, index: number) => (
-                <div key={index} className="border p-3 rounded-md bg-gray-50 dark:bg-gray-900">
-                  <div className="flex justify-between items-start mb-2">
-                    <h6 className="font-medium">Viaggio #{index+1}</h6>
-                    <Button variant="ghost" size="sm" onClick={() => removeBusinessTrip(index)} className="h-6 w-6 p-0 text-red-500">
-                      <X className="h-4 w-4" />
-                    </Button>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="scope3" className="space-y-6">
+          <Accordion type="single" collapsible defaultValue="water">
+            <AccordionItem value="water">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Droplet className="mr-2 h-4 w-4" />
+                  Consumi di Acqua
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="waterConsumption">Quantità di acqua consumata (m³)</Label>
+                    <Input
+                      id="waterConsumption"
+                      type="number"
+                      value={scope3Data.waterConsumption}
+                      onChange={(e) => handleScope3Change('waterConsumption', e.target.value)}
+                      placeholder="0.0"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Dato generalmente disponibile dalle bollette idriche
+                    </p>
                   </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div>
-                      <Label htmlFor={`trip-type-${index}`} className="text-xs">Tipo trasporto</Label>
-                      <Select 
-                        value={trip.type || ""}
-                        onValueChange={(value) => handleScope3Change({ target: { name: 'type', value } } as any, 'businessTrips')}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="plane">Aereo</SelectItem>
-                          <SelectItem value="train">Treno</SelectItem>
-                          <SelectItem value="car">Auto</SelectItem>
-                          <SelectItem value="taxi">Taxi</SelectItem>
-                          <SelectItem value="bus">Bus</SelectItem>
-                          <SelectItem value="other">Altro</SelectItem>
-                        </SelectContent>
-                      </Select>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="businessTrips">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Car className="mr-2 h-4 w-4" />
+                  Trasporti e Viaggi d'affari
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {scope3Data.businessTrips.map((trip) => (
+                    <div key={trip.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Viaggio</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeBusinessTrip(trip.id)}
+                          className="h-8 w-8 p-0 text-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor={`transportType-${trip.id}`}>Tipo di trasporto</Label>
+                          <Select 
+                            value={trip.transportType} 
+                            onValueChange={(value) => handleTripChange(trip.id, 'transportType', value)}
+                          >
+                            <SelectTrigger id={`transportType-${trip.id}`}>
+                              <SelectValue placeholder="Seleziona tipo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="plane">Aereo</SelectItem>
+                              <SelectItem value="train">Treno</SelectItem>
+                              <SelectItem value="car">Auto</SelectItem>
+                              <SelectItem value="taxi">Taxi</SelectItem>
+                              <SelectItem value="bus">Bus</SelectItem>
+                              <SelectItem value="other">Altro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`distance-${trip.id}`}>Distanza percorsa</Label>
+                          <Input
+                            id={`distance-${trip.id}`}
+                            type="number"
+                            value={trip.distance}
+                            onChange={(e) => handleTripChange(trip.id, 'distance', e.target.value)}
+                            placeholder="0"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`unit-${trip.id}`}>Unità di misura</Label>
+                          <Select 
+                            value={trip.unit} 
+                            onValueChange={(value) => handleTripChange(trip.id, 'unit', value)}
+                          >
+                            <SelectTrigger id={`unit-${trip.id}`}>
+                              <SelectValue placeholder="Seleziona unità" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="km">km</SelectItem>
+                              <SelectItem value="mi">miglia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`emissionsFactor-${trip.id}`}>Fattore di emissione (gCO₂eq/km)</Label>
+                          <Input
+                            id={`emissionsFactor-${trip.id}`}
+                            type="number"
+                            value={trip.emissionsFactor}
+                            onChange={(e) => handleTripChange(trip.id, 'emissionsFactor', e.target.value)}
+                            placeholder="0.0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Aereo: ~150-250 gCO₂eq/km, Treno: ~30-60 gCO₂eq/km, Auto: ~120-200 gCO₂eq/km
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    
+                  ))}
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={addBusinessTrip}
+                    className="flex items-center w-full justify-center"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Aggiungi viaggio
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="materials">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Factory className="mr-2 h-4 w-4" />
+                  Materie Prime e Approvvigionamenti
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="rawMaterialsInfo">Informazioni su approvvigionamenti e catena di fornitura</Label>
+                    <Textarea
+                      id="rawMaterialsInfo"
+                      value={scope3Data.rawMaterialsInfo}
+                      onChange={(e) => handleScope3Change('rawMaterialsInfo', e.target.value)}
+                      placeholder="Dettagli sugli acquisti, trasporti in entrata, lavorazione, ecc."
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="waste">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Rifiuti e Gestione dei Rifiuti
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor={`trip-distance-${index}`} className="text-xs">Distanza</Label>
+                      <Label htmlFor="totalWaste">Quantità totale di rifiuti prodotti (t)</Label>
                       <Input
-                        id={`trip-distance-${index}`}
-                        name="distance"
+                        id="totalWaste"
                         type="number"
-                        placeholder="0"
-                        value={trip.distance || ""}
-                        onChange={(e) => handleScope3Change(e, 'businessTrips')}
+                        value={scope3Data.totalWaste}
+                        onChange={(e) => handleScope3Change('totalWaste', e.target.value)}
+                        placeholder="0.0"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor={`trip-unit-${index}`} className="text-xs">Unità</Label>
-                      <Select 
-                        value={trip.unit || ""}
-                        onValueChange={(value) => handleScope3Change({ target: { name: 'unit', value } } as any, 'businessTrips')}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Unità" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="km">km</SelectItem>
-                          <SelectItem value="miles">miglia</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="hazardousWaste">Rifiuti pericolosi (t)</Label>
+                      <Input
+                        id="hazardousWaste"
+                        type="number"
+                        value={scope3Data.hazardousWaste}
+                        onChange={(e) => handleScope3Change('hazardousWaste', e.target.value)}
+                        placeholder="0.0"
+                      />
                     </div>
                     
                     <div>
-                      <Label htmlFor={`trip-ef-${index}`} className="text-xs">Fattore di emissione</Label>
+                      <Label htmlFor="recycledWaste">Rifiuti destinati al riciclo o riutilizzo (t)</Label>
                       <Input
-                        id={`trip-ef-${index}`}
-                        name="emissionFactor"
+                        id="recycledWaste"
+                        type="number"
+                        value={scope3Data.recycledWaste}
+                        onChange={(e) => handleScope3Change('recycledWaste', e.target.value)}
                         placeholder="0.0"
-                        value={trip.emissionFactor || ""}
-                        onChange={(e) => handleScope3Change(e, 'businessTrips')}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="wasteEmissionsFactor">Fattore di emissione rifiuti (tCO₂eq/t)</Label>
+                      <Input
+                        id="wasteEmissionsFactor"
+                        type="number"
+                        value={scope3Data.wasteEmissionsFactor}
+                        onChange={(e) => handleScope3Change('wasteEmissionsFactor', e.target.value)}
+                        placeholder="0.0"
                       />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Package className="mr-2 h-4 w-4" />
-              Approvvigionamenti e Fornitura di Materie Prime
-            </h4>
+              </AccordionContent>
+            </AccordionItem>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="purchasedGoodsServices">Valore beni e servizi acquistati (€)</Label>
-                <Input
-                  id="purchasedGoodsServices"
-                  name="purchasedGoodsServices"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.supply?.purchasedGoodsServices || ""}
-                  onChange={(e) => handleScope3Change(e, 'supply')}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="purchasedGoodsEmissions">Emissioni stimate (tCO2eq)</Label>
-                <Input
-                  id="purchasedGoodsEmissions"
-                  name="purchasedGoodsEmissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.supply?.purchasedGoodsEmissions || ""}
-                  onChange={(e) => handleScope3Change(e, 'supply')}
-                />
-              </div>
-            </div>
+            <AccordionItem value="otherServices">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Info className="mr-2 h-4 w-4" />
+                  Altri Consumi e Servizi Esterni
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="otherExternalServices">Informazioni su altri servizi esterni</Label>
+                    <Textarea
+                      id="otherExternalServices"
+                      value={scope3Data.otherExternalServices}
+                      onChange={(e) => handleScope3Change('otherExternalServices', e.target.value)}
+                      placeholder="Dettagli su manutenzione, outsourcing, consulenze, trasporto prodotti finiti, ecc."
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
             
-            <div>
-              <Label htmlFor="supplyChainDescription">Descrizione della catena di fornitura</Label>
-              <Textarea
-                id="supplyChainDescription"
-                name="supplyChainDescription"
-                placeholder="Descrivi le principali componenti della catena di fornitura, inclusi trasporti in entrata, lavorazione materiali, ecc."
-                value={ghgEmissions.scope3?.supply?.supplyChainDescription || ""}
-                onChange={(e) => handleScope3Change(e, 'supply')}
-                className="min-h-[100px]"
-              />
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg flex items-center">
-              <Trash className="mr-2 h-4 w-4" />
-              Rifiuti e Gestione dei Rifiuti
-            </h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="totalWaste">Quantità totale di rifiuti prodotti (tonnellate)</Label>
-                <Input
-                  id="totalWaste"
-                  name="totalWaste"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.waste?.totalWaste || ""}
-                  onChange={(e) => handleScope3Change(e, 'waste')}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="hazardousWaste">Di cui rifiuti pericolosi (tonnellate)</Label>
-                <Input
-                  id="hazardousWaste"
-                  name="hazardousWaste"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.waste?.hazardousWaste || ""}
-                  onChange={(e) => handleScope3Change(e, 'waste')}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="wasteRecycled">Rifiuti destinati al riciclo (tonnellate)</Label>
-                <Input
-                  id="wasteRecycled"
-                  name="wasteRecycled"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.waste?.wasteRecycled || ""}
-                  onChange={(e) => handleScope3Change(e, 'waste')}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="wasteDisposal">Rifiuti destinati allo smaltimento (tonnellate)</Label>
-                <Input
-                  id="wasteDisposal"
-                  name="wasteDisposal"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.waste?.wasteDisposal || ""}
-                  onChange={(e) => handleScope3Change(e, 'waste')}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="wasteEmissionFactor">Fattore di emissione medio (tCO2eq/tonnellata)</Label>
-              <Input
-                id="wasteEmissionFactor"
-                name="wasteEmissionFactor"
-                type="number"
-                placeholder="0.0"
-                value={ghgEmissions.scope3?.waste?.wasteEmissionFactor || ""}
-                onChange={(e) => handleScope3Change(e, 'waste')}
-              />
-            </div>
-
-            <Separator className="my-4" />
-
-            <h4 className="font-medium text-lg">Altri Servizi e Attività</h4>
-            
-            <div>
-              <Label htmlFor="otherScope3Activities">Descrizione di altre attività rilevanti</Label>
-              <Textarea
-                id="otherScope3Activities"
-                name="otherScope3Activities"
-                placeholder="Descrivi altre attività che generano emissioni di Scope 3, come trasporto prodotti finiti, uso dei prodotti venduti, ecc."
-                value={ghgEmissions.scope3?.otherScope3Activities || ""}
-                onChange={handleScope3Change}
-                className="min-h-[100px]"
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="otherScope3Emissions">Emissioni stimate (tCO2eq)</Label>
-                <Input
-                  id="otherScope3Emissions"
-                  name="otherScope3Emissions"
-                  type="number"
-                  placeholder="0.0"
-                  value={ghgEmissions.scope3?.otherScope3Emissions || ""}
-                  onChange={handleScope3Change}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="scope3CalculationMethod">Metodo di calcolo utilizzato</Label>
-                <Input
-                  id="scope3CalculationMethod"
-                  name="scope3CalculationMethod"
-                  placeholder="Es. fattori di emissione, analisi ciclo di vita, ecc."
-                  value={ghgEmissions.scope3?.scope3CalculationMethod || ""}
-                  onChange={handleScope3Change}
-                />
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-md">
-          <h4 className="font-medium text-lg flex items-center">
-            <Check className="mr-2 h-4 w-4 text-green-500" />
-            Riepilogo Emissioni GHG
-          </h4>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-              <h5 className="text-sm font-medium text-gray-500 dark:text-gray-400">Scope 1 - Emissioni Dirette</h5>
-              <p className="text-2xl font-bold">{ghgEmissions.scope1?.totalDirectEmissions || "0"} <span className="text-sm font-normal">tCO2eq</span></p>
-            </div>
-
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-              <h5 className="text-sm font-medium text-gray-500 dark:text-gray-400">Scope 2 - Emissioni Indirette (Energia)</h5>
-              <p className="text-2xl font-bold">{ghgEmissions.scope2?.totalIndirectEmissions || "0"} <span className="text-sm font-normal">tCO2eq</span></p>
-            </div>
-
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-              <h5 className="text-sm font-medium text-gray-500 dark:text-gray-400">Scope 3 - Altre Emissioni Indirette</h5>
-              <p className="text-2xl font-bold">{ghgEmissions.scope3?.totalScope3Emissions || "0"} <span className="text-sm font-normal">tCO2eq</span></p>
-            </div>
-          </div>
-        </div>
-      </div>
+            <AccordionItem value="calculationMethod">
+              <AccordionTrigger className="font-semibold">
+                <div className="flex items-center">
+                  <Info className="mr-2 h-4 w-4" />
+                  Note tecniche e di calcolo
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="calculationMethod">Metodo di calcolo utilizzato</Label>
+                    <Textarea
+                      id="calculationMethod"
+                      value={scope3Data.calculationMethod}
+                      onChange={(e) => handleScope3Change('calculationMethod', e.target.value)}
+                      placeholder="Descrivi il metodo di calcolo, le fonti dei fattori di emissione, ecc."
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+      </Tabs>
     </GlassmorphicCard>
   );
 };
