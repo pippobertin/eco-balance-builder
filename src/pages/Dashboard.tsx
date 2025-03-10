@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -12,8 +12,17 @@ import { ArrowLeft, FileText } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [selectedYear, setSelectedYear] = React.useState<string>("2023");
   const { reportData, currentReport, currentCompany } = useReport();
+  
+  // Set the year based on the current report's year
+  const [selectedYear, setSelectedYear] = React.useState<string>("");
+  
+  // Update the selected year when the current report changes
+  useEffect(() => {
+    if (currentReport && currentReport.report_year) {
+      setSelectedYear(currentReport.report_year);
+    }
+  }, [currentReport]);
   
   // Log the report data to console for debugging
   console.log("Dati del report nella dashboard:", reportData);
@@ -70,6 +79,7 @@ const Dashboard = () => {
             <DashboardHeader 
               selectedYear={selectedYear} 
               setSelectedYear={setSelectedYear} 
+              reportYear={currentReport?.report_year || ""} 
             />
             
             <div className="flex gap-3">

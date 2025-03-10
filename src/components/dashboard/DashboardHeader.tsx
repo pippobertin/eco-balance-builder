@@ -7,9 +7,27 @@ import { Button } from '@/components/ui/button';
 interface DashboardHeaderProps {
   selectedYear: string;
   setSelectedYear: (year: string) => void;
+  reportYear: string;
 }
 
-const DashboardHeader = ({ selectedYear, setSelectedYear }: DashboardHeaderProps) => {
+const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear }: DashboardHeaderProps) => {
+  // We'll dynamically determine which years to show based on the report year
+  const currentYear = new Date().getFullYear();
+  
+  // Create an array of years to display, including the report year and previous years
+  const getYearsToDisplay = (): string[] => {
+    const reportYearNum = parseInt(reportYear) || currentYear;
+    
+    // Show the report year and the two previous years if available
+    return [
+      (reportYearNum - 2).toString(),
+      (reportYearNum - 1).toString(),
+      reportYearNum.toString()
+    ];
+  };
+  
+  const yearsToDisplay = getYearsToDisplay();
+  
   return (
     <div className="mb-8">
       <motion.div
@@ -25,30 +43,17 @@ const DashboardHeader = ({ selectedYear, setSelectedYear }: DashboardHeaderProps
         
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
           <div className="glass p-2 rounded-lg flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={selectedYear === "2021" ? "bg-esg-blue text-white" : ""} 
-              onClick={() => setSelectedYear("2021")}
-            >
-              2021
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={selectedYear === "2022" ? "bg-esg-blue text-white" : ""} 
-              onClick={() => setSelectedYear("2022")}
-            >
-              2022
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={selectedYear === "2023" ? "bg-esg-blue text-white" : ""} 
-              onClick={() => setSelectedYear("2023")}
-            >
-              2023
-            </Button>
+            {yearsToDisplay.map((year) => (
+              <Button 
+                key={year}
+                variant="ghost" 
+                size="sm" 
+                className={selectedYear === year ? "bg-esg-blue text-white" : ""} 
+                onClick={() => setSelectedYear(year)}
+              >
+                {year}
+              </Button>
+            ))}
           </div>
           
           <Button variant="outline" size="sm" className="border-esg-blue">

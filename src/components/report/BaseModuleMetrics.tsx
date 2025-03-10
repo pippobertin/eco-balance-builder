@@ -10,6 +10,7 @@ import ConductMetrics from './ConductMetrics';
 import NarrativePATMetrics from './NarrativePATMetrics';
 import MaterialityAnalysis from './MaterialityAnalysis';
 import BusinessPartnersMetrics from './BusinessPartnersMetrics';
+
 interface BaseModuleMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
@@ -17,6 +18,7 @@ interface BaseModuleMetricsProps {
   onSave: () => void;
   selectedOption: string;
 }
+
 const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   formValues,
   setFormValues,
@@ -24,9 +26,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   onSave,
   selectedOption
 }) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality' | 'business-partners'>('environmental');
 
   // Determina quali moduli devono essere mostrati in base all'opzione selezionata
@@ -40,6 +40,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       setActiveSection('environmental');
     }
   }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
+  
   const handleSave = () => {
     toast({
       title: "Metriche salvate",
@@ -47,6 +48,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     });
     onSave();
   };
+  
   const containerAnimation = {
     hidden: {
       opacity: 0
@@ -74,6 +76,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
         return 'Seleziona un\'opzione per la tua relazione sulla sostenibilità';
     }
   };
+  
   return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
       <div className="p-4 rounded-md mb-6 bg-blue-600">
         <div className="flex items-start">
@@ -138,4 +141,5 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       </div>
     </motion.div>;
 };
+
 export default BaseModuleMetrics;

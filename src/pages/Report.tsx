@@ -7,16 +7,11 @@ import Footer from '@/components/layout/Footer';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { 
   CheckCircle2, 
-  ClipboardList, 
-  Users, 
-  Building2, 
-  ArrowRight, 
   Info, 
   FileText,
   Save,
@@ -38,8 +33,7 @@ const Report = () => {
     saveSubsidiaries
   } = useReport();
   
-  const [activeTab, setActiveTab] = useState('modulo-selection');
-  const [selectedOption, setSelectedOption] = useState<string>('A');
+  const [activeTab, setActiveTab] = useState('basic-info');
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
   const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({
@@ -58,7 +52,6 @@ const Report = () => {
   // Carica i dati del report corrente
   useEffect(() => {
     if (currentReport) {
-      setSelectedOption(currentReport.report_type);
       setIsConsolidated(currentReport.is_consolidated);
       
       // Carica i dati del form dal report
@@ -104,10 +97,6 @@ const Report = () => {
     });
   };
   
-  const handleOptionChange = (value: string) => {
-    setSelectedOption(value);
-  };
-  
   const handleAddSubsidiary = () => {
     if (newSubsidiary.name.trim() && newSubsidiary.location.trim()) {
       setSubsidiaries([...subsidiaries, {
@@ -130,37 +119,6 @@ const Report = () => {
     const updatedSubsidiaries = [...subsidiaries];
     updatedSubsidiaries.splice(index, 1);
     setSubsidiaries(updatedSubsidiaries);
-  };
-  
-  const handleContinue = () => {
-    if (!selectedOption) {
-      toast({
-        title: "Selezione richiesta",
-        description: "Per favore, seleziona un'opzione di rendicontazione prima di continuare.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (isConsolidated && subsidiaries.length === 0) {
-      toast({
-        title: "Informazione mancante",
-        description: "Hai selezionato la rendicontazione consolidata. Per favore, aggiungi almeno un'impresa figlia.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setActiveTab('basic-info');
-    toast({
-      title: "Configurazione salvata",
-      description: `Hai selezionato l'opzione ${selectedOption} per la tua rendicontazione di sostenibilità.`
-    });
-    
-    // Salva l'opzione selezionata nel database
-    if (currentReport) {
-      // In un'implementazione completa, qui salveremmo le modifiche al report
-    }
   };
   
   const saveBasicInfo = () => {
@@ -244,139 +202,10 @@ const Report = () => {
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="modulo-selection">Selezione Modulo</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="basic-info">Informazioni Base</TabsTrigger>
               <TabsTrigger value="metrics">Metriche Base</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="modulo-selection">
-              <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
-                <GlassmorphicCard>
-                  <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <ClipboardList className="mr-2 h-5 w-5 text-blue-500" />
-                    Seleziona l'opzione per la tua relazione sulla sostenibilità
-                  </h2>
-                  
-                  <RadioGroup value={selectedOption} onValueChange={handleOptionChange} className="space-y-4">
-                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-50">
-                      <RadioGroupItem value="A" id="option-a" className="mt-1" />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="option-a" className="font-medium">OPZIONE A: Modulo Base</Label>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Approccio mirato per le micro-imprese e requisito minimo per le altre imprese.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-100">
-                      <RadioGroupItem value="B" id="option-b" className="mt-1" />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="option-b" className="font-medium">OPZIONE B: Modulo Base e Modulo Narrativo-PAT</Label>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Include informazioni narrative relative a politiche, azioni e obiettivi in aggiunta al Modulo Base.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-200">
-                      <RadioGroupItem value="C" id="option-c" className="mt-1" />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="option-c" className="font-medium">OPZIONE C: Modulo Base e Modulo Partner commerciali</Label>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Include dati aggiuntivi che potrebbero essere richiesti da finanziatori, investitori e clienti.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-300">
-                      <RadioGroupItem value="D" id="option-d" className="mt-1" />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="option-d" className="font-medium">OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali</Label>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Combinazione completa di tutti i moduli disponibili.
-                        </p>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                </GlassmorphicCard>
-
-                <GlassmorphicCard>
-                  <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <Building2 className="mr-2 h-5 w-5 text-blue-500" />
-                    Tipo di rendicontazione
-                  </h2>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="consolidated" 
-                        checked={isConsolidated} 
-                        onCheckedChange={checked => setIsConsolidated(checked === true)} 
-                      />
-                      <Label htmlFor="consolidated">Rendicontazione su base consolidata</Label>
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {isConsolidated 
-                        ? "La relazione includerà informazioni dell'impresa madre e delle sue figlie." 
-                        : "La relazione sarà limitata solo alle informazioni dell'impresa principale."
-                      }
-                    </p>
-                    
-                    {isConsolidated && (
-                      <div className="space-y-4 mt-4 border-t pt-4">
-                        <h3 className="text-md font-medium">Imprese figlie incluse nella relazione</h3>
-                        
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {subsidiaries.map((subsidiary, index) => (
-                            <div key={index} className="flex items-center bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
-                              <span className="text-sm mr-2">{subsidiary.name} ({subsidiary.location})</span>
-                              <button 
-                                onClick={() => removeSubsidiary(index)} 
-                                className="text-red-500 hover:text-red-700"
-                              >
-                                &times;
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Input 
-                            placeholder="Nome dell'impresa figlia" 
-                            value={newSubsidiary.name} 
-                            onChange={e => setNewSubsidiary({
-                              ...newSubsidiary,
-                              name: e.target.value
-                            })} 
-                          />
-                          <Input 
-                            placeholder="Sede legale" 
-                            value={newSubsidiary.location} 
-                            onChange={e => setNewSubsidiary({
-                              ...newSubsidiary,
-                              location: e.target.value
-                            })} 
-                          />
-                        </div>
-                        
-                        <Button variant="outline" onClick={handleAddSubsidiary} className="mt-2">
-                          Aggiungi impresa figlia
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </GlassmorphicCard>
-                
-                <div className="flex justify-end">
-                  <Button onClick={handleContinue} className="bg-emerald-500 hover:bg-emerald-400">
-                    Continua
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            </TabsContent>
 
             <TabsContent value="basic-info">
               <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
@@ -389,13 +218,13 @@ const Report = () => {
                   <div className="p-4 rounded-md mb-4 bg-sky-800">
                     <p className="text-sm text-slate-50">
                       Hai selezionato: <strong>
-                        {selectedOption === 'A' 
+                        {currentReport?.report_type === 'A' 
                           ? 'OPZIONE A: Modulo Base' 
-                          : selectedOption === 'B' 
+                          : currentReport?.report_type === 'B' 
                             ? 'OPZIONE B: Modulo Base e Modulo Narrativo-PAT' 
-                            : selectedOption === 'C' 
+                            : currentReport?.report_type === 'C' 
                               ? 'OPZIONE C: Modulo Base e Modulo Partner commerciali' 
-                              : selectedOption === 'D' 
+                              : currentReport?.report_type === 'D' 
                                 ? 'OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali' 
                                 : 'Nessuna opzione selezionata'
                         }
@@ -406,8 +235,8 @@ const Report = () => {
                     </p>
                     {isConsolidated && subsidiaries.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-sm font-medium">Imprese figlie incluse:</p>
-                        <ul className="list-disc pl-5 text-sm">
+                        <p className="text-sm font-medium text-white">Imprese figlie incluse:</p>
+                        <ul className="list-disc pl-5 text-sm text-white">
                           {subsidiaries.map((subsidiary, index) => (
                             <li key={index}>{subsidiary.name} - {subsidiary.location}</li>
                           ))}
@@ -415,6 +244,49 @@ const Report = () => {
                       </div>
                     )}
                   </div>
+
+                  {isConsolidated && (
+                    <div className="space-y-4 mt-4 border-t pt-4">
+                      <h3 className="text-md font-medium">Imprese figlie incluse nella relazione</h3>
+                      
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {subsidiaries.map((subsidiary, index) => (
+                          <div key={index} className="flex items-center bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
+                            <span className="text-sm mr-2">{subsidiary.name} ({subsidiary.location})</span>
+                            <button 
+                              onClick={() => removeSubsidiary(index)} 
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input 
+                          placeholder="Nome dell'impresa figlia" 
+                          value={newSubsidiary.name} 
+                          onChange={e => setNewSubsidiary({
+                            ...newSubsidiary,
+                            name: e.target.value
+                          })} 
+                        />
+                        <Input 
+                          placeholder="Sede legale" 
+                          value={newSubsidiary.location} 
+                          onChange={e => setNewSubsidiary({
+                            ...newSubsidiary,
+                            location: e.target.value
+                          })} 
+                        />
+                      </div>
+                      
+                      <Button variant="outline" onClick={handleAddSubsidiary} className="mt-2">
+                        Aggiungi impresa figlia
+                      </Button>
+                    </div>
+                  )}
                 </GlassmorphicCard>
 
                 <GlassmorphicCard>
@@ -438,10 +310,7 @@ const Report = () => {
                   </div>
                 </GlassmorphicCard>
                 
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => setActiveTab('modulo-selection')}>
-                    Torna indietro
-                  </Button>
+                <div className="flex justify-end">
                   <Button onClick={saveBasicInfo} className="bg-blue-500 hover:bg-blue-600">
                     Salva informazioni e continua
                     <CheckCircle2 className="ml-2 h-4 w-4" />
@@ -456,7 +325,7 @@ const Report = () => {
                 setFormValues={setFormValues} 
                 onPrevious={() => setActiveTab('basic-info')} 
                 onSave={saveMetrics} 
-                selectedOption={selectedOption} 
+                selectedOption={currentReport?.report_type || 'A'} 
               />
             </TabsContent>
           </Tabs>
