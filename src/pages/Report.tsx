@@ -241,7 +241,7 @@ const Report = () => {
                 </GlassmorphicCard>
                 
                 <div className="flex justify-end">
-                  <Button onClick={handleContinue} className="bg-blue-500 hover:bg-blue-600">
+                  <Button onClick={handleContinue} className="bg-emerald-500 hover:bg-emerald-400">
                     Continua
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
