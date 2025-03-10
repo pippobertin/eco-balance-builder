@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCompanyOperations } from './companyOperations';
@@ -175,26 +174,27 @@ export const useReportState = () => {
   };
 
   // Load a specific report
-  const loadReport = async (reportId: string) => {
+  const loadReport = async (reportId: string): Promise<{report: Report | null, subsidiaries?: Subsidiary[]}> => {
     setLoading(true);
-    const { report, subsidiaries } = await fetchReport(reportId);
+    const result = await fetchReport(reportId);
     
-    if (report) {
-      setCurrentReport(report);
+    if (result.report) {
+      setCurrentReport(result.report);
       
       // Load report data
       const newReportData: ReportData = {
-        environmentalMetrics: report.environmental_metrics || {},
-        socialMetrics: report.social_metrics || {},
-        conductMetrics: report.conduct_metrics || {},
-        materialityAnalysis: report.materiality_analysis || { issues: [], stakeholders: [] },
-        narrativePATMetrics: report.narrative_pat_metrics || {}
+        environmentalMetrics: result.report.environmental_metrics || {},
+        socialMetrics: result.report.social_metrics || {},
+        conductMetrics: result.report.conduct_metrics || {},
+        materialityAnalysis: result.report.materiality_analysis || { issues: [], stakeholders: [] },
+        narrativePATMetrics: result.report.narrative_pat_metrics || {}
       };
       
       setReportData(newReportData);
     }
     
     setLoading(false);
+    return result;
   };
 
   // Save subsidiaries
