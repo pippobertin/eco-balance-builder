@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
-import { Check, X, UserCog, Shield } from 'lucide-react';
+import { Check, X, UserCog, Shield, UserPlus } from 'lucide-react';
+import UserDialog from '@/components/user/UserDialog';
 
 interface UserProfile {
   id: string;
@@ -18,6 +18,7 @@ interface UserProfile {
 const UserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
   const { isAdmin, makeAdmin, removeAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -36,7 +37,6 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Get all profiles from the profiles table
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
@@ -45,14 +45,11 @@ const UserManagement = () => {
         throw profilesError;
       }
 
-      // For each profile, get the user's email from the auth session
       const currentSession = await supabase.auth.getSession();
       const currentUserId = currentSession.data.session?.user.id;
 
-      // Get current user's email
       const currentUserEmail = currentSession.data.session?.user.email;
 
-      // Get metadata for other users
       const { data: userMetadata, error: metadataError } = await supabase
         .from('users')
         .select('id, email')
@@ -63,14 +60,12 @@ const UserManagement = () => {
       }
 
       const usersWithEmail = profiles.map((profile) => {
-        // If this is the current user, use their email from the session
         if (profile.id === currentUserId) {
           return {
             ...profile,
             email: currentUserEmail || 'Email non disponibile'
           };
         }
-        // For other users, try to find their email in the metadata
         return {
           ...profile,
           email: profile.email || 'Email non disponibile'
@@ -98,7 +93,6 @@ const UserManagement = () => {
 
       if (error) throw error;
 
-      // Update UI
       setUsers(users.map(user => 
         user.id === userId ? { ...user, role: isAdmin ? 'admin' : 'user' } : user
       ));
@@ -119,19 +113,32 @@ const UserManagement = () => {
     });
   };
 
+  const handleUserCreated = () => {
+    fetchUsers();
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-6 py-24">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <UserCog className="h-8 w-8 text-esg-blue" />
-            Gestione Utenti
-          </h1>
-          <p className="text-esg-gray-medium">
-            Gestisci gli utenti e assegna i ruoli di amministratore
-          </p>
+        <div className="mb-10 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <UserCog className="h-8 w-8 text-esg-blue" />
+              Gestione Utenti
+            </h1>
+            <p className="text-esg-gray-medium">
+              Gestisci gli utenti e assegna i ruoli di amministratore
+            </p>
+          </div>
+          <Button 
+            onClick={() => setUserDialogOpen(true)}
+            className="bg-esg-blue hover:bg-esg-blue/90"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Aggiungi Utente
+          </Button>
         </div>
         
         {loading ? (
@@ -209,6 +216,12 @@ const UserManagement = () => {
           </div>
         )}
       </main>
+
+      <UserDialog 
+        open={userDialogOpen} 
+        onOpenChange={setUserDialogOpen} 
+        onSuccess={handleUserCreated} 
+      />
     </div>
   );
 };
