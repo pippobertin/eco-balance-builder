@@ -8,29 +8,59 @@ interface PerformanceDistributionChartProps {
 }
 
 const PerformanceDistributionChart: React.FC<PerformanceDistributionChartProps> = ({ reportData }) => {
-  // Use only real values for performance data
-  const environmentalValue = 
-    (reportData.environmentalMetrics && reportData.environmentalMetrics.carbonEmissions > 0) || 
-    (reportData.environmentalMetrics && reportData.environmentalMetrics.renewableEnergy > 0)
-      ? Math.round(
-          ((reportData.environmentalMetrics?.renewableEnergy || 0) + 
-           (100 - (reportData.environmentalMetrics?.carbonEmissions || 0))) / 2
-        )
-      : 0;
+  // Calculate values only from real data, with explicit type checks
+  let environmentalValue = 0;
+  let socialValue = 0;
+  let governanceValue = 0;
   
-  const socialValue = 
-    (reportData.socialMetrics && reportData.socialMetrics.employeeDiversity > 0) || 
-    (reportData.socialMetrics && reportData.socialMetrics.employeeSatisfaction > 0)
-      ? Math.round(
-          ((reportData.socialMetrics?.employeeDiversity || 0) + 
-           (reportData.socialMetrics?.employeeSatisfaction || 0)) / 2
-        )
-      : 0;
+  // Only calculate if we have actual data
+  if (reportData.environmentalMetrics) {
+    const hasRenewableEnergy = typeof reportData.environmentalMetrics.renewableEnergy === 'number' && 
+                              reportData.environmentalMetrics.renewableEnergy > 0;
+    
+    const hasCarbonEmissions = typeof reportData.environmentalMetrics.carbonEmissions === 'number' && 
+                              reportData.environmentalMetrics.carbonEmissions > 0;
+    
+    if (hasRenewableEnergy || hasCarbonEmissions) {
+      const renewableValue = hasRenewableEnergy ? reportData.environmentalMetrics.renewableEnergy : 0;
+      const carbonValue = hasCarbonEmissions ? 100 - reportData.environmentalMetrics.carbonEmissions : 0;
+      
+      if (hasRenewableEnergy && hasCarbonEmissions) {
+        environmentalValue = Math.round((renewableValue + carbonValue) / 2);
+      } else if (hasRenewableEnergy) {
+        environmentalValue = renewableValue;
+      } else if (hasCarbonEmissions) {
+        environmentalValue = carbonValue;
+      }
+    }
+  }
   
-  const governanceValue = 
-    reportData.conductMetrics && reportData.conductMetrics.governanceCompliance > 0
-      ? reportData.conductMetrics.governanceCompliance
-      : 0;
+  if (reportData.socialMetrics) {
+    const hasDiversity = typeof reportData.socialMetrics.employeeDiversity === 'number' && 
+                        reportData.socialMetrics.employeeDiversity > 0;
+    
+    const hasSatisfaction = typeof reportData.socialMetrics.employeeSatisfaction === 'number' && 
+                           reportData.socialMetrics.employeeSatisfaction > 0;
+    
+    if (hasDiversity || hasSatisfaction) {
+      const diversityValue = hasDiversity ? reportData.socialMetrics.employeeDiversity : 0;
+      const satisfactionValue = hasSatisfaction ? reportData.socialMetrics.employeeSatisfaction : 0;
+      
+      if (hasDiversity && hasSatisfaction) {
+        socialValue = Math.round((diversityValue + satisfactionValue) / 2);
+      } else if (hasDiversity) {
+        socialValue = diversityValue;
+      } else if (hasSatisfaction) {
+        socialValue = satisfactionValue;
+      }
+    }
+  }
+  
+  if (reportData.conductMetrics && 
+      typeof reportData.conductMetrics.governanceCompliance === 'number' && 
+      reportData.conductMetrics.governanceCompliance > 0) {
+    governanceValue = reportData.conductMetrics.governanceCompliance;
+  }
   
   const performanceData = [
     { name: 'Ambientale', value: environmentalValue },

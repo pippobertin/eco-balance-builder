@@ -14,21 +14,38 @@ const Dashboard = () => {
   // Log the report data to console for debugging
   console.log("Dati del report nella dashboard:", reportData);
   
-  // Check if we have any data
-  const hasData = 
-    (reportData.environmentalMetrics && Object.keys(reportData.environmentalMetrics).some(key => 
-      typeof reportData.environmentalMetrics[key as keyof typeof reportData.environmentalMetrics] === 'number' && 
-      reportData.environmentalMetrics[key as keyof typeof reportData.environmentalMetrics] > 0
+  // More thorough check if we have any meaningful data with explicit type checking
+  const hasData = (
+    // Environmental data check
+    (reportData.environmentalMetrics && (
+      (typeof reportData.environmentalMetrics.carbonEmissions === 'number' && reportData.environmentalMetrics.carbonEmissions > 0) ||
+      (typeof reportData.environmentalMetrics.energyConsumption === 'number' && reportData.environmentalMetrics.energyConsumption > 0) ||
+      (typeof reportData.environmentalMetrics.wasteGeneration === 'number' && reportData.environmentalMetrics.wasteGeneration > 0) ||
+      (typeof reportData.environmentalMetrics.waterUsage === 'number' && reportData.environmentalMetrics.waterUsage > 0) ||
+      (typeof reportData.environmentalMetrics.renewableEnergy === 'number' && reportData.environmentalMetrics.renewableEnergy > 0) ||
+      (typeof reportData.environmentalMetrics.totalScope1Emissions === 'number' && reportData.environmentalMetrics.totalScope1Emissions > 0) ||
+      (typeof reportData.environmentalMetrics.totalScope2Emissions === 'number' && reportData.environmentalMetrics.totalScope2Emissions > 0) ||
+      (typeof reportData.environmentalMetrics.totalScope3Emissions === 'number' && reportData.environmentalMetrics.totalScope3Emissions > 0)
     )) ||
-    (reportData.socialMetrics && Object.keys(reportData.socialMetrics).some(key => 
-      typeof reportData.socialMetrics[key as keyof typeof reportData.socialMetrics] === 'number' && 
-      reportData.socialMetrics[key as keyof typeof reportData.socialMetrics] > 0
+    
+    // Social data check
+    (reportData.socialMetrics && (
+      (typeof reportData.socialMetrics.employeeDiversity === 'number' && reportData.socialMetrics.employeeDiversity > 0) ||
+      (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > a) ||
+      (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0) ||
+      (typeof reportData.socialMetrics.employeeSatisfaction === 'number' && reportData.socialMetrics.employeeSatisfaction > 0)
     )) ||
-    (reportData.conductMetrics && Object.keys(reportData.conductMetrics).some(key => 
-      typeof reportData.conductMetrics[key as keyof typeof reportData.conductMetrics] === 'number' && 
-      reportData.conductMetrics[key as keyof typeof reportData.conductMetrics] > 0
+    
+    // Conduct data check
+    (reportData.conductMetrics && (
+      (typeof reportData.conductMetrics.governanceCompliance === 'number' && reportData.conductMetrics.governanceCompliance > 0) ||
+      (typeof reportData.conductMetrics.policyAdherence === 'number' && reportData.conductMetrics.policyAdherence > 0) ||
+      (typeof reportData.conductMetrics.riskManagement === 'number' && reportData.conductMetrics.riskManagement > 0)
     )) ||
-    (reportData.materialityAnalysis && reportData.materialityAnalysis.esgScore > 0);
+    
+    // Materiality data check
+    (reportData.materialityAnalysis && typeof reportData.materialityAnalysis.esgScore === 'number' && reportData.materialityAnalysis.esgScore > 0)
+  );
   
   return (
     <div className="min-h-screen flex flex-col bg-white">

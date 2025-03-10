@@ -8,40 +8,41 @@ interface SocialChartProps {
 }
 
 const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
-  // Create social data from actual values
+  // Create social data from actual values only - no mock data
   const socialData = [
     { 
       name: 'Diversità di Genere', 
-      value: reportData.socialMetrics && reportData.socialMetrics.employeeDiversity > 0 
+      value: reportData.socialMetrics && typeof reportData.socialMetrics.employeeDiversity === 'number' 
         ? reportData.socialMetrics.employeeDiversity 
         : 0 
     },
     { 
       name: 'Soddisfazione Dipendenti', 
-      value: reportData.socialMetrics && reportData.socialMetrics.employeeSatisfaction > 0 
+      value: reportData.socialMetrics && typeof reportData.socialMetrics.employeeSatisfaction === 'number'
         ? reportData.socialMetrics.employeeSatisfaction 
         : 0 
     },
     { 
       name: 'Ore di Formazione', 
-      value: reportData.socialMetrics && reportData.socialMetrics.trainingHours > 0 
+      value: reportData.socialMetrics && typeof reportData.socialMetrics.trainingHours === 'number'
         ? reportData.socialMetrics.trainingHours 
         : 0 
     },
     { 
       name: 'Impegno Comunitario', 
-      value: reportData.socialMetrics && reportData.socialMetrics.communityEngagement > 0 
+      value: reportData.socialMetrics && typeof reportData.socialMetrics.communityEngagement === 'number'
         ? reportData.socialMetrics.communityEngagement 
         : 0
     }
   ];
   
-  // Check if there is any social data to show
+  // Check if there is any social data to show - explicit check for each value
   const hasSocialData = 
-    (reportData.socialMetrics && reportData.socialMetrics.employeeDiversity > 0) || 
-    (reportData.socialMetrics && reportData.socialMetrics.employeeSatisfaction > 0) || 
-    (reportData.socialMetrics && reportData.socialMetrics.trainingHours > 0) || 
-    (reportData.socialMetrics && reportData.socialMetrics.communityEngagement > 0);
+    reportData.socialMetrics && 
+    ((typeof reportData.socialMetrics.employeeDiversity === 'number' && reportData.socialMetrics.employeeDiversity > 0) || 
+     (typeof reportData.socialMetrics.employeeSatisfaction === 'number' && reportData.socialMetrics.employeeSatisfaction > 0) || 
+     (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > 0) || 
+     (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0));
   
   return (
     <MetricChart

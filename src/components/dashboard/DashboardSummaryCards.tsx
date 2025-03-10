@@ -31,22 +31,33 @@ const itemAnimation = {
 };
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
-  // Check if we have real data, don't use defaults
-  const hasEsgScore = reportData.materialityAnalysis && reportData.materialityAnalysis.esgScore > 0;
+  // Check if we have real data with explicit type checking
+  const hasEsgScore = reportData.materialityAnalysis && 
+                     typeof reportData.materialityAnalysis.esgScore === 'number' && 
+                     reportData.materialityAnalysis.esgScore > 0;
   
-  const totalCarbon = 
-    (reportData.environmentalMetrics?.totalScope1Emissions || 0) +
-    (reportData.environmentalMetrics?.totalScope2Emissions || 0) +
-    (reportData.environmentalMetrics?.totalScope3Emissions || 0);
+  // Calculate total carbon - only use defined values
+  let totalCarbon = 0;
+  if (reportData.environmentalMetrics) {
+    if (typeof reportData.environmentalMetrics.totalScope1Emissions === 'number') {
+      totalCarbon += reportData.environmentalMetrics.totalScope1Emissions;
+    }
+    if (typeof reportData.environmentalMetrics.totalScope2Emissions === 'number') {
+      totalCarbon += reportData.environmentalMetrics.totalScope2Emissions;
+    }
+    if (typeof reportData.environmentalMetrics.totalScope3Emissions === 'number') {
+      totalCarbon += reportData.environmentalMetrics.totalScope3Emissions;
+    }
+  }
   
   // Check if we have diversity data
   const hasDiversityData = reportData.socialMetrics && 
-                          reportData.socialMetrics.employeeDiversity !== undefined && 
+                          typeof reportData.socialMetrics.employeeDiversity === 'number' && 
                           reportData.socialMetrics.employeeDiversity > 0;
   
   // Check if we have governance data
   const hasGovernanceData = reportData.conductMetrics && 
-                           reportData.conductMetrics.governanceCompliance !== undefined && 
+                           typeof reportData.conductMetrics.governanceCompliance === 'number' && 
                            reportData.conductMetrics.governanceCompliance > 0;
   
   return (

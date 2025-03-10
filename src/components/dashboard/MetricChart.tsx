@@ -75,6 +75,12 @@ const MetricChart = ({
   };
   
   const renderChart = () => {
+    // If we have no data and the type is not explicitly set to "empty",
+    // let's return the empty state
+    if (!hasData && type !== 'empty') {
+      return renderEmptyState();
+    }
+    
     switch (type) {
       case 'area':
         return (
@@ -171,7 +177,7 @@ const MetricChart = ({
       }
     >
       <div className="pt-4">
-        {type === 'empty' ? renderEmptyState() : renderChart()}
+        {renderChart()}
       </div>
     </GlassmorphicCard>
   );

@@ -8,30 +8,40 @@ interface GovernanceChartProps {
 }
 
 const GovernanceChart: React.FC<GovernanceChartProps> = ({ reportData }) => {
-  // Create governance data only with actually available values
+  // Create governance data only with actually available values - no mock data
   const governanceData = [
     { 
       quarter: 'Q1', 
-      compliance: reportData.conductMetrics && reportData.conductMetrics.governanceCompliance > 0 
-        ? reportData.conductMetrics.governanceCompliance 
-        : 0,
-      risk: reportData.conductMetrics && reportData.conductMetrics.riskManagement > 0 
-        ? reportData.conductMetrics.riskManagement 
-        : 0,
-      policy: reportData.conductMetrics && reportData.conductMetrics.policyAdherence > 0 
-        ? reportData.conductMetrics.policyAdherence 
-        : 0
+      compliance: 0,
+      risk: 0,
+      policy: 0
     },
     { quarter: 'Q2', compliance: 0, risk: 0, policy: 0 },
     { quarter: 'Q3', compliance: 0, risk: 0, policy: 0 },
     { quarter: 'Q4', compliance: 0, risk: 0, policy: 0 },
   ];
   
-  // Check if there is data for this category
+  // Check if there is data for this category - explicit check for each value
   const hasGovernanceData = 
-    (reportData.conductMetrics && reportData.conductMetrics.governanceCompliance > 0) || 
-    (reportData.conductMetrics && reportData.conductMetrics.policyAdherence > 0) || 
-    (reportData.conductMetrics && reportData.conductMetrics.riskManagement > 0);
+    reportData.conductMetrics && 
+    ((typeof reportData.conductMetrics.governanceCompliance === 'number' && reportData.conductMetrics.governanceCompliance > 0) || 
+     (typeof reportData.conductMetrics.policyAdherence === 'number' && reportData.conductMetrics.policyAdherence > 0) || 
+     (typeof reportData.conductMetrics.riskManagement === 'number' && reportData.conductMetrics.riskManagement > 0));
+  
+  // Only populate if we have actual data
+  if (hasGovernanceData) {
+    if (typeof reportData.conductMetrics.governanceCompliance === 'number') {
+      governanceData[0].compliance = reportData.conductMetrics.governanceCompliance;
+    }
+    
+    if (typeof reportData.conductMetrics.riskManagement === 'number') {
+      governanceData[0].risk = reportData.conductMetrics.riskManagement;
+    }
+    
+    if (typeof reportData.conductMetrics.policyAdherence === 'number') {
+      governanceData[0].policy = reportData.conductMetrics.policyAdherence;
+    }
+  }
   
   return (
     <MetricChart

@@ -17,17 +17,17 @@ const SustainabilityHighlights: React.FC<SustainabilityHighlightsProps> = ({ rep
     navigate('/report');
   };
   
-  // Check if we have actual data
+  // Check if we have actual data - with explicit type checking
   const hasCarbonEmissions = reportData.environmentalMetrics && 
-                            reportData.environmentalMetrics.carbonEmissions !== undefined && 
+                            typeof reportData.environmentalMetrics.carbonEmissions === 'number' && 
                             reportData.environmentalMetrics.carbonEmissions > 0;
   
   const hasDiversityData = reportData.socialMetrics && 
-                          reportData.socialMetrics.employeeDiversity !== undefined && 
+                          typeof reportData.socialMetrics.employeeDiversity === 'number' && 
                           reportData.socialMetrics.employeeDiversity > 0;
   
   const hasGovernanceData = reportData.conductMetrics && 
-                           reportData.conductMetrics.governanceCompliance !== undefined && 
+                           typeof reportData.conductMetrics.governanceCompliance === 'number' && 
                            reportData.conductMetrics.governanceCompliance > 0;
   
   return (
