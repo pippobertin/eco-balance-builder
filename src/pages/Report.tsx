@@ -152,7 +152,7 @@ const Report = () => {
                   </h2>
                   
                   <RadioGroup value={selectedOption} onValueChange={handleOptionChange} className="space-y-4">
-                    <div className="flex items-start space-x-2 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-50">
                       <RadioGroupItem value="A" id="option-a" className="mt-1" />
                       <div className="grid gap-1.5">
                         <Label htmlFor="option-a" className="font-medium">OPZIONE A: Modulo Base</Label>
@@ -162,7 +162,7 @@ const Report = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-100">
                       <RadioGroupItem value="B" id="option-b" className="mt-1" />
                       <div className="grid gap-1.5">
                         <Label htmlFor="option-b" className="font-medium">OPZIONE B: Modulo Base e Modulo Narrativo-PAT</Label>
@@ -172,7 +172,7 @@ const Report = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-200">
                       <RadioGroupItem value="C" id="option-c" className="mt-1" />
                       <div className="grid gap-1.5">
                         <Label htmlFor="option-c" className="font-medium">OPZIONE C: Modulo Base e Modulo Partner commerciali</Label>
@@ -182,7 +182,7 @@ const Report = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div className="flex items-start space-x-2 p-3 rounded-md bg-emerald-300">
                       <RadioGroupItem value="D" id="option-d" className="mt-1" />
                       <div className="grid gap-1.5">
                         <Label htmlFor="option-d" className="font-medium">OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali</Label>
