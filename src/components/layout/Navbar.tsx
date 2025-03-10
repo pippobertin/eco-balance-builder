@@ -55,7 +55,7 @@ const Navbar = () => {
               <span className={cn('text-sm font-medium transition-colors', location.pathname === link.path ? 'text-esg-blue' : 'text-foreground hover:text-esg-blue')}>
                 {link.name}
               </span>
-              {location.pathname === link.path && <motion.div className="absolute -bottom-1 left-0 w-full h-0.5 bg-esg-blue rounded-full" layoutId="navbar-indicator" />}
+              {location.pathname === link.path && <motion.div layoutId="navbar-indicator" className="absolute -bottom-1 left-0 w-full h-0.5 rounded-full bg-emerald-500" />}
             </Link>)}
         </nav>
         
