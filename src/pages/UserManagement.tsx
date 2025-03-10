@@ -36,7 +36,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Ottieni tutti i profili dalla tabella profiles
+      // Get all profiles from the profiles table
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
@@ -45,25 +45,37 @@ const UserManagement = () => {
         throw profilesError;
       }
 
-      // Per ottenere le email, dobbiamo fare una query separata perché non possiamo
-      // accedere direttamente alle informazioni degli utenti in auth.users
-      const usersWithEmail = await Promise.all(
-        profiles.map(async (profile) => {
-          // Per l'utente corrente, possiamo usare l'email dalla sessione
-          if (profile.id === supabase.auth.getSession().then(({data}) => data.session?.user.id)) {
-            const session = await supabase.auth.getSession();
-            return {
-              ...profile,
-              email: session.data.session?.user?.email || 'Email non disponibile'
-            };
-          }
-          // Per gli altri utenti, mostriamo solo l'ID
+      // For each profile, get the user's email from the auth session
+      const currentSession = await supabase.auth.getSession();
+      const currentUserId = currentSession.data.session?.user.id;
+
+      // Get current user's email
+      const currentUserEmail = currentSession.data.session?.user.email;
+
+      // Get metadata for other users
+      const { data: userMetadata, error: metadataError } = await supabase
+        .from('users')
+        .select('id, email')
+        .neq('id', currentUserId);
+
+      if (metadataError) {
+        console.error('Error fetching user metadata:', metadataError);
+      }
+
+      const usersWithEmail = profiles.map((profile) => {
+        // If this is the current user, use their email from the session
+        if (profile.id === currentUserId) {
           return {
             ...profile,
-            email: `Utente ${profile.id.substring(0, 8)}...`
+            email: currentUserEmail || 'Email non disponibile'
           };
-        })
-      );
+        }
+        // For other users, try to find their email in the metadata
+        return {
+          ...profile,
+          email: profile.email || 'Email non disponibile'
+        };
+      });
 
       setUsers(usersWithEmail);
     } catch (error) {
