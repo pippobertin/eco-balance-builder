@@ -110,9 +110,9 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
 
           {/* Pollutant Entries */}
           <div className="space-y-6">
-            {(formValues.environmentalMetrics?.pollutantEntries || []).map((entry: PollutantEntry, index: number) => <div key={index} className="p-4 border rounded-lg space-y-4 bg-white/50 dark:bg-gray-800/50">
+            {(formValues.environmentalMetrics?.pollutantEntries || []).map((entry: PollutantEntry, index: number) => <div key={index} className="p-4 border rounded-lg space-y-4 bg-gray-100">
                 <div className="flex justify-between items-start">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <h4 className="text-sm font-medium text-slate-600">
                     Inquinante #{index + 1}
                   </h4>
                   <Button variant="ghost" size="sm" onClick={() => removePollutantEntry(index)} className="text-red-500 hover:text-red-700">
