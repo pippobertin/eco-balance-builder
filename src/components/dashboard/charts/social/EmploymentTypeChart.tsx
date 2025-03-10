@@ -3,6 +3,9 @@ import React from 'react';
 import { Briefcase } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
+// Define the chart type using the correct type
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
+
 interface EmploymentTypeChartProps {
   permanentEmployees: number;
   temporaryEmployees: number;
@@ -16,7 +19,8 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   
   // Format data for employment type
   let chartData = [];
-  let chartType = hasData ? "pie" : "empty";
+  // Explicitly type chartType
+  const chartType: ChartType = hasData ? "pie" : "empty";
   
   if (hasData) {
     chartData = [

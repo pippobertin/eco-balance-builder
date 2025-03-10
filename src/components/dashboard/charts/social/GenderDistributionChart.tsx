@@ -3,6 +3,9 @@ import React from 'react';
 import { Users } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
+// Define the chart type using the correct type
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
+
 interface GenderDistributionChartProps {
   maleEmployees: number;
   femaleEmployees: number;
@@ -18,7 +21,8 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   
   // Format data for gender distribution
   let chartData = [];
-  let chartType = hasData ? "pie" : "empty";
+  // Explicitly type chartType
+  const chartType: ChartType = hasData ? "pie" : "empty";
   
   if (hasData) {
     // If we have gender data, create a pie chart

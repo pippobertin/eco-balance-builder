@@ -3,6 +3,9 @@ import React from 'react';
 import { GraduationCap } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
+// Define the chart type using the correct type
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
+
 interface TrainingHoursChartProps {
   avgTrainingHoursMale: number;
   avgTrainingHoursFemale: number;
@@ -16,7 +19,8 @@ const TrainingHoursChart: React.FC<TrainingHoursChartProps> = ({
   
   // Format data for training hours
   let chartData = [];
-  let chartType = hasData ? "bar" : "empty";
+  // Explicitly type chartType
+  const chartType: ChartType = hasData ? "bar" : "empty";
   
   if (hasData) {
     chartData = [

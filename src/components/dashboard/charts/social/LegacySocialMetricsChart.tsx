@@ -3,6 +3,9 @@ import React from 'react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
 
+// Define the chart type using the correct type
+type ChartType = 'area' | 'bar' | 'pie' | 'empty';
+
 interface LegacySocialMetricsChartProps {
   reportData: ReportData;
 }
@@ -16,7 +19,8 @@ const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ rep
      (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0));
   
   let chartData = [];
-  let chartType = hasLegacySocialData ? "bar" : "empty";
+  // Explicitly type chartType
+  const chartType: ChartType = hasLegacySocialData ? "bar" : "empty";
   
   if (hasLegacySocialData) {
     chartData = [
