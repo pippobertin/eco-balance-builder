@@ -11,6 +11,9 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2023");
   const { reportData } = useReport();
   
+  // Log the report data to console for debugging
+  console.log("Report data in dashboard:", reportData);
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
