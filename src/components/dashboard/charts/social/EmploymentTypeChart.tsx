@@ -6,16 +6,20 @@ import MetricChart from '@/components/dashboard/MetricChart';
 type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 interface EmploymentTypeChartProps {
-  permanentEmployees: number;
-  temporaryEmployees: number;
+  permanentEmployees: number | string;
+  temporaryEmployees: number | string;
 }
 
 const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   permanentEmployees,
   temporaryEmployees
 }) => {
-  const hasData = permanentEmployees > 0 || temporaryEmployees > 0;
-  const totalEmployees = permanentEmployees + temporaryEmployees;
+  // Convert string values to numbers
+  const permanentCount = typeof permanentEmployees === 'string' ? parseInt(permanentEmployees, 10) || 0 : permanentEmployees;
+  const temporaryCount = typeof temporaryEmployees === 'string' ? parseInt(temporaryEmployees, 10) || 0 : temporaryEmployees;
+  
+  const hasData = permanentCount > 0 || temporaryCount > 0;
+  const totalEmployees = permanentCount + temporaryCount;
   
   // Format data for employment type
   let chartData = [];
@@ -24,8 +28,8 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   
   if (hasData) {
     chartData = [
-      { name: 'Indeterminato', value: permanentEmployees },
-      { name: 'Determinato', value: temporaryEmployees }
+      { name: 'Indeterminato', value: permanentCount },
+      { name: 'Determinato', value: temporaryCount }
     ].filter(item => item.value > 0);
   }
   
@@ -54,6 +58,8 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
       </div>
     );
   };
+  
+  console.log("Employment chart data:", { hasData, chartData, permanentCount, temporaryCount, totalEmployees });
   
   return (
     <div className="space-y-2">

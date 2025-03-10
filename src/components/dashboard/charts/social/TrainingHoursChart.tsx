@@ -3,29 +3,32 @@ import React from 'react';
 import { GraduationCap, Info } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 
-// Define the chart type using the correct type
 type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 interface TrainingHoursChartProps {
-  avgTrainingHoursMale: number;
-  avgTrainingHoursFemale: number;
+  avgTrainingHoursMale: number | string;
+  avgTrainingHoursFemale: number | string;
 }
 
 const TrainingHoursChart: React.FC<TrainingHoursChartProps> = ({
   avgTrainingHoursMale,
   avgTrainingHoursFemale
 }) => {
-  const hasData = avgTrainingHoursMale > 0 || avgTrainingHoursFemale > 0;
+  // Convert string values to numbers
+  const maleHours = typeof avgTrainingHoursMale === 'string' ? parseFloat(avgTrainingHoursMale) || 0 : avgTrainingHoursMale;
+  const femaleHours = typeof avgTrainingHoursFemale === 'string' ? parseFloat(avgTrainingHoursFemale) || 0 : avgTrainingHoursFemale;
+  
+  const hasData = maleHours > 0 || femaleHours > 0;
   
   // Format data for training hours
   let chartData = [];
   // Explicitly type chartType
-  const chartType: ChartType = hasData ? "bar" : "empty";
+  const chartType: ChartType = hasData ? 'bar' : 'empty';
   
   if (hasData) {
     chartData = [
-      { name: 'Uomini', value: avgTrainingHoursMale },
-      { name: 'Donne', value: avgTrainingHoursFemale }
+      { name: 'Uomini', value: maleHours },
+      { name: 'Donne', value: femaleHours }
     ].filter(item => item.value > 0);
   }
   
@@ -34,7 +37,7 @@ const TrainingHoursChart: React.FC<TrainingHoursChartProps> = ({
   
   // Custom tooltip formatter
   const trainingTooltipFormatter = (value: number, name: string) => {
-    const difference = avgTrainingHoursMale - avgTrainingHoursFemale;
+    const difference = maleHours - femaleHours;
     const comparisonText = name === 'Uomini' 
       ? (difference > 0 
           ? `${Math.abs(difference).toFixed(1)} ore in più rispetto alle donne` 
@@ -57,6 +60,8 @@ const TrainingHoursChart: React.FC<TrainingHoursChartProps> = ({
       </div>
     );
   };
+  
+  console.log("Training hours chart data:", { hasData, chartData, maleHours, femaleHours });
   
   return (
     <div className="space-y-2">

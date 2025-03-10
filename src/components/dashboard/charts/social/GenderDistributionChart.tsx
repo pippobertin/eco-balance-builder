@@ -6,9 +6,9 @@ import MetricChart from '@/components/dashboard/MetricChart';
 type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 interface GenderDistributionChartProps {
-  maleEmployees: number;
-  femaleEmployees: number;
-  otherGenderEmployees: number;
+  maleEmployees: number | string;
+  femaleEmployees: number | string;
+  otherGenderEmployees: number | string;
 }
 
 const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
@@ -16,8 +16,13 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   femaleEmployees,
   otherGenderEmployees
 }) => {
-  const hasData = maleEmployees > 0 || femaleEmployees > 0 || otherGenderEmployees > 0;
-  const totalEmployees = maleEmployees + femaleEmployees + otherGenderEmployees;
+  // Convert string values to numbers
+  const maleCount = typeof maleEmployees === 'string' ? parseInt(maleEmployees, 10) || 0 : maleEmployees;
+  const femaleCount = typeof femaleEmployees === 'string' ? parseInt(femaleEmployees, 10) || 0 : femaleEmployees;
+  const otherCount = typeof otherGenderEmployees === 'string' ? parseInt(otherGenderEmployees, 10) || 0 : otherGenderEmployees;
+  
+  const hasData = maleCount > 0 || femaleCount > 0 || otherCount > 0;
+  const totalEmployees = maleCount + femaleCount + otherCount;
   
   // Format data for gender distribution
   let chartData = [];
@@ -27,9 +32,9 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   if (hasData) {
     // If we have gender data, create a pie chart
     chartData = [
-      { name: 'Uomini', value: maleEmployees },
-      { name: 'Donne', value: femaleEmployees },
-      { name: 'Altri', value: otherGenderEmployees }
+      { name: 'Uomini', value: maleCount },
+      { name: 'Donne', value: femaleCount },
+      { name: 'Altri', value: otherCount }
     ].filter(item => item.value > 0);
   }
   
@@ -52,6 +57,8 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
       </div>
     );
   };
+  
+  console.log("Gender chart data:", { hasData, chartData, maleCount, femaleCount, otherCount, totalEmployees });
   
   return (
     <div className="space-y-2">

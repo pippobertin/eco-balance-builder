@@ -22,13 +22,36 @@ const SocialChart: React.FC<SocialChartProps> = ({ reportData }) => {
   const avgTrainingHoursMale = reportData.socialMetrics?.avgTrainingHoursMale || 0;
   const avgTrainingHoursFemale = reportData.socialMetrics?.avgTrainingHoursFemale || 0;
   
+  // Convert string values to numbers for checking
+  const maleCount = typeof maleEmployees === 'string' ? parseInt(maleEmployees, 10) || 0 : maleEmployees;
+  const femaleCount = typeof femaleEmployees === 'string' ? parseInt(femaleEmployees, 10) || 0 : femaleEmployees;
+  const otherCount = typeof otherGenderEmployees === 'string' ? parseInt(otherGenderEmployees, 10) || 0 : otherGenderEmployees;
+  const permanentCount = typeof permanentEmployees === 'string' ? parseInt(permanentEmployees, 10) || 0 : permanentEmployees;
+  const tempCount = typeof temporaryEmployees === 'string' ? parseInt(temporaryEmployees, 10) || 0 : temporaryEmployees;
+  const maleTrain = typeof avgTrainingHoursMale === 'string' ? parseFloat(avgTrainingHoursMale) || 0 : avgTrainingHoursMale;
+  const femaleTrain = typeof avgTrainingHoursFemale === 'string' ? parseFloat(avgTrainingHoursFemale) || 0 : avgTrainingHoursFemale;
+  
   // Check if we have detailed data
-  const hasGenderData = totalEmployees > 0 && (maleEmployees > 0 || femaleEmployees > 0 || otherGenderEmployees > 0);
-  const hasEmploymentTypeData = totalEmployees > 0 && (permanentEmployees > 0 || temporaryEmployees > 0);
-  const hasTrainingData = avgTrainingHoursMale > 0 || avgTrainingHoursFemale > 0;
+  const hasGenderData = maleCount > 0 || femaleCount > 0 || otherCount > 0;
+  const hasEmploymentTypeData = permanentCount > 0 || tempCount > 0;
+  const hasTrainingData = maleTrain > 0 || femaleTrain > 0;
   
   // Determine whether to show multiple charts or a single chart
   const showMultipleCharts = hasGenderData || hasEmploymentTypeData || hasTrainingData;
+  
+  console.log("Social Chart Data:", { 
+    hasGenderData, 
+    hasEmploymentTypeData, 
+    hasTrainingData, 
+    showMultipleCharts,
+    maleEmployees,
+    femaleEmployees,
+    otherGenderEmployees,
+    permanentEmployees,
+    temporaryEmployees,
+    avgTrainingHoursMale,
+    avgTrainingHoursFemale
+  });
   
   if (showMultipleCharts) {
     return (

@@ -11,12 +11,18 @@ interface LegacySocialMetricsChartProps {
 }
 
 const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ reportData }) => {
-  const hasLegacySocialData = 
-    reportData.socialMetrics && 
-    ((typeof reportData.socialMetrics.employeeDiversity === 'number' && reportData.socialMetrics.employeeDiversity > 0) || 
-     (typeof reportData.socialMetrics.employeeSatisfaction === 'number' && reportData.socialMetrics.employeeSatisfaction > 0) || 
-     (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > 0) || 
-     (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0));
+  // Check for legacy social data and ensure it's properly parsed as numbers
+  const employeeDiversity = reportData.socialMetrics?.employeeDiversity;
+  const employeeSatisfaction = reportData.socialMetrics?.employeeSatisfaction;
+  const trainingHours = reportData.socialMetrics?.trainingHours;
+  const communityEngagement = reportData.socialMetrics?.communityEngagement;
+  
+  const diversityValue = typeof employeeDiversity === 'string' ? parseFloat(employeeDiversity) || 0 : (employeeDiversity || 0);
+  const satisfactionValue = typeof employeeSatisfaction === 'string' ? parseFloat(employeeSatisfaction) || 0 : (employeeSatisfaction || 0);
+  const trainingValue = typeof trainingHours === 'string' ? parseFloat(trainingHours) || 0 : (trainingHours || 0);
+  const engagementValue = typeof communityEngagement === 'string' ? parseFloat(communityEngagement) || 0 : (communityEngagement || 0);
+  
+  const hasLegacySocialData = diversityValue > 0 || satisfactionValue > 0 || trainingValue > 0 || engagementValue > 0;
   
   let chartData = [];
   // Explicitly type chartType
@@ -24,32 +30,14 @@ const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ rep
   
   if (hasLegacySocialData) {
     chartData = [
-      { 
-        name: 'Diversità di Genere', 
-        value: reportData.socialMetrics && typeof reportData.socialMetrics.employeeDiversity === 'number' 
-          ? reportData.socialMetrics.employeeDiversity 
-          : 0 
-      },
-      { 
-        name: 'Soddisfazione Dipendenti', 
-        value: reportData.socialMetrics && typeof reportData.socialMetrics.employeeSatisfaction === 'number'
-          ? reportData.socialMetrics.employeeSatisfaction 
-          : 0 
-      },
-      { 
-        name: 'Ore di Formazione', 
-        value: reportData.socialMetrics && typeof reportData.socialMetrics.trainingHours === 'number'
-          ? reportData.socialMetrics.trainingHours 
-          : 0 
-      },
-      { 
-        name: 'Impegno Comunitario', 
-        value: reportData.socialMetrics && typeof reportData.socialMetrics.communityEngagement === 'number'
-          ? reportData.socialMetrics.communityEngagement 
-          : 0
-      }
-    ];
+      { name: 'Diversità di Genere', value: diversityValue },
+      { name: 'Soddisfazione Dipendenti', value: satisfactionValue },
+      { name: 'Ore di Formazione', value: trainingValue },
+      { name: 'Impegno Comunitario', value: engagementValue }
+    ].filter(item => item.value > 0);
   }
+  
+  console.log("Legacy social chart data:", { hasLegacySocialData, chartData, diversityValue, satisfactionValue, trainingValue, engagementValue });
   
   // Custom tooltip formatter for legacy metrics
   const legacyTooltipFormatter = (value: number, name: string) => {
