@@ -4,7 +4,6 @@ import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
 import { Info } from 'lucide-react';
 
-// Define the chart type using the correct type
 type ChartType = 'area' | 'bar' | 'pie' | 'empty';
 
 interface LegacySocialMetricsChartProps {
@@ -21,7 +20,7 @@ const LegacySocialMetricsChart: React.FC<LegacySocialMetricsChartProps> = ({ rep
   
   let chartData = [];
   // Explicitly type chartType
-  const chartType: ChartType = hasLegacySocialData ? "bar" : "empty";
+  const chartType: ChartType = hasLegacySocialData ? 'bar' : 'empty';
   
   if (hasLegacySocialData) {
     chartData = [
