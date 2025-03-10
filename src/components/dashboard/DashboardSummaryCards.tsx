@@ -45,44 +45,44 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
     >
       <motion.div variants={itemAnimation}>
         <DashboardCard
-          title="ESG Score"
+          title="Punteggio ESG"
           value={esgScore}
           change={5}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
-          description="Overall sustainability performance"
+          description="Performance di sostenibilità complessiva"
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
       
       <motion.div variants={itemAnimation}>
         <DashboardCard
-          title="Carbon Emissions"
-          value={`${carbonEmissions} tons`}
+          title="Emissioni di Carbonio"
+          value={`${carbonEmissions} ton`}
           change={-12}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
-          description="Total emissions for the period"
+          description="Emissioni totali per il periodo"
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
       
       <motion.div variants={itemAnimation}>
         <DashboardCard
-          title="Workforce Diversity"
+          title="Diversità del Personale"
           value={`${employeeDiversity}%`}
           change={8}
           icon={<Users className="h-5 w-5 text-esg-blue" />}
-          description="Gender balance improvement"
+          description="Miglioramento dell'equilibrio di genere"
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>
       
       <motion.div variants={itemAnimation}>
         <DashboardCard
-          title="Governance Compliance"
+          title="Conformità Governance"
           value={`${governanceCompliance}%`}
           change={3}
           icon={<Building2 className="h-5 w-5 text-esg-blue" />}
-          description="Adherence to policies"
+          description="Aderenza alle politiche"
           glowColor="rgba(10, 132, 255, 0.15)"
         />
       </motion.div>

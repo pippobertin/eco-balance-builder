@@ -19,8 +19,8 @@ const DashboardHeader = ({ selectedYear, setSelectedYear }: DashboardHeaderProps
         className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold">ESG Performance Dashboard</h1>
-          <p className="text-esg-gray-medium">Monitor and analyze your sustainability metrics</p>
+          <h1 className="text-3xl font-bold">Dashboard delle Performance ESG</h1>
+          <p className="text-esg-gray-medium">Monitora e analizza i tuoi indicatori di sostenibilità</p>
         </div>
         
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
@@ -53,12 +53,12 @@ const DashboardHeader = ({ selectedYear, setSelectedYear }: DashboardHeaderProps
           
           <Button variant="outline" size="sm" className="border-esg-blue">
             <Filter className="h-4 w-4 mr-2" />
-            Filters
+            Filtri
           </Button>
           
           <Button className="bg-esg-blue hover:bg-esg-blue/90">
             <Download className="h-4 w-4 mr-2" />
-            Export
+            Esporta
           </Button>
         </div>
       </motion.div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Users, Building2 } from 'lucide-react';
@@ -15,35 +16,35 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
   const navigate = useNavigate();
   
   const environmentalData = [
-    { month: 'Jan', emissions: 120, waste: 65, energy: 45 },
+    { month: 'Gen', emissions: 120, waste: 65, energy: 45 },
     { month: 'Feb', emissions: 132, waste: 59, energy: 49 },
     { month: 'Mar', emissions: 101, waste: 80, energy: 40 },
     { month: 'Apr', emissions: 94, waste: 81, energy: 38 },
-    { month: 'May', emissions: 85, waste: 56, energy: 35 },
-    { month: 'Jun', emissions: 90, waste: 55, energy: 40 },
-    { month: 'Jul', emissions: 97, waste: 66, energy: 45 },
-    { month: 'Aug', emissions: 88, waste: 50, energy: 38 },
-    { month: 'Sep', emissions: 82, waste: 63, energy: 36 },
-    { month: 'Oct', emissions: 78, waste: 59, energy: 35 },
+    { month: 'Mag', emissions: 85, waste: 56, energy: 35 },
+    { month: 'Giu', emissions: 90, waste: 55, energy: 40 },
+    { month: 'Lug', emissions: 97, waste: 66, energy: 45 },
+    { month: 'Ago', emissions: 88, waste: 50, energy: 38 },
+    { month: 'Set', emissions: 82, waste: 63, energy: 36 },
+    { month: 'Ott', emissions: 78, waste: 59, energy: 35 },
     { month: 'Nov', emissions: 74, waste: 52, energy: 30 },
-    { month: 'Dec', emissions: 70, waste: 48, energy: 28 },
+    { month: 'Dic', emissions: 70, waste: 48, energy: 28 },
   ];
   
   const socialData = [
     { 
-      name: 'Gender Diversity', 
+      name: 'Diversità di Genere', 
       value: reportData.socialMetrics.employeeDiversity || 65 
     },
     { 
-      name: 'Employee Satisfaction', 
+      name: 'Soddisfazione Dipendenti', 
       value: reportData.socialMetrics.employeeSatisfaction || 78 
     },
     { 
-      name: 'Training Hours', 
+      name: 'Ore di Formazione', 
       value: reportData.socialMetrics.trainingHours || 89 
     },
     { 
-      name: 'Community Engagement', 
+      name: 'Impegno Comunitario', 
       value: reportData.socialMetrics.communityEngagement || 72 
     }
   ];
@@ -62,12 +63,12 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
   
   const performanceData = [
     { 
-      name: 'Environmental', 
+      name: 'Ambientale', 
       value: reportData.environmentalMetrics.renewableEnergy ? 
         Math.round((reportData.environmentalMetrics.renewableEnergy + 100 - reportData.environmentalMetrics.carbonEmissions) / 2) : 75 
     },
     { 
-      name: 'Social', 
+      name: 'Sociale', 
       value: reportData.socialMetrics.employeeDiversity ? 
         Math.round((reportData.socialMetrics.employeeDiversity + reportData.socialMetrics.employeeSatisfaction) / 2) : 82 
     },
@@ -88,11 +89,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
       transition={{ duration: 0.6, delay: 0.3 }}
       className="mb-8"
     >
-      <h2 className="text-2xl font-bold mb-6">ESG Performance Breakdown</h2>
+      <h2 className="text-2xl font-bold mb-6">Suddivisione Performance ESG</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <MetricChart
-          title="Environmental Performance"
-          description="Monthly tracking of key environmental metrics"
+          title="Performance Ambientale"
+          description="Monitoraggio mensile degli indicatori ambientali chiave"
           type="area"
           data={environmentalData}
           dataKey="month"
@@ -101,8 +102,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
         />
         
         <MetricChart
-          title="Social Initiatives"
-          description="Performance across social dimensions"
+          title="Iniziative Sociali"
+          description="Performance nelle dimensioni sociali"
           type="bar"
           data={socialData}
           dataKey="name"
@@ -111,8 +112,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
         />
         
         <MetricChart
-          title="Governance Metrics"
-          description="Quarterly governance performance"
+          title="Metriche di Governance"
+          description="Performance di governance trimestrale"
           type="area"
           data={governanceData}
           dataKey="quarter"
@@ -123,8 +124,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <MetricChart
-          title="Overall ESG Score Distribution"
-          description="Performance across ESG dimensions"
+          title="Distribuzione Punteggio ESG"
+          description="Performance nelle dimensioni ESG"
           type="pie"
           data={performanceData}
           dataKey="name"
@@ -133,18 +134,18 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
         
         <GlassmorphicCard className="h-full">
           <div className="h-full flex flex-col">
-            <h3 className="text-lg font-medium mb-4">Sustainability Highlights</h3>
+            <h3 className="text-lg font-medium mb-4">Punti Salienti Sostenibilità</h3>
             
             <div className="space-y-4 flex-grow">
               <div className="p-4 bg-esg-blue/10 rounded-lg">
                 <div className="flex items-start space-x-3">
                   <Leaf className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
-                    <h4 className="font-medium">Carbon Reduction</h4>
+                    <h4 className="font-medium">Riduzione Carbonio</h4>
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.environmentalMetrics.carbonEmissions 
-                        ? `Current carbon emissions: ${reportData.environmentalMetrics.carbonEmissions} tons`
-                        : "Reduced carbon emissions by 12% through renewable energy initiatives."}
+                        ? `Emissioni di carbonio attuali: ${reportData.environmentalMetrics.carbonEmissions} tonnellate`
+                        : "Riduzione delle emissioni di carbonio del 12% attraverso iniziative di energia rinnovabile."}
                     </p>
                   </div>
                 </div>
@@ -154,11 +155,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                 <div className="flex items-start space-x-3">
                   <Users className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
-                    <h4 className="font-medium">Diversity Program</h4>
+                    <h4 className="font-medium">Programma Diversità</h4>
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.socialMetrics.employeeDiversity 
-                        ? `Current workforce diversity: ${reportData.socialMetrics.employeeDiversity}%`
-                        : "Implemented new diversity hiring program increasing workforce diversity by 8%."}
+                        ? `Diversità attuale del personale: ${reportData.socialMetrics.employeeDiversity}%`
+                        : "Implementato nuovo programma di assunzioni per la diversità, aumentando la diversità della forza lavoro dell'8%."}
                     </p>
                   </div>
                 </div>
@@ -168,11 +169,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                 <div className="flex items-start space-x-3">
                   <Building2 className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
-                    <h4 className="font-medium">Governance Update</h4>
+                    <h4 className="font-medium">Aggiornamento Governance</h4>
                     <p className="text-sm text-esg-gray-medium">
                       {reportData.conductMetrics.governanceCompliance 
-                        ? `Current compliance rate: ${reportData.conductMetrics.governanceCompliance}%`
-                        : "Updated compliance policies achieving 95% adherence rate."}
+                        ? `Tasso di conformità attuale: ${reportData.conductMetrics.governanceCompliance}%`
+                        : "Politiche di conformità aggiornate con un tasso di aderenza del 95%."}
                     </p>
                   </div>
                 </div>
@@ -184,7 +185,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                 className="w-full bg-esg-blue hover:bg-esg-blue/90"
                 onClick={handleViewReport}
               >
-                View Complete Report
+                Visualizza Report Completo
               </Button>
             </div>
           </div>
