@@ -73,6 +73,9 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               };
               
               setReportData(newReportData);
+              
+              // Also fetch all other reports for this company to have them available
+              await loadReports(savedCompanyId);
             }
           }
           
@@ -146,6 +149,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const data = await fetchReports(companyId);
     setReports(data);
     setLoading(false);
+    return data;
   };
 
   // Create report
@@ -188,6 +192,11 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       };
       
       setReportData(newReportData);
+      
+      // Also fetch all other reports for this company
+      if (report.company_id) {
+        await loadReports(report.company_id);
+      }
     }
     
     setLoading(false);

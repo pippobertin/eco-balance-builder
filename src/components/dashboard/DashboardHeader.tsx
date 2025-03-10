@@ -9,17 +9,19 @@ interface DashboardHeaderProps {
   setSelectedYear: (year: string) => void;
   reportYear: string;
   companyName?: string;
+  availableYears?: string[];
 }
 
-const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName }: DashboardHeaderProps) => {
-  // We'll dynamically determine which years to show based on the report year
-  const currentYear = new Date().getFullYear();
-  
-  // Create an array of years to display, including the report year and previous years
+const DashboardHeader = ({ selectedYear, setSelectedYear, reportYear, companyName, availableYears = [] }: DashboardHeaderProps) => {
+  // Get the available years, ensuring they're sorted from oldest to newest
   const getYearsToDisplay = (): string[] => {
-    const reportYearNum = parseInt(reportYear) || currentYear;
+    if (availableYears && availableYears.length > 0) {
+      // Sort years in descending order
+      return [...availableYears].sort((a, b) => parseInt(b) - parseInt(a));
+    }
     
-    // Show the report year and the two previous years if available
+    // Fallback to the report year and the two previous years
+    const reportYearNum = parseInt(reportYear) || new Date().getFullYear();
     return [
       (reportYearNum - 2).toString(),
       (reportYearNum - 1).toString(),

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -9,13 +9,24 @@ import DashboardCharts from '@/components/dashboard/DashboardCharts';
 import { useReport } from '@/context/ReportContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText } from 'lucide-react';
+import { ReportData, Report } from '@/context/types';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { reportData, currentReport, currentCompany } = useReport();
+  const { reportData, currentReport, currentCompany, reports, loadReports } = useReport();
   
-  // Set the year based on the current report's year
+  // State for selected year and historical report data
   const [selectedYear, setSelectedYear] = React.useState<string>("");
+  const [historicalReportData, setHistoricalReportData] = useState<{[key: string]: ReportData}>({});
+  const [displayData, setDisplayData] = useState<ReportData | null>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  
+  // Load reports for the current company when component mounts
+  useEffect(() => {
+    if (currentCompany) {
+      loadReports(currentCompany.id);
+    }
+  }, [currentCompany]);
   
   // Update the selected year when the current report changes
   useEffect(() => {
@@ -24,41 +35,63 @@ const Dashboard = () => {
     }
   }, [currentReport]);
   
-  // Log the report data to console for debugging
-  console.log("Dati del report nella dashboard:", reportData);
+  // Group reports by year for easy access
+  useEffect(() => {
+    const reportsByYear: {[key: string]: Report} = {};
+    const dataByYear: {[key: string]: ReportData} = {};
+    
+    // Initialize with current report data
+    if (currentReport) {
+      reportsByYear[currentReport.report_year] = currentReport;
+      dataByYear[currentReport.report_year] = reportData;
+    }
+    
+    // Add other reports from the same company
+    reports.forEach(report => {
+      if (report.id !== currentReport?.id) {
+        reportsByYear[report.report_year] = report;
+        
+        // Create basic report data structure for each year
+        dataByYear[report.report_year] = {
+          environmentalMetrics: report.environmental_metrics || {},
+          socialMetrics: report.social_metrics || {},
+          conductMetrics: report.conduct_metrics || {},
+          materialityAnalysis: report.materiality_analysis || { issues: [], stakeholders: [] },
+          narrativePATMetrics: report.narrative_pat_metrics || {}
+        };
+      }
+    });
+    
+    setHistoricalReportData(dataByYear);
+  }, [reports, currentReport, reportData]);
   
-  // More thorough check if we have any meaningful data with explicit type checking
-  const hasData = (
-    // Environmental data check
-    (reportData.environmentalMetrics && (
-      (typeof reportData.environmentalMetrics.carbonEmissions === 'number' && reportData.environmentalMetrics.carbonEmissions > 0) ||
-      (typeof reportData.environmentalMetrics.energyConsumption === 'number' && reportData.environmentalMetrics.energyConsumption > 0) ||
-      (typeof reportData.environmentalMetrics.wasteGeneration === 'number' && reportData.environmentalMetrics.wasteGeneration > 0) ||
-      (typeof reportData.environmentalMetrics.waterUsage === 'number' && reportData.environmentalMetrics.waterUsage > 0) ||
-      (typeof reportData.environmentalMetrics.renewableEnergy === 'number' && reportData.environmentalMetrics.renewableEnergy > 0) ||
-      (typeof reportData.environmentalMetrics.totalScope1Emissions === 'number' && reportData.environmentalMetrics.totalScope1Emissions > 0) ||
-      (typeof reportData.environmentalMetrics.totalScope2Emissions === 'number' && reportData.environmentalMetrics.totalScope2Emissions > 0) ||
-      (typeof reportData.environmentalMetrics.totalScope3Emissions === 'number' && reportData.environmentalMetrics.totalScope3Emissions > 0)
-    )) ||
-    
-    // Social data check
-    (reportData.socialMetrics && (
-      (typeof reportData.socialMetrics.employeeDiversity === 'number' && reportData.socialMetrics.employeeDiversity > 0) ||
-      (typeof reportData.socialMetrics.trainingHours === 'number' && reportData.socialMetrics.trainingHours > 0) ||
-      (typeof reportData.socialMetrics.communityEngagement === 'number' && reportData.socialMetrics.communityEngagement > 0) ||
-      (typeof reportData.socialMetrics.employeeSatisfaction === 'number' && reportData.socialMetrics.employeeSatisfaction > 0)
-    )) ||
-    
-    // Conduct data check
-    (reportData.conductMetrics && (
-      (typeof reportData.conductMetrics.governanceCompliance === 'number' && reportData.conductMetrics.governanceCompliance > 0) ||
-      (typeof reportData.conductMetrics.policyAdherence === 'number' && reportData.conductMetrics.policyAdherence > 0) ||
-      (typeof reportData.conductMetrics.riskManagement === 'number' && reportData.conductMetrics.riskManagement > 0)
-    )) ||
-    
-    // Materiality data check
-    (reportData.materialityAnalysis && typeof reportData.materialityAnalysis.esgScore === 'number' && reportData.materialityAnalysis.esgScore > 0)
-  );
+  // Update display data when selected year changes
+  useEffect(() => {
+    if (selectedYear) {
+      if (selectedYear === currentReport?.report_year) {
+        // If selected year is current report, use current report data
+        setDisplayData(reportData);
+        setSelectedReport(currentReport);
+      } else if (historicalReportData[selectedYear]) {
+        // If selected year exists in historical data, use that
+        setDisplayData(historicalReportData[selectedYear]);
+        
+        // Find the corresponding report
+        const report = reports.find(r => r.report_year === selectedYear);
+        setSelectedReport(report || null);
+      } else {
+        // If no data available for selected year
+        setDisplayData(null);
+        setSelectedReport(null);
+      }
+    }
+  }, [selectedYear, historicalReportData, reportData, currentReport, reports]);
+  
+  // Log the report data to console for debugging
+  console.log("Current report year:", currentReport?.report_year);
+  console.log("Selected year:", selectedYear);
+  console.log("Available years:", Object.keys(historicalReportData));
+  console.log("Display data for selected year:", displayData);
   
   const goToCompanies = () => {
     navigate('/companies');
@@ -81,6 +114,7 @@ const Dashboard = () => {
               setSelectedYear={setSelectedYear} 
               reportYear={currentReport?.report_year || ""} 
               companyName={currentCompany?.name}
+              availableYears={Object.keys(historicalReportData)}
             />
             
             <div className="flex gap-3">
@@ -93,7 +127,7 @@ const Dashboard = () => {
                 Torna alle Aziende
               </Button>
               
-              {currentReport && (
+              {selectedReport && (
                 <Button 
                   className="flex items-center gap-2"
                   onClick={editReport}
@@ -113,7 +147,7 @@ const Dashboard = () => {
             </div>
           )}
           
-          {currentCompany && !hasData && (
+          {currentCompany && !displayData && (
             <div className="text-center py-10 my-6 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="text-xl font-medium text-gray-800 mb-2">Nessun dato di sostenibilità disponibile</h3>
               <p className="text-gray-700 mb-4">Non sono stati trovati dati ESG per il periodo selezionato.</p>
@@ -122,27 +156,27 @@ const Dashboard = () => {
             </div>
           )}
           
-          {currentCompany && hasData && (
+          {currentCompany && displayData && (
             <>
               {/* Company Info */}
               <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <h3 className="text-lg font-medium text-blue-900">
                   {currentCompany.name}
                 </h3>
-                {currentReport && (
+                {selectedReport && (
                   <p className="text-sm text-blue-700">
-                    Report anno: {currentReport.report_year} | 
-                    Tipo: Opzione {currentReport.report_type} | 
-                    {currentReport.is_consolidated ? ' Consolidato' : ' Individuale'}
+                    Report anno: {selectedReport.report_year} | 
+                    Tipo: Opzione {selectedReport.report_type} | 
+                    {selectedReport.is_consolidated ? ' Consolidato' : ' Individuale'}
                   </p>
                 )}
               </div>
               
               {/* Summary Cards */}
-              <DashboardSummaryCards reportData={reportData} />
+              <DashboardSummaryCards reportData={displayData} />
               
               {/* ESG Breakdown */}
-              <DashboardCharts reportData={reportData} companyName={currentCompany.name} />
+              <DashboardCharts reportData={displayData} companyName={currentCompany.name} />
             </>
           )}
         </div>
