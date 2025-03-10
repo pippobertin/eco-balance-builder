@@ -8,9 +8,9 @@ import {
   Leaf, 
   Droplets, 
   Wind, 
-  Tornado, 
   Recycle,
-  TreeDeciduous 
+  TreeDeciduous,
+  Info
 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
@@ -46,6 +46,16 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Secondo la guida, il consumo energetico deve essere riportato in termini di energia finale, intesa come quantità di energia fornita all'impresa (es. MWh di energia elettrica acquistati). Le emissioni di gas serra devono essere calcolate seguendo il GHG Protocol.
+              </p>
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Consumo energetico</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="totalEnergyConsumption">Consumo totale di energia (MWh)</Label>
@@ -100,6 +110,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
           
           <Separator className="my-4" />
           
+          <h4 className="font-medium text-lg">Emissioni di gas a effetto serra</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="ghgScope1">Emissioni GHG di Ambito 1 (tCO2eq)</Label>
@@ -111,6 +122,9 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
                 value={formValues.environmentalMetrics?.ghgScope1 || ""}
                 onChange={handleChange}
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Ambito 1: Emissioni dirette da fonti di proprietà o controllate dall'impresa
+              </p>
             </div>
             
             <div>
@@ -123,7 +137,25 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
                 value={formValues.environmentalMetrics?.ghgScope2 || ""}
                 onChange={handleChange}
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Ambito 2: Emissioni indirette derivanti dall'energia consumata dall'impresa
+              </p>
             </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="ghgScope3">Emissioni GHG di Ambito 3 (opzionale) (tCO2eq)</Label>
+            <Input
+              id="ghgScope3"
+              name="ghgScope3"
+              type="number"
+              placeholder="0.0"
+              value={formValues.environmentalMetrics?.ghgScope3 || ""}
+              onChange={handleChange}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Ambito 3: Altre emissioni indirette nella catena del valore (beni e servizi acquistati, trasporti, utilizzo dei prodotti venduti, ecc.)
+            </p>
           </div>
         </div>
       </GlassmorphicCard>
@@ -136,19 +168,26 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Riportare solo le sostanze inquinanti che sei tenuto per legge a comunicare alle autorità competenti (ad es. secondo la Industrial Emissions Directive) o che già comunichi in base a un sistema di gestione ambientale come l'EMAS.
+              </p>
+            </div>
+          </div>
+
           <div>
             <Label htmlFor="pollutants">Sostanze inquinanti emesse con relative quantità</Label>
             <Textarea
               id="pollutants"
               name="pollutants"
-              placeholder="Descrivi le sostanze inquinanti emesse nell'aria, nell'acqua e nel suolo e le rispettive quantità."
+              placeholder="Formato suggerito: Inquinante | Emissioni (kg) | Mezzo di rilascio (aria, acqua, suolo)
+Esempio: Cadmio e suoi composti | 10 | Acqua"
               value={formValues.environmentalMetrics?.pollutants || ""}
               onChange={handleChange}
               className="min-h-[120px]"
             />
-            <p className="text-sm text-gray-500 mt-2">
-              Indica le sostanze inquinanti che sei tenuto per legge a comunicare alle autorità competenti o che già comunichi in base a un sistema di gestione ambientale.
-            </p>
           </div>
           
           <div>
@@ -173,6 +212,16 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Per "aree sensibili sotto il profilo della biodiversità" si intendono le aree protette a livello europeo o internazionale, come quelle appartenenti alla rete Natura 2000, i siti del patrimonio mondiale dell'UNESCO e le principali aree di biodiversità (KBA).
+              </p>
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Siti in aree sensibili</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="biodiversitySitesCount">Numero di siti in aree sensibili sotto il profilo della biodiversità</Label>
@@ -199,8 +248,21 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
           </div>
           
+          <div>
+            <Label htmlFor="biodiversitySitesLocations">Posizione dei siti (Paese - Nome del sito)</Label>
+            <Textarea
+              id="biodiversitySitesLocations"
+              name="biodiversitySitesLocations"
+              placeholder="Esempio: Italia - Parco Nazionale delle Dolomiti"
+              value={formValues.environmentalMetrics?.biodiversitySitesLocations || ""}
+              onChange={handleChange}
+              className="min-h-[100px]"
+            />
+          </div>
+          
           <Separator className="my-4" />
           
+          <h4 className="font-medium text-lg">Uso del suolo</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="totalLandUse">Uso totale del suolo (ettari)</Label>
@@ -263,6 +325,15 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Il prelievo idrico si riferisce alla quantità di acqua prelevata da qualsiasi fonte. Il consumo idrico è calcolato come differenza tra il prelievo e lo scarico. Per determinare se l'impresa opera in un'area ad elevato stress idrico, consultare le autorità idriche regionali o strumenti come il WRI's Aqueduct Water Risk Atlas.
+              </p>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="totalWaterWithdrawal">Prelievo idrico totale (m³)</Label>
@@ -289,19 +360,45 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
           </div>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="waterDischarge">Scarico idrico (m³)</Label>
+              <Input
+                id="waterDischarge"
+                name="waterDischarge"
+                type="number"
+                placeholder="0.0"
+                value={formValues.environmentalMetrics?.waterDischarge || ""}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="waterConsumption">Consumo idrico (m³)</Label>
+              <Input
+                id="waterConsumption"
+                name="waterConsumption"
+                type="number"
+                placeholder="0.0"
+                value={formValues.environmentalMetrics?.waterConsumption || ""}
+                onChange={handleChange}
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Calcolato come differenza tra il prelievo idrico e lo scarico di acqua
+              </p>
+            </div>
+          </div>
+          
           <div>
-            <Label htmlFor="waterConsumption">Consumo idrico (m³)</Label>
+            <Label htmlFor="rainwaterHarvested">Acqua piovana raccolta e utilizzata (m³, opzionale)</Label>
             <Input
-              id="waterConsumption"
-              name="waterConsumption"
+              id="rainwaterHarvested"
+              name="rainwaterHarvested"
               type="number"
               placeholder="0.0"
-              value={formValues.environmentalMetrics?.waterConsumption || ""}
+              value={formValues.environmentalMetrics?.rainwaterHarvested || ""}
               onChange={handleChange}
             />
-            <p className="text-sm text-gray-500 mt-2">
-              Calcolato come differenza tra il prelievo idrico e lo scarico di acqua dai processi produttivi.
-            </p>
           </div>
         </div>
       </GlassmorphicCard>
@@ -314,6 +411,16 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                I principi dell'economia circolare includono: eliminare gli sprechi e l'inquinamento, circolare i prodotti e i materiali al loro massimo valore, e rigenerare la natura. Il contenuto riciclato è il rapporto tra materiali riciclati utilizzati e peso totale dei materiali.
+              </p>
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Economia circolare nei prodotti</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="recycledContentProducts">Contenuto riciclato nei prodotti e imballaggi (%)</Label>
@@ -328,7 +435,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="recyclableContentProducts">Tassi di contenuto riciclabile nei prodotti e imballaggi (%)</Label>
+              <Label htmlFor="recyclableContentProducts">Contenuto riciclabile nei prodotti e imballaggi (%)</Label>
               <Input
                 id="recyclableContentProducts"
                 name="recyclableContentProducts"
@@ -340,9 +447,12 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
           </div>
           
+          <Separator className="my-4" />
+          
+          <h4 className="font-medium text-lg">Gestione dei rifiuti</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="totalNonHazardousWaste">Produzione totale annua di rifiuti non pericolosi (kg/ton)</Label>
+              <Label htmlFor="totalNonHazardousWaste">Rifiuti non pericolosi totali (kg/ton)</Label>
               <Input
                 id="totalNonHazardousWaste"
                 name="totalNonHazardousWaste"
@@ -354,7 +464,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="totalHazardousWaste">Produzione totale annua di rifiuti pericolosi (kg/ton)</Label>
+              <Label htmlFor="totalHazardousWaste">Rifiuti pericolosi totali (kg/ton)</Label>
               <Input
                 id="totalHazardousWaste"
                 name="totalHazardousWaste"
@@ -366,15 +476,42 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
             </div>
           </div>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="totalWasteRecycledReused">Rifiuti destinati al riciclo o al riutilizzo (kg/ton)</Label>
+              <Input
+                id="totalWasteRecycledReused"
+                name="totalWasteRecycledReused"
+                type="number"
+                placeholder="0.0"
+                value={formValues.environmentalMetrics?.totalWasteRecycledReused || ""}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="totalWasteDisposal">Rifiuti destinati allo smaltimento (kg/ton)</Label>
+              <Input
+                id="totalWasteDisposal"
+                name="totalWasteDisposal"
+                type="number"
+                placeholder="0.0"
+                value={formValues.environmentalMetrics?.totalWasteDisposal || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
           <div>
-            <Label htmlFor="totalWasteRecycledReused">Totale dei rifiuti annui destinati al riciclo o al riutilizzo (kg/ton)</Label>
-            <Input
-              id="totalWasteRecycledReused"
-              name="totalWasteRecycledReused"
-              type="number"
-              placeholder="0.0"
-              value={formValues.environmentalMetrics?.totalWasteRecycledReused || ""}
+            <Label htmlFor="wasteTypes">Dettaglio tipi di rifiuti (opzionale)</Label>
+            <Textarea
+              id="wasteTypes"
+              name="wasteTypes"
+              placeholder="Esempio: Carta/cartone | 500 | Riciclo
+Batterie esauste (pericoloso) | 20 | Smaltimento"
+              value={formValues.environmentalMetrics?.wasteTypes || ""}
               onChange={handleChange}
+              className="min-h-[120px]"
             />
           </div>
         </div>

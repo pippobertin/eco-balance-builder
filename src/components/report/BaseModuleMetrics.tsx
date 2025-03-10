@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowLeft, FileText, Target, Leaf, Users, Building2, Briefcase } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, FileText, Target, Leaf, Users, Building2, Briefcase, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnvironmentalMetrics from './EnvironmentalMetrics';
 import SocialMetrics from './SocialMetrics';
@@ -61,6 +61,22 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     }
   };
 
+  // Ottieni la descrizione dell'opzione selezionata
+  const getOptionDescription = () => {
+    switch(selectedOption) {
+      case 'A':
+        return 'OPZIONE A: Modulo Base - Riporta solo gli indicatori ambientali, sociali e di condotta fondamentali.';
+      case 'B':
+        return 'OPZIONE B: Modulo Base e Modulo Narrativo-PAT - Include informazioni narrative relative a politiche, azioni e obiettivi oltre al Modulo Base.';
+      case 'C':
+        return 'OPZIONE C: Modulo Base e Modulo Partner commerciali - Include dati aggiuntivi richiesti da finanziatori, investitori e clienti.';
+      case 'D':
+        return 'OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali - Combinazione completa di tutti i moduli disponibili.';
+      default:
+        return 'Seleziona un\'opzione per la tua relazione sulla sostenibilità';
+    }
+  };
+
   return (
     <motion.div
       variants={containerAnimation}
@@ -68,6 +84,18 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       animate="visible"
       className="space-y-6"
     >
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-6">
+        <div className="flex items-start">
+          <Info className="mt-0.5 mr-2 h-5 w-5 text-blue-500" />
+          <div>
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">{getOptionDescription()}</p>
+            <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
+              Completa le sezioni seguenti in base all'opzione selezionata. Le metriche ambientali, sociali e di condotta sono obbligatorie per tutte le opzioni.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-2 mb-6">
         <Button 
           variant={activeSection === 'environmental' ? 'default' : 'outline'} 

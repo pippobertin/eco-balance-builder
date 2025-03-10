@@ -9,7 +9,7 @@ import {
   ShieldAlert, 
   HeartHandshake, 
   GraduationCap,
-  Building 
+  Info
 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
@@ -45,6 +45,16 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                L'equivalente a tempo pieno (FTE) è il numero di posizioni a tempo pieno. Si calcola dividendo le ore di lavoro effettive di un dipendente per le ore di una settimana lavorativa a tempo pieno. I dati possono essere espressi sia in numero di persone che in FTE.
+              </p>
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Totale dipendenti</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="totalEmployees">Numero totale di dipendenti</Label>
@@ -59,6 +69,21 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
             </div>
             
             <div>
+              <Label htmlFor="totalEmployeesFTE">Numero totale di equivalenti a tempo pieno (FTE)</Label>
+              <Input
+                id="totalEmployeesFTE"
+                name="totalEmployeesFTE"
+                type="number"
+                placeholder="0.0"
+                value={formValues.socialMetrics?.totalEmployeesFTE || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Tipo di contratto</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="permanentEmployees">Dipendenti a tempo indeterminato</Label>
               <Input
                 id="permanentEmployees"
@@ -69,9 +94,7 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
             <div>
               <Label htmlFor="temporaryEmployees">Dipendenti a tempo determinato</Label>
               <Input
@@ -83,7 +106,10 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
             </div>
-            
+          </div>
+          
+          <h4 className="font-medium text-lg">Distribuzione per genere</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="maleEmployees">Dipendenti di genere maschile</Label>
               <Input
@@ -95,9 +121,7 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
             <div>
               <Label htmlFor="femaleEmployees">Dipendenti di genere femminile</Label>
               <Input
@@ -145,6 +169,15 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Il tasso di infortuni sul lavoro si calcola con la formula: (Numero di infortuni / Numero totale di ore lavorate in un anno da tutti i dipendenti) x 200.000. Questo indica il numero di infortuni per 100 lavoratori a tempo pieno in un anno.
+              </p>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="workAccidentsNumber">Numero di infortuni sul lavoro registrabili</Label>
@@ -159,6 +192,20 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
             </div>
             
             <div>
+              <Label htmlFor="totalHoursWorked">Ore totali lavorate nell'anno</Label>
+              <Input
+                id="totalHoursWorked"
+                name="totalHoursWorked"
+                type="number"
+                placeholder="0"
+                value={formValues.socialMetrics?.totalHoursWorked || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="workAccidentsRate">Tasso di infortuni sul lavoro (%)</Label>
               <Input
                 id="workAccidentsRate"
@@ -168,10 +215,11 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 value={formValues.socialMetrics?.workAccidentsRate || ""}
                 onChange={handleChange}
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Calcolato come (N. infortuni / Ore totali lavorate) x 200.000
+              </p>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
             <div>
               <Label htmlFor="workAccidentDeaths">Numero di decessi dovuti a infortuni sul lavoro</Label>
               <Input
@@ -183,18 +231,21 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
             </div>
-            
-            <div>
-              <Label htmlFor="workDiseaseDeaths">Numero di decessi dovuti a malattie professionali</Label>
-              <Input
-                id="workDiseaseDeaths"
-                name="workDiseaseDeaths"
-                type="number"
-                placeholder="0"
-                value={formValues.socialMetrics?.workDiseaseDeaths || ""}
-                onChange={handleChange}
-              />
-            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="workDiseaseDeaths">Numero di decessi dovuti a malattie professionali</Label>
+            <Input
+              id="workDiseaseDeaths"
+              name="workDiseaseDeaths"
+              type="number"
+              placeholder="0"
+              value={formValues.socialMetrics?.workDiseaseDeaths || ""}
+              onChange={handleChange}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Include malattie direttamente collegate allo svolgimento del lavoro, attestate da un professionista sanitario
+            </p>
           </div>
         </div>
       </GlassmorphicCard>
@@ -207,6 +258,42 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
         </div>
         
         <div className="space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+            <div className="flex items-start">
+              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Il divario retributivo di genere è la differenza tra i livelli retributivi medi tra dipendenti di sesso femminile e maschile, espressa come percentuale del livello retributivo medio maschile. La copertura della contrattazione collettiva è la percentuale di dipendenti a cui si applicano i contratti collettivi.
+              </p>
+            </div>
+          </div>
+          
+          <h4 className="font-medium text-lg">Retribuzione</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="entryWage">Salario di ingresso (€)</Label>
+              <Input
+                id="entryWage"
+                name="entryWage"
+                type="number"
+                placeholder="0.0"
+                value={formValues.socialMetrics?.entryWage || ""}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="localMinimumWage">Salario minimo locale (€)</Label>
+              <Input
+                id="localMinimumWage"
+                name="localMinimumWage"
+                type="number"
+                placeholder="0.0"
+                value={formValues.socialMetrics?.localMinimumWage || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="entryWageToMinimumWageRatio">Rapporto tra salario di ingresso e salario minimo</Label>
@@ -219,12 +306,12 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
               <p className="text-sm text-gray-500 mt-1">
-                Indicare solo se una percentuale significativa di dipendenti è retribuita sulla base di salari soggetti a norme sul salario minimo.
+                Indicare solo se una percentuale significativa di dipendenti è retribuita sulla base di salari soggetti a norme sul salario minimo
               </p>
             </div>
             
             <div>
-              <Label htmlFor="genderPayGap">Divario percentuale di retribuzione tra dipendenti di sesso femminile e maschile (%)</Label>
+              <Label htmlFor="genderPayGap">Divario retributivo di genere (%)</Label>
               <Input
                 id="genderPayGap"
                 name="genderPayGap"
@@ -234,26 +321,28 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
               <p className="text-sm text-gray-500 mt-1">
-                Omettere questa informazione se il numero di dipendenti è inferiore a 150.
+                Omettere questa informazione se il numero di dipendenti è inferiore a 150
               </p>
             </div>
           </div>
           
+          <h4 className="font-medium text-lg">Contrattazione collettiva</h4>
+          <div>
+            <Label htmlFor="collectiveBargainingCoverage">Percentuale di dipendenti coperti da contratti collettivi di lavoro (%)</Label>
+            <Input
+              id="collectiveBargainingCoverage"
+              name="collectiveBargainingCoverage"
+              type="number"
+              placeholder="0.0"
+              value={formValues.socialMetrics?.collectiveBargainingCoverage || ""}
+              onChange={handleChange}
+            />
+          </div>
+          
+          <h4 className="font-medium text-lg">Formazione</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="collectiveBargainingCoverage">Percentuale di dipendenti coperti da contratti collettivi di lavoro (%)</Label>
-              <Input
-                id="collectiveBargainingCoverage"
-                name="collectiveBargainingCoverage"
-                type="number"
-                placeholder="0.0"
-                value={formValues.socialMetrics?.collectiveBargainingCoverage || ""}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="avgTrainingHoursMale">Numero medio di ore di formazione annuali per dipendente di genere maschile</Label>
+              <Label htmlFor="avgTrainingHoursMale">Ore medie di formazione annuali per dipendente di genere maschile</Label>
               <Input
                 id="avgTrainingHoursMale"
                 name="avgTrainingHoursMale"
@@ -263,18 +352,18 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
                 onChange={handleChange}
               />
             </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="avgTrainingHoursFemale">Numero medio di ore di formazione annuali per dipendente di genere femminile</Label>
-            <Input
-              id="avgTrainingHoursFemale"
-              name="avgTrainingHoursFemale"
-              type="number"
-              placeholder="0.0"
-              value={formValues.socialMetrics?.avgTrainingHoursFemale || ""}
-              onChange={handleChange}
-            />
+            
+            <div>
+              <Label htmlFor="avgTrainingHoursFemale">Ore medie di formazione annuali per dipendente di genere femminile</Label>
+              <Input
+                id="avgTrainingHoursFemale"
+                name="avgTrainingHoursFemale"
+                type="number"
+                placeholder="0.0"
+                value={formValues.socialMetrics?.avgTrainingHoursFemale || ""}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
       </GlassmorphicCard>
