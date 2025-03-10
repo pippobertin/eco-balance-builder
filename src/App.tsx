@@ -9,6 +9,7 @@ import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import Report from '@/pages/Report';
 import ReportForm from '@/pages/ReportForm';
+import Companies from '@/pages/Companies';
 import NotFound from '@/pages/NotFound';
 
 // Create a client
@@ -25,6 +26,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/report" element={<Report />} />
               <Route path="/report-form" element={<ReportForm />} />
+              <Route path="/companies" element={<Companies />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

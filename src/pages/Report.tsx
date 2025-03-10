@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -9,29 +11,38 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, ClipboardList, Users, Building2, ArrowRight, Info, FileText } from 'lucide-react';
+import { 
+  CheckCircle2, 
+  ClipboardList, 
+  Users, 
+  Building2, 
+  ArrowRight, 
+  Info, 
+  FileText,
+  Save,
+  FileBarChart
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BaseModuleMetrics from '@/components/report/BaseModuleMetrics';
-import { useReport } from '@/context/ReportContext';
+import { useReport, Subsidiary } from '@/context/ReportContext';
+
 const Report = () => {
-  const {
-    toast
-  } = useToast();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const {
     reportData,
-    updateReportData
+    updateReportData,
+    currentCompany,
+    currentReport,
+    saveCurrentReport,
+    saveSubsidiaries
   } = useReport();
+  
   const [activeTab, setActiveTab] = useState('modulo-selection');
-  const [selectedOption, setSelectedOption] = useState<string>('');
+  const [selectedOption, setSelectedOption] = useState<string>('A');
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
-  const [subsidiaries, setSubsidiaries] = useState<{
-    name: string;
-    location: string;
-  }[]>([]);
-  const [newSubsidiary, setNewSubsidiary] = useState<{
-    name: string;
-    location: string;
-  }>({
+  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
+  const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({
     name: '',
     location: ''
   });
@@ -43,9 +54,60 @@ const Report = () => {
     narrativePATMetrics: {},
     materialityAnalysis: {}
   });
+  
+  // Carica i dati del report corrente
+  useEffect(() => {
+    if (currentReport) {
+      setSelectedOption(currentReport.report_type);
+      setIsConsolidated(currentReport.is_consolidated);
+      
+      // Carica i dati del form dal report
+      setFormValues({
+        environmentalMetrics: reportData.environmentalMetrics || {},
+        socialMetrics: reportData.socialMetrics || {},
+        conductMetrics: reportData.conductMetrics || {},
+        narrativePATMetrics: reportData.narrativePATMetrics || {},
+        materialityAnalysis: reportData.materialityAnalysis || {}
+      });
+      
+      // Se non c'è un'azienda selezionata o un report, reindirizza alla pagina delle aziende
+      if (!currentCompany) {
+        toast({
+          title: "Nessuna azienda selezionata",
+          description: "Seleziona un'azienda e un report per continuare",
+          variant: "destructive"
+        });
+        navigate('/companies');
+      }
+    } else {
+      // Se non c'è un report attivo, reindirizza alla pagina delle aziende
+      toast({
+        title: "Nessun report attivo",
+        description: "Seleziona o crea un report per continuare",
+        variant: "destructive"
+      });
+      navigate('/companies');
+    }
+  }, [currentReport, currentCompany]);
+  
+  // Gestione del salvataggio manuale
+  const handleSaveReport = async () => {
+    await saveCurrentReport();
+    
+    if (currentReport && isConsolidated) {
+      await saveSubsidiaries(subsidiaries, currentReport.id);
+    }
+    
+    toast({
+      title: "Report salvato",
+      description: "Tutte le modifiche sono state salvate con successo"
+    });
+  };
+  
   const handleOptionChange = (value: string) => {
     setSelectedOption(value);
   };
+  
   const handleAddSubsidiary = () => {
     if (newSubsidiary.name.trim() && newSubsidiary.location.trim()) {
       setSubsidiaries([...subsidiaries, {
@@ -63,11 +125,13 @@ const Report = () => {
       });
     }
   };
+  
   const removeSubsidiary = (index: number) => {
     const updatedSubsidiaries = [...subsidiaries];
     updatedSubsidiaries.splice(index, 1);
     setSubsidiaries(updatedSubsidiaries);
   };
+  
   const handleContinue = () => {
     if (!selectedOption) {
       toast({
@@ -77,6 +141,7 @@ const Report = () => {
       });
       return;
     }
+    
     if (isConsolidated && subsidiaries.length === 0) {
       toast({
         title: "Informazione mancante",
@@ -85,12 +150,19 @@ const Report = () => {
       });
       return;
     }
+    
     setActiveTab('basic-info');
     toast({
       title: "Configurazione salvata",
       description: `Hai selezionato l'opzione ${selectedOption} per la tua rendicontazione di sostenibilità.`
     });
+    
+    // Salva l'opzione selezionata nel database
+    if (currentReport) {
+      // In un'implementazione completa, qui salveremmo le modifiche al report
+    }
   };
+  
   const saveBasicInfo = () => {
     toast({
       title: "Informazioni salvate",
@@ -98,13 +170,26 @@ const Report = () => {
     });
     setActiveTab('metrics');
   };
-  const saveMetrics = () => {
+  
+  const saveMetrics = async () => {
     updateReportData(formValues);
+    
+    await saveCurrentReport();
+    
+    if (currentReport && isConsolidated) {
+      await saveSubsidiaries(subsidiaries, currentReport.id);
+    }
+    
     toast({
       title: "Report completato",
       description: "Il report V-SME è stato compilato e salvato con successo."
     });
   };
+  
+  const viewDashboard = () => {
+    navigate('/dashboard');
+  };
+  
   const containerAnimation = {
     hidden: {
       opacity: 0
@@ -116,24 +201,46 @@ const Report = () => {
       }
     }
   };
-  return <div className="min-h-screen flex flex-col">
+  
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <motion.div initial={{
-          opacity: 0,
-          y: -20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5
-        }} className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Report V-SME</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Compila il tuo report di sostenibilità secondo lo standard V-SME
-            </p>
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.5 }} 
+            className="mb-4 flex flex-wrap items-center justify-between gap-4"
+          >
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Report V-SME</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentCompany ? `${currentCompany.name} - ` : ''}
+                Compila il tuo report di sostenibilità secondo lo standard V-SME
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={handleSaveReport}
+              >
+                <Save className="h-4 w-4" />
+                Salva
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={viewDashboard}
+              >
+                <FileBarChart className="h-4 w-4" />
+                Visualizza Dashboard
+              </Button>
+            </div>
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -202,41 +309,63 @@ const Report = () => {
                   
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="consolidated" checked={isConsolidated} onCheckedChange={checked => setIsConsolidated(checked === true)} />
+                      <Checkbox 
+                        id="consolidated" 
+                        checked={isConsolidated} 
+                        onCheckedChange={checked => setIsConsolidated(checked === true)} 
+                      />
                       <Label htmlFor="consolidated">Rendicontazione su base consolidata</Label>
                     </div>
                     
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {isConsolidated ? "La relazione includerà informazioni dell'impresa madre e delle sue figlie." : "La relazione sarà limitata solo alle informazioni dell'impresa principale."}
+                      {isConsolidated 
+                        ? "La relazione includerà informazioni dell'impresa madre e delle sue figlie." 
+                        : "La relazione sarà limitata solo alle informazioni dell'impresa principale."
+                      }
                     </p>
                     
-                    {isConsolidated && <div className="space-y-4 mt-4 border-t pt-4">
+                    {isConsolidated && (
+                      <div className="space-y-4 mt-4 border-t pt-4">
                         <h3 className="text-md font-medium">Imprese figlie incluse nella relazione</h3>
                         
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {subsidiaries.map((subsidiary, index) => <div key={index} className="flex items-center bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
+                          {subsidiaries.map((subsidiary, index) => (
+                            <div key={index} className="flex items-center bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
                               <span className="text-sm mr-2">{subsidiary.name} ({subsidiary.location})</span>
-                              <button onClick={() => removeSubsidiary(index)} className="text-red-500 hover:text-red-700">
+                              <button 
+                                onClick={() => removeSubsidiary(index)} 
+                                className="text-red-500 hover:text-red-700"
+                              >
                                 &times;
                               </button>
-                            </div>)}
+                            </div>
+                          ))}
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Input placeholder="Nome dell'impresa figlia" value={newSubsidiary.name} onChange={e => setNewSubsidiary({
-                        ...newSubsidiary,
-                        name: e.target.value
-                      })} />
-                          <Input placeholder="Sede legale" value={newSubsidiary.location} onChange={e => setNewSubsidiary({
-                        ...newSubsidiary,
-                        location: e.target.value
-                      })} />
+                          <Input 
+                            placeholder="Nome dell'impresa figlia" 
+                            value={newSubsidiary.name} 
+                            onChange={e => setNewSubsidiary({
+                              ...newSubsidiary,
+                              name: e.target.value
+                            })} 
+                          />
+                          <Input 
+                            placeholder="Sede legale" 
+                            value={newSubsidiary.location} 
+                            onChange={e => setNewSubsidiary({
+                              ...newSubsidiary,
+                              location: e.target.value
+                            })} 
+                          />
                         </div>
                         
                         <Button variant="outline" onClick={handleAddSubsidiary} className="mt-2">
                           Aggiungi impresa figlia
                         </Button>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </GlassmorphicCard>
                 
@@ -259,17 +388,32 @@ const Report = () => {
                   
                   <div className="p-4 rounded-md mb-4 bg-sky-800">
                     <p className="text-sm text-slate-50">
-                      Hai selezionato: <strong>{selectedOption === 'A' ? 'OPZIONE A: Modulo Base' : selectedOption === 'B' ? 'OPZIONE B: Modulo Base e Modulo Narrativo-PAT' : selectedOption === 'C' ? 'OPZIONE C: Modulo Base e Modulo Partner commerciali' : selectedOption === 'D' ? 'OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali' : 'Nessuna opzione selezionata'}</strong>
+                      Hai selezionato: <strong>
+                        {selectedOption === 'A' 
+                          ? 'OPZIONE A: Modulo Base' 
+                          : selectedOption === 'B' 
+                            ? 'OPZIONE B: Modulo Base e Modulo Narrativo-PAT' 
+                            : selectedOption === 'C' 
+                              ? 'OPZIONE C: Modulo Base e Modulo Partner commerciali' 
+                              : selectedOption === 'D' 
+                                ? 'OPZIONE D: Modulo Base, Modulo Narrativo-PAT e Modulo Partner commerciali' 
+                                : 'Nessuna opzione selezionata'
+                        }
+                      </strong>
                     </p>
                     <p className="text-sm mt-2 text-slate-50">
                       Tipo di relazione: <strong>{isConsolidated ? 'Consolidata' : 'Individuale'}</strong>
                     </p>
-                    {isConsolidated && subsidiaries.length > 0 && <div className="mt-2">
+                    {isConsolidated && subsidiaries.length > 0 && (
+                      <div className="mt-2">
                         <p className="text-sm font-medium">Imprese figlie incluse:</p>
                         <ul className="list-disc pl-5 text-sm">
-                          {subsidiaries.map((subsidiary, index) => <li key={index}>{subsidiary.name} - {subsidiary.location}</li>)}
+                          {subsidiaries.map((subsidiary, index) => (
+                            <li key={index}>{subsidiary.name} - {subsidiary.location}</li>
+                          ))}
                         </ul>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </GlassmorphicCard>
 
@@ -281,11 +425,16 @@ const Report = () => {
                   
                   <div className="space-y-4">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Descrivere brevemente le pratiche specifiche adottate dall'impresa per la transizione verso un'economia più sostenibile. 
+                      Descrivi brevemente le pratiche specifiche adottate dall'impresa per la transizione verso un'economia più sostenibile. 
                       Non includere attività filantropiche, ma piuttosto iniziative concrete per migliorare l'impatto ambientale e sociale dell'impresa.
                     </p>
                     
-                    <textarea className="w-full min-h-[200px] p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Descrivi qui le pratiche adottate dalla tua impresa..." value={sustainabilityPractices} onChange={e => setSustainabilityPractices(e.target.value)} />
+                    <textarea 
+                      className="w-full min-h-[200px] p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                      placeholder="Descrivi qui le pratiche adottate dalla tua impresa..." 
+                      value={sustainabilityPractices} 
+                      onChange={e => setSustainabilityPractices(e.target.value)} 
+                    />
                   </div>
                 </GlassmorphicCard>
                 
@@ -302,13 +451,21 @@ const Report = () => {
             </TabsContent>
             
             <TabsContent value="metrics">
-              <BaseModuleMetrics formValues={formValues} setFormValues={setFormValues} onPrevious={() => setActiveTab('basic-info')} onSave={saveMetrics} selectedOption={selectedOption} />
+              <BaseModuleMetrics 
+                formValues={formValues} 
+                setFormValues={setFormValues} 
+                onPrevious={() => setActiveTab('basic-info')} 
+                onSave={saveMetrics} 
+                selectedOption={selectedOption} 
+              />
             </TabsContent>
           </Tabs>
         </div>
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Report;
