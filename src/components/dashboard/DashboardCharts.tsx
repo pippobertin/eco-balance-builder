@@ -1,12 +1,19 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Users, Building2 } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
+import { ReportData } from '@/context/ReportContext';
+import { useNavigate } from 'react-router-dom';
 
-const DashboardCharts = () => {
+interface DashboardChartsProps {
+  reportData: ReportData;
+}
+
+const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
+  const navigate = useNavigate();
+  
   const environmentalData = [
     { month: 'Jan', emissions: 120, waste: 65, energy: 45 },
     { month: 'Feb', emissions: 132, waste: 59, energy: 49 },
@@ -23,24 +30,56 @@ const DashboardCharts = () => {
   ];
   
   const socialData = [
-    { name: 'Gender Diversity', value: 65 },
-    { name: 'Employee Satisfaction', value: 78 },
-    { name: 'Training Hours', value: 89 },
-    { name: 'Community Engagement', value: 72 }
+    { 
+      name: 'Gender Diversity', 
+      value: reportData.socialMetrics.employeeDiversity || 65 
+    },
+    { 
+      name: 'Employee Satisfaction', 
+      value: reportData.socialMetrics.employeeSatisfaction || 78 
+    },
+    { 
+      name: 'Training Hours', 
+      value: reportData.socialMetrics.trainingHours || 89 
+    },
+    { 
+      name: 'Community Engagement', 
+      value: reportData.socialMetrics.communityEngagement || 72 
+    }
   ];
   
   const governanceData = [
-    { quarter: 'Q1', compliance: 85, risk: 20, policy: 70 },
+    { 
+      quarter: 'Q1', 
+      compliance: reportData.conductMetrics.governanceCompliance || 85,
+      risk: reportData.conductMetrics.riskManagement || 20,
+      policy: reportData.conductMetrics.policyAdherence || 70
+    },
     { quarter: 'Q2', compliance: 88, risk: 18, policy: 75 },
     { quarter: 'Q3', compliance: 92, risk: 15, policy: 80 },
     { quarter: 'Q4', compliance: 95, risk: 12, policy: 85 },
   ];
   
   const performanceData = [
-    { name: 'Environmental', value: 75 },
-    { name: 'Social', value: 82 },
-    { name: 'Governance', value: 88 },
+    { 
+      name: 'Environmental', 
+      value: reportData.environmentalMetrics.renewableEnergy ? 
+        Math.round((reportData.environmentalMetrics.renewableEnergy + 100 - reportData.environmentalMetrics.carbonEmissions) / 2) : 75 
+    },
+    { 
+      name: 'Social', 
+      value: reportData.socialMetrics.employeeDiversity ? 
+        Math.round((reportData.socialMetrics.employeeDiversity + reportData.socialMetrics.employeeSatisfaction) / 2) : 82 
+    },
+    { 
+      name: 'Governance', 
+      value: reportData.conductMetrics.governanceCompliance || 88 
+    },
   ];
+  
+  const handleViewReport = () => {
+    navigate('/report');
+  };
   
   return (
     <motion.div
@@ -102,7 +141,11 @@ const DashboardCharts = () => {
                   <Leaf className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
                     <h4 className="font-medium">Carbon Reduction</h4>
-                    <p className="text-sm text-esg-gray-medium">Reduced carbon emissions by 12% through renewable energy initiatives.</p>
+                    <p className="text-sm text-esg-gray-medium">
+                      {reportData.environmentalMetrics.carbonEmissions 
+                        ? `Current carbon emissions: ${reportData.environmentalMetrics.carbonEmissions} tons`
+                        : "Reduced carbon emissions by 12% through renewable energy initiatives."}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -112,7 +155,11 @@ const DashboardCharts = () => {
                   <Users className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
                     <h4 className="font-medium">Diversity Program</h4>
-                    <p className="text-sm text-esg-gray-medium">Implemented new diversity hiring program increasing workforce diversity by 8%.</p>
+                    <p className="text-sm text-esg-gray-medium">
+                      {reportData.socialMetrics.employeeDiversity 
+                        ? `Current workforce diversity: ${reportData.socialMetrics.employeeDiversity}%`
+                        : "Implemented new diversity hiring program increasing workforce diversity by 8%."}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -122,14 +169,21 @@ const DashboardCharts = () => {
                   <Building2 className="h-5 w-5 text-esg-blue mt-0.5" />
                   <div>
                     <h4 className="font-medium">Governance Update</h4>
-                    <p className="text-sm text-esg-gray-medium">Updated compliance policies achieving 95% adherence rate.</p>
+                    <p className="text-sm text-esg-gray-medium">
+                      {reportData.conductMetrics.governanceCompliance 
+                        ? `Current compliance rate: ${reportData.conductMetrics.governanceCompliance}%`
+                        : "Updated compliance policies achieving 95% adherence rate."}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="mt-6">
-              <Button className="w-full bg-esg-blue hover:bg-esg-blue/90">
+              <Button 
+                className="w-full bg-esg-blue hover:bg-esg-blue/90"
+                onClick={handleViewReport}
+              >
                 View Complete Report
               </Button>
             </div>

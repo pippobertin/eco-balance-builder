@@ -5,9 +5,11 @@ import Footer from '@/components/layout/Footer';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSummaryCards from '@/components/dashboard/DashboardSummaryCards';
 import DashboardCharts from '@/components/dashboard/DashboardCharts';
+import { useReport } from '@/context/ReportContext';
 
 const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2023");
+  const { reportData } = useReport();
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -22,10 +24,10 @@ const Dashboard = () => {
           />
           
           {/* Summary Cards */}
-          <DashboardSummaryCards />
+          <DashboardSummaryCards reportData={reportData} />
           
           {/* ESG Breakdown */}
-          <DashboardCharts />
+          <DashboardCharts reportData={reportData} />
         </div>
       </main>
       

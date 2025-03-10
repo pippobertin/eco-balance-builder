@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
@@ -21,9 +20,11 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BaseModuleMetrics from '@/components/report/BaseModuleMetrics';
+import { useReport } from '@/context/ReportContext';
 
 const Report = () => {
   const { toast } = useToast();
+  const { reportData, updateReportData } = useReport();
   const [activeTab, setActiveTab] = useState('modulo-selection');
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
@@ -97,6 +98,8 @@ const Report = () => {
   };
   
   const saveMetrics = () => {
+    updateReportData(formValues);
+    
     toast({
       title: "Report completato",
       description: "Il report V-SME è stato compilato e salvato con successo.",

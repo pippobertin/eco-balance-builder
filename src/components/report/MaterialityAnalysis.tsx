@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Target, Users } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { useStakeholders } from './materiality/hooks/useStakeholders';
 import { useSurveyDialog } from './materiality/hooks/useSurveyDialog';
 import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from './materiality/utils/materialityUtils';
 import { SurveyResponse } from './materiality/types';
+import { useReport } from '@/context/ReportContext';
 
 interface MaterialityAnalysisProps {
   formValues: any;
@@ -23,6 +24,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('issues');
+  const { reportData, updateReportData } = useReport();
   
   // Use custom hooks
   const { 
@@ -34,15 +36,44 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   } = useMaterialityIssues(
     formValues.materialityAnalysis?.issues,
     (updatedIssues) => {
-      setFormValues(prev => ({
-        ...prev,
+      const updatedFormValues = {
+        ...formValues,
         materialityAnalysis: {
-          ...prev.materialityAnalysis,
+          ...formValues.materialityAnalysis,
           issues: updatedIssues
         }
-      }));
+      };
+      
+      setFormValues(updatedFormValues);
+      
+      // Also update the report context
+      updateReportData({
+        materialityAnalysis: {
+          ...reportData.materialityAnalysis,
+          issues: updatedIssues,
+          // Calculate a simple ESG score based on material issues
+          esgScore: calculateEsgScore(updatedIssues)
+        }
+      });
     }
   );
+  
+  // Calculate ESG score based on material issues
+  const calculateEsgScore = (issues: any[]) => {
+    const materialIssues = issues.filter(issue => issue.isMaterial);
+    if (materialIssues.length === 0) return 50;
+    
+    const totalScore = materialIssues.reduce((score, issue) => {
+      const impactScore = issue.impactRelevance || 0;
+      const financialScore = issue.financialRelevance || 0;
+      const stakeholderScore = issue.stakeholderRelevance || 0;
+      
+      // Weight the scores (stakeholder feedback has a higher weight)
+      return score + (impactScore * 0.4) + (financialScore * 0.3) + (stakeholderScore * 0.3);
+    }, 0);
+    
+    return Math.round(totalScore / materialIssues.length);
+  };
   
   const { 
     stakeholders, 
@@ -54,13 +85,23 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   } = useStakeholders(
     formValues.materialityAnalysis?.stakeholders,
     (updatedStakeholders) => {
-      setFormValues(prev => ({
-        ...prev,
+      const updatedFormValues = {
+        ...formValues,
         materialityAnalysis: {
-          ...prev.materialityAnalysis,
+          ...formValues.materialityAnalysis,
           stakeholders: updatedStakeholders
         }
-      }));
+      };
+      
+      setFormValues(updatedFormValues);
+      
+      // Also update the report context
+      updateReportData({
+        materialityAnalysis: {
+          ...reportData.materialityAnalysis,
+          stakeholders: updatedStakeholders
+        }
+      });
     }
   );
   

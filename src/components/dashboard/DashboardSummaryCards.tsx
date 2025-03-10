@@ -3,6 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Users, Building2 } from 'lucide-react';
 import DashboardCard from '@/components/dashboard/DashboardCard';
+import { ReportData } from '@/context/ReportContext';
+
+interface DashboardSummaryCardsProps {
+  reportData: ReportData;
+}
 
 const staggerAnimation = {
   hidden: { opacity: 0 },
@@ -25,7 +30,12 @@ const itemAnimation = {
   }
 };
 
-const DashboardSummaryCards = () => {
+const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
+  const esgScore = reportData.materialityAnalysis.esgScore || 82;
+  const carbonEmissions = reportData.environmentalMetrics.carbonEmissions || 70;
+  const employeeDiversity = reportData.socialMetrics.employeeDiversity || 65;
+  const governanceCompliance = reportData.conductMetrics.governanceCompliance || 95;
+  
   return (
     <motion.div
       variants={staggerAnimation}
@@ -36,7 +46,7 @@ const DashboardSummaryCards = () => {
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="ESG Score"
-          value={82}
+          value={esgScore}
           change={5}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
           description="Overall sustainability performance"
@@ -47,7 +57,7 @@ const DashboardSummaryCards = () => {
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Carbon Emissions"
-          value="70 tons"
+          value={`${carbonEmissions} tons`}
           change={-12}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
           description="Total emissions for the period"
@@ -58,7 +68,7 @@ const DashboardSummaryCards = () => {
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Workforce Diversity"
-          value="65%"
+          value={`${employeeDiversity}%`}
           change={8}
           icon={<Users className="h-5 w-5 text-esg-blue" />}
           description="Gender balance improvement"
@@ -69,7 +79,7 @@ const DashboardSummaryCards = () => {
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Governance Compliance"
-          value="95%"
+          value={`${governanceCompliance}%`}
           change={3}
           icon={<Building2 className="h-5 w-5 text-esg-blue" />}
           description="Adherence to policies"
