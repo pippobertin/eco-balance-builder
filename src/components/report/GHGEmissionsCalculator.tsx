@@ -643,7 +643,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
-                  {scope3Data.businessTrips.map(trip => <div key={trip.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                  {scope3Data.businessTrips.map(trip => <div key={trip.id} className="p-4 border rounded-md bg-gray-100">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-medium">Viaggio</h4>
                         <Button variant="ghost" size="sm" onClick={() => removeBusinessTrip(trip.id)} className="h-8 w-8 p-0 text-red-500">
