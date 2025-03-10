@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -71,11 +70,22 @@ const Dashboard = () => {
       
       if (reportForYear) {
         try {
-          const result = await loadReport(reportForYear.id);
-          if (result && result.report) {
-            setSelectedReport(result.report);
+          const loadReportResult = await loadReport(reportForYear.id);
+          console.log("Load report result:", loadReportResult);
+          
+          if (loadReportResult && loadReportResult.report) {
+            setSelectedReport(loadReportResult.report);
+            const newReportData = {
+              environmentalMetrics: loadReportResult.report.environmental_metrics || {},
+              socialMetrics: loadReportResult.report.social_metrics || {},
+              conductMetrics: loadReportResult.report.conduct_metrics || {},
+              materialityAnalysis: loadReportResult.report.materiality_analysis || { issues: [], stakeholders: [] },
+              narrativePATMetrics: loadReportResult.report.narrative_pat_metrics || {}
+            };
+            setDisplayData(newReportData);
             setAccessError(false);
           } else {
+            console.error("Report data not found or access denied");
             setSelectedReport(null);
             setDisplayData(null);
             setAccessError(true);
@@ -85,6 +95,11 @@ const Dashboard = () => {
           setAccessError(true);
           setSelectedReport(null);
           setDisplayData(null);
+          toast({
+            title: "Errore",
+            description: "Impossibile caricare il report selezionato",
+            variant: "destructive"
+          });
         }
       } else {
         setDisplayData(null);
