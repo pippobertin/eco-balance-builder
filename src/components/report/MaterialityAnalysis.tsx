@@ -25,8 +25,8 @@ interface MaterialityIssue {
 
 const predefinedIssues = [
   { id: 'climate', name: 'Cambiamento climatico', description: 'Gestione delle emissioni di gas serra e degli impatti sul clima' },
-  { id: 'pollution', name: 'Inquinamento', description: 'Prevenzione e controllo dell'inquinamento di aria, acqua e suolo' },
-  { id: 'resources', name: 'Uso delle risorse', description: 'Efficienza nell'uso delle risorse e principi di economia circolare' },
+  { id: 'pollution', name: 'Inquinamento', description: 'Prevenzione e controllo dell\'inquinamento di aria, acqua e suolo' },
+  { id: 'resources', name: 'Uso delle risorse', description: 'Efficienza nell\'uso delle risorse e principi di economia circolare' },
   { id: 'biodiversity', name: 'Biodiversità', description: 'Protezione e ripristino della biodiversità e degli ecosistemi' },
   { id: 'water', name: 'Gestione delle risorse idriche', description: 'Uso sostenibile e protezione delle risorse idriche' },
   { id: 'labor', name: 'Condizioni di lavoro', description: 'Condizioni di lavoro dignitose, inclusi salari, orari e diritti dei lavoratori' },
