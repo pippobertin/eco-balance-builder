@@ -1,3 +1,4 @@
+
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
@@ -83,7 +84,7 @@ export interface ReportContextType {
   createReport: (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => Promise<string | null>;
   deleteReport: (reportId: string) => Promise<boolean>;
   loadReports: (companyId: string) => Promise<Report[]>;
-  loadReport: (reportId: string) => Promise<void>;
+  loadReport: (reportId: string) => Promise<{report: Report | null, subsidiaries?: Subsidiary[]}>;
   setCurrentCompany: React.Dispatch<React.SetStateAction<Company | null>>;
   setCurrentReport: React.Dispatch<React.SetStateAction<Report | null>>;
   saveSubsidiaries: (subsidiaries: Subsidiary[], reportId: string) => Promise<void>;

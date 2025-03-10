@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Users, Building2 } from 'lucide-react';
@@ -35,19 +36,43 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
                      typeof reportData.materialityAnalysis.esgScore === 'number' && 
                      reportData.materialityAnalysis.esgScore > 0;
   
-  // Calculate total carbon - only use defined values
+  // Calculate carbon emissions by scope
+  let totalScope1 = 0;
+  let totalScope2 = 0;
+  let totalScope3 = 0;
   let totalCarbon = 0;
+  
   if (reportData.environmentalMetrics) {
     if (typeof reportData.environmentalMetrics.totalScope1Emissions === 'number') {
-      totalCarbon += reportData.environmentalMetrics.totalScope1Emissions;
+      totalScope1 = reportData.environmentalMetrics.totalScope1Emissions;
+      totalCarbon += totalScope1;
     }
     if (typeof reportData.environmentalMetrics.totalScope2Emissions === 'number') {
-      totalCarbon += reportData.environmentalMetrics.totalScope2Emissions;
+      totalScope2 = reportData.environmentalMetrics.totalScope2Emissions;
+      totalCarbon += totalScope2;
     }
     if (typeof reportData.environmentalMetrics.totalScope3Emissions === 'number') {
-      totalCarbon += reportData.environmentalMetrics.totalScope3Emissions;
+      totalScope3 = reportData.environmentalMetrics.totalScope3Emissions;
+      totalCarbon += totalScope3;
     }
   }
+  
+  // Check if any carbon data exists
+  const hasCarbonData = totalCarbon > 0;
+  
+  // Format the description for carbon emissions
+  const formatCarbonDescription = () => {
+    if (!hasCarbonData) return "Nessun dato disponibile";
+    
+    let description = "Emissioni totali: ";
+    const scopeItems = [];
+    
+    if (totalScope1 > 0) scopeItems.push(`Scope 1: ${totalScope1} ton`);
+    if (totalScope2 > 0) scopeItems.push(`Scope 2: ${totalScope2} ton`);
+    if (totalScope3 > 0) scopeItems.push(`Scope 3: ${totalScope3} ton`);
+    
+    return description + scopeItems.join(", ");
+  };
   
   // Check if we have diversity data
   const hasDiversityData = reportData.socialMetrics && 
@@ -80,11 +105,11 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Emissioni di Carbonio"
-          value={totalCarbon > 0 ? `${totalCarbon} ton` : "N/D"}
+          value={hasCarbonData ? `${totalCarbon} ton` : "N/D"}
           change={0}
           icon={<Flame className="h-5 w-5 text-esg-blue" />}
-          description={totalCarbon > 0 ? "Emissioni totali per il periodo" : "Nessun dato disponibile"}
-          glowColor="rgba(10, 132, 255, 0.15)"
+          description={formatCarbonDescription()}
+          glowColor="rgba(255, 69, 58, 0.15)"
         />
       </motion.div>
       

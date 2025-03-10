@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { ReportData } from '@/context/types';
@@ -7,55 +8,76 @@ interface EnvironmentalChartProps {
 }
 
 const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({ reportData }) => {
-  // Create empty data structure - NO MOCK DATA, only structure
+  // Get all the relevant environmental metrics
+  const {
+    carbonEmissions,
+    energyConsumption,
+    wasteGeneration,
+    waterUsage,
+    renewableEnergy
+  } = reportData.environmentalMetrics || {};
+  
+  // Create data structure for the chart
   const environmentalData = [
-    { month: 'Gen', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Feb', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Mar', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Apr', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Mag', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Giu', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Lug', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Ago', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Set', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Ott', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Nov', emissions: 0, waste: 0, energy: 0 },
-    { month: 'Dic', emissions: 0, waste: 0, energy: 0 },
+    { 
+      metric: 'Emissioni CO2', 
+      value: typeof carbonEmissions === 'number' ? carbonEmissions : 0,
+      color: '#FF3B30' // Red
+    },
+    { 
+      metric: 'Consumo Energia', 
+      value: typeof energyConsumption === 'number' ? energyConsumption : 0,
+      color: '#FF9500' // Orange
+    },
+    { 
+      metric: 'Generazione Rifiuti', 
+      value: typeof wasteGeneration === 'number' ? wasteGeneration : 0,
+      color: '#FFCC00' // Yellow
+    },
+    { 
+      metric: 'Consumo Acqua', 
+      value: typeof waterUsage === 'number' ? waterUsage : 0,
+      color: '#5AC8FA' // Blue
+    },
+    { 
+      metric: 'Energia Rinnovabile', 
+      value: typeof renewableEnergy === 'number' ? renewableEnergy : 0,
+      color: '#34C759' // Green
+    }
   ];
   
-  // Check if there is any data to display - explicit check for each value
-  const hasEnvironmentalData = 
-    reportData.environmentalMetrics && 
-    ((typeof reportData.environmentalMetrics.carbonEmissions === 'number' && reportData.environmentalMetrics.carbonEmissions > 0) || 
-     (typeof reportData.environmentalMetrics.wasteGeneration === 'number' && reportData.environmentalMetrics.wasteGeneration > 0) || 
-     (typeof reportData.environmentalMetrics.energyConsumption === 'number' && reportData.environmentalMetrics.energyConsumption > 0));
+  // Filter out metrics with zero values
+  const filteredData = environmentalData.filter(item => item.value > 0);
   
-  // Only populate if we have actual data
-  if (hasEnvironmentalData) {
-    if (reportData.environmentalMetrics.carbonEmissions) {
-      environmentalData[11].emissions = reportData.environmentalMetrics.carbonEmissions;
-    }
-    
-    if (reportData.environmentalMetrics.wasteGeneration) {
-      environmentalData[11].waste = reportData.environmentalMetrics.wasteGeneration;
-    }
-    
-    if (reportData.environmentalMetrics.energyConsumption) {
-      environmentalData[11].energy = reportData.environmentalMetrics.energyConsumption / 30;
-    }
-  }
+  // Check if there is any data to display
+  const hasEnvironmentalData = filteredData.length > 0;
+  
+  // Prepare data for bar chart
+  const barChartData = hasEnvironmentalData ? 
+    [{
+      name: 'Metriche Ambientali',
+      ...filteredData.reduce((acc, item) => {
+        acc[item.metric] = item.value;
+        return acc;
+      }, {})
+    }] : [];
+  
+  // Get categories and colors for the chart
+  const categories = filteredData.map(item => item.metric);
+  const colors = filteredData.map(item => item.color);
   
   return (
     <MetricChart
       title="Performance Ambientale"
       description={hasEnvironmentalData ? 
-        "Monitoraggio mensile degli indicatori ambientali chiave" : 
+        "Indicatori ambientali chiave" : 
         "Nessun dato ambientale disponibile"}
-      type={hasEnvironmentalData ? "area" : "empty"}
-      data={environmentalData}
-      dataKey="month"
-      categories={['emissions', 'waste', 'energy']}
-      colors={['#0A84FF', '#34C759', '#5AC8FA']}
+      type={hasEnvironmentalData ? "bar" : "empty"}
+      data={barChartData}
+      dataKey="name"
+      categories={categories}
+      colors={colors}
+      height={300}
     />
   );
 };

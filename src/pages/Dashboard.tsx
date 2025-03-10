@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -71,7 +72,7 @@ const Dashboard = () => {
       if (reportForYear) {
         try {
           const loadedReportData = await loadReport(reportForYear.id);
-          if (loadedReportData.report) {
+          if (loadedReportData && loadedReportData.report) {
             setSelectedReport(loadedReportData.report);
             setAccessError(false);
           } else {
