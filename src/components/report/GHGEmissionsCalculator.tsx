@@ -379,7 +379,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
-                  {scope1Data.vehicles.map(vehicle => <div key={vehicle.id} className="p-4 border rounded-md bg-gray-300">
+                  {scope1Data.vehicles.map(vehicle => <div key={vehicle.id} className="p-4 border rounded-md bg-gray-100">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-medium">Veicolo</h4>
                         <Button variant="ghost" size="sm" onClick={() => removeVehicle(vehicle.id)} className="h-8 w-8 p-0 text-red-500">
