@@ -6,6 +6,7 @@ export interface MaterialityIssue {
   impactRelevance: number;
   financialRelevance: number;
   isMaterial: boolean;
+  stakeholderRelevance?: number; // Media delle valutazioni degli stakeholder
 }
 
 export interface Stakeholder {
@@ -19,6 +20,8 @@ export interface Stakeholder {
   notes: string;
   priority: string;
   surveyStatus?: 'pending' | 'sent' | 'completed';
+  surveyToken?: string; // Token univoco per identificare il sondaggio
+  surveyResponse?: SurveyResponse;
 }
 
 export interface SurveyTemplate {
@@ -26,4 +29,24 @@ export interface SurveyTemplate {
   description: string;
   issues: MaterialityIssue[];
   additionalComments: boolean;
+}
+
+export interface SurveyResponse {
+  stakeholderId: string;
+  companyName?: string;
+  responseDate: string;
+  issueRatings: {
+    issueId: string;
+    relevance: number;
+  }[];
+  additionalComments?: string;
+}
+
+export interface MaterialityMatrix {
+  companyAssessment: MaterialityIssue[];
+  stakeholderAssessment: {
+    issueId: string;
+    relevance: number;
+  }[];
+  combinedAssessment?: MaterialityIssue[];
 }

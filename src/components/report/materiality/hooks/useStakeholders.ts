@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { Stakeholder } from '../types';
+import { Stakeholder, SurveyResponse, MaterialityIssue } from '../types';
 import { calculatePriority } from '../utils/materialityUtils';
 
 export const useStakeholders = (
@@ -65,7 +65,14 @@ export const useStakeholders = (
   const updateStakeholderSurveyStatus = (selectedIds: string[], status: 'sent' | 'completed' | 'pending') => {
     const updatedStakeholders = stakeholders.map(stakeholder => {
       if (selectedIds.includes(stakeholder.id)) {
-        return { ...stakeholder, surveyStatus: status };
+        const updatedStakeholder = { ...stakeholder, surveyStatus: status };
+        
+        // Generate survey token if status is 'sent'
+        if (status === 'sent' && (!stakeholder.surveyToken || stakeholder.surveyStatus !== 'sent')) {
+          updatedStakeholder.surveyToken = `${stakeholder.id}-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+        }
+        
+        return updatedStakeholder;
       }
       return stakeholder;
     });
@@ -73,11 +80,59 @@ export const useStakeholders = (
     setStakeholders(updatedStakeholders);
   };
 
+  const processSurveyResponse = (response: SurveyResponse, materialIssues: MaterialityIssue[]) => {
+    // Update stakeholder status
+    setStakeholders(prevStakeholders => 
+      prevStakeholders.map(stakeholder => {
+        if (stakeholder.id === response.stakeholderId) {
+          return {
+            ...stakeholder,
+            surveyStatus: 'completed',
+            surveyResponse: response
+          };
+        }
+        return stakeholder;
+      })
+    );
+    
+    toast({
+      title: "Risposta ricevuta",
+      description: `Un nuovo stakeholder ha completato il sondaggio di materialità.`
+    });
+    
+    // Return updated issues with stakeholder assessments
+    return calculateStakeholderRelevance(materialIssues, stakeholders);
+  };
+
+  // Calculate average stakeholder relevance for each issue
+  const calculateStakeholderRelevance = (issues: MaterialityIssue[], allStakeholders: Stakeholder[]): MaterialityIssue[] => {
+    const stakeholdersWithResponses = allStakeholders.filter(s => s.surveyResponse);
+    
+    return issues.map(issue => {
+      // Get all ratings for this issue
+      const ratings = stakeholdersWithResponses
+        .map(s => s.surveyResponse?.issueRatings.find(r => r.issueId === issue.id)?.relevance)
+        .filter(r => r !== undefined) as number[];
+      
+      // Calculate average if there are any ratings
+      const averageRelevance = ratings.length > 0
+        ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+        : undefined;
+      
+      return {
+        ...issue,
+        stakeholderRelevance: averageRelevance
+      };
+    });
+  };
+
   return {
     stakeholders,
     addStakeholder,
     removeStakeholder,
     handleStakeholderChange,
-    updateStakeholderSurveyStatus
+    updateStakeholderSurveyStatus,
+    processSurveyResponse,
+    calculateStakeholderRelevance
   };
 };

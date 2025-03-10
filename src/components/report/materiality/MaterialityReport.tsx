@@ -1,21 +1,40 @@
 
 import React from 'react';
-import { FileText, Check } from 'lucide-react';
+import { FileText, Check, UsersRound } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { motion } from 'framer-motion';
 import { MaterialityIssue } from './types';
+import SurveyProgressBar from './SurveyProgressBar';
 
 interface MaterialityReportProps {
   materialIssues: MaterialityIssue[];
+  surveyProgress: {
+    sent: number;
+    completed: number;
+    total: number;
+  };
 }
 
-const MaterialityReport: React.FC<MaterialityReportProps> = ({ materialIssues }) => {
+const MaterialityReport: React.FC<MaterialityReportProps> = ({ 
+  materialIssues,
+  surveyProgress
+}) => {
   return (
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
         <FileText className="mr-2 h-5 w-5 text-green-500" />
         <h3 className="text-xl font-semibold">Rapporto di Materialità</h3>
       </div>
+      
+      {surveyProgress.total > 0 && (
+        <div className="mb-6">
+          <SurveyProgressBar 
+            sent={surveyProgress.sent} 
+            completed={surveyProgress.completed} 
+            total={surveyProgress.total} 
+          />
+        </div>
+      )}
       
       <div className="space-y-4">
         {materialIssues.length === 0 ? (
@@ -38,13 +57,25 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({ materialIssues })
                   className="flex items-start space-x-2 p-3 border rounded-lg bg-gray-50 dark:bg-gray-900"
                 >
                   <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium">{issue.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{issue.description}</p>
-                    <p className="text-xs mt-1">
-                      <span className="font-medium">Rilevanza dell'impatto:</span> {issue.impactRelevance}% | 
-                      <span className="font-medium ml-2">Rilevanza finanziaria:</span> {issue.financialRelevance}%
-                    </p>
+                    
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      <p className="text-xs">
+                        <span className="font-medium">Rilevanza dell'impatto:</span> {issue.impactRelevance}%
+                      </p>
+                      <p className="text-xs">
+                        <span className="font-medium">Rilevanza finanziaria:</span> {issue.financialRelevance}%
+                      </p>
+                      
+                      {issue.stakeholderRelevance !== undefined && (
+                        <p className="text-xs flex items-center">
+                          <UsersRound className="h-3 w-3 mr-1 text-blue-500" />
+                          <span className="font-medium">Rilevanza stakeholder:</span> {Math.round(issue.stakeholderRelevance)}%
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}

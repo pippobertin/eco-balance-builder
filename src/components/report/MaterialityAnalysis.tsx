@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Target, Users } from 'lucide-react';
@@ -9,6 +10,7 @@ import { useMaterialityIssues } from './materiality/hooks/useMaterialityIssues';
 import { useStakeholders } from './materiality/hooks/useStakeholders';
 import { useSurveyDialog } from './materiality/hooks/useSurveyDialog';
 import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from './materiality/utils/materialityUtils';
+import { SurveyResponse } from './materiality/types';
 
 interface MaterialityAnalysisProps {
   formValues: any;
@@ -27,7 +29,8 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     issues, 
     handleIssueChange, 
     addCustomIssue, 
-    removeIssue 
+    removeIssue,
+    updateIssuesWithStakeholderRelevance
   } = useMaterialityIssues(
     formValues.materialityAnalysis?.issues,
     (updatedIssues) => {
@@ -46,7 +49,8 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     addStakeholder, 
     removeStakeholder, 
     handleStakeholderChange, 
-    updateStakeholderSurveyStatus 
+    updateStakeholderSurveyStatus,
+    processSurveyResponse
   } = useStakeholders(
     formValues.materialityAnalysis?.stakeholders,
     (updatedStakeholders) => {
@@ -72,7 +76,8 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     stakeholderGroups,
     forceResend,
     toggleForceResend,
-    openSurveyDialog 
+    openSurveyDialog,
+    surveyProgress
   } = useSurveyDialog(materialIssues, stakeholders);
 
   const openSurveyDialogWithValidation = () => {
@@ -113,6 +118,15 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     // In a real application, here you would make an API call to send emails
     console.log("Sending survey to stakeholders:", selectedStakeholders);
     console.log("Survey template:", surveyTemplate);
+  };
+
+  // Handler for receiving survey responses from stakeholders
+  const handleSurveyResponse = (response: SurveyResponse) => {
+    // Process the response and update stakeholder status
+    const updatedIssues = processSurveyResponse(response, materialIssues);
+    
+    // Update issues with new stakeholder relevance data
+    updateIssuesWithStakeholderRelevance(updatedIssues);
   };
 
   return (
@@ -156,6 +170,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
           getStakeholderPriorityColor={getStakeholderPriorityColor}
           getSurveyStatusColor={getSurveyStatusColor}
           getSurveyStatusText={getSurveyStatusText}
+          surveyProgress={surveyProgress}
         />
       )}
 

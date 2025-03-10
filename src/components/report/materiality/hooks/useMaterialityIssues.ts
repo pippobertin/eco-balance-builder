@@ -48,10 +48,27 @@ export const useMaterialityIssues = (
     setIssues(issues.filter(issue => issue.id !== id));
   };
 
+  // Update issues with stakeholder relevance data
+  const updateIssuesWithStakeholderRelevance = (updatedIssues: MaterialityIssue[]) => {
+    // Create a map of issue id to stakeholder relevance
+    const relevanceMap = new Map(
+      updatedIssues.map(issue => [issue.id, issue.stakeholderRelevance])
+    );
+    
+    // Update all issues with their respective stakeholder relevance
+    setIssues(prevIssues => 
+      prevIssues.map(issue => ({
+        ...issue,
+        stakeholderRelevance: relevanceMap.get(issue.id)
+      }))
+    );
+  };
+
   return {
     issues,
     handleIssueChange,
     addCustomIssue,
-    removeIssue
+    removeIssue,
+    updateIssuesWithStakeholderRelevance
   };
 };

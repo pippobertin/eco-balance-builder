@@ -13,6 +13,11 @@ export const useSurveyDialog = (materialIssues: MaterialityIssue[], stakeholders
   const [surveyDialogOpen, setSurveyDialogOpen] = useState(false);
   const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
   const [forceResend, setForceResend] = useState(false);
+  const [surveyProgress, setSurveyProgress] = useState({
+    sent: 0,
+    completed: 0,
+    total: 0
+  });
 
   // Stakeholders grouped by survey status for easier selection
   const stakeholderGroups = useMemo(() => {
@@ -21,6 +26,19 @@ export const useSurveyDialog = (materialIssues: MaterialityIssue[], stakeholders
       sent: stakeholders.filter(s => s.surveyStatus === 'sent'),
       completed: stakeholders.filter(s => s.surveyStatus === 'completed')
     };
+  }, [stakeholders]);
+
+  // Calculate survey progress whenever stakeholders change
+  useEffect(() => {
+    const sentCount = stakeholders.filter(s => s.surveyStatus === 'sent').length;
+    const completedCount = stakeholders.filter(s => s.surveyStatus === 'completed').length;
+    const totalSurveys = sentCount + completedCount;
+    
+    setSurveyProgress({
+      sent: sentCount,
+      completed: completedCount,
+      total: totalSurveys
+    });
   }, [stakeholders]);
 
   // Update survey template issues whenever material issues change
@@ -54,6 +72,11 @@ export const useSurveyDialog = (materialIssues: MaterialityIssue[], stakeholders
     }
   };
 
+  // Generate a unique token for a stakeholder's survey
+  const generateSurveyToken = (stakeholderId: string) => {
+    return `${stakeholderId}-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+  };
+
   return {
     surveyTemplate,
     setSurveyTemplate,
@@ -65,6 +88,8 @@ export const useSurveyDialog = (materialIssues: MaterialityIssue[], stakeholders
     forceResend,
     toggleForceResend,
     openSurveyDialog,
-    closeSurveyDialog
+    closeSurveyDialog,
+    generateSurveyToken,
+    surveyProgress
   };
 };
