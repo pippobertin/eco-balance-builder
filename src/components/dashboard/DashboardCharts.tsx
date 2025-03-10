@@ -15,7 +15,7 @@ interface DashboardChartsProps {
 const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
   const navigate = useNavigate();
   
-  // Crea dati ambientali con valori reali o zero se non disponibili
+  // Crea dati ambientali con valori reali o zero
   const environmentalData = [
     { month: 'Gen', emissions: 0, waste: 0, energy: 0 },
     { month: 'Feb', emissions: 0, waste: 0, energy: 0 },
@@ -31,7 +31,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
     { month: 'Dic', emissions: 0, waste: 0, energy: 0 },
   ];
   
-  // Se ci sono dati reali, utilizzali per l'ultimo mese
+  // Usa solo i dati effettivamente disponibili
   if (reportData.environmentalMetrics.carbonEmissions) {
     environmentalData[11].emissions = reportData.environmentalMetrics.carbonEmissions;
   }
@@ -39,10 +39,10 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
     environmentalData[11].waste = reportData.environmentalMetrics.wasteGeneration;
   }
   if (reportData.environmentalMetrics.energyConsumption) {
-    environmentalData[11].energy = reportData.environmentalMetrics.energyConsumption / 30; // Convertito a scala relativa
+    environmentalData[11].energy = reportData.environmentalMetrics.energyConsumption / 30;
   }
   
-  // Crea dati sociali con valori reali o zero
+  // Crea dati sociali solo con valori realmente disponibili
   const socialData = [
     { 
       name: 'Diversità di Genere', 
@@ -62,7 +62,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
     }
   ];
   
-  // Crea dati di governance con valori reali o zero
+  // Crea dati di governance solo con valori realmente disponibili
   const governanceData = [
     { 
       quarter: 'Q1', 
@@ -75,17 +75,21 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
     { quarter: 'Q4', compliance: 0, risk: 0, policy: 0 },
   ];
   
-  // Crea dati di performance con valori reali o zero
+  // Usa solo valori reali per i dati di performance
   const performanceData = [
     { 
       name: 'Ambientale', 
-      value: reportData.environmentalMetrics.renewableEnergy || reportData.environmentalMetrics.carbonEmissions ? 
-        Math.round((reportData.environmentalMetrics.renewableEnergy || 0) + 100 - (reportData.environmentalMetrics.carbonEmissions || 0)) / 2 : 0 
+      value: reportData.environmentalMetrics.carbonEmissions > 0 || 
+             reportData.environmentalMetrics.renewableEnergy > 0 ? 
+             Math.round((reportData.environmentalMetrics.renewableEnergy || 0) + 
+                        (100 - (reportData.environmentalMetrics.carbonEmissions || 0))) / 2 : 0 
     },
     { 
       name: 'Sociale', 
-      value: reportData.socialMetrics.employeeDiversity && reportData.socialMetrics.employeeSatisfaction ? 
-        Math.round((reportData.socialMetrics.employeeDiversity + reportData.socialMetrics.employeeSatisfaction) / 2) : 0 
+      value: reportData.socialMetrics.employeeDiversity > 0 || 
+             reportData.socialMetrics.employeeSatisfaction > 0 ? 
+             Math.round((reportData.socialMetrics.employeeDiversity || 0) + 
+                        (reportData.socialMetrics.employeeSatisfaction || 0)) / 2 : 0 
     },
     { 
       name: 'Governance', 
@@ -96,6 +100,22 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
   const handleViewReport = () => {
     navigate('/report');
   };
+  
+  // Verifica se ci sono dati per ogni categoria
+  const hasEnvironmentalData = reportData.environmentalMetrics.carbonEmissions > 0 || 
+                              reportData.environmentalMetrics.wasteGeneration > 0 || 
+                              reportData.environmentalMetrics.energyConsumption > 0;
+                              
+  const hasSocialData = reportData.socialMetrics.employeeDiversity > 0 || 
+                        reportData.socialMetrics.employeeSatisfaction > 0 || 
+                        reportData.socialMetrics.trainingHours > 0 || 
+                        reportData.socialMetrics.communityEngagement > 0;
+                        
+  const hasGovernanceData = reportData.conductMetrics.governanceCompliance > 0 || 
+                            reportData.conductMetrics.policyAdherence > 0 || 
+                            reportData.conductMetrics.riskManagement > 0;
+
+  const hasPerformanceData = performanceData.some(item => item.value > 0);
   
   return (
     <motion.div
@@ -108,7 +128,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <MetricChart
           title="Performance Ambientale"
-          description="Monitoraggio mensile degli indicatori ambientali chiave"
+          description={hasEnvironmentalData ? 
+            "Monitoraggio mensile degli indicatori ambientali chiave" : 
+            "Nessun dato ambientale disponibile"}
           type="area"
           data={environmentalData}
           dataKey="month"
@@ -118,7 +140,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
         
         <MetricChart
           title="Iniziative Sociali"
-          description="Performance nelle dimensioni sociali"
+          description={hasSocialData ? 
+            "Performance nelle dimensioni sociali" : 
+            "Nessun dato sociale disponibile"}
           type="bar"
           data={socialData}
           dataKey="name"
@@ -128,7 +152,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
         
         <MetricChart
           title="Metriche di Governance"
-          description="Performance di governance trimestrale"
+          description={hasGovernanceData ? 
+            "Performance di governance trimestrale" : 
+            "Nessun dato di governance disponibile"}
           type="area"
           data={governanceData}
           dataKey="quarter"
@@ -140,7 +166,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <MetricChart
           title="Distribuzione Punteggio ESG"
-          description="Performance nelle dimensioni ESG"
+          description={hasPerformanceData ? 
+            "Performance nelle dimensioni ESG" : 
+            "Nessun dato di performance ESG disponibile"}
           type="pie"
           data={performanceData}
           dataKey="name"
@@ -158,7 +186,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                   <div>
                     <h4 className="font-medium">Riduzione Carbonio</h4>
                     <p className="text-sm text-esg-gray-medium">
-                      {reportData.environmentalMetrics.carbonEmissions 
+                      {reportData.environmentalMetrics.carbonEmissions > 0
                         ? `Emissioni di carbonio attuali: ${reportData.environmentalMetrics.carbonEmissions} tonnellate`
                         : "Nessun dato disponibile sulle emissioni di carbonio."}
                     </p>
@@ -172,7 +200,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                   <div>
                     <h4 className="font-medium">Programma Diversità</h4>
                     <p className="text-sm text-esg-gray-medium">
-                      {reportData.socialMetrics.employeeDiversity 
+                      {reportData.socialMetrics.employeeDiversity > 0
                         ? `Diversità attuale del personale: ${reportData.socialMetrics.employeeDiversity}%`
                         : "Nessun dato disponibile sulla diversità del personale."}
                     </p>
@@ -186,7 +214,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({ reportData }) => {
                   <div>
                     <h4 className="font-medium">Aggiornamento Governance</h4>
                     <p className="text-sm text-esg-gray-medium">
-                      {reportData.conductMetrics.governanceCompliance 
+                      {reportData.conductMetrics.governanceCompliance > 0
                         ? `Tasso di conformità attuale: ${reportData.conductMetrics.governanceCompliance}%`
                         : "Nessun dato disponibile sulla conformità di governance."}
                     </p>

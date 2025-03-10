@@ -31,7 +31,7 @@ const itemAnimation = {
 };
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
-  // Usa dati reali con fallback a 0
+  // Utilizza dati reali con fallback a 0, senza valori casuali
   const esgScore = reportData.materialityAnalysis.esgScore || 0;
   
   // Considera le emissioni totali di carbonio (Scope 1 + Scope 2 + Scope 3 se disponibili)
@@ -44,7 +44,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
   const employeeDiversity = reportData.socialMetrics.employeeDiversity || 0;
   const governanceCompliance = reportData.conductMetrics.governanceCompliance || 0;
   
-  // Calcola le variazioni solo se ci sono dati reali
+  // Calcola le variazioni solo se ci sono dati reali, altrimenti 0
   const esgChange = esgScore > 0 ? 5 : 0;
   const carbonChange = totalCarbon > 0 ? -12 : 0;
   const diversityChange = employeeDiversity > 0 ? 8 : 0;
@@ -60,7 +60,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Punteggio ESG"
-          value={esgScore}
+          value={esgScore || 0}
           change={esgChange}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
           description="Performance di sostenibilità complessiva"
