@@ -10,9 +10,11 @@ import {
   Wind, 
   Recycle,
   TreeDeciduous,
-  Info
+  Info,
+  Globe
 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import GHGEmissionsCalculator from './GHGEmissionsCalculator';
 
 interface EnvironmentalMetricsProps {
   formValues: any;
@@ -38,11 +40,17 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Ambiente</h2>
       
-      {/* B3 - Energia ed emissioni di gas a effetto serra */}
+      {/* B3 - Energia ed emissioni di gas a effetto serra - Dettagliato */}
+      <GHGEmissionsCalculator 
+        formValues={formValues} 
+        setFormValues={setFormValues} 
+      />
+      
+      {/* B3 - Energia ed emissioni di gas a effetto serra - Semplificato */}
       <GlassmorphicCard>
         <div className="flex items-center mb-4">
           <Leaf className="mr-2 h-5 w-5 text-green-500" />
-          <h3 className="text-xl font-semibold">B3 - Energia ed emissioni di gas a effetto serra</h3>
+          <h3 className="text-xl font-semibold">B3 - Energia ed emissioni di gas a effetto serra (Dati Aggregati)</h3>
         </div>
         
         <div className="space-y-4">
