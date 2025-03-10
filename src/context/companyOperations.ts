@@ -16,15 +16,20 @@ export const useCompanyOperations = () => {
         return [];
       }
 
+      console.log("Loading companies for user", user.id, "isAdmin:", isAdmin);
+      
       let query = supabase
         .from('companies')
-        .select('*')
-        .order('name');
+        .select('*');
       
       // If not admin, only load companies created by the current user
       if (!isAdmin) {
+        console.log("Filtering companies by created_by:", user.id);
         query = query.eq('created_by', user.id);
       }
+      
+      // Add order by at the end
+      query = query.order('name');
 
       const { data, error } = await query;
 
@@ -32,6 +37,7 @@ export const useCompanyOperations = () => {
         throw error;
       }
 
+      console.log("Companies loaded:", data?.length || 0);
       return data || [];
     } catch (error: any) {
       console.error('Error loading companies:', error.message);
