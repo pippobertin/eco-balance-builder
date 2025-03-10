@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ReportData } from '@/context/ReportContext';
+import { ReportData } from '@/context/types';
 import EnvironmentalChart from './charts/EnvironmentalChart';
 import SocialChart from './charts/SocialChart';
 import GovernanceChart from './charts/GovernanceChart';

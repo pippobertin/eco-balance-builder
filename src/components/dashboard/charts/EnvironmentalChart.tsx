@@ -1,7 +1,6 @@
-
 import React from 'react';
 import MetricChart from '@/components/dashboard/MetricChart';
-import { ReportData } from '@/context/ReportContext';
+import { ReportData } from '@/context/types';
 
 interface EnvironmentalChartProps {
   reportData: ReportData;

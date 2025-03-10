@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Users, Building2 } from 'lucide-react';
 import DashboardCard from '@/components/dashboard/DashboardCard';
-import { ReportData } from '@/context/ReportContext';
+import { ReportData } from '@/context/types';
 
 interface DashboardSummaryCardsProps {
   reportData: ReportData;

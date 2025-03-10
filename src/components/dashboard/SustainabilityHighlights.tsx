@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Leaf, Users, Building2 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
-import { ReportData } from '@/context/ReportContext';
+import { ReportData } from '@/context/types';
 import { useNavigate } from 'react-router-dom';
 
 interface SustainabilityHighlightsProps {
