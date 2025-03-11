@@ -76,7 +76,7 @@ export const useReportFetchOperations = () => {
           query = query.eq('companies.created_by', user.id);
         }
         
-        const { data, error } = await query.single();
+        const { data, error } = await query.maybeSingle();
 
         if (error) {
           throw error;

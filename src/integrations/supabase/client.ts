@@ -28,8 +28,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       // when the original request completes
       if (ongoingRequests.has(requestKey)) {
         console.log(`Request ${requestKey} already in progress, waiting for completion`);
-        return ongoingRequests.get(requestKey).then(response => {
-          // Clone the response so multiple readers can consume it
+        return ongoingRequests.get(requestKey).then(async response => {
+          // Must clone the response so multiple readers can consume it
           return response.clone();
         });
       }
@@ -74,14 +74,10 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
   let retries = 0;
   let lastError;
   
-  const operationKey = operation.toString().slice(0, 50);
-  
   while (retries < maxRetries) {
     try {
-      console.log(`Executing operation ${operationKey} (attempt ${retries + 1}/${maxRetries})`);
       return await operation();
     } catch (error) {
-      console.error(`Operation ${operationKey} failed (attempt ${retries + 1}/${maxRetries}):`, error.message || error);
       lastError = error;
       
       const isNetworkError = 
@@ -89,6 +85,7 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
         error.code === 'NETWORK_ERROR' ||
         error.message?.includes('network') ||
         error.message?.includes('connection') ||
+        error.message?.includes('body stream already read') ||
         error.code === 'TIMEOUT' ||
         error.name === 'AbortError';
       
@@ -100,12 +97,12 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
       retries++;
       
       if (retries >= maxRetries) {
-        console.error(`Max retries reached for operation ${operationKey}, giving up`);
+        console.error(`Max retries reached, giving up`);
         throw lastError;
       }
       
       const delay = initialDelay * Math.pow(1.5, retries) * (0.9 + Math.random() * 0.2);
-      console.log(`Retrying operation ${operationKey} in ${Math.round(delay)}ms...`);
+      console.log(`Retrying operation in ${Math.round(delay)}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

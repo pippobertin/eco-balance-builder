@@ -13,7 +13,6 @@ interface CompanyListProps {
 const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: CompanyListProps) => {
   // Create a memoized selection handler
   const handleSelectCompany = useCallback((company: Company) => {
-    console.log("Company selected in CompanyList:", company.name);
     // Only trigger the callback if this is a new selection
     if (!selectedCompany || selectedCompany.id !== company.id) {
       onSelectCompany(company);

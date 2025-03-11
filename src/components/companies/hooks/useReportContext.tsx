@@ -15,7 +15,6 @@ export const useReportContext = () => {
   // Initialize selectedCompany with currentCompany only once
   useEffect(() => {
     if (!isInitialized && currentCompany) {
-      console.log("Initializing selectedCompany with currentCompany:", currentCompany.name);
       setSelectedCompany(currentCompany);
       setIsInitialized(true);
     }
@@ -26,7 +25,6 @@ export const useReportContext = () => {
     if (isInitialized && currentCompany && !isUpdatingRef.current) {
       // Only update if there's an actual change
       if (!selectedCompany || currentCompany.id !== selectedCompany.id) {
-        console.log("Updating selectedCompany from currentCompany change:", currentCompany.name);
         setSelectedCompany(currentCompany);
       }
     }
@@ -34,11 +32,8 @@ export const useReportContext = () => {
   
   // Memoized function to select a company with update loop protection
   const selectCompany = useCallback((company: Company) => {
-    console.log("Selecting company in context:", company.name);
-    
     // Skip if already selecting this company
     if (selectedCompany?.id === company.id) {
-      console.log("Company already selected, skipping update");
       return;
     }
     

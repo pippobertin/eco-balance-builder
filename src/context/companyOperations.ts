@@ -25,7 +25,6 @@ export const useCompanyOperations = () => {
         
         // If not admin, only load companies created by the current user
         if (!isAdmin) {
-          console.log("Filtering companies by created_by:", user.id);
           query = query.eq('created_by', user.id);
         }
         
@@ -99,7 +98,7 @@ export const useCompanyOperations = () => {
           query = query.eq('created_by', user.id);
         }
         
-        const { data, error } = await query.single();
+        const { data, error } = await query.maybeSingle();
         
         if (error) {
           console.error('Error loading company by ID:', error);

@@ -26,8 +26,6 @@ const CompaniesContainer = () => {
     // Skip if this company is already selected
     if (selectedCompany?.id === company.id) return;
     
-    console.log("Handling company selection in container:", company.name);
-    
     // Set the flag to prevent recursive updates
     isUpdatingRef.current = true;
     
@@ -49,7 +47,6 @@ const CompaniesContainer = () => {
     if (isUpdatingRef.current) return;
     
     if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
-      console.log("Syncing local selectedCompany with currentCompany:", currentCompany.name);
       setSelectedCompany(currentCompany);
     }
   }, [currentCompany, selectedCompany]);

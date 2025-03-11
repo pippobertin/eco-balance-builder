@@ -32,6 +32,11 @@ const Companies = () => {
   // Create a debounced fetch function to prevent multiple rapid calls
   const debouncedFetchCompanies = useCallback(
     debounce(async () => {
+      if (loadingAttempts > 0) {
+        console.log("Skipping companies fetch - already loading");
+        return;
+      }
+      
       setIsLoading(true);
       setHasError(false);
       try {
@@ -50,7 +55,7 @@ const Companies = () => {
         setIsLoading(false);
         setLoadingAttempts(prev => prev + 1);
       }
-    }, 500),
+    }, 1000),
     [loadCompanies, companies.length, loadingAttempts, toast]
   );
   
