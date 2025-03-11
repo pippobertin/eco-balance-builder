@@ -30,42 +30,42 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   
   // Format data for donut chart with multiple rings
   if (totalEmployees > 0) {
-    // Create outer ring with gender distribution
-    const outerRingData = [];
+    // Create inner ring with gender distribution
+    const innerRingData = [];
     
     if (totalMale > 0) {
-      outerRingData.push({
+      innerRingData.push({
         name: 'Uomini',
         value: totalMale
       });
     }
     
     if (totalFemale > 0) {
-      outerRingData.push({
+      innerRingData.push({
         name: 'Donne',
         value: totalFemale
       });
     }
     
     if (totalOther > 0) {
-      outerRingData.push({
+      innerRingData.push({
         name: 'Altro',
         value: totalOther
       });
     }
     
-    // Add outer ring with gender distribution
-    if (outerRingData.length > 0) {
+    // Add inner ring with gender distribution
+    if (innerRingData.length > 0) {
       genderData.push({
-        ring: 'outer',
-        data: outerRingData,
+        ring: 'inner',
+        data: innerRingData,
         colors: ['#0EA5E9', '#F472B6', '#BF5AF2']
       });
     }
     
-    // Create inner ring with total employees
+    // Create outer ring with total employees
     genderData.push({
-      ring: 'inner',
+      ring: 'outer',
       data: [{ name: 'Totale Dipendenti', value: totalEmployees }],
       colors: ['#8E9196'] // Neutral gray for total
     });
