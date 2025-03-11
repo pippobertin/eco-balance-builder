@@ -83,7 +83,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* B3: Grafico emissioni GHG */}
+        {/* B3: Grafico emissioni GHG - Colori aggiornati per Scope 1, 2, 3 */}
         <MetricChart
           title="Emissioni GHG (B3)"
           description="Suddivisione delle emissioni di gas serra per scope"
@@ -91,7 +91,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
           data={emissionsData}
           dataKey="name"
           categories={["value"]}
-          colors={["#34C759", "#5AC8FA", "#FF9500"]}
+          colors={["#8B5CF6", "#D946EF", "#F97316"]} {/* Viola, Magenta, Arancione */}
         />
         
         {/* B4: Grafico consumi energetici */}

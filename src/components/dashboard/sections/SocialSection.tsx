@@ -95,12 +95,12 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
     }
   }
   
-  // Dati sulla formazione
+  // Dati sulla formazione - Etichette modificate per mostrare solo "Uomini" e "Donne"
   const trainingData = [];
   if (avgTrainingHoursMale || avgTrainingHoursFemale) {
     if (avgTrainingHoursMale) {
       trainingData.push({
-        name: 'Ore Formazione Uomini',
+        name: 'Uomini',
         value: typeof avgTrainingHoursMale === 'number' ? avgTrainingHoursMale : 
                typeof avgTrainingHoursMale === 'string' ? parseFloat(avgTrainingHoursMale) || 0 : 0
       });
@@ -108,7 +108,7 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
     
     if (avgTrainingHoursFemale) {
       trainingData.push({
-        name: 'Ore Formazione Donne',
+        name: 'Donne',
         value: typeof avgTrainingHoursFemale === 'number' ? avgTrainingHoursFemale : 
                typeof avgTrainingHoursFemale === 'string' ? parseFloat(avgTrainingHoursFemale) || 0 : 0
       });
@@ -146,7 +146,7 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Grafico composizione di genere */}
+        {/* Grafico composizione di genere - Colori aggiornati per genere */}
         <MetricChart
           title="Composizione di Genere"
           description="Distribuzione dei dipendenti per genere"
@@ -154,7 +154,7 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
           data={genderData}
           dataKey="name"
           categories={["value"]}
-          colors={["#5AC8FA", "#FF2D55", "#BF5AF2"]}
+          colors={["#0EA5E9", "#FFDEE2", "#BF5AF2"]} {/* Azzurro per uomini, Rosa per donne, Viola per altro */}
         />
         
         {/* Grafico tipo di contratto */}
@@ -179,7 +179,7 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
           colors={["#007AFF", "#5856D6"]}
         />
         
-        {/* Grafico formazione */}
+        {/* Grafico formazione - Etichette e colori aggiornati */}
         <MetricChart
           title="Formazione"
           description="Ore medie di formazione per genere"
@@ -187,7 +187,7 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
           data={trainingData}
           dataKey="name"
           categories={["value"]}
-          colors={["#5AC8FA", "#FF2D55"]}
+          colors={["#0EA5E9", "#FFDEE2"]} {/* Azzurro per uomini, Rosa per donne */}
         />
         
         {/* Grafico sicurezza */}
