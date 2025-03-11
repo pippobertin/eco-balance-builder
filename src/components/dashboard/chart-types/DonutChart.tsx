@@ -18,6 +18,25 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const ringData = data as RingData[];
   
+  // Custom legend that renders colored squares
+  const renderCustomLegend = (props: any) => {
+    const { payload } = props;
+    
+    return (
+      <div className="flex flex-wrap justify-center gap-4 mt-2">
+        {payload.map((entry: any, index: number) => (
+          <div key={`legend-${index}`} className="flex items-center">
+            <div 
+              className="w-3 h-3 mr-2" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>
@@ -42,7 +61,7 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
           </Pie>
         ))}
         <Tooltip content={renderTooltip} />
-        {!hideLegend && <Legend />}
+        {!hideLegend && <Legend content={renderCustomLegend} />}
       </PieChart>
     </ResponsiveContainer>
   );

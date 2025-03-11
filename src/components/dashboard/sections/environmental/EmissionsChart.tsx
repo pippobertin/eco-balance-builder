@@ -66,10 +66,9 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
         { ring: 'outer', data: totalData, colors: outerColors }
       ]}
       dataKey="name"
-      hideLegend={true}
+      hideLegend={false}
     />
   );
 };
 
 export default EmissionsChart;
-
