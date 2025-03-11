@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
@@ -9,10 +9,12 @@ import CompaniesSection from '@/components/companies/CompaniesSection';
 import ReportsSection from '@/components/companies/ReportsSection';
 import DeleteReportDialog from '@/components/companies/DeleteReportDialog';
 import { useReportDialogs } from '@/components/companies/hooks/useReportDialogs';
+import { Loader2 } from 'lucide-react';
 
 const Companies = () => {
   const { loadCompanies } = useReport();
   const { isAdmin } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const { 
     reportToDelete, 
     isDeleteDialogOpen, 
@@ -22,7 +24,18 @@ const Companies = () => {
   } = useReportDialogs();
   
   useEffect(() => {
-    loadCompanies();
+    const fetchCompanies = async () => {
+      setIsLoading(true);
+      try {
+        await loadCompanies();
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCompanies();
   }, []);
   
   return (
@@ -46,18 +59,25 @@ const Companies = () => {
             </p>
           </motion.div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <CompaniesSection />
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+              <span className="ml-2 text-gray-600">Caricamento in corso...</span>
             </div>
-            
-            <div className="md:col-span-2">
-              <ReportsSection 
-                setReportToDelete={setReportToDelete}
-                setIsDeleteDialogOpen={setIsDeleteDialogOpen}
-              />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-1">
+                <CompaniesSection />
+              </div>
+              
+              <div className="md:col-span-2">
+                <ReportsSection 
+                  setReportToDelete={setReportToDelete}
+                  setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
       

@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, withRetry } from '@/integrations/supabase/client';
 import { Company } from './types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -18,27 +18,29 @@ export const useCompanyOperations = () => {
 
       console.log("Loading companies for user", user.id, "isAdmin:", isAdmin);
       
-      let query = supabase
-        .from('companies')
-        .select('*');
-      
-      // If not admin, only load companies created by the current user
-      if (!isAdmin) {
-        console.log("Filtering companies by created_by:", user.id);
-        query = query.eq('created_by', user.id);
-      }
-      
-      // Add order by at the end
-      query = query.order('name');
+      return await withRetry(async () => {
+        let query = supabase
+          .from('companies')
+          .select('*');
+        
+        // If not admin, only load companies created by the current user
+        if (!isAdmin) {
+          console.log("Filtering companies by created_by:", user.id);
+          query = query.eq('created_by', user.id);
+        }
+        
+        // Add order by at the end
+        query = query.order('name');
 
-      const { data, error } = await query;
+        const { data, error } = await query;
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      console.log("Companies loaded:", data?.length || 0);
-      return data || [];
+        console.log("Companies loaded:", data?.length || 0);
+        return data || [];
+      });
     } catch (error: any) {
       console.error('Error loading companies:', error.message);
       toast({
@@ -57,22 +59,24 @@ export const useCompanyOperations = () => {
         throw new Error('User must be logged in to create a company');
       }
 
-      const { data, error } = await supabase
-        .from('companies')
-        .insert([{ ...company, created_by: user.id }])
-        .select('*')
-        .single();
+      return await withRetry(async () => {
+        const { data, error } = await supabase
+          .from('companies')
+          .insert([{ ...company, created_by: user.id }])
+          .select('*')
+          .single();
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      toast({
-        title: "Successo",
-        description: `Azienda ${data.name} creata con successo`,
+        toast({
+          title: "Successo",
+          description: `Azienda ${data.name} creata con successo`,
+        });
+        
+        return data.id;
       });
-      
-      return data.id;
     } catch (error: any) {
       console.error('Error creating company:', error.message);
       toast({
@@ -87,21 +91,23 @@ export const useCompanyOperations = () => {
   // Load a specific company by ID
   const loadCompanyById = async (companyId: string): Promise<Company | null> => {
     try {
-      // For admins, load any company, for regular users, ensure they can only load their own companies
-      let query = supabase.from('companies').select('*').eq('id', companyId);
-      
-      if (!isAdmin && user) {
-        query = query.eq('created_by', user.id);
-      }
-      
-      const { data, error } = await query.single();
-      
-      if (error) {
-        console.error('Error loading company by ID:', error);
-        return null;
-      }
+      return await withRetry(async () => {
+        // For admins, load any company, for regular users, ensure they can only load their own companies
+        let query = supabase.from('companies').select('*').eq('id', companyId);
+        
+        if (!isAdmin && user) {
+          query = query.eq('created_by', user.id);
+        }
+        
+        const { data, error } = await query.single();
+        
+        if (error) {
+          console.error('Error loading company by ID:', error);
+          return null;
+        }
 
-      return data;
+        return data;
+      });
     } catch (error) {
       console.error('Error loading company:', error);
       return null;
