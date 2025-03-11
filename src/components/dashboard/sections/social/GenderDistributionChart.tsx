@@ -75,7 +75,7 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'social', field: 'employeeInfo' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'social', field: 'employeeInfo' } });
   };
 
   return (
