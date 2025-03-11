@@ -1,6 +1,6 @@
 
 import React, { createContext } from 'react';
-import { useReportState } from './reportState';
+import { useReportState } from './report/reportState';
 import { ReportContextType } from './types';
 
 // Create context
