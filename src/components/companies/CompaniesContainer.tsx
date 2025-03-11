@@ -1,17 +1,36 @@
-
-import React, { useState } from 'react';
+import React, { useState, useCallback, ReactNode } from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
-import { useReportContext } from './hooks/useReportContext';
+import { useReport } from '@/context/ReportContext';
 import { Building2, Plus } from 'lucide-react';
 import CompanyList from './CompanyList';
 import AddCompanyDialog from './dialogs/AddCompanyDialog';
 import { useAuth } from '@/context/AuthContext';
+import { Company } from '@/context/types';
 
 const CompaniesContainer = () => {
-  const { companies, selectedCompany, selectCompany } = useReportContext();
+  const { companies, currentCompany, setCurrentCompany } = useReport();
   const { isAdmin } = useAuth();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(currentCompany);
+  
+  const handleSelectCompany = useCallback((company: Company) => {
+    console.log("Handling company selection in container:", company.name);
+    setSelectedCompany(company);
+    
+    if (!currentCompany || currentCompany.id !== company.id) {
+      console.log("Updating context with company:", company.name);
+      setCurrentCompany(company);
+    }
+  }, [currentCompany, setCurrentCompany]);
+  
+  React.useEffect(() => {
+    if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
+      console.log("Syncing local selectedCompany with currentCompany:", currentCompany.name);
+      setSelectedCompany(currentCompany);
+    }
+  }, [currentCompany, selectedCompany]);
 
   return (
     <GlassmorphicCard className="h-full">
@@ -35,7 +54,7 @@ const CompaniesContainer = () => {
       <CompanyList 
         companies={companies} 
         selectedCompany={selectedCompany}
-        onSelectCompany={selectCompany}
+        onSelectCompany={handleSelectCompany}
         isAdmin={isAdmin}
       />
       
@@ -47,4 +66,4 @@ const CompaniesContainer = () => {
   );
 };
 
-export default CompaniesContainer;
+export default React.memo(CompaniesContainer);

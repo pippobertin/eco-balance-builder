@@ -1,12 +1,8 @@
-
 import React from 'react';
-import { useReport } from '@/context/ReportContext';
 import CompaniesContainer from './CompaniesContainer';
 
 const CompaniesSection = () => {
-  const { companies } = useReport();
-  
-  // Just render the container, which handles all state logic
+  // Keep this as a pure component, all state logic is in CompaniesContainer
   return <CompaniesContainer />;
 };
 

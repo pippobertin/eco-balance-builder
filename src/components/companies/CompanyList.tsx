@@ -1,8 +1,7 @@
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Company } from '@/context/types';
-import { useReport } from '@/context/ReportContext';
 
 interface CompanyListProps {
   companies: Company[];
@@ -12,29 +11,13 @@ interface CompanyListProps {
 }
 
 const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: CompanyListProps) => {
-  const { currentCompany, setCurrentCompany } = useReport();
-  
-  // Memoized selection handler to prevent closures capturing stale props
+  // Simplified selection handler, we'll manage state sync at a higher level
   const handleSelectCompany = useCallback((company: Company) => {
-    console.log("Company selected in handler:", company.name);
-    onSelectCompany(company);
-  }, [onSelectCompany]);
-  
-  // Only sync currentCompany -> selectedCompany when needed (one-way)
-  useEffect(() => {
-    if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
-      console.log("Updating selected company from currentCompany:", currentCompany.name);
-      onSelectCompany(currentCompany);
+    console.log("Company selected in CompanyList:", company.name);
+    if (!selectedCompany || selectedCompany.id !== company.id) {
+      onSelectCompany(company);
     }
-  }, [currentCompany, selectedCompany, onSelectCompany]);
-  
-  // Only sync selectedCompany -> currentCompany when needed (prevent loops)
-  useEffect(() => {
-    if (selectedCompany && (!currentCompany || selectedCompany.id !== currentCompany.id)) {
-      console.log("Setting current company from CompanyList:", selectedCompany.name);
-      setCurrentCompany(selectedCompany);
-    }
-  }, [selectedCompany, currentCompany, setCurrentCompany]);
+  }, [onSelectCompany, selectedCompany]);
   
   if (companies.length === 0) {
     return (
@@ -76,4 +59,5 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
   );
 };
 
-export default React.memo(CompanyList);
+// Apply memo to prevent unnecessary re-renders
+export default memo(CompanyList);
