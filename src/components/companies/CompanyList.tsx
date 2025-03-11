@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Company } from '@/context/types';
 import { useReport } from '@/context/ReportContext';
@@ -14,21 +14,27 @@ interface CompanyListProps {
 const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: CompanyListProps) => {
   const { currentCompany, setCurrentCompany } = useReport();
   
-  // Sincronizzazione tra selectedCompany e currentCompany
-  useEffect(() => {
-    if (selectedCompany && (!currentCompany || selectedCompany.id !== currentCompany.id)) {
-      console.log("Setting current company from CompanyList:", selectedCompany.name);
-      setCurrentCompany(selectedCompany);
-    }
-  }, [selectedCompany, currentCompany, setCurrentCompany]);
+  // Memoized selection handler to prevent closures capturing stale props
+  const handleSelectCompany = useCallback((company: Company) => {
+    console.log("Company selected in handler:", company.name);
+    onSelectCompany(company);
+  }, [onSelectCompany]);
   
-  // Se cambia currentCompany, aggiorna selectedCompany
+  // Only sync currentCompany -> selectedCompany when needed (one-way)
   useEffect(() => {
     if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
       console.log("Updating selected company from currentCompany:", currentCompany.name);
       onSelectCompany(currentCompany);
     }
   }, [currentCompany, selectedCompany, onSelectCompany]);
+  
+  // Only sync selectedCompany -> currentCompany when needed (prevent loops)
+  useEffect(() => {
+    if (selectedCompany && (!currentCompany || selectedCompany.id !== currentCompany.id)) {
+      console.log("Setting current company from CompanyList:", selectedCompany.name);
+      setCurrentCompany(selectedCompany);
+    }
+  }, [selectedCompany, currentCompany, setCurrentCompany]);
   
   if (companies.length === 0) {
     return (
@@ -50,10 +56,7 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
           className={`p-4 rounded-lg border transition-colors cursor-pointer hover:bg-gray-50 ${
             selectedCompany?.id === company.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
           }`}
-          onClick={() => {
-            console.log("Company selected:", company.name);
-            onSelectCompany(company);
-          }}
+          onClick={() => handleSelectCompany(company)}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -73,4 +76,4 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
   );
 };
 
-export default CompanyList;
+export default React.memo(CompanyList);

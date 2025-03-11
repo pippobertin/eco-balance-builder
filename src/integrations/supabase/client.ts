@@ -4,8 +4,27 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://xvjgziihekwjyzihjihx.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2amd6aWloZWt3anl6aWhqaWh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MDU4MzIsImV4cCI6MjA1NzE4MTgzMn0.rrTCmkxGFX7mEZemMqWVoOMdPTJsptPGCZr37dyhG14';
 
+// Create and export the Supabase client directly
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+  global: {
+    fetch: (...args) => {
+      // Add a custom timeout to fetch requests
+      const [input, init = {}] = args;
+      return fetch(input, {
+        ...init,
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+    },
+  },
+});
+
 // Create a function to retry Supabase operations on network failures
-const withRetry = async (operation, maxRetries = 5, initialDelay = 1000) => {
+export const withRetry = async (operation, maxRetries = 5, initialDelay = 1000) => {
   let retries = 0;
   let lastError;
   
@@ -13,6 +32,7 @@ const withRetry = async (operation, maxRetries = 5, initialDelay = 1000) => {
     try {
       return await operation();
     } catch (error) {
+      // Add more detailed error logging
       console.error(`Operation failed (attempt ${retries + 1}/${maxRetries}):`, error.message || error);
       lastError = error;
       
@@ -21,7 +41,8 @@ const withRetry = async (operation, maxRetries = 5, initialDelay = 1000) => {
         error.message === 'Failed to fetch' || 
         error.code === 'NETWORK_ERROR' ||
         error.message?.includes('network') ||
-        error.message?.includes('connection');
+        error.message?.includes('connection') ||
+        error.code === 'TIMEOUT';
       
       if (!isNetworkError && retries >= 2) {
         // Only retry non-network errors twice
@@ -44,8 +65,3 @@ const withRetry = async (operation, maxRetries = 5, initialDelay = 1000) => {
   
   throw lastError;
 };
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Export the retry utility for use in other files
-export { withRetry };

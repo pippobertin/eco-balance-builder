@@ -10,11 +10,16 @@ import ReportsSection from '@/components/companies/ReportsSection';
 import DeleteReportDialog from '@/components/companies/DeleteReportDialog';
 import { useReportDialogs } from '@/components/companies/hooks/useReportDialogs';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Companies = () => {
   const { loadCompanies, companies } = useReport();
   const { isAdmin } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [loadingAttempts, setLoadingAttempts] = useState(0);
+  const { toast } = useToast();
+  
   const { 
     reportToDelete, 
     isDeleteDialogOpen, 
@@ -25,20 +30,43 @@ const Companies = () => {
   
   const fetchCompanies = useCallback(async () => {
     setIsLoading(true);
+    setHasError(false);
     try {
-      console.log("Fetching companies");
+      console.log("Fetching companies (attempt " + (loadingAttempts + 1) + ")");
       await loadCompanies();
-      console.log("Companies fetched:", companies.length);
+      console.log("Companies fetched successfully:", companies.length);
     } catch (error) {
       console.error("Error fetching companies:", error);
+      setHasError(true);
+      toast({
+        title: "Errore di connessione",
+        description: "Non è stato possibile caricare le aziende. Riproveremo automaticamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
+      setLoadingAttempts(prev => prev + 1);
     }
-  }, [loadCompanies]);
+  }, [loadCompanies, companies.length, loadingAttempts, toast]);
   
+  // Initial load
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
+  
+  // Retry mechanism with exponential backoff
+  useEffect(() => {
+    if (hasError && loadingAttempts < 5) {
+      const timeout = Math.min(2000 * Math.pow(1.5, loadingAttempts), 10000);
+      console.log(`Retrying companies fetch in ${timeout}ms (attempt ${loadingAttempts + 1})`);
+      
+      const timer = setTimeout(() => {
+        fetchCompanies();
+      }, timeout);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasError, loadingAttempts, fetchCompanies]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -62,18 +90,35 @@ const Companies = () => {
           </motion.div>
           
           {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-              <span className="ml-2 text-gray-600">Caricamento in corso...</span>
+            <div className="flex flex-col items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-4" />
+              <span className="text-gray-600">Caricamento in corso...</span>
+              {loadingAttempts > 1 && (
+                <span className="text-gray-500 text-sm mt-2">Tentativo {loadingAttempts} di caricamento</span>
+              )}
+            </div>
+          ) : hasError && loadingAttempts >= 5 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <p className="text-red-500 mb-4">Si è verificato un problema di connessione al server.</p>
+              <button 
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                onClick={() => {
+                  setLoadingAttempts(0);
+                  fetchCompanies();
+                }}
+              >
+                Riprova
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
-                <CompaniesSection />
+                <CompaniesSection key={`companies-${loadingAttempts}`} />
               </div>
               
               <div className="md:col-span-2">
                 <ReportsSection 
+                  key={`reports-${loadingAttempts}`}
                   setReportToDelete={setReportToDelete}
                   setIsDeleteDialogOpen={setIsDeleteDialogOpen}
                 />
