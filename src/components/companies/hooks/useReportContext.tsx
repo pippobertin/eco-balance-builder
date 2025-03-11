@@ -15,15 +15,16 @@ export const useReportContext = () => {
   // Initialize selectedCompany with currentCompany only once
   useEffect(() => {
     if (!isInitialized && currentCompany) {
+      console.log("Initializing selectedCompany with currentCompany:", currentCompany.name);
       setSelectedCompany(currentCompany);
       setIsInitialized(true);
     }
   }, [currentCompany, isInitialized]);
   
-  // Only update selectedCompany when currentCompany changes (one-way sync)
-  // with additional safeguards to prevent update loops
+  // One-way sync: Only update local state when context state changes
   useEffect(() => {
     if (isInitialized && currentCompany && !isUpdatingRef.current) {
+      // Only update if there's an actual change
       if (!selectedCompany || currentCompany.id !== selectedCompany.id) {
         console.log("Updating selectedCompany from currentCompany change:", currentCompany.name);
         setSelectedCompany(currentCompany);
@@ -35,7 +36,7 @@ export const useReportContext = () => {
   const selectCompany = useCallback((company: Company) => {
     console.log("Selecting company in context:", company.name);
     
-    // Check if we're already selecting this company
+    // Skip if already selecting this company
     if (selectedCompany?.id === company.id) {
       console.log("Company already selected, skipping update");
       return;
@@ -44,10 +45,8 @@ export const useReportContext = () => {
     // Set flag to prevent loop
     isUpdatingRef.current = true;
     
-    // Update local state first
+    // Update both states
     setSelectedCompany(company);
-    
-    // Update context state
     setCurrentCompany(company);
     
     // Reset flag after next tick

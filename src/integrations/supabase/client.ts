@@ -28,13 +28,32 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       // when the original request completes
       if (ongoingRequests.has(requestKey)) {
         console.log(`Request ${requestKey} already in progress, waiting for completion`);
-        return ongoingRequests.get(requestKey);
+        return ongoingRequests.get(requestKey).then(response => {
+          // Clone the response so multiple readers can consume it
+          return response.clone();
+        });
       }
       
       // Create a new fetch promise with timeout
-      const fetchPromise = fetch(input, {
-        ...init,
-        signal: AbortSignal.timeout(15000), // 15 second timeout
+      const fetchPromise = new Promise((resolve, reject) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          reject(new Error('Request timeout after 15 seconds'));
+        }, 15000);
+        
+        fetch(input, {
+          ...init,
+          signal: controller.signal,
+        })
+        .then(response => {
+          clearTimeout(timeoutId);
+          resolve(response);
+        })
+        .catch(error => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
       });
       
       // Store the promise in the ongoing requests map
@@ -51,12 +70,10 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 // Improved retry logic with better error handling
-// Added request deduplication to prevent multiple identical requests
 export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) => {
   let retries = 0;
   let lastError;
   
-  // Generate a unique key for this operation to identify it
   const operationKey = operation.toString().slice(0, 50);
   
   while (retries < maxRetries) {
@@ -64,11 +81,9 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
       console.log(`Executing operation ${operationKey} (attempt ${retries + 1}/${maxRetries})`);
       return await operation();
     } catch (error) {
-      // Add more detailed error logging
       console.error(`Operation ${operationKey} failed (attempt ${retries + 1}/${maxRetries}):`, error.message || error);
       lastError = error;
       
-      // Check if it's a network error or if we should retry regardless
       const isNetworkError = 
         error.message === 'Failed to fetch' || 
         error.code === 'NETWORK_ERROR' ||
@@ -77,8 +92,8 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
         error.code === 'TIMEOUT' ||
         error.name === 'AbortError';
       
+      // Always retry network errors, but only retry other errors once
       if (!isNetworkError && retries >= 1) {
-        // Only retry non-network errors once
         throw error;
       }
       
@@ -89,7 +104,6 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
         throw lastError;
       }
       
-      // Exponential backoff with jitter
       const delay = initialDelay * Math.pow(1.5, retries) * (0.9 + Math.random() * 0.2);
       console.log(`Retrying operation ${operationKey} in ${Math.round(delay)}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -97,4 +111,14 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
   }
   
   throw lastError;
+};
+
+// Create a utility to debounce function calls
+export const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
 };

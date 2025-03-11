@@ -11,9 +11,10 @@ import DeleteReportDialog from '@/components/companies/DeleteReportDialog';
 import { useReportDialogs } from '@/components/companies/hooks/useReportDialogs';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { debounce } from '@/integrations/supabase/client';
 
 const Companies = () => {
-  const { loadCompanies, companies } = useReport();
+  const { loadCompanies, companies, currentCompany } = useReport();
   const { isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -28,45 +29,54 @@ const Companies = () => {
     handleDeleteReport 
   } = useReportDialogs();
   
-  const fetchCompanies = useCallback(async () => {
-    setIsLoading(true);
-    setHasError(false);
-    try {
-      console.log("Fetching companies (attempt " + (loadingAttempts + 1) + ")");
-      await loadCompanies();
-      console.log("Companies fetched successfully:", companies.length);
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      setHasError(true);
-      toast({
-        title: "Errore di connessione",
-        description: "Non è stato possibile caricare le aziende. Riproveremo automaticamente.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-      setLoadingAttempts(prev => prev + 1);
-    }
-  }, [loadCompanies, companies.length, loadingAttempts, toast]);
+  // Create a debounced fetch function to prevent multiple rapid calls
+  const debouncedFetchCompanies = useCallback(
+    debounce(async () => {
+      setIsLoading(true);
+      setHasError(false);
+      try {
+        console.log("Fetching companies (attempt " + (loadingAttempts + 1) + ")");
+        await loadCompanies();
+        console.log("Companies fetched successfully:", companies.length);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+        setHasError(true);
+        toast({
+          title: "Errore di connessione",
+          description: "Non è stato possibile caricare le aziende. Riproveremo automaticamente.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+        setLoadingAttempts(prev => prev + 1);
+      }
+    }, 500),
+    [loadCompanies, companies.length, loadingAttempts, toast]
+  );
   
-  // Initial load
+  // Initial load - only run once
   useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+    console.log("Initial companies fetch");
+    debouncedFetchCompanies();
+    // Cleanup function to cancel pending requests
+    return () => {
+      console.log("Companies page unmounting, cleanup");
+    };
+  }, []);
   
-  // Retry mechanism with exponential backoff
+  // Only retry on error
   useEffect(() => {
     if (hasError && loadingAttempts < 5) {
       const timeout = Math.min(2000 * Math.pow(1.5, loadingAttempts), 10000);
       console.log(`Retrying companies fetch in ${timeout}ms (attempt ${loadingAttempts + 1})`);
       
       const timer = setTimeout(() => {
-        fetchCompanies();
+        debouncedFetchCompanies();
       }, timeout);
       
       return () => clearTimeout(timer);
     }
-  }, [hasError, loadingAttempts, fetchCompanies]);
+  }, [hasError, loadingAttempts, debouncedFetchCompanies]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -89,13 +99,10 @@ const Companies = () => {
             </p>
           </motion.div>
           
-          {isLoading ? (
+          {isLoading && loadingAttempts === 0 ? (
             <div className="flex flex-col items-center justify-center h-64">
               <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-4" />
               <span className="text-gray-600">Caricamento in corso...</span>
-              {loadingAttempts > 1 && (
-                <span className="text-gray-500 text-sm mt-2">Tentativo {loadingAttempts} di caricamento</span>
-              )}
             </div>
           ) : hasError && loadingAttempts >= 5 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -104,7 +111,7 @@ const Companies = () => {
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 onClick={() => {
                   setLoadingAttempts(0);
-                  fetchCompanies();
+                  debouncedFetchCompanies();
                 }}
               >
                 Riprova
@@ -113,12 +120,11 @@ const Companies = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
-                <CompaniesSection key={`companies-${loadingAttempts}`} />
+                <CompaniesSection />
               </div>
               
               <div className="md:col-span-2">
                 <ReportsSection 
-                  key={`reports-${loadingAttempts}`}
                   setReportToDelete={setReportToDelete}
                   setIsDeleteDialogOpen={setIsDeleteDialogOpen}
                 />
