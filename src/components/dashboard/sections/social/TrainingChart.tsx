@@ -40,8 +40,8 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
       data={trainingData}
       dataKey="name"
       categories={["value"]}
-      colors={["#0EA5E9", "#FFDEE2"]} 
-      // Azzurro per uomini, Rosa per donne
+      colors={["#0EA5E9", "#F472B6", "#9B87F5", "#FFA99F"]}
+      individualColors={true}
     />
   );
 };

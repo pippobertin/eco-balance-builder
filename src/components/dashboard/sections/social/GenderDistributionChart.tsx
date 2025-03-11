@@ -50,8 +50,8 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
       data={genderData}
       dataKey="name"
       categories={["value"]}
-      colors={["#0EA5E9", "#FFDEE2", "#BF5AF2"]} 
-      // Azzurro per uomini, Rosa per donne, Viola per altro
+      colors={["#0EA5E9", "#F472B6", "#BF5AF2"]}
+      individualColors={true}
     />
   );
 };

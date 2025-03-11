@@ -47,7 +47,8 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
       data={emissionsData}
       dataKey="name"
       categories={["value"]}
-      colors={["#8B5CF6", "#D946EF", "#F97316"]}
+      colors={["#8B5CF6", "#D946EF", "#F97316", "#0EA5E9", "#34C759"]}
+      individualColors={true}
     />
   );
 };

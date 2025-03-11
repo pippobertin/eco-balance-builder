@@ -40,7 +40,8 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
       data={contractData}
       dataKey="name"
       categories={["value"]}
-      colors={["#34C759", "#FF9500"]}
+      colors={["#34C759", "#FF9500", "#8B5CF6", "#0EA5E9"]}
+      individualColors={true}
     />
   );
 };

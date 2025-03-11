@@ -38,7 +38,8 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       data={resourceData}
       dataKey="name"
       categories={["value"]}
-      colors={["#5AC8FA", "#FF9500"]}
+      colors={["#5AC8FA", "#FF9500", "#D946EF", "#0EA5E9"]}
+      individualColors={true}
     />
   );
 };

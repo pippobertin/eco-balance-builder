@@ -40,7 +40,8 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
       data={employmentData}
       dataKey="name"
       categories={["value"]}
-      colors={["#007AFF", "#5856D6"]}
+      colors={["#007AFF", "#5856D6", "#D946EF", "#F97316"]}
+      individualColors={true}
     />
   );
 };

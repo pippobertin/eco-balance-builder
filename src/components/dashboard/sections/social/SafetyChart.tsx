@@ -40,7 +40,8 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
       data={safetyData}
       dataKey="name"
       categories={["value"]}
-      colors={["#FF9500", "#FF3B30"]}
+      colors={["#FF9500", "#FF3B30", "#9B87F5", "#34C759"]}
+      individualColors={true}
     />
   );
 };

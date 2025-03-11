@@ -28,6 +28,7 @@ interface MetricChartProps {
   dataKey: string;
   categories?: string[];
   colors?: string[];
+  individualColors?: boolean;
   height?: number;
   tooltipFormatter?: (value: number, name: string, entry: any) => React.ReactNode;
 }
@@ -40,6 +41,7 @@ const MetricChart = ({
   dataKey,
   categories = ['value'],
   colors = ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'],
+  individualColors = false,
   height = 300,
   tooltipFormatter,
 }: MetricChartProps) => {
@@ -134,14 +136,26 @@ const MetricChart = ({
               <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip content={renderTooltip} />
               <Legend />
-              {categories.map((category, index) => (
-                <Bar
-                  key={index}
-                  dataKey={category}
-                  fill={chartColors[index % chartColors.length]}
-                  radius={[4, 4, 0, 0]}
-                />
-              ))}
+              {individualColors ? (
+                // Render each bar with individual colors
+                categories.map((category) => (
+                  <Bar key={category} dataKey={category} radius={[4, 4, 0, 0]}>
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                    ))}
+                  </Bar>
+                ))
+              ) : (
+                // Render bars with category-based colors
+                categories.map((category, index) => (
+                  <Bar
+                    key={index}
+                    dataKey={category}
+                    fill={chartColors[index % chartColors.length]}
+                    radius={[4, 4, 0, 0]}
+                  />
+                ))
+              )}
             </BarChart>
           </ResponsiveContainer>
         );

@@ -38,7 +38,8 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
       data={energyData}
       dataKey="name"
       categories={["value"]}
-      colors={["#FF3B30", "#34C759"]}
+      colors={["#F97316", "#34C759", "#0EA5E9", "#8B5CF6"]}
+      individualColors={true}
     />
   );
 };
