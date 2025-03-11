@@ -1,17 +1,37 @@
-import React from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Building2, ShieldAlert, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+
 interface ConductMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
+  initialField?: string;
 }
+
 const ConductMetrics: React.FC<ConductMetricsProps> = ({
   formValues,
-  setFormValues
+  setFormValues,
+  initialField
 }) => {
+  // Reference to scroll to initial field if provided
+  const corruptionConvictionsRef = useRef<HTMLDivElement>(null);
+  const complianceStandardsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Scroll to the initial field if provided
+    if (initialField) {
+      if (initialField === 'corruptionConvictions' && corruptionConvictionsRef.current) {
+        corruptionConvictionsRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'complianceStandards' && complianceStandardsRef.current) {
+        complianceStandardsRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [initialField]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {
       name,
@@ -25,12 +45,13 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
       }
     }));
   };
+
   return <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Condotta delle Imprese</h2>
       
       {/* B12 - Condanne e sanzioni per corruzione attiva e passiva */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={corruptionConvictionsRef}>
           <Building2 className="mr-2 h-5 w-5 text-purple-500" />
           <h3 className="text-xl font-semibold">B12 - Condanne e sanzioni per corruzione attiva e passiva</h3>
         </div>
@@ -78,7 +99,7 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
       
       {/* Compliance con altri standard di condotta */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={complianceStandardsRef}>
           <ShieldAlert className="mr-2 h-5 w-5 text-yellow-500" />
           <h3 className="text-xl font-semibold">Compliance con standard di condotta</h3>
         </div>
@@ -111,4 +132,5 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
       </GlassmorphicCard>
     </div>;
 };
+
 export default ConductMetrics;

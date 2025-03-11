@@ -1,18 +1,44 @@
-import React from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Users, ShieldAlert, HeartHandshake, GraduationCap, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+
 interface SocialMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
+  initialField?: string;
 }
+
 const SocialMetrics: React.FC<SocialMetricsProps> = ({
   formValues,
-  setFormValues
+  setFormValues,
+  initialField
 }) => {
+  // Add refs for scrolling to specific sections
+  const workforceGeneralRef = useRef<HTMLDivElement>(null);
+  const workforceSafetyRef = useRef<HTMLDivElement>(null);
+  const workforceCompensationRef = useRef<HTMLDivElement>(null);
+  const supplyChainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Scroll to the initial field if provided
+    if (initialField) {
+      if (initialField === 'workforce' && workforceGeneralRef.current) {
+        workforceGeneralRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'safety' && workforceSafetyRef.current) {
+        workforceSafetyRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'compensation' && workforceCompensationRef.current) {
+        workforceCompensationRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'supplyChain' && supplyChainRef.current) {
+        supplyChainRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [initialField]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {
       name,
@@ -26,12 +52,13 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
       }
     }));
   };
+
   return <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Questioni Sociali</h2>
       
       {/* B8 - Forza lavoro - Caratteristiche generali */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={workforceGeneralRef}>
           <Users className="mr-2 h-5 w-5 text-blue-500" />
           <h3 className="text-xl font-semibold">B8 - Forza lavoro - Caratteristiche generali</h3>
         </div>
@@ -99,7 +126,7 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
       
       {/* B9 - Forza lavoro - Salute e sicurezza */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={workforceSafetyRef}>
           <ShieldAlert className="mr-2 h-5 w-5 text-red-500" />
           <h3 className="text-xl font-semibold">B9 - Forza lavoro - Salute e sicurezza</h3>
         </div>
@@ -153,7 +180,7 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
       
       {/* B10 - Forza lavoro - Retribuzione, contrattazione collettiva e formazione */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={workforceCompensationRef}>
           <GraduationCap className="mr-2 h-5 w-5 text-blue-500" />
           <h3 className="text-xl font-semibold">B10 - Forza lavoro - Retribuzione, contrattazione collettiva e formazione</h3>
         </div>
@@ -222,7 +249,7 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
       
       {/* B11 - Lavoratori nella catena del valore, comunità interessate, consumatori e utilizzatori finali */}
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-4" ref={supplyChainRef}>
           <HeartHandshake className="mr-2 h-5 w-5 text-orange-500" />
           <h3 className="text-xl font-semibold">B11 - Lavoratori nella catena del valore, comunità e consumatori</h3>
         </div>
@@ -241,4 +268,5 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
       </GlassmorphicCard>
     </div>;
 };
+
 export default SocialMetrics;
