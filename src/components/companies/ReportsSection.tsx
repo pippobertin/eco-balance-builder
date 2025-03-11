@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { FileText, Plus, Briefcase, ShieldAlert } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { FileText, Plus, Briefcase, ShieldAlert, Loader2 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
@@ -19,35 +19,38 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
   const { reports, loadReports, currentCompany } = useReport();
   const { isAddReportDialogOpen, setIsAddReportDialogOpen } = useReportContext();
   const { user, isAdmin } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [accessError, setAccessError] = useState(false);
   
-  useEffect(() => {
-    const loadReportsData = async () => {
-      if (currentCompany) {
-        try {
-          console.log("Loading reports for company:", currentCompany.id);
-          const loadedReports = await loadReports(currentCompany.id);
-          console.log("Loaded reports:", loadedReports.length);
-          
-          // If user can't access reports for this company
-          if (loadedReports.length === 0 && !isAdmin && user && currentCompany.created_by) {
-            const isOwnCompany = currentCompany.created_by === user.id;
-            if (!isOwnCompany) {
-              setAccessError(true);
-              return;
-            }
-          }
-          setAccessError(false);
-        } catch (error) {
-          console.error("Error loading reports:", error);
+  const loadReportsData = useCallback(async () => {
+    if (!currentCompany) return;
+    
+    setIsLoading(true);
+    setAccessError(false);
+    
+    try {
+      console.log("Loading reports for company:", currentCompany.id);
+      const loadedReports = await loadReports(currentCompany.id);
+      console.log("Loaded reports:", loadedReports.length);
+      
+      // If user can't access reports for this company
+      if (loadedReports.length === 0 && !isAdmin && user && currentCompany.created_by) {
+        const isOwnCompany = currentCompany.created_by === user.id;
+        if (!isOwnCompany) {
           setAccessError(true);
         }
       }
-    };
-    
-    setAccessError(false);
-    loadReportsData();
+    } catch (error) {
+      console.error("Error loading reports:", error);
+      setAccessError(true);
+    } finally {
+      setIsLoading(false);
+    }
   }, [currentCompany, isAdmin, user, loadReports]);
+  
+  useEffect(() => {
+    loadReportsData();
+  }, [loadReportsData]);
 
   const openDeleteDialog = (report: Report, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -68,7 +71,7 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
           )}
         </h2>
         
-        {currentCompany && !accessError && (
+        {currentCompany && !accessError && !isLoading && (
           <Button 
             variant="outline" 
             size="sm" 
@@ -81,7 +84,12 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
         )}
       </div>
       
-      {!currentCompany ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+          <span className="ml-2 text-gray-600">Caricamento report...</span>
+        </div>
+      ) : !currentCompany ? (
         <div className="text-center py-12 text-gray-500">
           <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-300" />
           <p>Seleziona un'azienda per visualizzare i suoi report</p>

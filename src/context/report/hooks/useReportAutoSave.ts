@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Report, ReportData } from '@/context/types';
 
 export const useReportAutoSave = (
@@ -10,6 +10,8 @@ export const useReportAutoSave = (
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Set needsSaving flag when report data changes
   useEffect(() => {
     if (currentReport) {
@@ -19,12 +21,39 @@ export const useReportAutoSave = (
 
   // Auto-save report data every 30 seconds if there are changes
   useEffect(() => {
-    if (!needsSaving || !currentReport) return;
+    if (!needsSaving || !currentReport) {
+      // Clear any existing timeout if no saving is needed
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      return;
+    }
     
-    const timer = setTimeout(async () => {
-      await saveCurrentReport();
+    console.log("Setting up auto-save timer for report", currentReport.id);
+    
+    // Clear any existing timer to avoid multiple timers running
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      console.log("Auto-saving report...");
+      try {
+        await saveCurrentReport();
+        console.log("Auto-save completed successfully");
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+      }
     }, 30000); // 30 seconds
     
-    return () => clearTimeout(timer);
-  }, [needsSaving, reportData, currentReport, saveCurrentReport, setNeedsSaving, setLastSaved]);
+    // Cleanup function
+    return () => {
+      if (saveTimeoutRef.current) {
+        console.log("Clearing auto-save timer");
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+    };
+  }, [needsSaving, reportData, currentReport, saveCurrentReport]);
 };

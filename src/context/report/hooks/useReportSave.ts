@@ -17,22 +17,33 @@ export const useReportSave = (
     if (!currentReport) return;
     
     setLoading(true);
-    const success = await saveReportData(currentReport.id, reportData);
-    
-    if (success) {
-      console.log("Report saved to database successfully");
-      setNeedsSaving(false);
-      setLastSaved(new Date());
+    try {
+      const success = await saveReportData(currentReport.id, reportData);
+      
+      if (success) {
+        console.log("Report saved to database successfully");
+        setNeedsSaving(false);
+        setLastSaved(new Date());
+      } else {
+        console.error("Failed to save report data");
+      }
+    } catch (error) {
+      console.error("Error saving report:", error);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   // Save subsidiaries
   const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<void> => {
     setLoading(true);
-    await saveSubsidiariesData(subsidiaries, reportId);
-    setLoading(false);
+    try {
+      await saveSubsidiariesData(subsidiaries, reportId);
+    } catch (error) {
+      console.error("Error saving subsidiaries:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

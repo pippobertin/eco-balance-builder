@@ -8,12 +8,13 @@ import { useAuth } from '@/context/AuthContext';
 import { Company } from '@/context/types';
 import AddCompanyDialog from './dialogs/AddCompanyDialog';
 import CompanyList from './CompanyList';
+import { useReportContext } from './hooks/useReportContext';
 
 const CompaniesSection = () => {
   const { companies } = useReport();
   const { isAdmin } = useAuth();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const { selectedCompany, selectCompany } = useReportContext();
 
   return (
     <GlassmorphicCard className="h-full">
@@ -32,7 +33,7 @@ const CompaniesSection = () => {
       <CompanyList 
         companies={companies} 
         selectedCompany={selectedCompany}
-        onSelectCompany={setSelectedCompany}
+        onSelectCompany={selectCompany}
         isAdmin={isAdmin}
       />
       

@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Company } from '@/context/types';
+import { useReport } from '@/context/ReportContext';
 
 interface CompanyListProps {
   companies: Company[];
@@ -11,6 +12,24 @@ interface CompanyListProps {
 }
 
 const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: CompanyListProps) => {
+  const { currentCompany, setCurrentCompany } = useReport();
+  
+  // Sincronizzazione tra selectedCompany e currentCompany
+  useEffect(() => {
+    if (selectedCompany && (!currentCompany || selectedCompany.id !== currentCompany.id)) {
+      console.log("Setting current company from CompanyList:", selectedCompany.name);
+      setCurrentCompany(selectedCompany);
+    }
+  }, [selectedCompany, currentCompany, setCurrentCompany]);
+  
+  // Se cambia currentCompany, aggiorna selectedCompany
+  useEffect(() => {
+    if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
+      console.log("Updating selected company from currentCompany:", currentCompany.name);
+      onSelectCompany(currentCompany);
+    }
+  }, [currentCompany, selectedCompany, onSelectCompany]);
+  
   if (companies.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -31,7 +50,10 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
           className={`p-4 rounded-lg border transition-colors cursor-pointer hover:bg-gray-50 ${
             selectedCompany?.id === company.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
           }`}
-          onClick={() => onSelectCompany(company)}
+          onClick={() => {
+            console.log("Company selected:", company.name);
+            onSelectCompany(company);
+          }}
         >
           <div className="flex items-center justify-between">
             <div>

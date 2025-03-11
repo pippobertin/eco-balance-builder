@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
@@ -23,22 +23,22 @@ const Companies = () => {
     handleDeleteReport 
   } = useReportDialogs();
   
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      setIsLoading(true);
-      try {
-        console.log("Fetching companies");
-        await loadCompanies();
-        console.log("Companies fetched:", companies.length);
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchCompanies();
+  const fetchCompanies = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      console.log("Fetching companies");
+      await loadCompanies();
+      console.log("Companies fetched:", companies.length);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [loadCompanies]);
+  
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
   
   return (
     <div className="min-h-screen flex flex-col">
