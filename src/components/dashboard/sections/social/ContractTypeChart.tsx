@@ -36,7 +36,7 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'social', field: 'employmentInfo' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'social', field: 'contracts' } });
   };
 
   return (

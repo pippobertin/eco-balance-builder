@@ -36,7 +36,7 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'social', field: 'trainingInfo' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'social', field: 'training' } });
   };
 
   return (

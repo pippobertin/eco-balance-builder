@@ -36,7 +36,7 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'social', field: 'employmentInfo' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'social', field: 'employment' } });
   };
 
   return (

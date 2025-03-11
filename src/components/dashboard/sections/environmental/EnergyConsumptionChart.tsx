@@ -34,7 +34,7 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'environmental', field: 'energyConsumption' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'energy' } });
   };
 
   return (

@@ -34,7 +34,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'environmental', field: 'resourceUsage' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'resources' } });
   };
 
   return (

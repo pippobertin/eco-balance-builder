@@ -36,7 +36,7 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
   }
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { section: 'social', field: 'safetyInfo' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'social', field: 'safety' } });
   };
 
   return (
