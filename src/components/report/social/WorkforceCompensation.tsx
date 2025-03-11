@@ -1,17 +1,15 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GraduationCap, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
-interface WorkforceCompensationProps {
+type WorkforceCompensationProps = {
   formValues: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  ref?: React.RefObject<HTMLDivElement>;
-}
+};
 
-const WorkforceCompensation: React.FC<WorkforceCompensationProps> = React.forwardRef<HTMLDivElement, WorkforceCompensationProps>(
+const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensationProps>(
   ({ formValues, handleChange }, ref) => {
     return (
       <GlassmorphicCard>

@@ -1,17 +1,15 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldAlert, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
-interface WorkforceSafetyProps {
+type WorkforceSafetyProps = {
   formValues: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  ref?: React.RefObject<HTMLDivElement>;
-}
+};
 
-const WorkforceSafety: React.FC<WorkforceSafetyProps> = React.forwardRef<HTMLDivElement, WorkforceSafetyProps>(
+const WorkforceSafety = React.forwardRef<HTMLDivElement, WorkforceSafetyProps>(
   ({ formValues, handleChange }, ref) => {
     return (
       <GlassmorphicCard>

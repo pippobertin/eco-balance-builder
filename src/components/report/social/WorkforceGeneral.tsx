@@ -1,18 +1,16 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Users, Info } from 'lucide-react';
+import { Users } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
-interface WorkforceGeneralProps {
+type WorkforceGeneralProps = {
   formValues: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  ref?: React.RefObject<HTMLDivElement>;
-}
+};
 
-const WorkforceGeneral: React.FC<WorkforceGeneralProps> = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
+const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
     return (
       <GlassmorphicCard>

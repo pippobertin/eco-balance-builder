@@ -1,17 +1,15 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { HeartHandshake, Info } from 'lucide-react';
+import { HeartHandshake } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
-interface SupplyChainMetricsProps {
+type SupplyChainMetricsProps = {
   formValues: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  ref?: React.RefObject<HTMLDivElement>;
-}
+};
 
-const SupplyChainMetrics: React.FC<SupplyChainMetricsProps> = React.forwardRef<HTMLDivElement, SupplyChainMetricsProps>(
+const SupplyChainMetrics = React.forwardRef<HTMLDivElement, SupplyChainMetricsProps>(
   ({ formValues, handleChange }, ref) => {
     return (
       <GlassmorphicCard>
