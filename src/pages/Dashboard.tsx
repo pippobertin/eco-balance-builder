@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -14,7 +14,6 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { currentCompany } = useReport();
   const { 
     selectedYear, 
@@ -29,13 +28,8 @@ const Dashboard = () => {
     navigate('/companies');
   };
   
-  const editReport = (section?: string) => {
-    navigate('/report', { 
-      state: { 
-        activeTab: 'metrics',
-        section: section || 'environmental' // Default to environmental if no section specified
-      } 
-    });
+  const editReport = () => {
+    navigate('/report');
   };
   
   return (
@@ -55,7 +49,7 @@ const Dashboard = () => {
             
             <DashboardActions
               onGoToCompanies={goToCompanies}
-              onEditReport={() => editReport()}
+              onEditReport={editReport}
               selectedReport={selectedReport}
               accessError={accessError}
             />
@@ -70,7 +64,7 @@ const Dashboard = () => {
           )}
           
           {currentCompany && !accessError && !displayData && (
-            <NoReportData onEditReport={() => editReport()} />
+            <NoReportData onEditReport={editReport} />
           )}
           
           {currentCompany && !accessError && displayData && selectedReport && (

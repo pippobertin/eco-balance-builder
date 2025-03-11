@@ -1,6 +1,5 @@
 
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -14,9 +13,6 @@ import { useReportForm } from '@/hooks/use-report-form';
 import { useToast } from '@/hooks/use-toast';
 
 const Report = () => {
-  const location = useLocation();
-  const locationState = location.state as { activeTab?: string; section?: string } | null;
-  
   const { toast } = useToast();
   const {
     currentCompany,
@@ -47,23 +43,6 @@ const Report = () => {
     handleAddSubsidiary,
     removeSubsidiary
   } = useSubsidiaries();
-
-  // Set active tab based on navigation state from dashboard
-  useEffect(() => {
-    if (locationState?.activeTab) {
-      setActiveTab(locationState.activeTab);
-      
-      // If a specific section is specified, scroll to it
-      if (locationState.section && locationState.activeTab === 'metrics') {
-        setTimeout(() => {
-          const sectionElement = document.getElementById(`section-${locationState.section}`);
-          if (sectionElement) {
-            sectionElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 300);
-      }
-    }
-  }, [locationState, setActiveTab]);
 
   // Handle saving the report with subsidiaries
   const handleSaveWithSubsidiaries = async () => {

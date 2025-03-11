@@ -1,9 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
-import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
 
 interface GenderDistributionChartProps {
   maleEmployees?: number;
@@ -16,8 +13,6 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   femaleEmployees,
   otherGenderEmployees
 }) => {
-  const navigate = useNavigate();
-  
   // Prepare data for gender distribution chart
   const genderData = [];
   
@@ -76,38 +71,18 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
     });
   }
 
-  const handleEditClick = () => {
-    navigate('/report', { state: { activeTab: 'metrics', section: 'social' } });
-  };
-
   return (
-    <div 
-      className="relative bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
-      onClick={handleEditClick}
-    >
-      <MetricChart
-        title="Composizione di Genere"
-        description="Distribuzione dei dipendenti per genere"
-        type={genderData.length > 0 ? "donut" : "empty"}
-        data={genderData}
-        dataKey="name"
-        categories={["value"]}
-        colors={["#0EA5E9", "#F472B6", "#BF5AF2"]}
-        individualColors={true}
-        hideLegend={false}
-      />
-      <Button 
-        variant="ghost" 
-        size="icon"
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 hover:bg-blue-50"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleEditClick();
-        }}
-      >
-        <Edit className="h-4 w-4 text-blue-500" />
-      </Button>
-    </div>
+    <MetricChart
+      title="Composizione di Genere"
+      description="Distribuzione dei dipendenti per genere"
+      type={genderData.length > 0 ? "donut" : "empty"}
+      data={genderData}
+      dataKey="name"
+      categories={["value"]}
+      colors={["#0EA5E9", "#F472B6", "#BF5AF2"]}
+      individualColors={true}
+      hideLegend={false}
+    />
   );
 };
 

@@ -1,7 +1,7 @@
+
 import React from 'react';
 import { ReportData } from '@/context/types';
 import { Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface GovernanceSectionProps {
@@ -10,8 +10,6 @@ interface GovernanceSectionProps {
 }
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, companyName }) => {
-  const navigate = useNavigate();
-  
   const {
     governanceCompliance,
     codeOfConductViolations,
@@ -23,10 +21,9 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     sustainabilityCommittee
   } = reportData.conductMetrics || {};
   
-  const handleSectionClick = () => {
-    navigate('/report', { state: { activeTab: 'metrics', section: 'conduct' } });
-  };
+  // Prepara i dati per i grafici di governance (B8-B12)
   
+  // B8: Governance Compliance
   const complianceData = [];
   if (typeof governanceCompliance === 'number' && governanceCompliance > 0) {
     complianceData.push({
@@ -42,6 +39,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
+  // B9-B10: Politiche e rischi
   const policyData = [];
   if (typeof policyAdherence === 'number' && policyAdherence > 0) {
     policyData.push({
@@ -57,6 +55,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
+  // B11-B12: Altri indicatori di governance
   const diversityData = [];
   if (typeof boardDiversity === 'number' && boardDiversity > 0) {
     diversityData.push({
@@ -72,6 +71,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
+  // Anticorruzione e sostenibilità
   const ethicsData = [];
   if (typeof antiCorruptionTraining === 'number' && antiCorruptionTraining > 0) {
     ethicsData.push({
@@ -88,10 +88,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
   }
   
   return (
-    <div 
-      className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-all"
-      onClick={handleSectionClick}
-    >
+    <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="h-6 w-6 text-purple-500" />
         <h2 className="text-xl font-bold text-gray-900">
@@ -100,7 +97,8 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
         </h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" onClick={(e) => e.stopPropagation()}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* B8: Grafico compliance */}
         <MetricChart
           title="Compliance (B8)"
           description="Indicatori di conformità alle normative"
@@ -111,6 +109,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           colors={["#5856D6", "#FF3B30"]}
         />
         
+        {/* B9-10: Politiche e rischi */}
         <MetricChart
           title="Politiche e Rischi (B9-B10)"
           description="Gestione delle politiche aziendali e dei rischi"
@@ -121,6 +120,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           colors={["#34C759", "#FF9500"]}
         />
         
+        {/* B11: Diversità e retribuzione */}
         <MetricChart
           title="Diversità e Retribuzione (B11)"
           description="Diversità nel CdA e rapporti retributivi"
@@ -131,6 +131,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           colors={["#5AC8FA", "#FF2D55"]}
         />
         
+        {/* B12: Etica e sostenibilità */}
         <MetricChart
           title="Etica e Sostenibilità (B12)"
           description="Formazione etica e strutture di sostenibilità"
