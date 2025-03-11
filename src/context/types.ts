@@ -1,4 +1,3 @@
-
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
@@ -51,16 +50,38 @@ export interface Subsidiary {
 export interface ReportData {
   environmentalMetrics: {
     carbonEmissions?: number;
-    energyConsumption?: number;
+    energyConsumption?: number; // Total energy in MWh
+    fossilFuelEnergy?: number; // Fossil fuel energy in MWh
+    renewableEnergy?: number; // Renewable energy in MWh
     wasteGeneration?: number;
-    waterUsage?: number;
-    renewableEnergy?: number;
+    waterUsage?: number; // Total water withdrawal
+    waterConsumption?: number; // Water consumption (withdrawal - discharge)
+    waterStressAreas?: number; // Water withdrawal in water stress areas
     scope1Data?: any;
     scope2Data?: any;
     scope3Data?: any;
-    totalScope1Emissions?: number;
-    totalScope2Emissions?: number;
-    totalScope3Emissions?: number;
+    totalScope1Emissions?: number; // Scope 1 emissions in tCO2eq
+    totalScope2Emissions?: number; // Scope 2 emissions in tCO2eq
+    totalScope3Emissions?: number; // Scope 3 emissions in tCO2eq
+    totalScopeEmissions?: number; // Total emissions
+    
+    // B4 - Pollution
+    airPollution?: number; // Air pollutants
+    waterPollution?: number; // Water pollutants
+    soilPollution?: number; // Soil pollutants
+    
+    // B5 - Biodiversity
+    landUse?: number; // Total land use in hectares
+    impermeableSurface?: number; // Total impermeable surface in hectares
+    natureSurfaceOnSite?: number; // Nature-oriented surface on site in hectares
+    natureSurfaceOffSite?: number; // Nature-oriented surface off site in hectares
+    
+    // B7 - Resources & Circular Economy
+    totalWaste?: number; // Total waste in kg or tons
+    recycledWaste?: number; // Recycled waste in kg or tons
+    hazardousWaste?: number; // Hazardous waste in kg or tons
+    recycledContent?: number; // Recycled content in products (%)
+    recyclableContent?: number; // Recyclable content in products (%)
   };
   socialMetrics: {
     employeeDiversity?: number;
@@ -75,36 +96,38 @@ export interface ReportData {
     totalEmployees?: number;
     permanentEmployees?: number;
     temporaryEmployees?: number;
-    fullTimeEmployees?: number; // Added
-    partTimeEmployees?: number; // Added
+    fullTimeEmployees?: number;
+    partTimeEmployees?: number;
     avgTrainingHoursMale?: number;
     avgTrainingHoursFemale?: number;
     employeesByCountry?: string;
-    workAccidentsNumber?: number;
+    workAccidentsNumber?: number; // Number of recordable work accidents
     totalHoursWorked?: number;
     workAccidentsRate?: number;
-    workAccidentDeaths?: number;
-    workDiseaseDeaths?: number;
-    entryWage?: number;
-    localMinimumWage?: number;
-    entryWageToMinimumWageRatio?: number;
-    genderPayGap?: number;
-    collectiveBargainingCoverage?: number;
-    totalEmployeesFTE?: number;
-    supplyChainImpactProcess?: string;
-    identifiedImpacts?: string;
-    employeeTurnover?: number; // Added
-    workAccidents?: number; // Added
+    workAccidentDeaths?: number; // Deaths due to work accidents
+    workDiseaseDeaths?: number; // Deaths due to occupational diseases
+    entryWage?: number; // Entry wage
+    localMinimumWage?: number; // Local minimum wage
+    entryWageToMinimumWageRatio?: number; // Ratio of entry wage to minimum wage
+    genderPayGap?: number; // Gender pay gap (%)
+    collectiveBargainingCoverage?: number; // Collective bargaining coverage (%)
+    totalEmployeesFTE?: number; // Total employees in FTE
+    supplyChainImpactProcess?: string; // Process to identify supply chain impacts
+    identifiedImpacts?: string; // Identified impacts in supply chain
+    employeeTurnover?: number;
+    workAccidents?: number;
   };
   conductMetrics: {
     governanceCompliance?: number;
     policyAdherence?: number;
     riskManagement?: number;
-    codeOfConductViolations?: number; // Added
-    antiCorruptionTraining?: number; // Added
-    boardDiversity?: number; // Added
-    executivePayRatio?: number; // Added
-    sustainabilityCommittee?: number; // Added
+    codeOfConductViolations?: number;
+    antiCorruptionTraining?: number;
+    boardDiversity?: number;
+    executivePayRatio?: number;
+    sustainabilityCommittee?: number;
+    antiCorruptionConvictions?: number; // Number of convictions for corruption (B12)
+    antiCorruptionSanctions?: number; // Amount of sanctions paid for corruption (B12)
   };
   businessPartnersMetrics?: {
     totalSuppliers?: number;

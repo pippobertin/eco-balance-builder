@@ -19,7 +19,9 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     policyAdherence,
     riskManagement,
     antiCorruptionTraining,
-    sustainabilityCommittee
+    sustainabilityCommittee,
+    antiCorruptionConvictions,
+    antiCorruptionSanctions
   } = reportData.conductMetrics || {};
 
   // B8: Compliance
@@ -43,13 +45,19 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     riskData.push({ name: 'Gestione Rischi', value: riskManagement });
   }
 
-  // B12: Ethics and sustainability
-  const ethicsData = [];
+  // B12: Anti-corruption
+  const antiCorruptionData = [];
+  if (antiCorruptionConvictions) {
+    antiCorruptionData.push({ name: 'Condanne', value: antiCorruptionConvictions });
+  }
+  if (antiCorruptionSanctions) {
+    antiCorruptionData.push({ name: 'Sanzioni (€)', value: antiCorruptionSanctions });
+  }
   if (antiCorruptionTraining) {
-    ethicsData.push({ name: 'Formazione Anticorruzione', value: antiCorruptionTraining });
+    antiCorruptionData.push({ name: 'Formazione\nAnticorruzione', value: antiCorruptionTraining });
   }
   if (sustainabilityCommittee) {
-    ethicsData.push({ name: 'Comitato Sostenibilità', value: sustainabilityCommittee });
+    antiCorruptionData.push({ name: 'Comitato\nSostenibilità', value: sustainabilityCommittee });
   }
 
   return (
@@ -95,11 +103,14 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
         />
         
         <MetricChart
-          title="B12 - Etica e Sostenibilità"
-          description="Formazione e governance della sostenibilità"
-          type={ethicsData.length > 0 ? "donut" : "empty"}
-          data={[{ ring: 'inner', data: ethicsData, colors: ['#007AFF', '#BF5AF2'] }]}
+          title="B12 - Anticorruzione"
+          description="Condanne, sanzioni e formazione anticorruzione"
+          type={antiCorruptionData.length > 0 ? "bar" : "empty"}
+          data={antiCorruptionData}
           dataKey="name"
+          categories={["value"]}
+          colors={['#FF3B30', '#FF9500', '#007AFF', '#BF5AF2']}
+          individualColors={true}
           onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'ethics' } })}
         />
       </div>
