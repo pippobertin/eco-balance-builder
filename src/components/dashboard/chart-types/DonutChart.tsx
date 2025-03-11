@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   PieChart,
@@ -49,9 +50,11 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
   
   const calculateRadius = (baseHeight: number) => {
     const baseFactor = baseHeight / 300;
-    const outerRadius = Math.min(100, 80 * baseFactor);
-    const innerRadius = Math.min(80, 60 * baseFactor);
-    const middleRadius = Math.min(90, 70 * baseFactor);
+    // Increase the size of both radii for thicker rings
+    const outerRadius = Math.min(120, 95 * baseFactor);
+    const innerRadius = Math.min(100, 75 * baseFactor);
+    // Increase the gap between rings by making the middle radius further from inner
+    const middleRadius = Math.min(110, 85 * baseFactor);
     return { outerRadius, innerRadius, middleRadius };
   };
   
@@ -74,7 +77,7 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
                 cy="50%"
                 innerRadius={ring.ring === 'inner' ? innerRadius : middleRadius}
                 outerRadius={ring.ring === 'inner' ? middleRadius : outerRadius}
-                paddingAngle={1}
+                paddingAngle={2} // Increased padding angle for better separation
                 strokeWidth={0.5}
               >
                 {ring.data.map((entry, index) => (
