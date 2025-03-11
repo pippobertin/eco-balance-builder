@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
 import { useReport } from '@/context/ReportContext';
 import MaterialityTabs from './MaterialityTabs';
 import MaterialityIssuesTab from './MaterialityIssuesTab';
@@ -9,8 +8,10 @@ import SurveyDialog from './SurveyDialog';
 import { useMaterialityIssues } from './hooks/useMaterialityIssues';
 import { useStakeholders } from './hooks/useStakeholders';
 import { useSurveyDialog } from './hooks/useSurveyDialog';
+import { useSurveyValidation } from './hooks/useSurveyValidation';
+import { useSurveyResponses } from './hooks/useSurveyResponses';
 import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from './utils/materialityUtils';
-import { SurveyResponse } from './types';
+import { calculateEsgScore } from './utils/calculateEsgScore';
 
 interface MaterialityAnalysisContainerProps {
   formValues: any;
@@ -21,11 +22,10 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
   formValues, 
   setFormValues 
 }) => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('issues');
   const { reportData, updateReportData } = useReport();
   
-  // Use custom hooks
+  // Use custom hooks for materiality issues
   const { 
     issues, 
     handleIssueChange, 
@@ -57,23 +57,7 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
     }
   );
   
-  // Calculate ESG score based on material issues
-  const calculateEsgScore = (issues: any[]) => {
-    const materialIssues = issues.filter(issue => issue.isMaterial);
-    if (materialIssues.length === 0) return 50;
-    
-    const totalScore = materialIssues.reduce((score, issue) => {
-      const impactScore = issue.impactRelevance || 0;
-      const financialScore = issue.financialRelevance || 0;
-      const stakeholderScore = issue.stakeholderRelevance || 0;
-      
-      // Weight the scores (stakeholder feedback has a higher weight)
-      return score + (impactScore * 0.4) + (financialScore * 0.3) + (stakeholderScore * 0.3);
-    }, 0);
-    
-    return Math.round(totalScore / materialIssues.length);
-  };
-  
+  // Use stakeholders hook
   const { 
     stakeholders, 
     addStakeholder, 
@@ -106,6 +90,7 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
   
   const materialIssues = issues.filter(issue => issue.isMaterial);
   
+  // Use survey dialog hook
   const { 
     surveyTemplate, 
     setSurveyTemplate, 
@@ -116,57 +101,36 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
     stakeholderGroups,
     forceResend,
     toggleForceResend,
-    openSurveyDialog,
     surveyProgress
   } = useSurveyDialog(materialIssues, stakeholders);
 
-  const openSurveyDialogWithValidation = () => {
-    if (materialIssues.length === 0) {
-      toast({
-        title: "Nessuna questione materiale",
-        description: "Devi identificare almeno una questione materiale prima di creare un sondaggio.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (stakeholders.length === 0) {
-      toast({
-        title: "Nessuno stakeholder",
-        description: "Devi aggiungere almeno uno stakeholder prima di creare un sondaggio.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    openSurveyDialog();
+  // Use survey validation hook
+  const {
+    validateSurveySending,
+    openSurveyDialog: validateAndOpenSurvey
+  } = useSurveyValidation();
+
+  // Use survey responses hook
+  const {
+    sendSurveys,
+    handleSurveyResponse
+  } = useSurveyResponses(
+    stakeholders,
+    updateStakeholderSurveyStatus,
+    updateIssuesWithStakeholderRelevance
+  );
+
+  // Open survey dialog with validation
+  const openSurveyDialog = () => {
+    validateAndOpenSurvey(materialIssues, stakeholders);
   };
   
-  const sendSurveys = () => {
-    if (selectedStakeholders.length === 0) {
-      toast({
-        title: "Nessuno stakeholder selezionato",
-        description: "Seleziona almeno uno stakeholder a cui inviare il sondaggio.",
-        variant: "destructive"
-      });
-      return;
+  // Handle survey sending
+  const handleSendSurveys = () => {
+    if (validateSurveySending(selectedStakeholders)) {
+      sendSurveys(selectedStakeholders);
+      setSurveyDialogOpen(false);
     }
-    
-    // Update stakeholder survey status
-    updateStakeholderSurveyStatus(selectedStakeholders, 'sent');
-    
-    // In a real application, here you would make an API call to send emails
-    console.log("Sending survey to stakeholders:", selectedStakeholders);
-    console.log("Survey template:", surveyTemplate);
-  };
-
-  // Handler for receiving survey responses from stakeholders
-  const handleSurveyResponse = (response: SurveyResponse) => {
-    // Process the response and update stakeholder status
-    const updatedIssues = processSurveyResponse(response, materialIssues);
-    
-    // Update issues with new stakeholder relevance data
-    updateIssuesWithStakeholderRelevance(updatedIssues);
   };
 
   return (
@@ -192,7 +156,7 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
           onStakeholderChange={handleStakeholderChange}
           onAddStakeholder={addStakeholder}
           onRemoveStakeholder={removeStakeholder}
-          onOpenSurveyDialog={openSurveyDialogWithValidation}
+          onOpenSurveyDialog={openSurveyDialog}
           getStakeholderPriorityColor={getStakeholderPriorityColor}
           getSurveyStatusColor={getSurveyStatusColor}
           getSurveyStatusText={getSurveyStatusText}
@@ -212,7 +176,7 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
         forceResend={forceResend}
         toggleForceResend={toggleForceResend}
         getStakeholderPriorityColor={getStakeholderPriorityColor}
-        onSendSurveys={sendSurveys}
+        onSendSurveys={handleSendSurveys}
       />
     </div>
   );
