@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/context/ReportContext';
 
 export const useReportForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const {
     reportData,
@@ -16,7 +17,12 @@ export const useReportForm = () => {
     saveSubsidiaries
   } = useReport();
   
-  const [activeTab, setActiveTab] = useState('company-info');
+  // Check if a specific tab is requested in the location state
+  const initialTab = location.state?.activeTab || 'company-info';
+  const initialSection = location.state?.section;
+  const initialField = location.state?.field;
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
   const [sustainabilityPractices, setSustainabilityPractices] = useState<string>('');
   const [formValues, setFormValues] = useState({
@@ -103,6 +109,9 @@ export const useReportForm = () => {
     setFormValues,
     handleSaveReport,
     saveBasicInfo,
-    saveMetrics
+    saveMetrics,
+    // Return the section and field for scrolling to the specific section
+    initialSection,
+    initialField
   };
 };

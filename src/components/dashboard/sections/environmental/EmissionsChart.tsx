@@ -64,7 +64,14 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
   const hasData = scopeData.length > 0 && totalData.length > 0;
   
   const handleTitleClick = () => {
-    navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'emissions' } });
+    // Ensure we navigate to the metrics tab and specify section and field
+    navigate('/report', { 
+      state: { 
+        activeTab: 'metrics',
+        section: 'environmental', 
+        field: 'emissions' 
+      } 
+    });
   };
 
   return (

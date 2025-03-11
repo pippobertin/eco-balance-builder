@@ -32,7 +32,9 @@ const Report = () => {
     setFormValues,
     handleSaveReport,
     saveBasicInfo,
-    saveMetrics
+    saveMetrics,
+    initialSection,
+    initialField
   } = useReportForm();
   
   const {
@@ -113,7 +115,9 @@ const Report = () => {
                 setFormValues={setFormValues} 
                 onPrevious={() => setActiveTab('basic-info')} 
                 onSave={saveMetricsWithSubsidiaries} 
-                selectedOption={currentReport?.report_type || 'A'} 
+                selectedOption={currentReport?.report_type || 'A'}
+                initialSection={initialSection}
+                initialField={initialField}
               />
             </TabsContent>
           </Tabs>
