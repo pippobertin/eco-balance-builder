@@ -13,45 +13,63 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
   totalScope2Emissions,
   totalScope3Emissions
 }) => {
-  // Prepare data for emissions chart
-  const emissionsData = [];
+  // Calculate total emissions
+  const total = [totalScope1Emissions, totalScope2Emissions, totalScope3Emissions]
+    .filter((val): val is number => typeof val === 'number')
+    .reduce((sum, val) => sum + val, 0);
+
+  // Prepare data for emissions chart - inner ring (breakdown by scope)
+  const scopeData = [];
   
   if (totalScope1Emissions || totalScope2Emissions || totalScope3Emissions) {
     if (totalScope1Emissions !== undefined) {
-      emissionsData.push({
+      scopeData.push({
         name: 'Scope 1',
         value: typeof totalScope1Emissions === 'number' ? totalScope1Emissions : 0
       });
     }
     
     if (totalScope2Emissions !== undefined) {
-      emissionsData.push({
+      scopeData.push({
         name: 'Scope 2',
         value: typeof totalScope2Emissions === 'number' ? totalScope2Emissions : 0
       });
     }
     
     if (totalScope3Emissions !== undefined) {
-      emissionsData.push({
+      scopeData.push({
         name: 'Scope 3',
         value: typeof totalScope3Emissions === 'number' ? totalScope3Emissions : 0
       });
     }
   }
 
+  // Prepare outer ring data (total emissions)
+  const totalData = total > 0 ? [
+    {
+      name: 'Totale Emissioni',
+      value: total
+    }
+  ] : [];
+
+  // Use a softer color palette
+  const innerColors = ['#D946EF', '#F97316', '#0EA5E9'];
+  const outerColors = ['#8B5CF6'];
+
   return (
     <MetricChart
       title="Emissioni GHG (B3)"
-      description="Suddivisione delle emissioni di gas serra per scope"
-      type={emissionsData.length > 0 ? "bar" : "empty"}
-      data={emissionsData}
+      description="Emissioni di gas serra per scope e totali"
+      type="donut"
+      data={[
+        { ring: 'inner', data: scopeData, colors: innerColors },
+        { ring: 'outer', data: totalData, colors: outerColors }
+      ]}
       dataKey="name"
-      categories={["value"]}
-      colors={["#8B5CF6", "#D946EF", "#F97316", "#0EA5E9", "#34C759"]}
-      individualColors={true}
       hideLegend={true}
     />
   );
 };
 
 export default EmissionsChart;
+

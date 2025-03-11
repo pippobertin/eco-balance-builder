@@ -17,13 +17,19 @@ import {
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
 // Define supported chart types
-type ChartType = 'area' | 'bar' | 'pie' | 'empty';
+type ChartType = 'area' | 'bar' | 'pie' | 'donut' | 'empty';
+
+interface RingData {
+  ring: 'inner' | 'outer';
+  data: any[];
+  colors: string[];
+}
 
 interface MetricChartProps {
   title: string;
   description?: string;
   type: ChartType;
-  data: any[];
+  data: any[] | RingData[];
   dataKey: string;
   categories?: string[];
   colors?: string[];
@@ -93,6 +99,38 @@ const MetricChart = ({
     }
     
     switch (type) {
+      case 'donut': {
+        const ringData = data as RingData[];
+        return (
+          <ResponsiveContainer width="100%" height={height}>
+            <PieChart>
+              {ringData.map((ring, ringIndex) => (
+                <Pie
+                  key={ring.ring}
+                  data={ring.data}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={ring.ring === 'inner' ? 60 : 100}
+                  outerRadius={ring.ring === 'inner' ? 90 : 130}
+                  paddingAngle={2}
+                >
+                  {ring.data.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={ring.colors[index % ring.colors.length]}
+                    />
+                  ))}
+                </Pie>
+              ))}
+              <Tooltip content={renderTooltip} />
+              {!hideLegend && <Legend />}
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      }
+      
       case 'area':
         return (
           <ResponsiveContainer width="100%" height={height}>
