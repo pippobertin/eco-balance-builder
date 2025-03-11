@@ -37,9 +37,20 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
     );
   };
   
+  // Calculate reasonable size for the chart based on available height
+  const calculateRadius = (baseHeight: number) => {
+    const baseFactor = baseHeight / 300; // 300px is our reference height
+    const outerRadius = Math.min(100, 80 * baseFactor);
+    const innerRadius = Math.min(60, 40 * baseFactor);
+    const middleRadius = Math.min(90, 70 * baseFactor);
+    return { outerRadius, innerRadius, middleRadius };
+  };
+  
+  const { outerRadius, innerRadius, middleRadius } = calculateRadius(height);
+  
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
+      <PieChart margin={{ top: 5, right: 5, bottom: 20, left: 5 }}>
         {ringData.map((ring) => (
           <Pie
             key={ring.ring}
@@ -47,9 +58,9 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
             dataKey="value"
             nameKey="name"
             cx="50%"
-            cy="50%"
-            innerRadius={ring.ring === 'inner' ? 60 : 100}
-            outerRadius={ring.ring === 'inner' ? 90 : 130}
+            cy="45%" // Move chart up slightly to make room for legend
+            innerRadius={ring.ring === 'inner' ? innerRadius : middleRadius}
+            outerRadius={ring.ring === 'inner' ? middleRadius : outerRadius}
             paddingAngle={2}
           >
             {ring.data.map((entry, index) => (
@@ -61,7 +72,7 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
           </Pie>
         ))}
         <Tooltip content={renderTooltip} />
-        {!hideLegend && <Legend content={renderCustomLegend} />}
+        {!hideLegend && <Legend content={renderCustomLegend} verticalAlign="bottom" height={36} />}
       </PieChart>
     </ResponsiveContainer>
   );

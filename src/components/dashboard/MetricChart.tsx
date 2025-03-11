@@ -28,6 +28,16 @@ const MetricChart = ({
   
   const renderTooltip = (props: any) => createDefaultTooltip(props, tooltipFormatter);
   
+  // Adjust chart height based on presence of description and legend
+  const calculateChartHeight = () => {
+    let baseHeight = height;
+    if (description) baseHeight -= 20; // Allow space for description
+    if (!hideLegend) baseHeight -= 40; // Allow space for legend
+    return Math.max(180, baseHeight); // Ensure minimum reasonable height
+  };
+  
+  const chartHeight = calculateChartHeight();
+  
   const renderChart = () => {
     if (!hasData && type !== 'empty') {
       return renderEmptyState();
@@ -42,7 +52,7 @@ const MetricChart = ({
             categories={categories}
             colors={colors}
             individualColors={individualColors}
-            height={height}
+            height={chartHeight}
             hideLegend={hideLegend}
             renderTooltip={renderTooltip}
           />
@@ -55,7 +65,7 @@ const MetricChart = ({
             dataKey={dataKey}
             categories={categories}
             colors={colors}
-            height={height}
+            height={chartHeight}
             hideLegend={hideLegend}
             renderTooltip={renderTooltip}
           />
@@ -69,7 +79,7 @@ const MetricChart = ({
             categories={categories}
             colors={colors}
             individualColors={individualColors}
-            height={height}
+            height={chartHeight}
             hideLegend={hideLegend}
             renderTooltip={renderTooltip}
           />
@@ -82,7 +92,7 @@ const MetricChart = ({
             dataKey={dataKey}
             categories={categories}
             colors={colors}
-            height={height}
+            height={chartHeight}
             hideLegend={hideLegend}
             renderTooltip={renderTooltip}
           />
@@ -107,7 +117,7 @@ const MetricChart = ({
         </div>
       }
     >
-      <div className="pt-4">
+      <div className="pt-1 pb-1 h-full">
         {renderChart()}
       </div>
     </GlassmorphicCard>

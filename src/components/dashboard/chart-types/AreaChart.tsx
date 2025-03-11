@@ -23,9 +23,17 @@ const AreaChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const chartColors = colors.length > 0 ? colors : ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   
+  // Adjust margins based on height
+  const margins = {
+    top: 10,
+    right: 10,
+    left: 0,
+    bottom: height < 250 ? 10 : 20
+  };
+  
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsAreaChart data={data as any[]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+      <RechartsAreaChart data={data as any[]} margin={margins}>
         <defs>
           {categories.map((category, index) => (
             <linearGradient key={index} id={`color-${category}`} x1="0" y1="0" x2="0" y2="1">
@@ -35,10 +43,29 @@ const AreaChartComponent: React.FC<ChartComponentProps> = ({
           ))}
         </defs>
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-        <XAxis dataKey={dataKey} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+        <XAxis 
+          dataKey={dataKey} 
+          tick={{ fontSize: height < 250 ? 10 : 12 }} 
+          axisLine={false} 
+          tickLine={false}
+          height={height < 200 ? 15 : 30}
+          interval={0} // Show all ticks
+          tickMargin={5}
+        />
+        <YAxis 
+          tick={{ fontSize: height < 250 ? 10 : 12 }} 
+          axisLine={false} 
+          tickLine={false}
+          width={25}
+        />
         <Tooltip content={renderTooltip} />
-        {!hideLegend && <Legend />}
+        {!hideLegend && (
+          <Legend 
+            wrapperStyle={{ fontSize: height < 200 ? 10 : 12 }}
+            verticalAlign="bottom"
+            height={20}
+          />
+        )}
         {categories.map((category, index) => (
           <Area
             key={index}
