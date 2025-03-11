@@ -75,6 +75,8 @@ export interface ReportData {
     totalEmployees?: number;
     permanentEmployees?: number;
     temporaryEmployees?: number;
+    fullTimeEmployees?: number; // Added
+    partTimeEmployees?: number; // Added
     avgTrainingHoursMale?: number;
     avgTrainingHoursFemale?: number;
     employeesByCountry?: string;
@@ -91,11 +93,18 @@ export interface ReportData {
     totalEmployeesFTE?: number;
     supplyChainImpactProcess?: string;
     identifiedImpacts?: string;
+    employeeTurnover?: number; // Added
+    workAccidents?: number; // Added
   };
   conductMetrics: {
     governanceCompliance?: number;
     policyAdherence?: number;
     riskManagement?: number;
+    codeOfConductViolations?: number; // Added
+    antiCorruptionTraining?: number; // Added
+    boardDiversity?: number; // Added
+    executivePayRatio?: number; // Added
+    sustainabilityCommittee?: number; // Added
   };
   materialityAnalysis: {
     issues?: MaterialityIssue[];
