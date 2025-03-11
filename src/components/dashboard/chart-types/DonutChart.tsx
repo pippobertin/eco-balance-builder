@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   PieChart,
@@ -17,7 +16,6 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const ringData = data as RingData[];
   
-  // Ensure we have valid data
   if (!Array.isArray(ringData) || ringData.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -26,9 +24,7 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
     );
   }
   
-  // Custom legend that renders colored squares
   const renderCustomLegend = () => {
-    // Extract all items from all rings
     const legendItems = ringData.flatMap(ring => 
       ring.data.map((item, index) => ({
         name: item.name,
@@ -51,18 +47,16 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
     );
   };
   
-  // Calculate reasonable size for the chart based on available height
   const calculateRadius = (baseHeight: number) => {
     const baseFactor = baseHeight / 300;
-    const outerRadius = Math.min(95, 75 * baseFactor);
-    const innerRadius = Math.min(75, 55 * baseFactor);
-    const middleRadius = Math.min(85, 65 * baseFactor);
+    const outerRadius = Math.min(100, 80 * baseFactor);
+    const innerRadius = Math.min(80, 60 * baseFactor);
+    const middleRadius = Math.min(90, 70 * baseFactor);
     return { outerRadius, innerRadius, middleRadius };
   };
   
   const { outerRadius, innerRadius, middleRadius } = calculateRadius(height);
   
-  // Adjust chart height based on legend visibility
   const chartHeight = hideLegend ? height : height - 40;
   
   return (

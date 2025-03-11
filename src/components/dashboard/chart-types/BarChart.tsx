@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BarChart as RechartsBarChart,
@@ -25,7 +24,6 @@ const BarChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const chartColors = colors.length > 0 ? colors : ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   
-  // Ensure we have valid data
   if (!Array.isArray(data) || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -35,23 +33,22 @@ const BarChartComponent: React.FC<ChartComponentProps> = ({
   }
   
   const margins = {
-    top: 5,
-    right: 5,
-    left: 0,
-    bottom: hideLegend ? 5 : 25
+    top: 20,
+    right: 20,
+    left: 20,
+    bottom: hideLegend ? 20 : 40
   };
   
-  // Adjust chart height based on legend visibility
-  const chartHeight = hideLegend ? height : height - 40;
+  const chartHeight = hideLegend ? height : height - 32;
   
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-grow" style={{ height: `${chartHeight}px` }}>
+      <div className="flex-grow" style={{ height: `${chartHeight}px`, minHeight: '220px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <RechartsBarChart 
             data={data as any[]} 
             margin={margins}
-            barSize={16}
+            barSize={20}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
             <XAxis 

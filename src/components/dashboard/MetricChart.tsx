@@ -1,4 +1,3 @@
-
 import React from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { ChartType, MetricChartProps, RingData } from './chart-types/ChartTypes';
@@ -33,9 +32,9 @@ const MetricChart = ({
   // Adjust chart height based on presence of description and legend
   const calculateChartHeight = () => {
     let baseHeight = height;
-    if (description) baseHeight -= 20; // Allow space for description
-    if (!hideLegend) baseHeight -= 40; // Allow space for legend
-    return Math.max(180, baseHeight); // Ensure minimum reasonable height
+    if (description) baseHeight -= 24; // Reduced space for description
+    if (!hideLegend) baseHeight -= 32; // Reduced space for legend
+    return Math.max(220, baseHeight); // Increased minimum height
   };
   
   const chartHeight = calculateChartHeight();
