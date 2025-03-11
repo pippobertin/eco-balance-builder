@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowLeft, FileText, Target, Leaf, Users, Building2, Briefcase, Info } from 'lucide-react';
@@ -17,6 +17,8 @@ interface BaseModuleMetricsProps {
   onPrevious: () => void;
   onSave: () => void;
   selectedOption: string;
+  initialSection?: string;
+  initialField?: string;
 }
 
 const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
@@ -24,7 +26,9 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   setFormValues,
   onPrevious,
   onSave,
-  selectedOption
+  selectedOption,
+  initialSection,
+  initialField
 }) => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality' | 'business-partners'>('environmental');
@@ -40,6 +44,40 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       setActiveSection('environmental');
     }
   }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
+
+  // Set the initial active section based on the initialSection prop
+  useEffect(() => {
+    if (initialSection) {
+      switch(initialSection) {
+        case 'environmental':
+          setActiveSection('environmental');
+          break;
+        case 'social':
+          setActiveSection('social');
+          break;
+        case 'conduct':
+          setActiveSection('conduct');
+          break;
+        case 'narrative':
+          if (showNarrativeModule) {
+            setActiveSection('narrative');
+          }
+          break;
+        case 'materiality':
+          if (showMaterialityAnalysis) {
+            setActiveSection('materiality');
+          }
+          break;
+        case 'business-partners':
+          if (showBusinessPartnersModule) {
+            setActiveSection('business-partners');
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }, [initialSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
   
   const handleSave = () => {
     toast({
@@ -117,11 +155,11 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           </Button>}
       </div>
 
-      {activeSection === 'environmental' && <EnvironmentalMetrics formValues={formValues} setFormValues={setFormValues} />}
+      {activeSection === 'environmental' && <EnvironmentalMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'environmental' ? initialField : undefined} />}
       
-      {activeSection === 'social' && <SocialMetrics formValues={formValues} setFormValues={setFormValues} />}
+      {activeSection === 'social' && <SocialMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'social' ? initialField : undefined} />}
       
-      {activeSection === 'conduct' && <ConductMetrics formValues={formValues} setFormValues={setFormValues} />}
+      {activeSection === 'conduct' && <ConductMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'conduct' ? initialField : undefined} />}
       
       {activeSection === 'materiality' && showMaterialityAnalysis && <MaterialityAnalysis formValues={formValues} setFormValues={setFormValues} />}
       
