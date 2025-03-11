@@ -106,6 +106,19 @@ export interface ReportData {
     executivePayRatio?: number; // Added
     sustainabilityCommittee?: number; // Added
   };
+  businessPartnersMetrics?: {
+    totalSuppliers?: number;
+    localSuppliers?: number;
+    internationalSuppliers?: number;
+    certifiedSuppliers?: number;
+    suppliersWithEsgRating?: number;
+    criticalSuppliers?: number;
+    avgPaymentTime?: number;
+    avgContractDuration?: number;
+    positiveEsgImpactSuppliers?: number;
+    negativeEsgImpactSuppliers?: number;
+    totalSuppliersScreened?: number;
+  };
   materialityAnalysis: {
     issues?: MaterialityIssue[];
     stakeholders?: Stakeholder[];
@@ -140,6 +153,7 @@ export const defaultReportData: ReportData = {
   environmentalMetrics: {},
   socialMetrics: {},
   conductMetrics: {},
+  businessPartnersMetrics: {},
   materialityAnalysis: {
     issues: [],
     stakeholders: []
