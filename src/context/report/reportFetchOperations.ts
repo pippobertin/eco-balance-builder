@@ -4,6 +4,9 @@ import { Report, Subsidiary } from '../types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
+// Track in-flight requests to avoid duplicates
+const activeLoadRequests = new Map();
+
 export const useReportFetchOperations = () => {
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
@@ -16,9 +19,19 @@ export const useReportFetchOperations = () => {
         return [];
       }
 
+      // Generate a cache key for this request
+      const cacheKey = `loadReports-${companyId}-${user.id}`;
+      
+      // If this exact request is already in progress, return the promise
+      if (activeLoadRequests.has(cacheKey)) {
+        console.log(`Re-using in-flight request for ${cacheKey}`);
+        return activeLoadRequests.get(cacheKey);
+      }
+
       console.log("Loading reports for company", companyId, "isAdmin:", isAdmin);
       
-      return await withRetry(async () => {
+      // Create the promise for this request
+      const reportsPromise = withRetry(async () => {
         let query = supabase
           .from('reports')
           .select('*, companies!inner(created_by)')
@@ -49,7 +62,19 @@ export const useReportFetchOperations = () => {
         }).filter(Boolean); // Filter out null values
 
         return cleanedData || [];
-      }, 2, 200); // Further reduce number of retries and initial delay
+      }, 2, 200);
+      
+      // Store the promise in the cache
+      activeLoadRequests.set(cacheKey, reportsPromise);
+      
+      // Remove from cache when complete
+      reportsPromise.finally(() => {
+        setTimeout(() => {
+          activeLoadRequests.delete(cacheKey);
+        }, 100);
+      });
+      
+      return await reportsPromise;
     } catch (error: any) {
       console.error('Error loading reports:', error.message);
       toast({
@@ -68,7 +93,17 @@ export const useReportFetchOperations = () => {
         return { report: null };
       }
 
-      return await withRetry(async () => {
+      // Generate a cache key for this request
+      const cacheKey = `loadReport-${reportId}-${user.id}`;
+      
+      // If this exact request is already in progress, return the promise
+      if (activeLoadRequests.has(cacheKey)) {
+        console.log(`Re-using in-flight request for ${cacheKey}`);
+        return activeLoadRequests.get(cacheKey);
+      }
+
+      // Create the promise for this request
+      const reportPromise = withRetry(async () => {
         let query = supabase
           .from('reports')
           .select('*, companies!inner(created_by)')
@@ -111,7 +146,19 @@ export const useReportFetchOperations = () => {
         }
 
         return { report: null };
-      }, 2, 200); // Keep reduced retries and delay
+      }, 2, 200);
+      
+      // Store the promise in the cache
+      activeLoadRequests.set(cacheKey, reportPromise);
+      
+      // Remove from cache when complete
+      reportPromise.finally(() => {
+        setTimeout(() => {
+          activeLoadRequests.delete(cacheKey);
+        }, 100);
+      });
+      
+      return await reportPromise;
     } catch (error: any) {
       console.error('Error loading report:', error.message);
       toast({

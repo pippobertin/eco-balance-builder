@@ -39,13 +39,22 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
         }
       }
       
+      // Hash the request key if it's too long to avoid memory leaks
+      if (requestKey.length > 512) {
+        requestKey = requestKey.substring(0, 100) + '-' + requestKey.length;
+      }
+      
       // If an identical request is already in progress, return a promise that resolves
       // when the original request completes
       if (ongoingRequests.has(requestKey)) {
-        console.log(`Request ${requestKey.substring(0, 50)}... already in progress, waiting for completion`);
-        return ongoingRequests.get(requestKey).then(async response => {
-          // Must clone the response so multiple readers can consume it
-          return response.clone();
+        console.log(`Request ${requestKey.substring(0, 30)}... already in progress, waiting for completion`);
+        return ongoingRequests.get(requestKey).then(response => {
+          // Create a new response object by cloning all the properties
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+          });
         });
       }
       
@@ -63,7 +72,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
         })
         .then(response => {
           clearTimeout(timeoutId);
-          resolve(response);
+          // Store a clone of the response to reuse if needed
+          const clonedResponse = response.clone();
+          resolve(clonedResponse);
         })
         .catch(error => {
           clearTimeout(timeoutId);
@@ -78,7 +89,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       fetchPromise.finally(() => {
         setTimeout(() => {
           ongoingRequests.delete(requestKey);
-        }, 100); // Small delay to ensure response cloning completed
+        }, 100); // Small delay to ensure all cloning operations are complete
       });
       
       return fetchPromise;
@@ -103,6 +114,8 @@ export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) =
         error.message?.includes('network') ||
         error.message?.includes('connection') ||
         error.message?.includes('body stream already read') ||
+        error.message?.includes('clone') ||
+        error.message?.includes('Response body is already used') ||
         error.message?.includes('timeout') ||
         error.code === 'TIMEOUT' ||
         error.name === 'AbortError';
