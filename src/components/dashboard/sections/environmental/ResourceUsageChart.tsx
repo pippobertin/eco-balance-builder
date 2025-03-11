@@ -17,14 +17,14 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
   if (waterUsage || wasteGeneration) {
     if (waterUsage !== undefined) {
       resourceData.push({
-        name: 'Utilizzo Acqua',
+        name: 'Acqua',
         value: typeof waterUsage === 'number' ? waterUsage : 0
       });
     }
     
     if (wasteGeneration !== undefined) {
       resourceData.push({
-        name: 'Generazione Rifiuti',
+        name: 'Rifiuti',
         value: typeof wasteGeneration === 'number' ? wasteGeneration : 0
       });
     }
@@ -40,6 +40,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       categories={["value"]}
       colors={["#5AC8FA", "#FF9500", "#D946EF", "#0EA5E9"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

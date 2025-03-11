@@ -17,14 +17,14 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
   if (energyConsumption || renewableEnergy) {
     if (energyConsumption !== undefined) {
       energyData.push({
-        name: 'Consumo Totale',
+        name: 'Totale',
         value: typeof energyConsumption === 'number' ? energyConsumption : 0
       });
     }
     
     if (renewableEnergy !== undefined) {
       energyData.push({
-        name: 'Energia Rinnovabile',
+        name: 'Rinnovabile',
         value: typeof renewableEnergy === 'number' ? renewableEnergy : 0
       });
     }
@@ -40,6 +40,7 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
       categories={["value"]}
       colors={["#F97316", "#34C759", "#0EA5E9", "#8B5CF6"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

@@ -17,7 +17,7 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
   if (permanentEmployees || temporaryEmployees) {
     if (permanentEmployees) {
       contractData.push({
-        name: 'Dipendenti a Tempo Indeterminato',
+        name: 'Tempo\nIndeterminato',
         value: typeof permanentEmployees === 'number' ? permanentEmployees : 
                typeof permanentEmployees === 'string' ? parseInt(permanentEmployees, 10) || 0 : 0
       });
@@ -25,7 +25,7 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
     
     if (temporaryEmployees) {
       contractData.push({
-        name: 'Dipendenti a Tempo Determinato',
+        name: 'Tempo\nDeterminato',
         value: typeof temporaryEmployees === 'number' ? temporaryEmployees : 
                typeof temporaryEmployees === 'string' ? parseInt(temporaryEmployees, 10) || 0 : 0
       });
@@ -42,6 +42,7 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
       categories={["value"]}
       colors={["#34C759", "#FF9500", "#8B5CF6", "#0EA5E9"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

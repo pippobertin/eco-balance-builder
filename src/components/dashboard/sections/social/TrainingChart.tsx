@@ -42,6 +42,7 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
       categories={["value"]}
       colors={["#0EA5E9", "#F472B6", "#9B87F5", "#FFA99F"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

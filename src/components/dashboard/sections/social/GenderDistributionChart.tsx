@@ -52,6 +52,7 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
       categories={["value"]}
       colors={["#0EA5E9", "#F472B6", "#BF5AF2"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

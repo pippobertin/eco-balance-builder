@@ -17,7 +17,7 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
   if (employeeTurnover || workAccidents) {
     if (employeeTurnover) {
       safetyData.push({
-        name: 'Turnover Dipendenti',
+        name: 'Turnover',
         value: typeof employeeTurnover === 'number' ? employeeTurnover : 
                typeof employeeTurnover === 'string' ? parseFloat(employeeTurnover) || 0 : 0
       });
@@ -25,7 +25,7 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
     
     if (workAccidents) {
       safetyData.push({
-        name: 'Incidenti sul Lavoro',
+        name: 'Incidenti',
         value: typeof workAccidents === 'number' ? workAccidents : 
                typeof workAccidents === 'string' ? parseInt(workAccidents, 10) || 0 : 0
       });
@@ -42,6 +42,7 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
       categories={["value"]}
       colors={["#FF9500", "#FF3B30", "#9B87F5", "#34C759"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

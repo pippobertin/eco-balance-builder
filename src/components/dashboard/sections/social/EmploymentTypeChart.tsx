@@ -42,6 +42,7 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
       categories={["value"]}
       colors={["#007AFF", "#5856D6", "#D946EF", "#F97316"]}
       individualColors={true}
+      hideLegend={true}
     />
   );
 };

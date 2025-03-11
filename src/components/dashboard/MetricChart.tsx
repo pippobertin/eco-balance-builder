@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   AreaChart,
@@ -30,6 +29,7 @@ interface MetricChartProps {
   colors?: string[];
   individualColors?: boolean;
   height?: number;
+  hideLegend?: boolean;
   tooltipFormatter?: (value: number, name: string, entry: any) => React.ReactNode;
 }
 
@@ -43,12 +43,12 @@ const MetricChart = ({
   colors = ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'],
   individualColors = false,
   height = 300,
+  hideLegend = false,
   tooltipFormatter,
 }: MetricChartProps) => {
   const defaultColors = ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   const chartColors = colors.length > 0 ? colors : defaultColors;
   
-  // Check if there's any non-zero data
   const hasData = data.some(item => 
     categories.some(category => 
       typeof item[category] === 'number' && item[category] > 0
@@ -64,7 +64,6 @@ const MetricChart = ({
   
   const renderTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      // Use custom tooltip formatter if provided
       if (tooltipFormatter && payload[0]) {
         return (
           <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
@@ -74,13 +73,12 @@ const MetricChart = ({
         );
       }
       
-      // Default tooltip
       return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
           <p className="font-medium text-gray-900">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="text-sm">
-              {entry.name}: {entry.value}
+              {entry.value}
             </p>
           ))}
         </div>
@@ -90,8 +88,6 @@ const MetricChart = ({
   };
   
   const renderChart = () => {
-    // If we have no data and the type is not explicitly set to "empty",
-    // let's return the empty state
     if (!hasData && type !== 'empty') {
       return renderEmptyState();
     }
@@ -113,6 +109,7 @@ const MetricChart = ({
               <XAxis dataKey={dataKey} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip content={renderTooltip} />
+              {!hideLegend && <Legend />}
               {categories.map((category, index) => (
                 <Area
                   key={index}
@@ -135,9 +132,8 @@ const MetricChart = ({
               <XAxis dataKey={dataKey} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip content={renderTooltip} />
-              <Legend />
+              {!hideLegend && <Legend />}
               {individualColors ? (
-                // Render each bar with individual colors
                 categories.map((category) => (
                   <Bar key={category} dataKey={category} radius={[4, 4, 0, 0]}>
                     {data.map((entry, index) => (
@@ -146,7 +142,6 @@ const MetricChart = ({
                   </Bar>
                 ))
               ) : (
-                // Render bars with category-based colors
                 categories.map((category, index) => (
                   <Bar
                     key={index}
@@ -180,6 +175,7 @@ const MetricChart = ({
                 ))}
               </Pie>
               <Tooltip content={renderTooltip} />
+              {!hideLegend && <Legend />}
             </PieChart>
           </ResponsiveContainer>
         );
