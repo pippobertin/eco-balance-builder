@@ -5,7 +5,7 @@ import { useReportOperations } from './reportOperations';
 import { useReportDataState } from './reportDataState';
 import { useReportEntityState } from './reportEntityState';
 import { localStorageUtils } from './localStorageUtils';
-import { ReportData, Subsidiary } from '../types';
+import { ReportData, Subsidiary, Company, Report } from '../types';
 
 export const useReportState = () => {
   // Initialize hooks
@@ -139,9 +139,9 @@ export const useReportState = () => {
   const loadReports = async (companyId: string): Promise<Report[]> => {
     setLoading(true);
     const data = await fetchReports(companyId);
-    setReports(data);
+    setReports(data as Report[]);
     setLoading(false);
-    return data;
+    return data as Report[];
   };
 
   // Create report
@@ -154,8 +154,8 @@ export const useReportState = () => {
       const { report: newReport } = await fetchReport(reportId);
       
       if (newReport) {
-        setReports(prev => [...prev, newReport]);
-        setCurrentReport(newReport);
+        setReports(prev => [...prev, newReport as Report]);
+        setCurrentReport(newReport as Report);
         
         // Initialize report data
         resetReportData();
@@ -172,7 +172,7 @@ export const useReportState = () => {
     const result = await fetchReport(reportId);
     
     if (result.report) {
-      setCurrentReport(result.report);
+      setCurrentReport(result.report as Report);
       
       // Load report data
       const newReportData: ReportData = {
@@ -187,7 +187,7 @@ export const useReportState = () => {
     }
     
     setLoading(false);
-    return result;
+    return result as {report: Report | null, subsidiaries?: Subsidiary[]};
   };
 
   // Save subsidiaries
