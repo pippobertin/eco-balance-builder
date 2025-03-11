@@ -12,10 +12,10 @@ const withRetry = async (operation, maxRetries = 3, delay = 1000) => {
     try {
       return await operation();
     } catch (error) {
-      if (error.message === 'Failed to fetch' && retries < maxRetries - 1) {
+      if ((error.message === 'Failed to fetch' || error.code === 'NETWORK_ERROR') && retries < maxRetries - 1) {
         console.log(`Network error, retrying operation (${retries + 1}/${maxRetries})...`);
         retries++;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, delay * (retries))); // Exponential backoff
       } else {
         throw error;
       }

@@ -11,6 +11,17 @@ export interface Company {
   contact_email?: string;
   contact_phone?: string;
   created_by?: string;
+  sector?: string;
+  ateco_code?: string;
+  nace_code?: string;
+  legal_form?: string;
+  collective_agreement?: string;
+  profile_about?: string;
+  profile_values?: string;
+  profile_mission?: string;
+  profile_vision?: string;
+  profile_value_chain?: string;
+  profile_value_creation_factors?: string;
 }
 
 export interface Report {

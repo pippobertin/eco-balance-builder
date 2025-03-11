@@ -15,10 +15,12 @@ import {
   Info, 
   FileText,
   Save,
-  FileBarChart
+  FileBarChart,
+  Building
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BaseModuleMetrics from '@/components/report/BaseModuleMetrics';
+import CompanyInformation from '@/components/report/CompanyInformation';
 import { useReport, Subsidiary } from '@/context/ReportContext';
 
 const Report = () => {
@@ -33,7 +35,7 @@ const Report = () => {
     saveSubsidiaries
   } = useReport();
   
-  const [activeTab, setActiveTab] = useState('basic-info');
+  const [activeTab, setActiveTab] = useState('company-info');
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
   const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({
@@ -204,10 +206,18 @@ const Report = () => {
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsTrigger value="company-info">Informazioni Azienda</TabsTrigger>
               <TabsTrigger value="basic-info">Informazioni Base</TabsTrigger>
               <TabsTrigger value="metrics">Metriche Base</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="company-info">
+              <CompanyInformation 
+                currentCompany={currentCompany}
+                onNext={() => setActiveTab('basic-info')}
+              />
+            </TabsContent>
 
             <TabsContent value="basic-info">
               <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
