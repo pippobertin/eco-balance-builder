@@ -23,8 +23,6 @@ export const useReportAutoSave = (
     
     const timer = setTimeout(async () => {
       await saveCurrentReport();
-      setNeedsSaving(false);
-      setLastSaved(new Date());
     }, 30000); // 30 seconds
     
     return () => clearTimeout(timer);

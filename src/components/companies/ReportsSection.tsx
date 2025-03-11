@@ -25,7 +25,10 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
     const loadReportsData = async () => {
       if (currentCompany) {
         try {
+          console.log("Loading reports for company:", currentCompany.id);
           const loadedReports = await loadReports(currentCompany.id);
+          console.log("Loaded reports:", loadedReports.length);
+          
           // If user can't access reports for this company
           if (loadedReports.length === 0 && !isAdmin && user && currentCompany.created_by) {
             const isOwnCompany = currentCompany.created_by === user.id;
@@ -44,7 +47,7 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
     
     setAccessError(false);
     loadReportsData();
-  }, [currentCompany, isAdmin, user]);
+  }, [currentCompany, isAdmin, user, loadReports]);
 
   const openDeleteDialog = (report: Report, e: React.MouseEvent) => {
     e.stopPropagation();

@@ -12,7 +12,7 @@ import { useReportDialogs } from '@/components/companies/hooks/useReportDialogs'
 import { Loader2 } from 'lucide-react';
 
 const Companies = () => {
-  const { loadCompanies } = useReport();
+  const { loadCompanies, companies } = useReport();
   const { isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { 
@@ -27,7 +27,9 @@ const Companies = () => {
     const fetchCompanies = async () => {
       setIsLoading(true);
       try {
+        console.log("Fetching companies");
         await loadCompanies();
+        console.log("Companies fetched:", companies.length);
       } catch (error) {
         console.error("Error fetching companies:", error);
       } finally {
@@ -36,7 +38,7 @@ const Companies = () => {
     };
     
     fetchCompanies();
-  }, []);
+  }, [loadCompanies]);
   
   return (
     <div className="min-h-screen flex flex-col">
