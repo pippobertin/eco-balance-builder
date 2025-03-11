@@ -39,8 +39,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           controller.abort();
-          reject(new Error('Request timeout after 15 seconds'));
-        }, 15000);
+          reject(new Error('Request timeout after 10 seconds'));
+        }, 10000);
         
         fetch(input, {
           ...init,
@@ -70,7 +70,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 // Improved retry logic with better error handling
-export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) => {
+export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) => {
   let retries = 0;
   let lastError;
   
@@ -102,7 +102,7 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
       }
       
       const delay = initialDelay * Math.pow(1.5, retries) * (0.9 + Math.random() * 0.2);
-      console.log(`Retrying operation in ${Math.round(delay)}ms...`);
+      console.log(`Retrying operation in ${Math.round(delay)}ms... (attempt ${retries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

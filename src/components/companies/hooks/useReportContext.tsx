@@ -22,13 +22,13 @@ export const useReportContext = () => {
   
   // One-way sync: Only update local state when context state changes
   useEffect(() => {
-    if (isInitialized && currentCompany && !isUpdatingRef.current) {
+    if (currentCompany && !isUpdatingRef.current) {
       // Only update if there's an actual change
       if (!selectedCompany || currentCompany.id !== selectedCompany.id) {
         setSelectedCompany(currentCompany);
       }
     }
-  }, [currentCompany, selectedCompany, isInitialized]);
+  }, [currentCompany, selectedCompany]);
   
   // Memoized function to select a company with update loop protection
   const selectCompany = useCallback((company: Company) => {
@@ -44,10 +44,10 @@ export const useReportContext = () => {
     setSelectedCompany(company);
     setCurrentCompany(company);
     
-    // Reset flag after next tick
+    // Reset flag after state updates have been processed
     setTimeout(() => {
       isUpdatingRef.current = false;
-    }, 0);
+    }, 50);
   }, [setCurrentCompany, selectedCompany]);
   
   return {

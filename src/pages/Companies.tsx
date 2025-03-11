@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
@@ -20,6 +20,7 @@ const Companies = () => {
   const [hasError, setHasError] = useState(false);
   const [loadingAttempts, setLoadingAttempts] = useState(0);
   const { toast } = useToast();
+  const loadingCompaniesRef = useRef(false);
   
   const { 
     reportToDelete, 
@@ -32,10 +33,13 @@ const Companies = () => {
   // Create a debounced fetch function to prevent multiple rapid calls
   const debouncedFetchCompanies = useCallback(
     debounce(async () => {
-      if (loadingAttempts > 0) {
+      // Skip if already loading
+      if (loadingCompaniesRef.current) {
         console.log("Skipping companies fetch - already loading");
         return;
       }
+      
+      loadingCompaniesRef.current = true;
       
       setIsLoading(true);
       setHasError(false);
@@ -54,29 +58,39 @@ const Companies = () => {
       } finally {
         setIsLoading(false);
         setLoadingAttempts(prev => prev + 1);
+        
+        // Reset loading ref after a delay to allow state updates to complete
+        setTimeout(() => {
+          loadingCompaniesRef.current = false;
+        }, 500);
       }
-    }, 1000),
+    }, 500),
     [loadCompanies, companies.length, loadingAttempts, toast]
   );
   
   // Initial load - only run once
   useEffect(() => {
-    console.log("Initial companies fetch");
-    debouncedFetchCompanies();
+    if (!loadingCompaniesRef.current) {
+      console.log("Initial companies fetch");
+      debouncedFetchCompanies();
+    }
+    
     // Cleanup function to cancel pending requests
     return () => {
       console.log("Companies page unmounting, cleanup");
     };
   }, []);
   
-  // Only retry on error
+  // Only retry on error with backoff
   useEffect(() => {
-    if (hasError && loadingAttempts < 5) {
-      const timeout = Math.min(2000 * Math.pow(1.5, loadingAttempts), 10000);
+    if (hasError && loadingAttempts < 3) { // Reduce max attempts from 5 to 3
+      const timeout = Math.min(2000 * Math.pow(1.5, loadingAttempts), 6000); // Reduce max timeout
       console.log(`Retrying companies fetch in ${timeout}ms (attempt ${loadingAttempts + 1})`);
       
       const timer = setTimeout(() => {
-        debouncedFetchCompanies();
+        if (!loadingCompaniesRef.current) {
+          debouncedFetchCompanies();
+        }
       }, timeout);
       
       return () => clearTimeout(timer);
@@ -109,13 +123,14 @@ const Companies = () => {
               <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-4" />
               <span className="text-gray-600">Caricamento in corso...</span>
             </div>
-          ) : hasError && loadingAttempts >= 5 ? (
+          ) : hasError && loadingAttempts >= 3 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <p className="text-red-500 mb-4">Si è verificato un problema di connessione al server.</p>
               <button 
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 onClick={() => {
                   setLoadingAttempts(0);
+                  loadingCompaniesRef.current = false;
                   debouncedFetchCompanies();
                 }}
               >

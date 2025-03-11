@@ -46,7 +46,7 @@ export const useReportFetchOperations = () => {
         });
 
         return cleanedData || [];
-      });
+      }, 3, 200); // Reduce number of retries and initial delay
     } catch (error: any) {
       console.error('Error loading reports:', error.message);
       toast({
@@ -103,7 +103,7 @@ export const useReportFetchOperations = () => {
         }
 
         return { report: null };
-      });
+      }, 2, 200); // Reduce retries and delay
     } catch (error: any) {
       console.error('Error loading report:', error.message);
       toast({

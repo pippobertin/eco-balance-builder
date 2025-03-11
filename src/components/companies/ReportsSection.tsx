@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { FileText, Plus, Briefcase, ShieldAlert, Loader2 } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import AddReportDialog from './dialogs/AddReportDialog';
 import ReportList from './ReportList';
 import { useReportContext } from './hooks/useReportContext';
 import { useAuth } from '@/context/AuthContext';
+import { debounce } from '@/integrations/supabase/client';
 
 interface ReportsSectionProps {
   setReportToDelete: (report: Report) => void;
@@ -21,9 +22,21 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
   const { user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [accessError, setAccessError] = useState(false);
+  const loadingRef = useRef(false);
+  const lastCompanyIdRef = useRef<string | null>(null);
   
   const loadReportsData = useCallback(async () => {
-    if (!currentCompany) return;
+    if (!currentCompany) {
+      return;
+    }
+    
+    // Skip if already loading or same company
+    if (loadingRef.current || lastCompanyIdRef.current === currentCompany.id) {
+      return;
+    }
+    
+    loadingRef.current = true;
+    lastCompanyIdRef.current = currentCompany.id;
     
     setIsLoading(true);
     setAccessError(false);
@@ -45,12 +58,27 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
       setAccessError(true);
     } finally {
       setIsLoading(false);
+      
+      // Reset loading flag after a delay to prevent rapid successive calls
+      setTimeout(() => {
+        loadingRef.current = false;
+      }, 300);
     }
   }, [currentCompany, isAdmin, user, loadReports]);
   
+  // Debounce the load function to prevent multiple rapid calls
+  const debouncedLoadReports = useCallback(
+    debounce(() => {
+      loadReportsData();
+    }, 300),
+    [loadReportsData]
+  );
+  
   useEffect(() => {
-    loadReportsData();
-  }, [loadReportsData]);
+    if (currentCompany && currentCompany.id) {
+      debouncedLoadReports();
+    }
+  }, [currentCompany, debouncedLoadReports]);
 
   const openDeleteDialog = (report: Report, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -118,4 +146,4 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
   );
 };
 
-export default ReportsSection;
+export default React.memo(ReportsSection);
