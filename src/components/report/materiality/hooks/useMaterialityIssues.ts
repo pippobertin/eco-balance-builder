@@ -8,13 +8,9 @@ export const useMaterialityIssues = (
   onUpdate: (issues: MaterialityIssue[]) => void
 ) => {
   const [issues, setIssues] = useState<MaterialityIssue[]>(
-    initialIssues || 
-    predefinedIssues.map(issue => ({
-      ...issue,
-      impactRelevance: 50,
-      financialRelevance: 50,
-      isMaterial: false
-    }))
+    initialIssues && initialIssues.length > 0 
+      ? initialIssues 
+      : []
   );
 
   useEffect(() => {
@@ -30,18 +26,37 @@ export const useMaterialityIssues = (
   };
 
   const addCustomIssue = (name: string, description: string) => {
-    const id = `custom-${Date.now()}`;
-    setIssues([
-      ...issues,
-      {
-        id,
-        name,
-        description,
-        impactRelevance: 50,
-        financialRelevance: 50,
-        isMaterial: false
-      }
-    ]);
+    // First check if this is a predefined issue
+    const predefinedIssue = predefinedIssues.find(
+      issue => issue.name === name && issue.description === description
+    );
+    
+    if (predefinedIssue) {
+      // If it's predefined, use its ID
+      setIssues([
+        ...issues,
+        {
+          ...predefinedIssue,
+          impactRelevance: 50,
+          financialRelevance: 50,
+          isMaterial: false
+        }
+      ]);
+    } else {
+      // If it's custom, generate a new ID
+      const id = `custom-${Date.now()}`;
+      setIssues([
+        ...issues,
+        {
+          id,
+          name,
+          description,
+          impactRelevance: 50,
+          financialRelevance: 50,
+          isMaterial: false
+        }
+      ]);
+    }
   };
 
   const removeIssue = (id: string) => {
