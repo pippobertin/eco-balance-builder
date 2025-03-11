@@ -91,7 +91,8 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
           data={emissionsData}
           dataKey="name"
           categories={["value"]}
-          colors={["#8B5CF6", "#D946EF", "#F97316"]} {/* Viola, Magenta, Arancione */}
+          colors={["#8B5CF6", "#D946EF", "#F97316"]} 
+          // Viola, Magenta, Arancione
         />
         
         {/* B4: Grafico consumi energetici */}

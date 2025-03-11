@@ -154,7 +154,8 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
           data={genderData}
           dataKey="name"
           categories={["value"]}
-          colors={["#0EA5E9", "#FFDEE2", "#BF5AF2"]} {/* Azzurro per uomini, Rosa per donne, Viola per altro */}
+          colors={["#0EA5E9", "#FFDEE2", "#BF5AF2"]} 
+          // Azzurro per uomini, Rosa per donne, Viola per altro
         />
         
         {/* Grafico tipo di contratto */}
@@ -187,7 +188,8 @@ const SocialSection: React.FC<SocialSectionProps> = ({ reportData, companyName }
           data={trainingData}
           dataKey="name"
           categories={["value"]}
-          colors={["#0EA5E9", "#FFDEE2"]} {/* Azzurro per uomini, Rosa per donne */}
+          colors={["#0EA5E9", "#FFDEE2"]} 
+          // Azzurro per uomini, Rosa per donne
         />
         
         {/* Grafico sicurezza */}
