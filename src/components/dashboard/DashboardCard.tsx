@@ -29,7 +29,10 @@ const DashboardCard = ({
   
   return (
     <GlassmorphicCard
-      className="w-full h-full cursor-pointer"
+      className={cn(
+        "w-full h-full",
+        onClick ? "cursor-pointer" : ""
+      )}
       glowColor={glowColor}
       onClick={onClick}
     >
