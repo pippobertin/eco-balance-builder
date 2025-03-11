@@ -52,9 +52,10 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
     const baseFactor = baseHeight / 300;
     // Increase the size of both radii for thicker rings
     const outerRadius = Math.min(120, 95 * baseFactor);
-    const innerRadius = Math.min(100, 75 * baseFactor);
-    // Increase the gap between rings by making the middle radius further from inner
-    const middleRadius = Math.min(110, 85 * baseFactor);
+    // Make the inner radius smaller to increase thickness
+    const innerRadius = Math.min(85, 60 * baseFactor);
+    // Increase space between rings by making middle radius closer to outer
+    const middleRadius = Math.min(105, 80 * baseFactor);
     return { outerRadius, innerRadius, middleRadius };
   };
   
@@ -77,7 +78,7 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
                 cy="50%"
                 innerRadius={ring.ring === 'inner' ? innerRadius : middleRadius}
                 outerRadius={ring.ring === 'inner' ? middleRadius : outerRadius}
-                paddingAngle={2} // Increased padding angle for better separation
+                paddingAngle={3} // Increased padding angle for better separation
                 strokeWidth={0.5}
               >
                 {ring.data.map((entry, index) => (
