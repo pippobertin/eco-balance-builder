@@ -18,13 +18,10 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
     localSuppliers,
     internationalSuppliers,
     certifiedSuppliers,
-    suppliersWithEsgRating,
-    criticalSuppliers,
-    avgPaymentTime,
-    avgContractDuration,
     positiveEsgImpactSuppliers,
     negativeEsgImpactSuppliers,
-    totalSuppliersScreened
+    avgPaymentTime,
+    avgContractDuration
   } = reportData.businessPartnersMetrics || {};
 
   // BP1-BP2: Suppliers distribution
@@ -55,12 +52,14 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
   }
 
   // BP10-BP11: Contract metrics
-  const contractData = [];
+  const paymentData = [];
   if (avgPaymentTime) {
-    contractData.push({ name: 'Tempo Pagamento', value: avgPaymentTime });
+    paymentData.push({ name: 'Tempo Medio Pagamento', value: avgPaymentTime });
   }
+
+  const contractData = [];
   if (avgContractDuration) {
-    contractData.push({ name: 'Durata Contratto', value: avgContractDuration });
+    contractData.push({ name: 'Durata Media Contratti', value: avgContractDuration });
   }
 
   return (
@@ -75,7 +74,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricChart
-          title="Distribuzione Fornitori (BP1-BP2)"
+          title="BP1-BP2 - Distribuzione Fornitori"
           description="Fornitori locali vs internazionali"
           type={suppliersData.length > 0 ? "donut" : "empty"}
           data={[
@@ -87,7 +86,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
         />
         
         <MetricChart
-          title="Fornitori Certificati (BP3)"
+          title="BP3 - Fornitori Certificati"
           description="Fornitori con certificazioni di qualità"
           type={certificationData.length > 0 ? "donut" : "empty"}
           data={[{ ring: 'inner', data: certificationData, colors: ['#34C759', '#FF3B30'] }]}
@@ -96,24 +95,33 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
         />
         
         <MetricChart
-          title="Impatto ESG (BP5-BP6)"
+          title="BP5-BP6 - Impatto ESG"
           description="Valutazione impatto ESG dei fornitori"
-          type={impactData.length > 0 ? "bar" : "empty"}
-          data={impactData}
+          type={impactData.length > 0 ? "donut" : "empty"}
+          data={[{ ring: 'inner', data: impactData, colors: ['#34C759', '#FF3B30'] }]}
           dataKey="name"
-          categories={["value"]}
-          colors={['#34C759', '#FF3B30']}
           onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'businessPartners', field: 'impact' } })}
         />
         
         <MetricChart
-          title="Metriche Contrattuali (BP10-BP11)"
-          description="Tempi medi di pagamento e durata contratti"
+          title="BP10 - Tempi di Pagamento"
+          description="Tempi medi di pagamento fornitori"
+          type={paymentData.length > 0 ? "bar" : "empty"}
+          data={paymentData}
+          dataKey="name"
+          categories={["value"]}
+          colors={['#007AFF']}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'businessPartners', field: 'payment' } })}
+        />
+
+        <MetricChart
+          title="BP11 - Durata Contratti"
+          description="Durata media dei contratti"
           type={contractData.length > 0 ? "bar" : "empty"}
           data={contractData}
           dataKey="name"
           categories={["value"]}
-          colors={['#007AFF', '#5856D6']}
+          colors={['#5856D6']}
           onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'businessPartners', field: 'contracts' } })}
         />
       </div>

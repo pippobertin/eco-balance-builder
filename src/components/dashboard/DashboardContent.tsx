@@ -22,21 +22,19 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ displayData, compan
       <DashboardSummaryCards reportData={displayData} />
       
       <div className="space-y-8 mt-8">
+        {/* Environmental Metrics (B3-B6) */}
         <EnvironmentalSection 
           reportData={displayData} 
           companyName={company.name} 
         />
         
-        <SocialSection 
-          reportData={displayData} 
-          companyName={company.name} 
-        />
-        
+        {/* Governance Metrics (B8-B12) */}
         <GovernanceSection 
           reportData={displayData} 
           companyName={company.name} 
         />
-
+        
+        {/* Business Partners Metrics (BP1-BP11) */}
         <BusinessPartnersSection 
           reportData={displayData} 
           companyName={company.name} 
