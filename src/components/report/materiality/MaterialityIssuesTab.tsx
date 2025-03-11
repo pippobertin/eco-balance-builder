@@ -5,6 +5,7 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
 import MaterialityReport from './MaterialityReport';
+import MaterialityMatrixChart from './MaterialityMatrixChart';
 import { MaterialityIssue } from './types';
 import { predefinedIssues } from './utils/materialityUtils';
 
@@ -54,6 +55,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         </div>
 
         <div className="space-y-8">
+          <MaterialityMatrixChart issues={issues} />
+          
           {issues.map((issue) => (
             <IssueItem 
               key={issue.id}
