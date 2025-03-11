@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Target, Filter, PlusCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
@@ -35,17 +34,14 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [selectedTheme, setSelectedTheme] = useState<string>('all');
   const [showPredefinedSelector, setShowPredefinedSelector] = useState(false);
   
-  // Get already added issue IDs for filtering out from predefined issues
   const addedIssueIds = issues.map(issue => issue.id);
   
-  // Filter issues by theme if a theme is selected
   const filteredIssues = selectedTheme === 'all' 
     ? issues 
     : issues.filter(issue => {
         const matchingPredefined = predefinedIssues.find(p => p.id === issue.id);
         if (!matchingPredefined) return false;
         
-        // Match based on issue id prefix that corresponds to themes
         if (selectedTheme === 'Cambiamenti climatici') return issue.id.startsWith('climate') || issue.id === 'energy';
         if (selectedTheme === 'Inquinamento') return issue.id.startsWith('pollution') || issue.id.includes('substances');
         if (selectedTheme === 'Acque e risorse marine') return issue.id.startsWith('water') || issue.id.includes('marine');
@@ -67,7 +63,6 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         return false;
       });
       
-  // Filter predefined issues by theme
   const getFilteredPredefinedIssues = () => {
     if (selectedTheme === 'all') return predefinedIssues.filter(issue => !addedIssueIds.includes(issue.id));
     
@@ -96,16 +91,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
     });
   };
   
-  // Add a predefined issue to the current issues
   const addPredefinedIssue = (predefinedIssue: MaterialityIssue) => {
-    const newIssue = {
-      ...predefinedIssue,
-      impactRelevance: 50,
-      financialRelevance: 50,
-      isMaterial: false
-    };
-    
-    onAddCustomIssue(newIssue.name, newIssue.description);
+    onAddCustomIssue(predefinedIssue.name, predefinedIssue.description);
   };
 
   return (
@@ -167,7 +154,6 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
           </Select>
         </div>
         
-        {/* Predefined issues selector */}
         {showPredefinedSelector && (
           <div className="mb-8 p-4 border border-dashed border-gray-300 rounded-lg">
             <h4 className="text-sm font-medium mb-3">Seleziona questioni predefinite da aggiungere</h4>

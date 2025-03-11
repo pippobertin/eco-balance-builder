@@ -32,18 +32,20 @@ export const useMaterialityIssues = (
     );
     
     if (predefinedIssue) {
-      // If it's predefined, use its ID
+      // If it's predefined, use its ID and add default values for required properties
       setIssues([
         ...issues,
         {
-          ...predefinedIssue,
+          id: predefinedIssue.id,
+          name: predefinedIssue.name,
+          description: predefinedIssue.description,
           impactRelevance: 50,
           financialRelevance: 50,
           isMaterial: false
         }
       ]);
     } else {
-      // If it's custom, generate a new ID
+      // If it's custom, generate a new ID and add default values for required properties
       const id = `custom-${Date.now()}`;
       setIssues([
         ...issues,
