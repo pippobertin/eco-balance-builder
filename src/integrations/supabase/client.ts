@@ -20,14 +20,29 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       const [input, init = {}] = args;
       
       // Generate a request key based on the URL and method
-      const requestKey = typeof input === 'string' 
-        ? `${init.method || 'GET'}-${input}` 
-        : `${init.method || 'GET'}-${input.url}`;
+      let requestKey;
+      if (typeof input === 'string') {
+        requestKey = `${init.method || 'GET'}-${input}`;
+      } else {
+        requestKey = `${init.method || 'GET'}-${input.url}`;
+      }
+      
+      // Add body to the request key if it exists (for POST/PUT/PATCH requests)
+      if (init.body) {
+        try {
+          // If body is JSON, add it to the key
+          const bodyStr = typeof init.body === 'string' ? init.body : JSON.stringify(init.body);
+          requestKey += `-${bodyStr}`;
+        } catch (e) {
+          // If body can't be stringified, use a hash of it
+          requestKey += `-${String(init.body).length}`;
+        }
+      }
       
       // If an identical request is already in progress, return a promise that resolves
       // when the original request completes
       if (ongoingRequests.has(requestKey)) {
-        console.log(`Request ${requestKey} already in progress, waiting for completion`);
+        console.log(`Request ${requestKey.substring(0, 50)}... already in progress, waiting for completion`);
         return ongoingRequests.get(requestKey).then(async response => {
           // Must clone the response so multiple readers can consume it
           return response.clone();
@@ -39,8 +54,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           controller.abort();
-          reject(new Error('Request timeout after 10 seconds'));
-        }, 10000);
+          reject(new Error('Request timeout after 8 seconds'));
+        }, 8000); // Reduced from 10s to 8s
         
         fetch(input, {
           ...init,
@@ -61,7 +76,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       
       // When the promise resolves or rejects, remove it from the map
       fetchPromise.finally(() => {
-        ongoingRequests.delete(requestKey);
+        setTimeout(() => {
+          ongoingRequests.delete(requestKey);
+        }, 100); // Small delay to ensure response cloning completed
       });
       
       return fetchPromise;
@@ -86,6 +103,7 @@ export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) =
         error.message?.includes('network') ||
         error.message?.includes('connection') ||
         error.message?.includes('body stream already read') ||
+        error.message?.includes('timeout') ||
         error.code === 'TIMEOUT' ||
         error.name === 'AbortError';
       
@@ -97,7 +115,7 @@ export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) =
       retries++;
       
       if (retries >= maxRetries) {
-        console.error(`Max retries reached, giving up`);
+        console.error(`Max retries (${maxRetries}) reached, giving up`);
         throw lastError;
       }
       
@@ -110,12 +128,18 @@ export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) =
   throw lastError;
 };
 
-// Create a utility to debounce function calls
-export const debounce = (func, wait) => {
+// Create a utility to debounce function calls with immediate option
+export const debounce = (func, wait, immediate = false) => {
   let timeout;
   return function(...args) {
     const context = this;
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
     clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
   };
 };

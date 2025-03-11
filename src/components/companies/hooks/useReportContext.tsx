@@ -21,10 +21,12 @@ export const useReportContext = () => {
   }, [currentCompany, isInitialized]);
   
   // One-way sync: Only update local state when context state changes
+  // and make sure we're not in the middle of an update
   useEffect(() => {
-    if (currentCompany && !isUpdatingRef.current) {
-      // Only update if there's an actual change
+    if (!isUpdatingRef.current && currentCompany) {
+      // Only update if there's an actual change to prevent unnecessary renders
       if (!selectedCompany || currentCompany.id !== selectedCompany.id) {
+        console.log('Syncing selectedCompany with currentCompany', currentCompany.name);
         setSelectedCompany(currentCompany);
       }
     }
@@ -36,6 +38,9 @@ export const useReportContext = () => {
     if (selectedCompany?.id === company.id) {
       return;
     }
+    
+    // Log the selection for debugging
+    console.log('Selecting company:', company.name);
     
     // Set flag to prevent loop
     isUpdatingRef.current = true;

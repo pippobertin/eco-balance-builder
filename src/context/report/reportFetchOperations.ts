@@ -12,6 +12,7 @@ export const useReportFetchOperations = () => {
   const loadReports = async (companyId: string): Promise<Report[]> => {
     try {
       if (!user) {
+        console.log("No user, returning empty reports array");
         return [];
       }
 
@@ -34,6 +35,7 @@ export const useReportFetchOperations = () => {
         const { data, error } = await query;
 
         if (error) {
+          console.error("Error in loading reports:", error.message);
           throw error;
         }
 
@@ -41,12 +43,13 @@ export const useReportFetchOperations = () => {
         
         // Remove the companies data from the result
         const cleanedData = data?.map(item => {
+          if (!item) return null;
           const { companies, ...reportData } = item;
           return reportData;
-        });
+        }).filter(Boolean); // Filter out null values
 
         return cleanedData || [];
-      }, 3, 200); // Reduce number of retries and initial delay
+      }, 2, 200); // Further reduce number of retries and initial delay
     } catch (error: any) {
       console.error('Error loading reports:', error.message);
       toast({
@@ -79,6 +82,7 @@ export const useReportFetchOperations = () => {
         const { data, error } = await query.maybeSingle();
 
         if (error) {
+          console.error("Error in loading report:", error.message);
           throw error;
         }
 
@@ -94,6 +98,10 @@ export const useReportFetchOperations = () => {
               .select('*')
               .eq('report_id', reportId);
             
+            if (subsError) {
+              console.error("Error loading subsidiaries:", subsError.message);
+            }
+            
             if (!subsError && subsData) {
               subsidiaries = subsData;
             }
@@ -103,7 +111,7 @@ export const useReportFetchOperations = () => {
         }
 
         return { report: null };
-      }, 2, 200); // Reduce retries and delay
+      }, 2, 200); // Keep reduced retries and delay
     } catch (error: any) {
       console.error('Error loading report:', error.message);
       toast({

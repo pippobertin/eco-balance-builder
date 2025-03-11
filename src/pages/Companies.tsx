@@ -62,33 +62,42 @@ const Companies = () => {
         // Reset loading ref after a delay to allow state updates to complete
         setTimeout(() => {
           loadingCompaniesRef.current = false;
-        }, 500);
+        }, 300); // Reduced from 500ms to 300ms for faster retries
       }
-    }, 500),
-    [loadCompanies, companies.length, loadingAttempts, toast]
+    }, 300), // Reduced from 500ms to 300ms for faster response
+    [loadCompanies, loadingAttempts, toast]
   );
   
   // Initial load - only run once
   useEffect(() => {
-    if (!loadingCompaniesRef.current) {
-      console.log("Initial companies fetch");
-      debouncedFetchCompanies();
-    }
+    console.log("Initial companies fetch");
+    debouncedFetchCompanies();
+    
+    // Add an additional timer to ensure companies load even if something goes wrong
+    const backupTimer = setTimeout(() => {
+      if (companies.length === 0 && !loadingCompaniesRef.current) {
+        console.log("Backup companies fetch triggered");
+        loadingCompaniesRef.current = false;
+        debouncedFetchCompanies();
+      }
+    }, 2000);
     
     // Cleanup function to cancel pending requests
     return () => {
       console.log("Companies page unmounting, cleanup");
+      clearTimeout(backupTimer);
     };
   }, []);
   
   // Only retry on error with backoff
   useEffect(() => {
-    if (hasError && loadingAttempts < 3) { // Reduce max attempts from 5 to 3
-      const timeout = Math.min(2000 * Math.pow(1.5, loadingAttempts), 6000); // Reduce max timeout
+    if (hasError && loadingAttempts < 3) {
+      const timeout = Math.min(1500 * Math.pow(1.5, loadingAttempts), 5000);
       console.log(`Retrying companies fetch in ${timeout}ms (attempt ${loadingAttempts + 1})`);
       
       const timer = setTimeout(() => {
         if (!loadingCompaniesRef.current) {
+          loadingCompaniesRef.current = false; // Force reset the flag
           debouncedFetchCompanies();
         }
       }, timeout);
@@ -96,6 +105,9 @@ const Companies = () => {
       return () => clearTimeout(timer);
     }
   }, [hasError, loadingAttempts, debouncedFetchCompanies]);
+  
+  // Ensure the companies state is not empty
+  const displayCompanies = companies.length > 0;
   
   return (
     <div className="min-h-screen flex flex-col">
