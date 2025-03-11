@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ReportData } from '@/context/types';
@@ -89,21 +88,21 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
-  // Navigation handlers - Fixed to navigate to the correct report section
+  // Navigation handlers - Corrected to navigate to the regular report page
   const handleComplianceClick = () => {
-    navigate('/report-form', { state: { section: 'conduct', field: 'compliance' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'compliance' } });
   };
   
   const handlePolicyRiskClick = () => {
-    navigate('/report-form', { state: { section: 'conduct', field: 'policyRisk' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'policyRisk' } });
   };
   
   const handleDiversityClick = () => {
-    navigate('/report-form', { state: { section: 'conduct', field: 'diversity' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'diversity' } });
   };
   
   const handleEthicsClick = () => {
-    navigate('/report-form', { state: { section: 'conduct', field: 'ethics' } });
+    navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'ethics' } });
   };
   
   return (
