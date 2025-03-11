@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, Info } from 'lucide-react';
+import { CircleDollarSign, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
 type WorkforceCompensationProps = {
@@ -14,12 +15,12 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
     return (
       <GlassmorphicCard>
         <div className="flex items-center mb-4" ref={ref}>
-          <GraduationCap className="mr-2 h-5 w-5 text-blue-500" />
+          <CircleDollarSign className="mr-2 h-5 w-5 text-green-500" />
           <h3 className="text-xl font-semibold">B10 - Forza lavoro - Retribuzione, contrattazione collettiva e formazione</h3>
         </div>
         
         <div className="space-y-4">
-          <div className="p-4 rounded-md mb-4 bg-orange-300">
+          <div className="p-4 rounded-md mb-4 bg-blue-100">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
               <p className="text-sm text-slate-600">

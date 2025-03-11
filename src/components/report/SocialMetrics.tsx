@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
+import { Users } from 'lucide-react';
 import WorkforceGeneral from './social/WorkforceGeneral';
 import WorkforceSafety from './social/WorkforceSafety';
 import WorkforceCompensation from './social/WorkforceCompensation';

@@ -21,7 +21,7 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
         </div>
         
         <div className="space-y-4">
-          <div className="p-4 rounded-md mb-4 bg-orange-300">
+          <div className="p-4 rounded-md mb-4 bg-blue-100">
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
               <p className="text-sm text-slate-600">
