@@ -25,6 +25,15 @@ const BarChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const chartColors = colors.length > 0 ? colors : ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   
+  // Ensure we have valid data
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Nessun dato disponibile</p>
+      </div>
+    );
+  }
+  
   const margins = {
     top: 5,
     right: 5,
@@ -32,9 +41,12 @@ const BarChartComponent: React.FC<ChartComponentProps> = ({
     bottom: hideLegend ? 5 : 25
   };
   
+  // Adjust chart height based on legend visibility
+  const chartHeight = hideLegend ? height : height - 40;
+  
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-grow" style={{ minHeight: height - (hideLegend ? 10 : 40) }}>
+      <div className="flex-grow" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
           <RechartsBarChart 
             data={data as any[]} 

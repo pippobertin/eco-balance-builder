@@ -22,9 +22,11 @@ const MetricChart = ({
   tooltipFormatter,
 }: MetricChartProps) => {
   const hasData = type !== 'empty' && 
-    (Array.isArray(data) && 'ring' in data[0] ? 
-      (data as RingData[]).some(ring => ring.data.length > 0) : 
-      hasValidData(data as any[], categories));
+    (Array.isArray(data) && data.length > 0 ? 
+      ('ring' in data[0] ? 
+        (data as RingData[]).some(ring => ring.data.length > 0) : 
+        hasValidData(data as any[], categories)) : 
+      false);
   
   const renderTooltip = (props: any) => createDefaultTooltip(props, tooltipFormatter);
   
@@ -108,7 +110,7 @@ const MetricChart = ({
   
   return (
     <GlassmorphicCard
-      className="w-full"
+      className="w-full h-full"
       hover={false}
       header={
         <div className="space-y-1.5">

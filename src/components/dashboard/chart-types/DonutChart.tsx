@@ -17,19 +17,34 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const ringData = data as RingData[];
   
+  // Ensure we have valid data
+  if (!Array.isArray(ringData) || ringData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Nessun dato disponibile</p>
+      </div>
+    );
+  }
+  
   // Custom legend that renders colored squares
-  const renderCustomLegend = (props: any) => {
-    const { payload } = props;
+  const renderCustomLegend = () => {
+    // Extract all items from all rings
+    const legendItems = ringData.flatMap(ring => 
+      ring.data.map((item, index) => ({
+        name: item.name,
+        color: ring.colors[index % ring.colors.length]
+      }))
+    );
     
     return (
-      <div className="flex flex-wrap justify-center gap-4 -mt-4">
-        {payload.map((entry: any, index: number) => (
+      <div className="flex flex-wrap justify-center gap-4 mt-2">
+        {legendItems.map((entry, index) => (
           <div key={`legend-${index}`} className="flex items-center">
             <div 
-              className="w-2.5 h-2.5 mr-1.5" 
+              className="w-3 h-3 mr-1.5" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-xs text-gray-600">{entry.value}</span>
+            <span className="text-xs text-gray-600">{entry.name}</span>
           </div>
         ))}
       </div>
@@ -47,9 +62,12 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
   
   const { outerRadius, innerRadius, middleRadius } = calculateRadius(height);
   
+  // Adjust chart height based on legend visibility
+  const chartHeight = hideLegend ? height : height - 40;
+  
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-grow" style={{ minHeight: height - 40 }}>
+      <div className="flex-grow" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
             {ringData.map((ring) => (
@@ -78,13 +96,8 @@ const DonutChartComponent: React.FC<ChartComponentProps> = ({
         </ResponsiveContainer>
       </div>
       {!hideLegend && (
-        <div className="h-12 flex items-center justify-center">
-          {renderCustomLegend({ payload: ringData.flatMap(ring => 
-            ring.data.map((item, index) => ({
-              value: item.name,
-              color: ring.colors[index % ring.colors.length]
-            }))
-          )})}
+        <div className="h-12 mt-2">
+          {renderCustomLegend()}
         </div>
       )}
     </div>

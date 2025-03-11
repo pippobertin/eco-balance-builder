@@ -24,7 +24,7 @@ export const createDefaultTooltip = ({ active, payload, label }: any, tooltipFor
         <p className="font-medium text-gray-900">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} style={{ color: entry.color }} className="text-sm">
-            {entry.value}
+            {`${entry.name}: ${entry.value}`}
           </p>
         ))}
       </div>
@@ -34,6 +34,10 @@ export const createDefaultTooltip = ({ active, payload, label }: any, tooltipFor
 };
 
 export const hasValidData = (data: any[], categories: string[] = ['value']) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return false;
+  }
+  
   return data.some(item => 
     categories.some(category => 
       typeof item[category] === 'number' && item[category] > 0

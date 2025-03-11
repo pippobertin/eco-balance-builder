@@ -19,6 +19,15 @@ const PieChartComponent: React.FC<ChartComponentProps> = ({
 }) => {
   const chartColors = colors.length > 0 ? colors : ['#0A84FF', '#5AC8FA', '#34C759', '#FF9500', '#FF2D55'];
   
+  // Ensure we have valid data
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Nessun dato disponibile</p>
+      </div>
+    );
+  }
+  
   // Calculate reasonable size for the chart based on available height
   const calculateRadius = (baseHeight: number) => {
     const baseFactor = baseHeight / 300;
@@ -29,9 +38,12 @@ const PieChartComponent: React.FC<ChartComponentProps> = ({
   
   const { outerRadius, innerRadius } = calculateRadius(height);
   
+  // Adjust chart height based on legend visibility
+  const chartHeight = hideLegend ? height : height - 40;
+  
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-grow" style={{ minHeight: height - 40 }}>
+      <div className="flex-grow" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
           <RechartsPieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
             <Pie
