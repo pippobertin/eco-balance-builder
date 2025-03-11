@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface SafetyChartProps {
@@ -11,6 +12,8 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
   employeeTurnover,
   workAccidents
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for safety chart
   const safetyData = [];
   
@@ -31,6 +34,10 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'social', field: 'safetyInfo' } });
+  };
 
   return (
     <MetricChart
@@ -43,6 +50,7 @@ const SafetyChart: React.FC<SafetyChartProps> = ({
       colors={["#FF9500", "#FF3B30", "#9B87F5", "#34C759"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

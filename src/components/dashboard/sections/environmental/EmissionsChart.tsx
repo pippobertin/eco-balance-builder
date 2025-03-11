@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface EmissionsChartProps {
@@ -13,6 +14,8 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
   totalScope2Emissions,
   totalScope3Emissions
 }) => {
+  const navigate = useNavigate();
+  
   // Filter out undefined values and convert them to 0
   const scope1Value = typeof totalScope1Emissions === 'number' ? totalScope1Emissions : 0;
   const scope2Value = typeof totalScope2Emissions === 'number' ? totalScope2Emissions : 0;
@@ -59,6 +62,10 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
 
   // Check if we have any data
   const hasData = scopeData.length > 0 && totalData.length > 0;
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'environmental', field: 'ghgEmissions' } });
+  };
 
   return (
     <MetricChart
@@ -71,6 +78,7 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
       ] : []}
       dataKey="name"
       hideLegend={false}
+      onTitleClick={handleTitleClick}
     />
   );
 };

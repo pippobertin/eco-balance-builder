@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface EnergyConsumptionChartProps {
@@ -11,6 +12,8 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
   energyConsumption,
   renewableEnergy
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for energy consumption chart
   const energyData = [];
   
@@ -29,6 +32,10 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'environmental', field: 'energyConsumption' } });
+  };
 
   return (
     <MetricChart
@@ -41,6 +48,7 @@ const EnergyConsumptionChart: React.FC<EnergyConsumptionChartProps> = ({
       colors={["#F97316", "#34C759", "#0EA5E9", "#8B5CF6"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

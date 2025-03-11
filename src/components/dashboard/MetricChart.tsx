@@ -1,3 +1,4 @@
+
 import React from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { ChartType, MetricChartProps, RingData } from './chart-types/ChartTypes';
@@ -19,7 +20,8 @@ const MetricChart = ({
   height = 300,
   hideLegend = false,
   tooltipFormatter,
-}: MetricChartProps) => {
+  onTitleClick,
+}: MetricChartProps & { onTitleClick?: () => void }) => {
   const hasData = type !== 'empty' && 
     (Array.isArray(data) && data.length > 0 ? 
       ('ring' in data[0] ? 
@@ -113,7 +115,16 @@ const MetricChart = ({
       hover={false}
       header={
         <div className="space-y-1.5">
-          <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+          {onTitleClick ? (
+            <h3 
+              className="text-lg font-medium text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
+              onClick={onTitleClick}
+            >
+              {title}
+            </h3>
+          ) : (
+            <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+          )}
           {description && <p className="text-sm text-gray-500">{description}</p>}
         </div>
       }

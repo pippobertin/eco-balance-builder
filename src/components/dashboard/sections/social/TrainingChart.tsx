@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface TrainingChartProps {
@@ -11,6 +12,8 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
   avgTrainingHoursMale,
   avgTrainingHoursFemale
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for training chart
   const trainingData = [];
   
@@ -31,6 +34,10 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'social', field: 'trainingInfo' } });
+  };
 
   return (
     <MetricChart
@@ -43,6 +50,7 @@ const TrainingChart: React.FC<TrainingChartProps> = ({
       colors={["#0EA5E9", "#F472B6", "#9B87F5", "#FFA99F"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

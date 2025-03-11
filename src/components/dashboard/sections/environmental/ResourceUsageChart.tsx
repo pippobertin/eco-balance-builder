@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface ResourceUsageChartProps {
@@ -11,6 +12,8 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
   waterUsage,
   wasteGeneration
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for resource usage chart
   const resourceData = [];
   
@@ -29,6 +32,10 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'environmental', field: 'resourceUsage' } });
+  };
 
   return (
     <MetricChart
@@ -41,6 +48,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       colors={["#5AC8FA", "#FF9500", "#D946EF", "#0EA5E9"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

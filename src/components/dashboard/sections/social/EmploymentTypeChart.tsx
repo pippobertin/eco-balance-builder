@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface EmploymentTypeChartProps {
@@ -11,6 +12,8 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
   fullTimeEmployees,
   partTimeEmployees
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for employment type chart
   const employmentData = [];
   
@@ -31,6 +34,10 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'social', field: 'employmentInfo' } });
+  };
 
   return (
     <MetricChart
@@ -43,6 +50,7 @@ const EmploymentTypeChart: React.FC<EmploymentTypeChartProps> = ({
       colors={["#007AFF", "#5856D6", "#D946EF", "#F97316"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface ContractTypeChartProps {
@@ -11,6 +12,8 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
   permanentEmployees,
   temporaryEmployees
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for contract type chart
   const contractData = [];
   
@@ -31,6 +34,10 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
       });
     }
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'social', field: 'employmentInfo' } });
+  };
 
   return (
     <MetricChart
@@ -43,6 +50,7 @@ const ContractTypeChart: React.FC<ContractTypeChartProps> = ({
       colors={["#34C759", "#FF9500", "#8B5CF6", "#0EA5E9"]}
       individualColors={true}
       hideLegend={true}
+      onTitleClick={handleTitleClick}
     />
   );
 };

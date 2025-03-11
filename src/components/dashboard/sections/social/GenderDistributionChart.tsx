@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricChart from '@/components/dashboard/MetricChart';
 
 interface GenderDistributionChartProps {
@@ -13,6 +14,8 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
   femaleEmployees,
   otherGenderEmployees
 }) => {
+  const navigate = useNavigate();
+  
   // Prepare data for gender distribution chart
   const genderData = [];
   
@@ -70,6 +73,10 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
       colors: ['#8E9196'] // Neutral gray for total
     });
   }
+  
+  const handleTitleClick = () => {
+    navigate('/report', { state: { section: 'social', field: 'employeeInfo' } });
+  };
 
   return (
     <MetricChart
@@ -82,6 +89,7 @@ const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
       colors={["#0EA5E9", "#F472B6", "#BF5AF2"]}
       individualColors={true}
       hideLegend={false}
+      onTitleClick={handleTitleClick}
     />
   );
 };

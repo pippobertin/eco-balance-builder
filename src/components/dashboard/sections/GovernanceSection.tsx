@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReportData } from '@/context/types';
 import { Shield } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
@@ -10,6 +11,7 @@ interface GovernanceSectionProps {
 }
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, companyName }) => {
+  const navigate = useNavigate();
   const {
     governanceCompliance,
     codeOfConductViolations,
@@ -87,6 +89,23 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
+  // Navigation handlers
+  const handleComplianceClick = () => {
+    navigate('/report', { state: { section: 'governance', field: 'compliance' } });
+  };
+  
+  const handlePolicyRiskClick = () => {
+    navigate('/report', { state: { section: 'governance', field: 'policyRisk' } });
+  };
+  
+  const handleDiversityClick = () => {
+    navigate('/report', { state: { section: 'governance', field: 'diversity' } });
+  };
+  
+  const handleEthicsClick = () => {
+    navigate('/report', { state: { section: 'governance', field: 'ethics' } });
+  };
+  
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
@@ -107,6 +126,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           dataKey="name"
           categories={["value"]}
           colors={["#5856D6", "#FF3B30"]}
+          onTitleClick={handleComplianceClick}
         />
         
         {/* B9-10: Politiche e rischi */}
@@ -118,6 +138,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           dataKey="name"
           categories={["value"]}
           colors={["#34C759", "#FF9500"]}
+          onTitleClick={handlePolicyRiskClick}
         />
         
         {/* B11: Diversità e retribuzione */}
@@ -129,6 +150,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           dataKey="name"
           categories={["value"]}
           colors={["#5AC8FA", "#FF2D55"]}
+          onTitleClick={handleDiversityClick}
         />
         
         {/* B12: Etica e sostenibilità */}
@@ -140,6 +162,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           dataKey="name"
           categories={["value"]}
           colors={["#007AFF", "#BF5AF2"]}
+          onTitleClick={handleEthicsClick}
         />
       </div>
     </div>
