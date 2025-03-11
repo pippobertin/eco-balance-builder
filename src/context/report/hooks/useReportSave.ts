@@ -13,7 +13,7 @@ export const useReportSave = (
   const { saveReportData, saveSubsidiaries: saveSubsidiariesData } = useReportOperations();
 
   // Save current report
-  const saveCurrentReport = async () => {
+  const saveCurrentReport = async (): Promise<void> => {
     if (!currentReport) return;
     
     setLoading(true);
@@ -26,11 +26,10 @@ export const useReportSave = (
     }
     
     setLoading(false);
-    return success;
   };
 
   // Save subsidiaries
-  const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string) => {
+  const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<void> => {
     setLoading(true);
     await saveSubsidiariesData(subsidiaries, reportId);
     setLoading(false);

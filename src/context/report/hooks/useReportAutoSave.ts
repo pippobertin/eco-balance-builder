@@ -6,7 +6,7 @@ export const useReportAutoSave = (
   needsSaving: boolean,
   reportData: ReportData,
   currentReport: Report | null,
-  saveCurrentReport: () => Promise<boolean | undefined>,
+  saveCurrentReport: () => Promise<void>,
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
@@ -22,11 +22,9 @@ export const useReportAutoSave = (
     if (!needsSaving || !currentReport) return;
     
     const timer = setTimeout(async () => {
-      const success = await saveCurrentReport();
-      if (success) {
-        setNeedsSaving(false);
-        setLastSaved(new Date());
-      }
+      await saveCurrentReport();
+      setNeedsSaving(false);
+      setLastSaved(new Date());
     }, 30000); // 30 seconds
     
     return () => clearTimeout(timer);
