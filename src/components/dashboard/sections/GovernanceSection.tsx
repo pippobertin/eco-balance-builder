@@ -11,6 +11,7 @@ interface GovernanceSectionProps {
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, companyName }) => {
   const navigate = useNavigate();
+  
   const {
     governanceCompliance,
     codeOfConductViolations,
@@ -22,9 +23,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     sustainabilityCommittee
   } = reportData.conductMetrics || {};
   
-  // Prepara i dati per i grafici di governance (B8-B12)
-  
-  // B8: Governance Compliance
   const complianceData = [];
   if (typeof governanceCompliance === 'number' && governanceCompliance > 0) {
     complianceData.push({
@@ -40,7 +38,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
-  // B9-B10: Politiche e rischi
   const policyData = [];
   if (typeof policyAdherence === 'number' && policyAdherence > 0) {
     policyData.push({
@@ -56,7 +53,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
-  // B11-B12: Altri indicatori di governance
   const diversityData = [];
   if (typeof boardDiversity === 'number' && boardDiversity > 0) {
     diversityData.push({
@@ -72,7 +68,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
-  // Anticorruzione e sostenibilità
   const ethicsData = [];
   if (typeof antiCorruptionTraining === 'number' && antiCorruptionTraining > 0) {
     ethicsData.push({
@@ -88,7 +83,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
     });
   }
   
-  // Navigation handlers - Corrected to navigate to the regular report page
   const handleComplianceClick = () => {
     navigate('/report', { state: { activeTab: 'metrics', section: 'conduct', field: 'compliance' } });
   };
@@ -116,7 +110,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* B8: Grafico compliance */}
         <MetricChart
           title="Compliance (B8)"
           description="Indicatori di conformità alle normative"
@@ -128,7 +121,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           onTitleClick={handleComplianceClick}
         />
         
-        {/* B9-10: Politiche e rischi */}
         <MetricChart
           title="Politiche e Rischi (B9-B10)"
           description="Gestione delle politiche aziendali e dei rischi"
@@ -140,7 +132,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           onTitleClick={handlePolicyRiskClick}
         />
         
-        {/* B11: Diversità e retribuzione */}
         <MetricChart
           title="Diversità e Retribuzione (B11)"
           description="Diversità nel CdA e rapporti retributivi"
@@ -152,7 +143,6 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportData, compa
           onTitleClick={handleDiversityClick}
         />
         
-        {/* B12: Etica e sostenibilità */}
         <MetricChart
           title="Etica e Sostenibilità (B12)"
           description="Formazione etica e strutture di sostenibilità"
