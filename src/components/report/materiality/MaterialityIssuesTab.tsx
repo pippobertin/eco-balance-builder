@@ -1,13 +1,14 @@
 
-import React from 'react';
-import { Target } from 'lucide-react';
+import React, { useState } from 'react';
+import { Target, Filter } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
 import MaterialityReport from './MaterialityReport';
 import MaterialityMatrixChart from './MaterialityMatrixChart';
 import { MaterialityIssue } from './types';
-import { predefinedIssues } from './utils/materialityUtils';
+import { predefinedIssues, esrsThemes } from './utils/materialityUtils';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -28,6 +29,37 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   onRemoveIssue,
   surveyProgress = { sent: 0, completed: 0, total: 0 }
 }) => {
+  const [selectedTheme, setSelectedTheme] = useState<string>('all');
+  
+  // Filter issues by theme if a theme is selected
+  const filteredIssues = selectedTheme === 'all' 
+    ? issues 
+    : issues.filter(issue => {
+        const matchingPredefined = predefinedIssues.find(p => p.id === issue.id);
+        if (!matchingPredefined) return false;
+        
+        // Match based on issue id prefix that corresponds to themes
+        if (selectedTheme === 'Cambiamenti climatici') return issue.id.startsWith('climate') || issue.id === 'energy';
+        if (selectedTheme === 'Inquinamento') return issue.id.startsWith('pollution') || issue.id.includes('substances');
+        if (selectedTheme === 'Acque e risorse marine') return issue.id.startsWith('water') || issue.id.includes('marine');
+        if (selectedTheme === 'Biodiversità ed ecosistemi') return issue.id.startsWith('biodiversity') || issue.id.includes('soil') || issue.id.includes('ecosystem');
+        if (selectedTheme === 'Economia circolare') return issue.id.startsWith('resource') || issue.id === 'waste';
+        if (selectedTheme === 'Forza lavoro propria') return issue.id.startsWith('labor') && !issue.id.includes('supply');
+        if (selectedTheme === 'Lavoratori nella catena del valore') return issue.id.startsWith('supply-labor');
+        if (selectedTheme === 'Comunità interessate') return issue.id.startsWith('community') || issue.id.startsWith('indigenous');
+        if (selectedTheme === 'Consumatori e utilizzatori finali') return issue.id.startsWith('consumer');
+        if (selectedTheme === 'Condotta delle imprese') return (
+          issue.id.startsWith('business') || 
+          issue.id === 'whistleblower-protection' || 
+          issue.id === 'animal-welfare' || 
+          issue.id === 'political-engagement' || 
+          issue.id === 'supplier-relations' ||
+          issue.id === 'corruption'
+        );
+        
+        return false;
+      });
+
   return (
     <>
       <GlassmorphicCard>
@@ -53,11 +85,32 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
             </ol>
           </div>
         </div>
+        
+        <div className="mb-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Filter className="h-4 w-4 text-gray-600" />
+            <h4 className="text-sm font-medium text-gray-800">Filtra per tema ESRS</h4>
+          </div>
+          
+          <Select value={selectedTheme} onValueChange={setSelectedTheme}>
+            <SelectTrigger className="w-full md:w-[300px]">
+              <SelectValue placeholder="Seleziona un tema ESRS" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Tutti i temi</SelectItem>
+                {esrsThemes.map(theme => (
+                  <SelectItem key={theme} value={theme}>{theme}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="space-y-8">
           <MaterialityMatrixChart issues={issues} />
           
-          {issues.map((issue) => (
+          {filteredIssues.map((issue) => (
             <IssueItem 
               key={issue.id}
               issue={issue}
