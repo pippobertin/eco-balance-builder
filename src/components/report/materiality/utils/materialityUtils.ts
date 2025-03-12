@@ -1,23 +1,24 @@
+
 export * from './stakeholderUtils';
 export * from './surveyUtils';
 export * from './predefinedIssues';
 export * from './iroData';
 export * from './esgCategoryUtils';
 
-// List of theme headers that should not be selectable
+// Lista dei temi principali che fungono da titoli e non devono essere selezionabili
 const themeHeaders = [
-  'climate-change',
-  'pollution',
-  'water-marine',
-  'biodiversity',
-  'circular-economy',
-  'own-workforce',
-  'value-chain-workers',
-  'affected-communities',
-  'consumers-end-users',
-  'business-conduct'
+  'climate-change-header',
+  'pollution-header',
+  'water-marine-header',
+  'biodiversity-header',
+  'circular-economy-header',
+  'own-workforce-header',
+  'value-chain-workers-header',
+  'affected-communities-header',
+  'consumers-end-users-header',
+  'business-conduct-header'
 ];
 
 export const isHeaderTheme = (id: string): boolean => {
-  return themeHeaders.some(header => id.startsWith(header));
+  return themeHeaders.includes(id);
 };

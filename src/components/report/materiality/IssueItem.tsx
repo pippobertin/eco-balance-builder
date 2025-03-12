@@ -22,18 +22,18 @@ const IssueItem: React.FC<IssueItemProps> = ({
   
   return (
     <div 
-      className={`p-4 rounded-lg border ${
+      className={`p-4 rounded-lg border mb-2 ${
         isHeader 
-          ? 'bg-gray-100 border-gray-200' 
+          ? 'bg-gray-100 border-gray-300' 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h4 className={`text-sm font-medium ${isHeader ? 'text-gray-700' : 'text-gray-900'}`}>
+          <h4 className={`${isHeader ? 'font-semibold text-gray-700' : 'text-sm font-medium text-gray-900'}`}>
             {issue.name}
           </h4>
-          {issue.description && (
+          {issue.description && !isHeader && (
             <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
           )}
         </div>

@@ -1,3 +1,4 @@
+
 import { MaterialityIssue } from '../types';
 
 const createBasicIssue = (id: string, name: string, description: string): MaterialityIssue => ({
@@ -9,7 +10,7 @@ const createBasicIssue = (id: string, name: string, description: string): Materi
   isMaterial: true
 });
 
-// Add header themes
+// Crea i temi principali che fungono da titoli
 const createHeaderTheme = (id: string, name: string): MaterialityIssue => ({
   id,
   name,
@@ -20,23 +21,23 @@ const createHeaderTheme = (id: string, name: string): MaterialityIssue => ({
 });
 
 export const predefinedIssues: MaterialityIssue[] = [
-  // ENVIRONMENT HEADERS
+  // TITOLI PRINCIPALI
   createHeaderTheme('climate-change-header', 'Cambiamenti climatici'),
   createHeaderTheme('pollution-header', 'Inquinamento'),
   createHeaderTheme('water-marine-header', 'Acque e risorse marine'),
   createHeaderTheme('biodiversity-header', 'Biodiversità ed ecosistemi'),
   createHeaderTheme('circular-economy-header', 'Economia circolare'),
   
-  // SOCIAL HEADERS
+  // TITOLI SOCIALI
   createHeaderTheme('own-workforce-header', 'Forza lavoro propria'),
   createHeaderTheme('value-chain-workers-header', 'Lavoratori nella catena del valore'),
   createHeaderTheme('affected-communities-header', 'Comunità interessate'),
   createHeaderTheme('consumers-end-users-header', 'Consumatori e utilizzatori finali'),
   
-  // GOVERNANCE HEADERS
+  // TITOLO GOVERNANCE
   createHeaderTheme('business-conduct-header', 'Condotta delle imprese'),
 
-  // Regular themes follow...
+  // Temi selezionabili
   // AMBIENTE - Cambiamenti climatici
   createBasicIssue('climate-adaptation', 'Adattamento ai cambiamenti climatici', 'Misure per adattarsi agli effetti dei cambiamenti climatici'),
   createBasicIssue('climate-mitigation', 'Mitigazione dei cambiamenti climatici', 'Riduzione delle emissioni e altre azioni per mitigare i cambiamenti climatici'),
