@@ -23,6 +23,7 @@ interface CompanyDataState {
 export const useCompanyInfo = (currentCompany: Company | null, onNext: () => void) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [companyData, setCompanyData] = useState<CompanyDataState>({
     name: '',
@@ -41,10 +42,15 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
   });
 
   useEffect(() => {
-    if (currentCompany) {
+    // Reset loading state when component mounts or currentCompany changes
+    setIsLoading(true);
+    
+    if (currentCompany && currentCompany.id) {
       // Load the company data
       const loadCompanyDetails = async () => {
         try {
+          console.log("Loading company details for:", currentCompany.id);
+          
           const { data, error } = await withRetry(() => 
             supabase
               .from('companies')
@@ -54,10 +60,12 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
           );
 
           if (error) {
+            console.error("Error loading company data:", error);
             throw error;
           }
 
           if (data) {
+            console.log("Company data loaded successfully:", data);
             setCompanyData({
               name: data.name || '',
               vat_number: data.vat_number || '',
@@ -73,6 +81,8 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
               profile_value_chain: data.profile_value_chain || '',
               profile_value_creation_factors: data.profile_value_creation_factors || ''
             });
+          } else {
+            console.error("No company data found for ID:", currentCompany.id);
           }
         } catch (error) {
           console.error('Error loading company details:', error);
@@ -81,10 +91,15 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
             description: 'Impossibile caricare i dettagli aziendali',
             variant: 'destructive'
           });
+        } finally {
+          setIsLoading(false);
         }
       };
 
       loadCompanyDetails();
+    } else {
+      // If there's no company, we're not loading
+      setIsLoading(false);
     }
   }, [currentCompany, toast]);
 
@@ -97,11 +112,20 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
   };
 
   const saveCompanyInfo = async () => {
-    if (!currentCompany) return;
+    if (!currentCompany || !currentCompany.id) {
+      toast({
+        title: 'Errore',
+        description: 'Nessuna azienda selezionata',
+        variant: 'destructive'
+      });
+      return;
+    }
     
     setIsSaving(true);
     
     try {
+      console.log("Saving company info for:", currentCompany.id);
+      
       const { error } = await withRetry(() => 
         supabase
           .from('companies')
@@ -124,9 +148,11 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
       );
 
       if (error) {
+        console.error("Error saving company info:", error);
         throw error;
       }
 
+      console.log("Company info saved successfully");
       toast({
         title: 'Informazioni salvate',
         description: 'Le informazioni aziendali sono state salvate con successo',
@@ -149,6 +175,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
     companyData,
     handleInputChange,
     saveCompanyInfo,
-    isSaving
+    isSaving,
+    isLoading
   };
 };

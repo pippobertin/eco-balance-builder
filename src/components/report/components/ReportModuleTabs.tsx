@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyInformation from '../company-information';
 import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
 import { Report } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReportModuleTabsProps {
   activeTab: string;
@@ -45,6 +46,14 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
   initialSection,
   initialField
 }) => {
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (currentReport && !currentReport.company) {
+      console.log("Report exists but company data is missing:", currentReport.id);
+    }
+  }, [currentReport]);
+
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TabsList className="grid w-full grid-cols-3 mb-8">

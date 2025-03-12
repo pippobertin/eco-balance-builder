@@ -40,40 +40,54 @@ export const useReportForm = () => {
   // Make sure we have company data
   useEffect(() => {
     const ensureData = async () => {
-      // If we don't have companies, load them
-      if (!currentCompany) {
-        await loadCompanies();
-      }
-      
-      if (currentReport) {
-        setIsConsolidated(currentReport.is_consolidated);
-        
-        setFormValues({
-          environmentalMetrics: reportData.environmentalMetrics || {},
-          socialMetrics: reportData.socialMetrics || {},
-          conductMetrics: reportData.conductMetrics || {},
-          narrativePATMetrics: reportData.narrativePATMetrics || {},
-          materialityAnalysis: reportData.materialityAnalysis || {}
-        });
-        
-        // If the report doesn't have complete company data, reload it
-        if (currentReport.id && (!currentReport.company || !currentReport.company?.name)) {
-          console.log("Loading full report data");
-          await loadReport(currentReport.id);
+      try {
+        // If we don't have companies, load them
+        if (!currentCompany) {
+          console.log("No current company, loading companies");
+          await loadCompanies();
         }
         
-        if (!currentCompany) {
+        if (currentReport) {
+          console.log("Current report exists:", currentReport.id);
+          setIsConsolidated(currentReport.is_consolidated || false);
+          
+          setFormValues({
+            environmentalMetrics: reportData.environmentalMetrics || {},
+            socialMetrics: reportData.socialMetrics || {},
+            conductMetrics: reportData.conductMetrics || {},
+            narrativePATMetrics: reportData.narrativePATMetrics || {},
+            materialityAnalysis: reportData.materialityAnalysis || {}
+          });
+          
+          // If the report doesn't have complete company data, reload it
+          if (currentReport.id && (!currentReport.company || !currentReport.company.name)) {
+            console.log("Report missing company data, reloading full report:", currentReport.id);
+            await loadReport(currentReport.id);
+          }
+          
+          if (!currentCompany) {
+            console.log("Still no company after loading, redirecting to companies page");
+            toast({
+              title: "Nessuna azienda selezionata",
+              description: "Seleziona un'azienda e un report per continuare",
+              variant: "destructive"
+            });
+            navigate('/companies');
+          }
+        } else {
+          console.log("No current report, redirecting to companies page");
           toast({
-            title: "Nessuna azienda selezionata",
-            description: "Seleziona un'azienda e un report per continuare",
+            title: "Nessun report attivo",
+            description: "Seleziona o crea un report per continuare",
             variant: "destructive"
           });
           navigate('/companies');
         }
-      } else {
+      } catch (error) {
+        console.error("Error ensuring data:", error);
         toast({
-          title: "Nessun report attivo",
-          description: "Seleziona o crea un report per continuare",
+          title: "Errore",
+          description: "Si è verificato un errore durante il caricamento dei dati",
           variant: "destructive"
         });
         navigate('/companies');
@@ -84,37 +98,67 @@ export const useReportForm = () => {
   }, [currentReport, currentCompany, navigate, toast, reportData, loadReport, loadCompanies]);
 
   const handleSaveReport = async () => {
-    updateReportData(formValues);
-    
-    await saveCurrentReport();
-    
-    toast({
-      title: "Report salvato",
-      description: "Tutte le modifiche sono state salvate con successo"
-    });
+    try {
+      console.log("Saving report data");
+      updateReportData(formValues);
+      
+      await saveCurrentReport();
+      
+      toast({
+        title: "Report salvato",
+        description: "Tutte le modifiche sono state salvate con successo"
+      });
+    } catch (error) {
+      console.error("Error saving report:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio del report",
+        variant: "destructive"
+      });
+    }
   };
 
   const saveBasicInfo = () => {
-    if (isConsolidated && currentReport) {
-      saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
+    try {
+      if (isConsolidated && currentReport && currentReport.id) {
+        console.log("Saving subsidiaries for report:", currentReport.id);
+        saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
+      }
+      
+      toast({
+        title: "Informazioni salvate",
+        description: "Le informazioni di base sono state salvate con successo."
+      });
+      setActiveTab('metrics');
+    } catch (error) {
+      console.error("Error saving basic info:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio delle informazioni di base",
+        variant: "destructive"
+      });
     }
-    
-    toast({
-      title: "Informazioni salvate",
-      description: "Le informazioni di base sono state salvate con successo."
-    });
-    setActiveTab('metrics');
   };
   
   const saveMetrics = async () => {
-    updateReportData(formValues);
-    
-    await saveCurrentReport();
-    
-    toast({
-      title: "Report completato",
-      description: "Il report V-SME è stato compilato e salvato con successo."
-    });
+    try {
+      console.log("Saving metrics");
+      updateReportData(formValues);
+      
+      await saveCurrentReport();
+      
+      toast({
+        title: "Report completato",
+        description: "Il report V-SME è stato compilato e salvato con successo."
+      });
+    } catch (error) {
+      console.error("Error saving metrics:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio delle metriche",
+        variant: "destructive"
+      });
+    }
   };
 
   return {

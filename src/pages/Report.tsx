@@ -17,7 +17,7 @@ const Report = () => {
   const [pendingAction, setPendingAction] = useState<() => void | null>(() => null);
   
   const { needsSaving, saveCurrentReport } = useReport();
-  const { currentCompany, currentReport } = useReportNavigation();
+  const { currentCompany, currentReport, isLoading } = useReportNavigation();
   
   const {
     activeTab,
@@ -81,6 +81,20 @@ const Report = () => {
     setPendingAction(() => null);
     setShowUnsavedDialog(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-24 pb-16 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg text-gray-600">Caricamento dati in corso...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -7,6 +7,7 @@ import { Company } from '@/context/types';
 import CompanyGeneralInfo from './CompanyGeneralInfo';
 import CompanyProfileInfo from './CompanyProfileInfo';
 import { useCompanyInfo } from './useCompanyInfo';
+import { useToast } from '@/hooks/use-toast';
 
 interface CompanyInformationProps {
   currentCompany: Company | null;
@@ -17,11 +18,13 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
   currentCompany,
   onNext
 }) => {
+  const { toast } = useToast();
   const {
     companyData,
     handleInputChange,
     saveCompanyInfo,
-    isSaving
+    isSaving,
+    isLoading
   } = useCompanyInfo(currentCompany, onNext);
 
   const containerAnimation = {
@@ -36,7 +39,15 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
     }
   };
 
-  if (!currentCompany) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Caricamento informazioni aziendali in corso...</p>
+      </div>
+    );
+  }
+
+  if (!currentCompany || !currentCompany.id) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">Nessuna azienda selezionata</p>
