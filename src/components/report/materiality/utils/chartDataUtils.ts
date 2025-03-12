@@ -8,7 +8,7 @@ export interface ChartDataPoint {
   x: number;
   y: number;
   z: number;
-  category: 'environmental' | 'social' | 'governance';
+  category: 'environmental' | 'social' | 'governance' | 'default';
   isMaterial: boolean;
   stakeholderRelevance: number;
 }

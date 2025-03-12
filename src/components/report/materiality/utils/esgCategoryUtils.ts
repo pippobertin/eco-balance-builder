@@ -1,6 +1,14 @@
 
 import { predefinedIssues } from './materialityUtils';
 
+// Define a type for predefined issues that includes the category property
+type PredefinedIssue = {
+  id: string;
+  name: string;
+  description: string;
+  category?: 'environmental' | 'social' | 'governance';
+};
+
 export const translateESGCategory = (category: string): string => {
   switch (category) {
     case 'environment':
@@ -16,17 +24,20 @@ export const translateESGCategory = (category: string): string => {
 
 export const categorizeIssuesByESG = () => {
   const categories = {
-    environment: [] as any[],
-    social: [] as any[],
-    governance: [] as any[]
+    environment: [] as PredefinedIssue[],
+    social: [] as PredefinedIssue[],
+    governance: [] as PredefinedIssue[]
   };
 
   predefinedIssues.forEach(issue => {
-    if (issue.category === 'environmental') {
+    // Safely check if the issue has a category property before using it
+    const issueCategory = (issue as unknown as { category?: string }).category;
+    
+    if (issueCategory === 'environmental') {
       categories.environment.push(issue);
-    } else if (issue.category === 'social') {
+    } else if (issueCategory === 'social') {
       categories.social.push(issue);
-    } else if (issue.category === 'governance') {
+    } else if (issueCategory === 'governance') {
       categories.governance.push(issue);
     }
   });
@@ -46,7 +57,13 @@ export const categoryColors = {
 export const getESGCategory = (issueId: string): 'environmental' | 'social' | 'governance' | 'default' => {
   const issue = predefinedIssues.find(i => i.id === issueId);
   if (!issue) return 'default';
-  return issue.category || 'default';
+  
+  // Safely access the category property
+  const issueCategory = (issue as unknown as { category?: string }).category;
+  if (issueCategory === 'environmental' || issueCategory === 'social' || issueCategory === 'governance') {
+    return issueCategory;
+  }
+  return 'default';
 };
 
 export const calculateImportanceScore = (issue: any): number => {
