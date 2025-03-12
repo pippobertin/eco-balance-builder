@@ -1,21 +1,20 @@
-
 import { Stakeholder, MaterialityIssue } from '../types';
 
 export const getStakeholderPriorityColor = (priority: string): string => {
   switch (priority) {
-    case 'Alta': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-    case 'Media-alta': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
-    case 'Media': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-    case 'Bassa': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-    default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    case 'Alta': return 'bg-red-600 text-white font-medium dark:bg-red-700 dark:text-white';
+    case 'Media-alta': return 'bg-orange-500 text-white font-medium dark:bg-orange-600 dark:text-white';
+    case 'Media': return 'bg-blue-600 text-white font-medium dark:bg-blue-700 dark:text-white';
+    case 'Bassa': return 'bg-green-600 text-white font-medium dark:bg-green-700 dark:text-white';
+    default: return 'bg-gray-600 text-white font-medium dark:bg-gray-700 dark:text-white';
   }
 };
 
 export const getSurveyStatusColor = (status?: string): string => {
   switch (status) {
-    case 'sent': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-    case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-    default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    case 'sent': return 'bg-blue-600 text-white font-medium dark:bg-blue-700 dark:text-white';
+    case 'completed': return 'bg-green-600 text-white font-medium dark:bg-green-700 dark:text-white';
+    default: return 'bg-gray-600 text-white font-medium dark:bg-gray-700 dark:text-white';
   }
 };
 
@@ -34,14 +33,11 @@ export const calculatePriority = (influence: number, interest: number): string =
   return 'Media';
 };
 
-// Updated predefined issues based on ESRS themes
 export const predefinedIssues = [
-  // Cambiamenti climatici
   { id: 'climate-adaptation', name: 'Adattamento ai cambiamenti climatici', description: 'Strategie e misure per adattarsi ai cambiamenti climatici' },
   { id: 'climate-mitigation', name: 'Mitigazione dei cambiamenti climatici', description: 'Riduzione delle emissioni di gas serra e altri interventi per mitigare i cambiamenti climatici' },
   { id: 'energy', name: 'Energia', description: 'Uso e gestione dell\'energia, inclusa efficienza energetica e fonti rinnovabili' },
   
-  // Inquinamento
   { id: 'pollution-air', name: 'Inquinamento dell\'aria', description: 'Emissioni in atmosfera e impatti sulla qualità dell\'aria' },
   { id: 'pollution-water', name: 'Inquinamento dell\'acqua', description: 'Scarichi idrici e impatti sulla qualità dell\'acqua' },
   { id: 'pollution-soil', name: 'Inquinamento del suolo', description: 'Contaminazione del suolo e impatti sulla qualità del terreno' },
@@ -49,14 +45,12 @@ export const predefinedIssues = [
   { id: 'substances-concern', name: 'Sostanze preoccupanti', description: 'Gestione e riduzione delle sostanze preoccupanti nei processi produttivi e nei prodotti' },
   { id: 'substances-extreme-concern', name: 'Sostanze estremamente preoccupanti', description: 'Gestione e eliminazione delle sostanze estremamente preoccupanti (SVHC)' },
   
-  // Acque e risorse marine
   { id: 'water-consumption', name: 'Consumo idrico', description: 'Utilizzo e consumo di risorse idriche' },
   { id: 'water-withdrawal', name: 'Prelievi idrici', description: 'Prelievo di acqua da diverse fonti' },
   { id: 'water-discharge', name: 'Scarichi di acque', description: 'Gestione degli scarichi idrici e del loro impatto ambientale' },
   { id: 'ocean-discharge', name: 'Scarichi di acque negli oceani', description: 'Impatti degli scarichi idrici sugli ecosistemi marini' },
   { id: 'marine-resources', name: 'Estrazione e uso di risorse marine', description: 'Utilizzo sostenibile delle risorse marine' },
   
-  // Biodiversità ed ecosistemi
   { id: 'biodiversity-climate', name: 'Biodiversità: Cambiamenti climatici', description: 'Impatti dei cambiamenti climatici sulla biodiversità' },
   { id: 'biodiversity-land-use', name: 'Biodiversità: Cambiamento di uso del suolo e dell\'acqua', description: 'Impatti del cambiamento di uso del suolo, dell\'acqua dolce e del mare sulla biodiversità' },
   { id: 'biodiversity-exploitation', name: 'Biodiversità: Sfruttamento diretto', description: 'Impatti dello sfruttamento diretto delle risorse naturali sulla biodiversità' },
@@ -70,12 +64,10 @@ export const predefinedIssues = [
   { id: 'soil-sealing', name: 'Impermeabilizzazione del suolo', description: 'Impatti dell\'impermeabilizzazione del suolo e misure di mitigazione' },
   { id: 'ecosystem-services', name: 'Servizi ecosistemici', description: 'Impatti e dipendenze in termini di servizi ecosistemici' },
   
-  // Economia circolare
   { id: 'resource-inflows', name: 'Afflussi di risorse', description: 'Gestione degli afflussi di risorse, compreso l\'uso efficiente delle risorse' },
   { id: 'resource-outflows', name: 'Deflussi di risorse', description: 'Gestione dei deflussi di risorse connessi a prodotti e servizi' },
   { id: 'waste', name: 'Rifiuti', description: 'Gestione dei rifiuti e strategie di riduzione' },
   
-  // Forza lavoro propria
   { id: 'labor-secure', name: 'Occupazione sicura', description: 'Garantire condizioni di occupazione sicura e stabile per i lavoratori' },
   { id: 'labor-hours', name: 'Orario di lavoro', description: 'Gestione dell\'orario di lavoro e rispetto dei limiti previsti' },
   { id: 'labor-wages', name: 'Salari adeguati', description: 'Garantire salari adeguati e dignitosi ai lavoratori' },
@@ -94,7 +86,6 @@ export const predefinedIssues = [
   { id: 'labor-housing', name: 'Alloggi adeguati', description: 'Garantire alloggi adeguati ai lavoratori, ove applicabile' },
   { id: 'labor-privacy', name: 'Riservatezza', description: 'Tutela della riservatezza dei dati dei lavoratori' },
   
-  // Lavoratori nella catena del valore
   { id: 'supply-labor-secure', name: 'Occupazione sicura nella catena del valore', description: 'Garantire condizioni di occupazione sicura per i lavoratori nella catena di fornitura' },
   { id: 'supply-labor-hours', name: 'Orario di lavoro nella catena del valore', description: 'Monitoraggio dell\'orario di lavoro nella catena di fornitura' },
   { id: 'supply-labor-wages', name: 'Salari adeguati nella catena del valore', description: 'Garantire salari adeguati ai lavoratori nella catena di fornitura' },
@@ -114,7 +105,6 @@ export const predefinedIssues = [
   { id: 'supply-water-sanitation', name: 'Acqua e servizi igienico-sanitari', description: 'Accesso all\'acqua e ai servizi igienico-sanitari nella catena di fornitura' },
   { id: 'supply-labor-privacy', name: 'Riservatezza nella catena del valore', description: 'Tutela della riservatezza nella catena di fornitura' },
   
-  // Comunità interessate
   { id: 'community-housing', name: 'Alloggi adeguati per le comunità', description: 'Garantire alloggi adeguati per le comunità locali' },
   { id: 'community-food', name: 'Alimentazione adeguata', description: 'Garantire alimentazione adeguata per le comunità locali' },
   { id: 'community-water', name: 'Acqua e servizi igienico-sanitari per le comunità', description: 'Garantire accesso ad acqua e servizi igienico-sanitari per le comunità locali' },
@@ -127,7 +117,6 @@ export const predefinedIssues = [
   { id: 'indigenous-determination', name: 'Autodeterminazione', description: 'Rispetto dell\'autodeterminazione dei popoli indigeni' },
   { id: 'indigenous-cultural', name: 'Diritti culturali dei popoli indigeni', description: 'Rispetto dei diritti culturali dei popoli indigeni' },
   
-  // Consumatori e utilizzatori finali
   { id: 'consumer-privacy', name: 'Riservatezza dei consumatori', description: 'Tutela della riservatezza dei dati dei consumatori' },
   { id: 'consumer-expression', name: 'Libertà di espressione dei consumatori', description: 'Rispetto della libertà di espressione dei consumatori' },
   { id: 'consumer-information', name: 'Accesso a informazioni di qualità', description: 'Garantire ai consumatori l\'accesso a informazioni di qualità' },
@@ -138,7 +127,6 @@ export const predefinedIssues = [
   { id: 'consumer-access', name: 'Accesso a prodotti e servizi', description: 'Garantire l\'accesso equo a prodotti e servizi' },
   { id: 'consumer-practices', name: 'Pratiche commerciali responsabili', description: 'Adozione di pratiche commerciali responsabili verso i consumatori' },
   
-  // Condotta delle imprese
   { id: 'business-culture', name: 'Cultura d\'impresa', description: 'Promozione di una cultura d\'impresa etica e responsabile' },
   { id: 'whistleblower-protection', name: 'Protezione degli informatori', description: 'Misure per la protezione degli informatori (whistleblower)' },
   { id: 'animal-welfare', name: 'Benessere degli animali', description: 'Protezione del benessere degli animali' },
@@ -162,7 +150,6 @@ export const stakeholderCategories = [
   "Altro"
 ];
 
-// Temi principali ESRS per categorizzazione
 export const esrsThemes = [
   "Cambiamenti climatici",
   "Inquinamento",
