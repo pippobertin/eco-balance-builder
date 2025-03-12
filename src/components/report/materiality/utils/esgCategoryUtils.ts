@@ -1,6 +1,6 @@
-
 import { predefinedIssues } from './materialityUtils';
 import { MaterialityIssue } from '../types';
+import { environmentalPatterns, socialPatterns, governancePatterns } from './categoryPatterns';
 
 // Strong typing for ESG categories
 export type ESGCategory = 'environmental' | 'social' | 'governance' | 'default';
@@ -35,26 +35,6 @@ const mapIssuesToESGCategories = (): PredefinedIssue[] => {
   // Cloniamo i temi predefiniti per non modificare l'originale
   return predefinedIssues.map(issue => {
     const issueWithCategory = { ...issue } as PredefinedIssue;
-    
-    // Categorie per temi ambientali
-    const environmentalPatterns = [
-      'climate-', 'energy', 'pollution-', 'substances-', 
-      'water-', 'ocean-', 'marine-', 'biodiversity-', 
-      'species-', 'soil-', 'desertification', 'ecosystem-', 
-      'resource-', 'waste'
-    ];
-    
-    // Categorie per temi sociali
-    const socialPatterns = [
-      'labor-', 'supply-', 'community-', 'indigenous-', 
-      'consumer-'
-    ];
-    
-    // Categorie per temi di governance
-    const governancePatterns = [
-      'business-', 'whistleblower-', 'animal-', 
-      'political-', 'supplier-', 'corruption-'
-    ];
     
     // Assegna categorie in base all'ID del tema
     if (environmentalPatterns.some(pattern => issue.id.startsWith(pattern))) {
@@ -107,27 +87,7 @@ export const categoryColors: Record<ESGCategory, string> = {
 };
 
 export const getESGCategory = (issueId: string): ESGCategory => {
-  // Utilizziamo pattern matching coerente per ottenere la categoria
-  // Categorie per temi ambientali
-  const environmentalPatterns = [
-    'climate-', 'energy', 'pollution-', 'substances-', 
-    'water-', 'ocean-', 'marine-', 'biodiversity-', 
-    'species-', 'soil-', 'desertification', 'ecosystem-', 
-    'resource-', 'waste'
-  ];
-  
-  // Categorie per temi sociali
-  const socialPatterns = [
-    'labor-', 'supply-', 'community-', 'indigenous-', 
-    'consumer-'
-  ];
-  
-  // Categorie per temi di governance
-  const governancePatterns = [
-    'business-', 'whistleblower-', 'animal-', 
-    'political-', 'supplier-', 'corruption-'
-  ];
-  
+  // Utilizziamo pattern matching coerente con categoryPatterns.ts
   if (environmentalPatterns.some(pattern => issueId.startsWith(pattern))) {
     return 'environmental';
   } 
