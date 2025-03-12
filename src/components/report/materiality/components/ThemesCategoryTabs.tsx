@@ -4,7 +4,7 @@ import { Leaf, Users, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ThemesTabContent from './ThemesTabContent';
 import { predefinedIssues } from '../utils/materialityUtils';
-import { categorizePredefinedIssues } from '../utils/categorizePredefinedIssues';
+import { getIssuesByCategory } from '../utils/categorizePredefinedIssues';
 
 interface ThemesCategoryTabsProps {
   activeTab?: string;
@@ -37,7 +37,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
 
   // If no specific issues are provided, use predefined issues
   const { environmental, social, governance } = React.useMemo(() => 
-    categorizePredefinedIssues(predefinedIssues), []);
+    getIssuesByCategory(), []);
 
   // Use provided issues or default to categorized predefined issues
   const envIssues = environmentalIssues || environmental;

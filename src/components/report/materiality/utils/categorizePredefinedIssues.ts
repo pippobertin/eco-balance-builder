@@ -1,6 +1,7 @@
 
 import { predefinedIssues } from './materialityUtils';
 import { determineESGCategory } from './categoryPatterns';
+import { MaterialityIssue } from '../types';
 
 // Categorize predefined issues by ESG category
 export const categorizePredefinedIssues = () => {
