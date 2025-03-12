@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +16,8 @@ export const useReportForm = () => {
     currentReport,
     saveCurrentReport,
     saveSubsidiaries,
-    loadReport
+    loadReport,
+    loadCompanies
   } = useReport();
   
   const subsidiariesState = useSubsidiaries();
@@ -35,40 +37,51 @@ export const useReportForm = () => {
     materialityAnalysis: reportData.materialityAnalysis || {}
   });
 
+  // Make sure we have company data
   useEffect(() => {
-    if (currentReport) {
-      setIsConsolidated(currentReport.is_consolidated);
-      
-      setFormValues({
-        environmentalMetrics: reportData.environmentalMetrics || {},
-        socialMetrics: reportData.socialMetrics || {},
-        conductMetrics: reportData.conductMetrics || {},
-        narrativePATMetrics: reportData.narrativePATMetrics || {},
-        materialityAnalysis: reportData.materialityAnalysis || {}
-      });
-      
-      if (currentReport.id && (!currentReport.company || !currentReport.company?.name)) {
-        console.log("Loading full report data");
-        loadReport(currentReport.id);
+    const ensureData = async () => {
+      // If we don't have companies, load them
+      if (!currentCompany) {
+        await loadCompanies();
       }
       
-      if (!currentCompany) {
+      if (currentReport) {
+        setIsConsolidated(currentReport.is_consolidated);
+        
+        setFormValues({
+          environmentalMetrics: reportData.environmentalMetrics || {},
+          socialMetrics: reportData.socialMetrics || {},
+          conductMetrics: reportData.conductMetrics || {},
+          narrativePATMetrics: reportData.narrativePATMetrics || {},
+          materialityAnalysis: reportData.materialityAnalysis || {}
+        });
+        
+        // If the report doesn't have complete company data, reload it
+        if (currentReport.id && (!currentReport.company || !currentReport.company?.name)) {
+          console.log("Loading full report data");
+          await loadReport(currentReport.id);
+        }
+        
+        if (!currentCompany) {
+          toast({
+            title: "Nessuna azienda selezionata",
+            description: "Seleziona un'azienda e un report per continuare",
+            variant: "destructive"
+          });
+          navigate('/companies');
+        }
+      } else {
         toast({
-          title: "Nessuna azienda selezionata",
-          description: "Seleziona un'azienda e un report per continuare",
+          title: "Nessun report attivo",
+          description: "Seleziona o crea un report per continuare",
           variant: "destructive"
         });
         navigate('/companies');
       }
-    } else {
-      toast({
-        title: "Nessun report attivo",
-        description: "Seleziona o crea un report per continuare",
-        variant: "destructive"
-      });
-      navigate('/companies');
-    }
-  }, [currentReport, currentCompany, navigate, toast, reportData, loadReport]);
+    };
+    
+    ensureData();
+  }, [currentReport, currentCompany, navigate, toast, reportData, loadReport, loadCompanies]);
 
   const handleSaveReport = async () => {
     updateReportData(formValues);
