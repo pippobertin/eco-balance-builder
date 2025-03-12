@@ -1,15 +1,18 @@
-
 import { IROData } from '../../types';
 
-// Climate, energy and pollution related IRO data
 export const environmentalIROData: Record<string, IROData> = {
-  // Climate adaptation and mitigation
   'climate-adaptation': {
-    impacts: [
-      'Riduzione della vulnerabilità agli eventi climatici estremi',
-      'Protezione delle infrastrutture e degli asset aziendali',
-      'Miglioramento della resilienza delle comunità locali',
-      'Adattamento dei processi produttivi ai cambiamenti climatici'
+    positiveImpacts: [
+      'Miglioramento della resilienza aziendale',
+      'Protezione delle infrastrutture critiche',
+      'Rafforzamento della continuità operativa',
+      'Sviluppo di competenze specialistiche'
+    ],
+    negativeImpacts: [
+      'Costi di adattamento elevati',
+      'Possibile riduzione temporanea della produttività',
+      'Necessità di modificare processi consolidati',
+      'Impatto su alcune attività tradizionali'
     ],
     risks: [
       'Interruzioni operative dovute a eventi climatici',
@@ -31,11 +34,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'climate-mitigation': {
-    impacts: [
-      'Riduzione delle emissioni di gas serra',
-      'Contributo alla lotta contro il cambiamento climatico',
-      'Miglioramento della qualità dell\'aria',
-      'Promozione di un\'economia a basse emissioni di carbonio'
+    positiveImpacts: [
+      'Riduzione dell\'impronta carbonica',
+      'Efficienza energetica migliorata',
+      'Innovazione tecnologica nel settore green',
+      'Creazione di nuovi mercati sostenibili'
+    ],
+    negativeImpacts: [
+      'Investimenti iniziali elevati',
+      'Rimodulazione dei processi produttivi',
+      'Necessità di formazione del personale',
+      'Potenziale perdita di competitività a breve termine'
     ],
     risks: [
       'Aumento dei costi energetici',
@@ -57,11 +66,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'energy': {
-    impacts: [
-      'Riduzione dei consumi energetici',
-      'Utilizzo di fonti rinnovabili',
-      'Diminuzione dell\'impatto ambientale',
-      'Efficienza energetica'
+    positiveImpacts: [
+      'Ottimizzazione dei consumi energetici',
+      'Integrazione di fonti rinnovabili',
+      'Riduzione dei costi operativi',
+      'Miglioramento dell\'immagine aziendale'
+    ],
+    negativeImpacts: [
+      'Costi iniziali per l\'installazione di nuove tecnologie',
+      'Necessità di manutenzione specializzata',
+      'Dipendenza dalle condizioni ambientali (es. solare, eolico)',
+      'Possibili interruzioni nella fornitura durante la transizione'
     ],
     risks: [
       'Aumento dei costi energetici',
@@ -82,14 +97,18 @@ export const environmentalIROData: Record<string, IROData> = {
       'Utilizzare fonti rinnovabili'
     ]
   },
-  
-  // Pollution
   'pollution-air': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento della qualità dell\'aria',
-      'Riduzione delle malattie respiratorie',
-      'Protezione degli ecosistemi',
-      'Diminuzione dell\'impatto ambientale'
+      'Riduzione delle emissioni nocive',
+      'Benefici per la salute pubblica',
+      'Conformità alle normative ambientali'
+    ],
+    negativeImpacts: [
+      'Costi per l\'installazione di sistemi di filtraggio',
+      'Necessità di monitoraggio costante',
+      'Possibili interruzioni della produzione per manutenzione',
+      'Difficoltà nel gestire emissioni impreviste'
     ],
     risks: [
       'Sanzioni normative',
@@ -111,11 +130,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'pollution-water': {
-    impacts: [
-      'Miglioramento della qualità dell\'acqua',
-      'Protezione della biodiversità acquatica',
-      'Riduzione delle malattie idriche',
-      'Diminuzione dell\'impatto ambientale'
+    positiveImpacts: [
+      'Miglioramento della qualità delle acque',
+      'Protezione degli ecosistemi acquatici',
+      'Riduzione dell\'inquinamento idrico',
+      'Utilizzo sostenibile delle risorse idriche'
+    ],
+    negativeImpacts: [
+      'Costi per il trattamento delle acque reflue',
+      'Necessità di monitoraggio costante',
+      'Possibili restrizioni sull\'uso dell\'acqua',
+      'Difficoltà nel gestire sversamenti accidentali'
     ],
     risks: [
       'Sanzioni normative',
@@ -137,11 +162,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'pollution-soil': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento della qualità del suolo',
-      'Protezione della biodiversità del suolo',
       'Riduzione della contaminazione',
-      'Diminuzione dell\'impatto ambientale'
+      'Promozione di pratiche agricole sostenibili',
+      'Protezione della biodiversità del suolo'
+    ],
+    negativeImpacts: [
+      'Costi per la bonifica dei terreni contaminati',
+      'Restrizioni sull\'uso del suolo',
+      'Necessità di monitoraggio costante',
+      'Difficoltà nel gestire sversamenti accidentali'
     ],
     risks: [
       'Sanzioni normative',
@@ -163,11 +194,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'pollution-organisms': {
-    impacts: [
-      'Protezione degli organismi viventi',
+    positiveImpacts: [
+      'Protezione della salute degli organismi viventi',
       'Riduzione della contaminazione alimentare',
-      'Miglioramento della salute umana',
-      'Diminuzione dell\'impatto ambientale'
+      'Miglioramento della sicurezza alimentare',
+      'Promozione di ecosistemi sani'
+    ],
+    negativeImpacts: [
+      'Costi per il monitoraggio della contaminazione',
+      'Restrizioni sull\'uso di pesticidi e erbicidi',
+      'Necessità di pratiche agricole biologiche',
+      'Difficoltà nel gestire contaminazioni accidentali'
     ],
     risks: [
       'Sanzioni normative',
@@ -189,11 +226,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'substances-concern': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione dell\'uso di sostanze pericolose',
       'Miglioramento della salute e della sicurezza',
       'Protezione dell\'ambiente',
-      'Diminuzione dell\'impatto ambientale'
+      'Conformità alle normative ambientali'
+    ],
+    negativeImpacts: [
+      'Costi per la sostituzione delle sostanze',
+      'Necessità di formazione del personale',
+      'Possibili restrizioni sull\'uso di alcune sostanze',
+      'Difficoltà nel trovare alternative sicure'
     ],
     risks: [
       'Sanzioni normative',
@@ -215,11 +258,17 @@ export const environmentalIROData: Record<string, IROData> = {
     ]
   },
   'substances-extreme-concern': {
-    impacts: [
+    positiveImpacts: [
       'Eliminazione delle sostanze estremamente pericolose',
       'Miglioramento della salute e della sicurezza',
       'Protezione dell\'ambiente',
-      'Diminuzione dell\'impatto ambientale'
+      'Conformità alle normative ambientali'
+    ],
+    negativeImpacts: [
+      'Costi per la sostituzione delle sostanze',
+      'Necessità di processi di smaltimento speciali',
+      'Possibili restrizioni sull\'uso di alcune sostanze',
+      'Difficoltà nel trovare alternative sicure'
     ],
     risks: [
       'Sanzioni normative',

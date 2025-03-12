@@ -11,14 +11,16 @@ export interface MaterialityIssue {
 }
 
 export interface IROData {
-  impacts: string[];
+  positiveImpacts: string[];
+  negativeImpacts: string[];
   risks: string[];
   opportunities: string[];
   actions: string[];
 }
 
 export interface IROSelections {
-  selectedImpacts: string[];
+  selectedPositiveImpacts: string[];
+  selectedNegativeImpacts: string[];
   selectedRisks: string[];
   selectedOpportunities: string[];
   selectedActions: string[];

@@ -21,27 +21,28 @@ const IRODialog: React.FC<IRODialogProps> = ({
   onSave
 }) => {
   const [selections, setSelections] = useState<IROSelections>({
-    selectedImpacts: [],
+    selectedPositiveImpacts: [],
+    selectedNegativeImpacts: [],
     selectedRisks: [],
     selectedOpportunities: [],
     selectedActions: []
   });
 
-  // Ottieni i dati IRO per l'issue corrente
   const iroData = predefinedIROData[issue.id] || {
-    impacts: [],
+    positiveImpacts: [],
+    negativeImpacts: [],
     risks: [],
     opportunities: [],
     actions: []
   };
 
-  // Aggiorna le selezioni quando cambia l'issue
   useEffect(() => {
     if (issue.iroSelections) {
       setSelections(issue.iroSelections);
     } else {
       setSelections({
-        selectedImpacts: [],
+        selectedPositiveImpacts: [],
+        selectedNegativeImpacts: [],
         selectedRisks: [],
         selectedOpportunities: [],
         selectedActions: []
@@ -58,11 +59,9 @@ const IRODialog: React.FC<IRODialogProps> = ({
       const newSelections = { ...prev };
       const currentValues = [...(prev[category] || [])];
       
-      // If value is already selected, remove it
       if (currentValues.includes(value)) {
         newSelections[category] = currentValues.filter(item => item !== value);
       } else {
-        // Add the value if not already selected
         newSelections[category] = [...currentValues, value];
       }
       
@@ -70,7 +69,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
     });
   };
 
-  // Log dei dati IRO per debug
   console.log('IRO Data for issue:', issue.id, iroData);
   console.log('Current selections:', selections);
 
@@ -83,15 +81,27 @@ const IRODialog: React.FC<IRODialogProps> = ({
         />
         
         <div className="py-4 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Prima riga: Impatti positivi e negativi */}
+          <div className="grid grid-cols-2 gap-6">
             <CategorySelect
-              title="Impatti"
-              description="Seleziona gli impatti rilevanti per questo tema materiale"
-              options={iroData.impacts}
-              selections={selections.selectedImpacts}
-              onSelectionChange={(value) => handleSelectionChange("selectedImpacts", value)}
+              title="Impatti Positivi"
+              description="Seleziona i potenziali impatti positivi per questo tema materiale"
+              options={iroData.positiveImpacts}
+              selections={selections.selectedPositiveImpacts}
+              onSelectionChange={(value) => handleSelectionChange("selectedPositiveImpacts", value)}
             />
             
+            <CategorySelect
+              title="Impatti Negativi"
+              description="Seleziona i potenziali impatti negativi per questo tema materiale"
+              options={iroData.negativeImpacts}
+              selections={selections.selectedNegativeImpacts}
+              onSelectionChange={(value) => handleSelectionChange("selectedNegativeImpacts", value)}
+            />
+          </div>
+          
+          {/* Seconda riga: Rischi e Opportunità */}
+          <div className="grid grid-cols-2 gap-6">
             <CategorySelect
               title="Rischi"
               description="Seleziona i rischi rilevanti per questo tema materiale"
@@ -99,9 +109,7 @@ const IRODialog: React.FC<IRODialogProps> = ({
               selections={selections.selectedRisks}
               onSelectionChange={(value) => handleSelectionChange("selectedRisks", value)}
             />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
             <CategorySelect
               title="Opportunità"
               description="Seleziona le opportunità rilevanti per questo tema materiale"
@@ -109,13 +117,17 @@ const IRODialog: React.FC<IRODialogProps> = ({
               selections={selections.selectedOpportunities}
               onSelectionChange={(value) => handleSelectionChange("selectedOpportunities", value)}
             />
-            
+          </div>
+          
+          {/* Terza riga: Azioni (larghezza doppia) */}
+          <div className="grid grid-cols-1 gap-6">
             <CategorySelect
               title="Azioni"
               description="Seleziona le azioni rilevanti per questo tema materiale"
               options={iroData.actions}
               selections={selections.selectedActions}
               onSelectionChange={(value) => handleSelectionChange("selectedActions", value)}
+              className="col-span-1"
             />
           </div>
         </div>

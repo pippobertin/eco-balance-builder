@@ -9,6 +9,7 @@ interface CategorySelectProps {
   options: string[];
   selections: string[];
   onSelectionChange: (value: string) => void;
+  className?: string;
 }
 
 const CategorySelect: React.FC<CategorySelectProps> = ({
@@ -16,10 +17,11 @@ const CategorySelect: React.FC<CategorySelectProps> = ({
   description,
   options,
   selections,
-  onSelectionChange
+  onSelectionChange,
+  className
 }) => {
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${className}`}>
       <h3 className="text-lg font-medium text-gray-900">{title}</h3>
       <p className="text-sm text-gray-500">{description}</p>
       
