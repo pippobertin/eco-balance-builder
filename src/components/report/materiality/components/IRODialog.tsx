@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -66,6 +67,39 @@ const IRODialog: React.FC<IRODialogProps> = ({
     actions: []
   };
 
+  const renderSelectGroup = (
+    title: string,
+    description: string,
+    category: keyof IROSelections,
+    options: string[]
+  ) => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+      <p className="text-sm text-gray-500">{description}</p>
+      
+      {[0, 1, 2, 3].map((index) => (
+        <div key={`${category}-${index}`} className="mb-2">
+          <Select 
+            value={selections[category][index] || "none"} 
+            onValueChange={(value) => handleSelectionChange(category, index, value === "none" ? "" : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={`Seleziona ${title.toLowerCase()}`} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Nessuna selezione</SelectItem>
+              {options.map((option, i) => (
+                <SelectItem key={`${category}-option-${i}`} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -81,111 +115,35 @@ const IRODialog: React.FC<IRODialogProps> = ({
         
         <div className="py-4 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Impatti</h3>
-              <p className="text-sm text-gray-500">Seleziona gli impatti rilevanti per questo tema materiale</p>
-              
-              {[0, 1, 2, 3].map((index) => (
-                <div key={`impact-${index}`} className="mb-2">
-                  <Select 
-                    value={selections.selectedImpacts[index] || ''} 
-                    onValueChange={(value) => handleSelectionChange('selectedImpacts', index, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleziona un impatto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Nessuna selezione</SelectItem>
-                      {iroData.impacts.map((impact, i) => (
-                        <SelectItem key={`impact-option-${i}`} value={impact}>
-                          {impact}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
+            {renderSelectGroup(
+              "Impatti",
+              "Seleziona gli impatti rilevanti per questo tema materiale",
+              "selectedImpacts",
+              iroData.impacts
+            )}
             
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Rischi</h3>
-              <p className="text-sm text-gray-500">Seleziona i rischi rilevanti per questo tema materiale</p>
-              
-              {[0, 1, 2, 3].map((index) => (
-                <div key={`risk-${index}`} className="mb-2">
-                  <Select 
-                    value={selections.selectedRisks[index] || ''} 
-                    onValueChange={(value) => handleSelectionChange('selectedRisks', index, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleziona un rischio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Nessuna selezione</SelectItem>
-                      {iroData.risks.map((risk, i) => (
-                        <SelectItem key={`risk-option-${i}`} value={risk}>
-                          {risk}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
+            {renderSelectGroup(
+              "Rischi",
+              "Seleziona i rischi rilevanti per questo tema materiale",
+              "selectedRisks",
+              iroData.risks
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Opportunità</h3>
-              <p className="text-sm text-gray-500">Seleziona le opportunità rilevanti per questo tema materiale</p>
-              
-              {[0, 1, 2, 3].map((index) => (
-                <div key={`opportunity-${index}`} className="mb-2">
-                  <Select 
-                    value={selections.selectedOpportunities[index] || ''} 
-                    onValueChange={(value) => handleSelectionChange('selectedOpportunities', index, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleziona un'opportunità" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Nessuna selezione</SelectItem>
-                      {iroData.opportunities.map((opportunity, i) => (
-                        <SelectItem key={`opportunity-option-${i}`} value={opportunity}>
-                          {opportunity}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
+            {renderSelectGroup(
+              "Opportunità",
+              "Seleziona le opportunità rilevanti per questo tema materiale",
+              "selectedOpportunities",
+              iroData.opportunities
+            )}
             
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Azioni</h3>
-              <p className="text-sm text-gray-500">Seleziona le azioni rilevanti per questo tema materiale</p>
-              
-              {[0, 1, 2, 3].map((index) => (
-                <div key={`action-${index}`} className="mb-2">
-                  <Select 
-                    value={selections.selectedActions[index] || ''} 
-                    onValueChange={(value) => handleSelectionChange('selectedActions', index, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleziona un'azione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Nessuna selezione</SelectItem>
-                      {iroData.actions.map((action, i) => (
-                        <SelectItem key={`action-option-${i}`} value={action}>
-                          {action}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
+            {renderSelectGroup(
+              "Azioni",
+              "Seleziona le azioni rilevanti per questo tema materiale",
+              "selectedActions",
+              iroData.actions
+            )}
           </div>
         </div>
         
