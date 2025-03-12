@@ -1,4 +1,3 @@
-
 import { MaterialityIssue } from '../types';
 
 const createBasicIssue = (id: string, name: string, description: string): MaterialityIssue => ({
@@ -10,7 +9,6 @@ const createBasicIssue = (id: string, name: string, description: string): Materi
   isMaterial: false
 });
 
-// Create header themes with more visible styling
 const createHeaderTheme = (id: string, name: string): MaterialityIssue => ({
   id,
   name,
