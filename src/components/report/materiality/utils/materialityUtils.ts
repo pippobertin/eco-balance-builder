@@ -29,7 +29,17 @@ const themeHeaders = [
   'governance',
   'ambiente',
   'sociale',
-  'governance-header'
+  'governance-header',
+  'cambiamenti climatici',
+  'biodiversità ed ecosistemi',
+  'inquinamento',
+  'acque e risorse marine',
+  'economia circolare',
+  'forza lavoro propria',
+  'lavoratori nella catena del valore',
+  'comunità interessate',
+  'consumatori e utilizzatori finali',
+  'condotta delle imprese'
 ];
 
 // Text patterns that indicate a header
@@ -46,12 +56,17 @@ const headerNamePatterns = [
   'condotta delle imprese'
 ];
 
-export const isHeaderTheme = (id: string): boolean => {
-  // Convert ID to lowercase for case-insensitive matching
+export const isHeaderTheme = (id: string, name?: string): boolean => {
+  // Convert ID and name to lowercase for case-insensitive matching
   const lowercaseId = id.toLowerCase();
+  const lowercaseName = name ? name.toLowerCase() : '';
   
-  // Check if it's in the themeHeaders array
+  // First, direct match with themeHeaders array
   if (themeHeaders.includes(id)) return true;
+  if (themeHeaders.includes(lowercaseId)) return true;
+  
+  // Check if name matches a header name pattern
+  if (name && headerNamePatterns.includes(lowercaseName)) return true;
   
   // Check if it contains common header patterns
   if (lowercaseId.includes('header') || lowercaseId.includes('-header')) return true;
@@ -66,9 +81,19 @@ export const isHeaderTheme = (id: string): boolean => {
       lowercaseId.startsWith('social-') || 
       lowercaseId.startsWith('governance-')) return true;
   
-  // Check if the ID is a known header name
+  // Check specific header names that have dedicated IDs
+  if (
+    lowercaseId === 'climate-change' || 
+    lowercaseId === 'biodiversity' || 
+    lowercaseId === 'pollution' || 
+    lowercaseId === 'water-resources' || 
+    lowercaseId === 'circular-economy'
+  ) return true;
+  
+  // Check if the ID or name is a known header name
   return headerNamePatterns.some(pattern => 
-    lowercaseId.includes(pattern.toLowerCase())
+    lowercaseId.includes(pattern.toLowerCase()) || 
+    (name && lowercaseName.includes(pattern.toLowerCase()))
   );
 };
 

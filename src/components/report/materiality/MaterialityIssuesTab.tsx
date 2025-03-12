@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart2, List, Search } from 'lucide-react';
+import { BarChart2, List, Search, PlusCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import IssueItem from './IssueItem';
@@ -11,6 +11,8 @@ import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
 import NoIssuesFound from './components/NoIssuesFound';
 import PredefinedIssuesSelector from './components/PredefinedIssuesSelector';
+import ThemesCategoryTabs from './components/ThemesCategoryTabs';
+import { isHeaderTheme } from './utils/materialityUtils';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -38,15 +40,25 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Filter material issues (those with isMaterial true)
-  const materialIssues = issues.filter(issue => issue.isMaterial);
+  const materialIssues = issues.filter(issue => issue.isMaterial && !isHeaderTheme(issue.id, issue.name));
+  
+  // Filter available issues (those with isMaterial false or headers)
+  const availableIssues = issues.filter(issue => !issue.isMaterial || isHeaderTheme(issue.id, issue.name));
   
   // Filter current issues based on search query
-  const filteredIssues = searchQuery 
-    ? issues.filter(issue => 
+  const filteredMaterialIssues = searchQuery 
+    ? materialIssues.filter(issue => 
         issue.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         issue.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : issues;
+    : materialIssues;
+    
+  const filteredAvailableIssues = searchQuery 
+    ? availableIssues.filter(issue => 
+        issue.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        issue.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : availableIssues;
 
   return (
     <div className="space-y-6">
@@ -88,33 +100,60 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
             </div>
           )}
           
-          {/* Re-add the PredefinedIssuesSelector component */}
           <PredefinedIssuesSelector 
             onAddIssue={onAddCustomIssue}
             currentIssues={issues}
           />
           
-          {filteredIssues.length === 0 ? (
-            <NoIssuesFound />
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-500">
-                Seleziona i temi materiali e valuta la loro rilevanza finanziaria e d'impatto.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Colonna sinistra: temi disponibili */}
+            <div>
+              <h3 className="text-base font-semibold mb-2 text-gray-700 flex items-center">
+                <PlusCircle className="mr-2 h-4 w-4 text-green-600" />
+                Temi Disponibili
+              </h3>
               
-              <div className="space-y-2">
-                {filteredIssues.map((issue) => (
-                  <IssueItem
-                    key={issue.id}
-                    issue={issue}
-                    onIssueChange={onIssueChange}
-                    onRemoveIssue={onRemoveIssue}
-                    isPredefined={!issue.id.startsWith('custom-')}
-                  />
-                ))}
-              </div>
+              {filteredAvailableIssues.length === 0 ? (
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <p className="text-gray-500 text-sm">Nessun tema disponibile con questi criteri di ricerca.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-auto pr-2">
+                  {filteredAvailableIssues.map((issue) => (
+                    <IssueItem
+                      key={issue.id}
+                      issue={issue}
+                      onIssueChange={onIssueChange}
+                      isPredefined={!issue.id.startsWith('custom-')}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+            
+            {/* Colonna destra: temi selezionati */}
+            <div>
+              <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Selezionati</h3>
+              
+              {filteredMaterialIssues.length === 0 ? (
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <p className="text-gray-500 text-sm">Nessun tema selezionato. Usa il pulsante "+" per aggiungere temi.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-auto pr-2">
+                  {filteredMaterialIssues.map((issue) => (
+                    <IssueItem
+                      key={issue.id}
+                      issue={issue}
+                      onIssueChange={onIssueChange}
+                      onRemoveIssue={onRemoveIssue}
+                      isPredefined={!issue.id.startsWith('custom-')}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="matrix">

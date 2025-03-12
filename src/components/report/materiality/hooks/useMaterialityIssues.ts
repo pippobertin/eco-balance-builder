@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MaterialityIssue } from '../types';
 import { predefinedIssues } from '../utils/materialityUtils';
+import { isHeaderTheme } from '../utils/materialityUtils';
 
 export const useMaterialityIssues = (
   initialIssues: MaterialityIssue[] | undefined, 
@@ -9,7 +10,7 @@ export const useMaterialityIssues = (
 ) => {
   const [issues, setIssues] = useState<MaterialityIssue[]>(
     initialIssues && initialIssues.length > 0 
-      ? initialIssues.map(issue => ({ ...issue, isMaterial: true }))
+      ? initialIssues
       : []
   );
 
@@ -27,7 +28,6 @@ export const useMaterialityIssues = (
         console.log("Updating issues from initialIssues:", initialIssues);
         const processedIssues = initialIssues.map(issue => ({
           ...issue,
-          isMaterial: true, // Always set as material
           impactRelevance: Number(issue.impactRelevance),
           financialRelevance: Number(issue.financialRelevance)
         }));
@@ -56,6 +56,13 @@ export const useMaterialityIssues = (
 
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     console.log(`Changing issue ${id} field ${String(field)} to`, value);
+    
+    // Non permettere modifiche se è un tema header
+    const issueToUpdate = issues.find(issue => issue.id === id);
+    if (issueToUpdate && isHeaderTheme(issueToUpdate.id, issueToUpdate.name)) {
+      console.log("Cannot modify header theme:", issueToUpdate.name);
+      return;
+    }
     
     setIssues(prevIssues => {
       const updatedIssues = prevIssues.map(issue => {
@@ -102,7 +109,7 @@ export const useMaterialityIssues = (
             description: predefinedIssue.description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Always set as material
+            isMaterial: true // Set as material by default
           }
         ];
         
@@ -119,7 +126,7 @@ export const useMaterialityIssues = (
             description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Always set as material
+            isMaterial: true // Set as material by default
           }
         ];
         
@@ -131,8 +138,19 @@ export const useMaterialityIssues = (
 
   const removeIssue = (id: string) => {
     console.log("Removing issue:", id);
+    
+    // Verifica se il tema è un header prima di rimuoverlo
+    const issueToRemove = issues.find(issue => issue.id === id);
+    if (issueToRemove && isHeaderTheme(issueToRemove.id, issueToRemove.name)) {
+      console.log("Cannot remove header theme:", issueToRemove.name);
+      return;
+    }
+    
     setIssues(prevIssues => {
-      const updatedIssues = prevIssues.filter(issue => issue.id !== id);
+      // Invece di rimuovere completamente, impostiamo isMaterial a false
+      const updatedIssues = prevIssues.map(issue => 
+        issue.id === id ? { ...issue, isMaterial: false } : issue
+      );
       
       setTimeout(() => onUpdate(updatedIssues), 0);
       

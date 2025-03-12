@@ -21,20 +21,21 @@ const IssueItem: React.FC<IssueItemProps> = ({
   isPredefined = false
 }) => {
   // Check if this issue is a header theme with improved detection
-  const isHeader = isHeaderTheme(issue.id);
+  const isHeader = isHeaderTheme(issue.id, issue.name);
 
-  // Check if this is a category header by name
-  const isCategoryHeader = 
-    issue.name === 'Cambiamenti climatici' || 
-    issue.name === 'Biodiversità ed ecosistemi' ||
-    issue.name === 'Inquinamento' ||
-    issue.name === 'Acque e risorse marine' ||
-    issue.name === 'Economia circolare' ||
-    issue.name === 'Forza lavoro propria' ||
-    issue.name === 'Lavoratori nella catena del valore' ||
-    issue.name === 'Comunità interessate' ||
-    issue.name === 'Consumatori e utilizzatori finali' ||
-    issue.name === 'Condotta delle imprese';
+  // Check if this is a category header by exact name match
+  const isCategoryHeader = [
+    'Cambiamenti climatici',
+    'Biodiversità ed ecosistemi',
+    'Inquinamento',
+    'Acque e risorse marine',
+    'Economia circolare',
+    'Forza lavoro propria',
+    'Lavoratori nella catena del valore',
+    'Comunità interessate',
+    'Consumatori e utilizzatori finali',
+    'Condotta delle imprese'
+  ].includes(issue.name);
   
   // Get the appropriate background color for different header categories
   const getHeaderBackgroundColor = (id: string, name: string) => {
@@ -81,13 +82,13 @@ const IssueItem: React.FC<IssueItemProps> = ({
     <div 
       className={`p-4 rounded-lg border mb-2 ${
         isHeaderItem
-          ? `${getHeaderBackgroundColor(issue.id, issue.name)} font-bold` 
+          ? `${getHeaderBackgroundColor(issue.id, issue.name)} font-bold text-gray-900` 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h4 className={`${isHeaderItem ? 'font-bold text-gray-900' : 'text-sm font-medium text-gray-900'}`}>
+          <h4 className={`${isHeaderItem ? 'font-bold text-gray-900 text-base' : 'text-sm font-medium text-gray-900'}`}>
             {issue.name}
           </h4>
           {issue.description && !isHeaderItem && (
