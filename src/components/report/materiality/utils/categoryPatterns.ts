@@ -3,23 +3,32 @@
 
 // Categories for environmental themes
 export const environmentalPatterns = [
-  'env-', 'climate-', 'energy-', 'pollution-', 'substances-', 
-  'water-', 'ocean-', 'marine-', 'biodiversity-', 
-  'species-', 'soil-', 'desertification', 'ecosystem-', 
-  'resource-', 'waste-', 'circular-'
+  'climate-',     // Climate change themes
+  'pollution-',   // Pollution themes
+  'water-',       // Water and marine resources
+  'marine-',      // Marine resources
+  'biodiversity-', // Biodiversity and ecosystems
+  'ecosystem-',   // Ecosystem themes
+  'species-',     // Species impact
+  'circular-'     // Circular economy
 ];
 
 // Categories for social themes
 export const socialPatterns = [
-  'workforce-', 'labor-', 'supply-chain-', 'community-', 'indigenous-', 
-  'consumer-', 'social-', 'stakeholder-'
+  'workforce-',   // Own workforce
+  'labor-',       // Workers in value chain
+  'community-',   // Affected communities
+  'consumer-'     // Consumers and end users
 ];
 
 // Categories for governance themes
 export const governancePatterns = [
-  'gov-', 'business-', 'whistleblower-', 'animal-', 
-  'political-', 'supplier-', 'corruption-', 'ethics-',
-  'compliance-', 'transparency-'
+  'gov-',         // Business conduct
+  'corruption-',  // Active and passive corruption
+  'business-',    // Business conduct
+  'political-',   // Political engagement
+  'supplier-',    // Supplier relationships
+  'ethics-'       // Business ethics
 ];
 
 // Utility function to determine ESG category based on ID
