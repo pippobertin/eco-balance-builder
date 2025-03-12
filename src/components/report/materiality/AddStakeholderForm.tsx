@@ -42,7 +42,15 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
 
   const handleAddStakeholder = () => {
     if (newStakeholder.name.trim() && newStakeholder.category && newStakeholder.email.trim()) {
-      onAddStakeholder(newStakeholder);
+      // Make sure we're passing the complete stakeholder object including influence and interest
+      console.log('Adding stakeholder with values:', newStakeholder);
+      onAddStakeholder({
+        ...newStakeholder,
+        influence: Number(newStakeholder.influence),
+        interest: Number(newStakeholder.interest)
+      });
+      
+      // Reset form after submission
       setNewStakeholder({
         name: '',
         category: '',
@@ -52,6 +60,7 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
         email: '',
         notes: '',
       });
+      
       if (onCancel) {
         onCancel();
       }
@@ -62,7 +71,14 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
     field: K,
     value: typeof newStakeholder[K]
   ) => {
-    setNewStakeholder(prev => ({ ...prev, [field]: value }));
+    // Ensure numeric values are properly handled
+    if (field === 'influence' || field === 'interest') {
+      // If the value is a string (from a form input), convert it to a number
+      const numericValue = typeof value === 'string' ? Number(value) : value;
+      setNewStakeholder(prev => ({ ...prev, [field]: numericValue }));
+    } else {
+      setNewStakeholder(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const isFormValid = Boolean(

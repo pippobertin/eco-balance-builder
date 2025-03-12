@@ -19,17 +19,30 @@ export const useStakeholders = (
 
   const addStakeholder = (newStakeholderData: Omit<Stakeholder, 'id' | 'priority' | 'surveyStatus'>) => {
     const id = `stakeholder-${Date.now()}`;
-    const priority = calculatePriority(newStakeholderData.influence, newStakeholderData.interest);
+    // Make sure influence and interest are numbers
+    const influence = typeof newStakeholderData.influence === 'string' 
+      ? parseFloat(newStakeholderData.influence) 
+      : newStakeholderData.influence;
     
-    setStakeholders([
-      ...stakeholders,
-      {
-        ...newStakeholderData,
-        id,
-        priority,
-        surveyStatus: 'pending'
-      }
-    ]);
+    const interest = typeof newStakeholderData.interest === 'string'
+      ? parseFloat(newStakeholderData.interest)
+      : newStakeholderData.interest;
+    
+    // Calculate priority based on influence and interest
+    const priority = calculatePriority(influence, interest);
+    
+    console.log('Adding stakeholder with influence:', influence, 'interest:', interest, 'priority:', priority);
+    
+    const newStakeholder = {
+      ...newStakeholderData,
+      id,
+      priority,
+      influence,
+      interest,
+      surveyStatus: 'pending' as const
+    };
+    
+    setStakeholders(prevStakeholders => [...prevStakeholders, newStakeholder]);
     
     toast({
       title: "Stakeholder aggiunto",
@@ -49,10 +62,14 @@ export const useStakeholders = (
           
           // Update priority if influence or interest changes
           if (field === 'influence' || field === 'interest') {
-            updatedStakeholder.priority = calculatePriority(
-              field === 'influence' ? value : stakeholder.influence,
-              field === 'interest' ? value : stakeholder.interest
-            );
+            const influenceVal = field === 'influence' ? value : stakeholder.influence;
+            const interestVal = field === 'interest' ? value : stakeholder.interest;
+            
+            // Make sure values are numbers
+            const numericInfluence = typeof influenceVal === 'string' ? parseFloat(influenceVal) : influenceVal;
+            const numericInterest = typeof interestVal === 'string' ? parseFloat(interestVal) : interestVal;
+            
+            updatedStakeholder.priority = calculatePriority(numericInfluence, numericInterest);
           }
           
           return updatedStakeholder;
