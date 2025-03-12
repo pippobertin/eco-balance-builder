@@ -2,6 +2,8 @@
 import React from 'react';
 import { PlusCircle, MinusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import { MaterialityIssue } from './types';
 import { isHeaderTheme } from './utils/materialityUtils';
 
@@ -40,7 +42,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
         
         {!isHeader && (
           <div className="flex items-center gap-2">
-            {!isPredefined && onRemoveIssue && (
+            {!isPredefined && onRemoveIssue && issue.isMaterial && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -61,6 +63,38 @@ const IssueItem: React.FC<IssueItemProps> = ({
           </div>
         )}
       </div>
+
+      {/* Show sliders only for material (selected) non-header issues */}
+      {!isHeader && issue.isMaterial && (
+        <div className="mt-4 space-y-4">
+          <div>
+            <div className="flex justify-between mb-2">
+              <Label className="text-gray-900">Rilevanza di impatto: {issue.impactRelevance}%</Label>
+            </div>
+            <Slider
+              value={[issue.impactRelevance]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={(value) => onIssueChange(issue.id, 'impactRelevance', value[0])}
+              className="mb-4"
+            />
+          </div>
+          
+          <div>
+            <div className="flex justify-between mb-2">
+              <Label className="text-gray-900">Rilevanza finanziaria: {issue.financialRelevance}%</Label>
+            </div>
+            <Slider
+              value={[issue.financialRelevance]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={(value) => onIssueChange(issue.id, 'financialRelevance', value[0])}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
