@@ -32,7 +32,8 @@ const IROSummary: React.FC<IROSummaryProps> = ({ materialIssues }) => {
           <thead className="bg-gray-50">
             <tr>
               <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tema Materiale</th>
-              <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impatti</th>
+              <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impatti Positivi</th>
+              <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impatti Negativi</th>
               <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rischi</th>
               <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opportunità</th>
               <th className="py-3 px-4 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
@@ -44,10 +45,19 @@ const IROSummary: React.FC<IROSummaryProps> = ({ materialIssues }) => {
                 <td className="py-3 px-4 text-sm font-medium text-gray-900">{issue.name}</td>
                 <td className="py-3 px-4 text-sm text-gray-500">
                   <ul className="list-disc list-inside">
-                    {(issue.iroSelections?.selectedImpacts || [])
+                    {(issue.iroSelections?.selectedPositiveImpacts || [])
                       .filter(Boolean)
                       .map((impact, index) => (
-                        <li key={`impact-${index}`} className="mb-1">{impact}</li>
+                        <li key={`positive-impact-${index}`} className="mb-1">{impact}</li>
+                      ))}
+                  </ul>
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-500">
+                  <ul className="list-disc list-inside">
+                    {(issue.iroSelections?.selectedNegativeImpacts || [])
+                      .filter(Boolean)
+                      .map((impact, index) => (
+                        <li key={`negative-impact-${index}`} className="mb-1">{impact}</li>
                       ))}
                   </ul>
                 </td>

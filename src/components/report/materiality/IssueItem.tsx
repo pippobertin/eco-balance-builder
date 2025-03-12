@@ -36,7 +36,8 @@ const IssueItem: React.FC<IssueItemProps> = ({
   };
 
   const hasIROSelections = issue.iroSelections && (
-    (issue.iroSelections.selectedImpacts && issue.iroSelections.selectedImpacts.some(i => i)) ||
+    (issue.iroSelections.selectedPositiveImpacts && issue.iroSelections.selectedPositiveImpacts.some(i => i)) ||
+    (issue.iroSelections.selectedNegativeImpacts && issue.iroSelections.selectedNegativeImpacts.some(i => i)) ||
     (issue.iroSelections.selectedRisks && issue.iroSelections.selectedRisks.some(r => r)) ||
     (issue.iroSelections.selectedOpportunities && issue.iroSelections.selectedOpportunities.some(o => o)) ||
     (issue.iroSelections.selectedActions && issue.iroSelections.selectedActions.some(a => a))

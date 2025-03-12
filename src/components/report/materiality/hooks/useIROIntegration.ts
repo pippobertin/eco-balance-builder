@@ -27,7 +27,8 @@ export const useIROIntegration = (
 
   const getAvailableIROData = useCallback((issueId: string) => {
     return predefinedIROData[issueId] || {
-      impacts: [],
+      positiveImpacts: [],
+      negativeImpacts: [],
       risks: [],
       opportunities: [],
       actions: []
@@ -37,10 +38,17 @@ export const useIROIntegration = (
   const getIROCount = useCallback((issue: MaterialityIssue) => {
     if (!issue.iroSelections) return 0;
     
-    const { selectedImpacts = [], selectedRisks = [], selectedOpportunities = [], selectedActions = [] } = issue.iroSelections;
+    const { 
+      selectedPositiveImpacts = [], 
+      selectedNegativeImpacts = [], 
+      selectedRisks = [], 
+      selectedOpportunities = [], 
+      selectedActions = [] 
+    } = issue.iroSelections;
     
     const validItems = [
-      ...selectedImpacts.filter(Boolean),
+      ...selectedPositiveImpacts.filter(Boolean),
+      ...selectedNegativeImpacts.filter(Boolean),
       ...selectedRisks.filter(Boolean),
       ...selectedOpportunities.filter(Boolean),
       ...selectedActions.filter(Boolean)
