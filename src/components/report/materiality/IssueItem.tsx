@@ -22,11 +22,19 @@ const IssueItem: React.FC<IssueItemProps> = ({
 }) => {
   const isHeader = isHeaderTheme(issue.id);
   
+  // Get the appropriate background color for different header categories
+  const getHeaderBackgroundColor = (id: string) => {
+    if (id.startsWith('environmental')) return 'bg-green-50 border-green-200';
+    if (id.startsWith('social')) return 'bg-blue-50 border-blue-200';
+    if (id.startsWith('governance')) return 'bg-purple-50 border-purple-200';
+    return 'bg-gray-100 border-gray-300';
+  };
+  
   return (
     <div 
       className={`p-4 rounded-lg border mb-2 ${
         isHeader 
-          ? 'bg-gray-100 border-gray-300' 
+          ? `${getHeaderBackgroundColor(issue.id)} font-medium` 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
@@ -40,6 +48,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
           )}
         </div>
         
+        {/* Only show action buttons for non-header items */}
         {!isHeader && (
           <div className="flex items-center gap-2">
             {!isPredefined && onRemoveIssue && issue.isMaterial && (
