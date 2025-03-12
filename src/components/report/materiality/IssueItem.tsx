@@ -2,8 +2,8 @@
 import React from 'react';
 import { PlusCircle, MinusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { MaterialityIssue } from '../types';
-import { isHeaderTheme } from '../utils/materialityUtils';
+import { MaterialityIssue } from './types';
+import { isHeaderTheme } from './utils/materialityUtils';
 
 interface IssueItemProps {
   issue: MaterialityIssue;
