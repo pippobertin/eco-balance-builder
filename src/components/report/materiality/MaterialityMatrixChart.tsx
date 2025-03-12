@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts';
 import { MaterialityIssue } from './types';
@@ -13,15 +12,13 @@ interface MaterialityMatrixChartProps {
 }
 
 const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues }) => {
-  // Process data for the chart
   const chartData = processChartData(issues);
 
-  // Group data by ESG category
   const { environmentalIssues, socialIssues, governanceIssues } = groupDataByCategory(chartData);
 
   return (
     <div className="w-full h-[600px] p-4 bg-white rounded-lg shadow-sm">
-      <h3 className="text-lg font-semibold mb-6">Matrice di Materialità</h3>
+      <h3 className="text-lg font-semibold mb-6">Matrice di Doppia Materialità</h3>
       
       <div style={quadrantStyles.container}>
         <QuadrantBackground />
@@ -43,7 +40,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 if (value === 25) return 'Marginale';
                 if (value === 50) return 'Moderato';
                 if (value === 75) return 'Sostanziale';
-                if (value === 100) return 'Grave';
+                if (value === 100) return 'Elevato';
                 return '';
               }}
             >
@@ -66,7 +63,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 if (value === 25) return 'Marginale';
                 if (value === 50) return 'Moderato';
                 if (value === 75) return 'Sostanziale';
-                if (value === 100) return 'Grave';
+                if (value === 100) return 'Elevato';
                 return '';
               }}
             >
@@ -74,7 +71,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 angle={-90} 
                 value="Impatto su Persone e Ambiente - Materialità dell'Impatto" 
                 position="insideLeft" 
-                offset={25}
+                offset={45}
                 style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} 
               />
             </YAxis>
@@ -86,7 +83,6 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
             />
             <Tooltip content={<MaterialityTooltip />} />
             
-            {/* Environmental issues */}
             <Scatter
               name="Ambientale"
               data={environmentalIssues}
@@ -94,7 +90,6 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
               opacity={0.8}
             />
             
-            {/* Social issues */}
             <Scatter
               name="Sociale"
               data={socialIssues}
@@ -102,7 +97,6 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
               opacity={0.8}
             />
             
-            {/* Governance issues */}
             <Scatter
               name="Gestione"
               data={governanceIssues}
