@@ -117,15 +117,15 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
     <div className="flex justify-center mt-2 space-x-6">
       <div className="flex items-center">
         <span className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: categoryColors.environmental }}></span>
-        <span className="text-sm">Environmental</span>
+        <span className="text-sm">Ambientale</span>
       </div>
       <div className="flex items-center">
         <span className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: categoryColors.social }}></span>
-        <span className="text-sm">Social</span>
+        <span className="text-sm">Sociale</span>
       </div>
       <div className="flex items-center">
         <span className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: categoryColors.governance }}></span>
-        <span className="text-sm">Governance</span>
+        <span className="text-sm">Gestione</span>
       </div>
     </div>
   );
@@ -135,7 +135,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
     container: {
       position: 'relative' as 'relative',
       width: '100%',
-      height: '500px',
+      height: '600px',
     },
     backgroundQuadrants: {
       position: 'absolute' as 'absolute',
@@ -166,8 +166,8 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
   };
 
   return (
-    <div className="w-full h-[500px] p-4 bg-white rounded-lg shadow-sm">
-      <h3 className="text-lg font-semibold mb-4">Matrice di Materialità</h3>
+    <div className="w-full h-[600px] p-4 bg-white rounded-lg shadow-sm">
+      <h3 className="text-lg font-semibold mb-6">Matrice di Materialità</h3>
       
       <div style={backgroundStyles.container}>
         <div style={backgroundStyles.backgroundQuadrants}>
@@ -179,7 +179,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
         
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart
-            margin={{ top: 20, right: 30, bottom: 30, left: 60 }}
+            margin={{ top: 20, right: 30, bottom: 70, left: 80 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
             <XAxis 
@@ -190,15 +190,20 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
               tick={{ fontSize: 12 }}
               tickCount={5}
               tickFormatter={(value) => {
-                if (value === 0) return 'Negligible';
-                if (value === 25) return 'Marginal';
-                if (value === 50) return 'Moderate';
-                if (value === 75) return 'Substantial';
-                if (value === 100) return 'Severe';
+                if (value === 0) return 'Trascurabile';
+                if (value === 25) return 'Marginale';
+                if (value === 50) return 'Moderato';
+                if (value === 75) return 'Sostanziale';
+                if (value === 100) return 'Grave';
                 return '';
               }}
             >
-              <Label value="Impact on Company Value - Financial Materiality" offset={-10} position="insideBottom" style={{ fontSize: 12, fill: '#64748b' }} />
+              <Label 
+                value="Impatto sul Valore Aziendale - Materialità Finanziaria" 
+                offset={-5} 
+                position="insideBottom" 
+                style={{ fontSize: 12, fill: '#64748b' }} 
+              />
             </XAxis>
             <YAxis 
               type="number" 
@@ -208,27 +213,33 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
               tick={{ fontSize: 12 }}
               tickCount={5}
               tickFormatter={(value) => {
-                if (value === 0) return 'Negligible';
-                if (value === 25) return 'Marginal';
-                if (value === 50) return 'Moderate';
-                if (value === 75) return 'Substantial';
-                if (value === 100) return 'Severe';
+                if (value === 0) return 'Trascurabile';
+                if (value === 25) return 'Marginale';
+                if (value === 50) return 'Moderato';
+                if (value === 75) return 'Sostanziale';
+                if (value === 100) return 'Grave';
                 return '';
               }}
             >
-              <Label angle={-90} value="Impact on People and Environment - Impact Materiality" position="insideLeft" style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} />
+              <Label 
+                angle={-90} 
+                value="Impatto su Persone e Ambiente - Materialità dell'Impatto" 
+                position="insideLeft" 
+                offset={10}
+                style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} 
+              />
             </YAxis>
             <ZAxis
               type="number"
               dataKey="z"
-              range={[100, 400]} // Modified range to increase bubble sizes
+              range={[200, 600]}
               name="Importanza"
             />
             <Tooltip content={<CustomTooltip />} />
             
             {/* Environmental issues */}
             <Scatter
-              name="Environmental"
+              name="Ambientale"
               data={environmentalIssues}
               fill={categoryColors.environmental}
               opacity={0.8}
@@ -236,7 +247,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
             
             {/* Social issues */}
             <Scatter
-              name="Social"
+              name="Sociale"
               data={socialIssues}
               fill={categoryColors.social}
               opacity={0.8}
@@ -244,7 +255,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
             
             {/* Governance issues */}
             <Scatter
-              name="Governance"
+              name="Gestione"
               data={governanceIssues}
               fill={categoryColors.governance}
               opacity={0.8}
