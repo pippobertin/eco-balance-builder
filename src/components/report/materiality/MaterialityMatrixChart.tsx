@@ -74,14 +74,14 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 angle={-90} 
                 value="Impatto su Persone e Ambiente - Materialità dell'Impatto" 
                 position="insideLeft" 
-                offset={15}
+                offset={25}
                 style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} 
               />
             </YAxis>
             <ZAxis
               type="number"
               dataKey="z"
-              range={[300, 900]}
+              range={[400, 1200]}
               name="Importanza"
             />
             <Tooltip content={<MaterialityTooltip />} />
