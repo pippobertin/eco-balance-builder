@@ -27,7 +27,10 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setCurrentCompany: state.setCurrentCompany,
     setCurrentReport: state.setCurrentReport,
     saveSubsidiaries: state.saveSubsidiaries,
-    saveCurrentReport: state.saveCurrentReport
+    saveCurrentReport: state.saveCurrentReport,
+    needsSaving: state.needsSaving, // Added this property
+    setNeedsSaving: state.setNeedsSaving, // Added this property
+    lastSaved: state.lastSaved // Added this property
   };
 
   return (

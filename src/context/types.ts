@@ -1,3 +1,4 @@
+
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
@@ -169,6 +170,9 @@ export interface ReportContextType {
   setCurrentReport: React.Dispatch<React.SetStateAction<Report | null>>;
   saveSubsidiaries: (subsidiaries: Subsidiary[], reportId: string) => Promise<void>;
   saveCurrentReport: () => Promise<void>;
+  needsSaving: boolean; // Added this property to fix the error
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>; // Also add the setter for completeness
+  lastSaved: Date | null; // Added this to track when the report was last saved
 }
 
 // Default empty report data
