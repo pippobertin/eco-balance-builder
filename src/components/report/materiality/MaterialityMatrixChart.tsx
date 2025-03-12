@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, Label, ResponsiveContainer } from 'recharts';
 import { MaterialityIssue } from './types';
@@ -222,7 +221,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
             <ZAxis
               type="number"
               dataKey="z"
-              range={[60, 300]}
+              range={[100, 400]} // Modified range to increase bubble sizes
               name="Importanza"
             />
             <Tooltip content={<CustomTooltip />} />
