@@ -12,6 +12,47 @@
 export const issueMatchesTheme = (issueId: string, theme: string): boolean => {
   if (theme === 'all') return true;
   
+  // Environmental Themes
+  if (theme === 'Ambiente' || theme === 'environment') {
+    return (
+      issueId.startsWith('climate') || 
+      issueId === 'energy' ||
+      issueId.startsWith('pollution') || 
+      issueId.includes('substances') ||
+      issueId.startsWith('water') || 
+      issueId.includes('marine') ||
+      issueId.startsWith('biodiversity') || 
+      issueId.includes('soil') || 
+      issueId.includes('ecosystem') || 
+      issueId.includes('species') ||
+      issueId.startsWith('resource') || 
+      issueId === 'waste'
+    );
+  }
+  
+  // Social Themes
+  if (theme === 'Sociale' || theme === 'social') {
+    return (
+      (issueId.startsWith('labor') && !issueId.includes('supply')) ||
+      issueId.startsWith('supply-labor') ||
+      issueId.startsWith('community') || 
+      issueId.startsWith('indigenous') ||
+      issueId.startsWith('consumer')
+    );
+  }
+  
+  // Governance Themes
+  if (theme === 'Governance' || theme === 'governance') {
+    return (
+      issueId.startsWith('business') || 
+      issueId === 'whistleblower-protection' || 
+      issueId === 'animal-welfare' || 
+      issueId === 'political-engagement' || 
+      issueId === 'supplier-relations' ||
+      issueId.includes('corruption')
+    );
+  }
+  
   switch (theme) {
     case 'Cambiamenti climatici':
       return issueId.startsWith('climate') || issueId === 'energy';

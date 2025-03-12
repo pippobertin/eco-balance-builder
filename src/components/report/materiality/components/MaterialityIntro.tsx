@@ -19,10 +19,10 @@ const MaterialityIntro: React.FC = () => {
       <div className="p-4 bg-blue-50 rounded-md border border-blue-100">
         <p className="text-sm font-medium mb-2 text-gray-900">Come utilizzare questo strumento:</p>
         <ol className="text-sm space-y-1 list-decimal pl-4 text-gray-800">
+          <li>Seleziona i temi materiali trascinandoli dalla colonna "Temi disponibili" a "Temi selezionati"</li>
           <li>Valuta la rilevanza dell'impatto per ciascuna questione spostando il primo slider</li>
           <li>Valuta la rilevanza finanziaria spostando il secondo slider</li>
           <li>Contrassegna come "materiale" le questioni che consideri rilevanti</li>
-          <li>Aggiungi questioni personalizzate o selezionane tra quelle predefinite</li>
         </ol>
       </div>
     </div>
