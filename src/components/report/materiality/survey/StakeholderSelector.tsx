@@ -67,7 +67,7 @@ const StakeholderSelector: React.FC<StakeholderSelectorProps> = ({
         
         {pending.length === 0 ? <p className="text-sm italic text-gray-500 dark:text-gray-400">
             Nessuno stakeholder in attesa di sondaggio
-          </p> : <div className="space-y-2 p-3 rounded-md border bg-slate-100">
+          </p> : <div className="space-y-2 p-3 rounded-md border bg-emerald-100">
             {pending.map(stakeholder => <div key={stakeholder.id} className="flex items-center space-x-2">
                 <Checkbox id={`stakeholder-${stakeholder.id}`} checked={selectedStakeholders.includes(stakeholder.id)} onCheckedChange={() => onStakeholderSelection(stakeholder.id)} />
                 <Label htmlFor={`stakeholder-${stakeholder.id}`} className="flex items-center">
