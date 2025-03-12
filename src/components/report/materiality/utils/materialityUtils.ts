@@ -22,21 +22,54 @@ const themeHeaders = [
   'biodiversity',                      // Biodiversità
   'pollution',                         // Inquinamento
   'water-resources',                   // Risorse idriche
-  'circular-economy'                   // Economia circolare
+  'circular-economy',                  // Economia circolare
+  // Add header IDs that might be used in the application
+  'environmental',
+  'social',
+  'governance',
+  'ambiente',
+  'sociale',
+  'governance-header'
+];
+
+// Text patterns that indicate a header
+const headerNamePatterns = [
+  'cambiamenti climatici',
+  'biodiversità ed ecosistemi',
+  'inquinamento',
+  'acque e risorse marine',
+  'economia circolare',
+  'forza lavoro propria',
+  'lavoratori nella catena del valore',
+  'comunità interessate',
+  'consumatori e utilizzatori finali',
+  'condotta delle imprese'
 ];
 
 export const isHeaderTheme = (id: string): boolean => {
+  // Convert ID to lowercase for case-insensitive matching
+  const lowercaseId = id.toLowerCase();
+  
   // Check if it's in the themeHeaders array
   if (themeHeaders.includes(id)) return true;
   
-  // Also check for names that are common headers
-  const headerNames = ['Cambiamenti climatici', 'Biodiversità ed ecosistemi', 'Inquinamento', 
-                     'Acque e risorse marine', 'Economia circolare', 'Governance'];
+  // Check if it contains common header patterns
+  if (lowercaseId.includes('header') || lowercaseId.includes('-header')) return true;
   
-  // If the ID contains any of these patterns, it's likely a header
-  return id.toLowerCase().includes('header') || 
-         id.toLowerCase().includes('-header') ||
-         headerNames.some(name => id.toLowerCase().includes(name.toLowerCase()));
+  // Check if it contains common category keywords
+  if (lowercaseId.includes('category') || 
+      lowercaseId.includes('section') || 
+      lowercaseId.includes('group')) return true;
+  
+  // Check if it starts with common ESG prefixes followed by a dash
+  if (lowercaseId.startsWith('environmental-') || 
+      lowercaseId.startsWith('social-') || 
+      lowercaseId.startsWith('governance-')) return true;
+  
+  // Check if the ID is a known header name
+  return headerNamePatterns.some(pattern => 
+    lowercaseId.includes(pattern.toLowerCase())
+  );
 };
 
 // Helper functions for styling
