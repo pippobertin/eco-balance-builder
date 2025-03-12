@@ -23,7 +23,7 @@ const PredefinedIssuesSelector: React.FC<PredefinedIssuesSelectorProps> = ({
   issues,
   selectedIssueIds,
   onIssueSelect,
-  groupByCategory = true
+  groupByCategory = false // Changed default to false since we're using tabs
 }) => {
   // Se non ci sono issues, mostra il messaggio
   if (issues.length === 0) {
@@ -69,7 +69,7 @@ const PredefinedIssuesSelector: React.FC<PredefinedIssuesSelectorProps> = ({
     );
   }
   
-  // Altrimenti mostra la lista normale
+  // Altrimenti mostra la lista normale (senza raggruppamento, ideale per le tab)
   return (
     <div className="space-y-3">
       {issues.map(issue => (
