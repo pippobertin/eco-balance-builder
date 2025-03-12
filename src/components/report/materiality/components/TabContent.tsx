@@ -2,6 +2,7 @@
 import React from 'react';
 import MaterialityIssuesTab from '../MaterialityIssuesTab';
 import StakeholdersTab from '../StakeholdersTab';
+import { MaterialityIssue } from '../types';
 
 interface TabContentProps {
   activeTab: string;
@@ -23,6 +24,7 @@ interface TabContentProps {
     completed: number;
     total: number;
   };
+  handleUpdateIssue?: (id: string, updatedIssue: Partial<MaterialityIssue>) => void;
 }
 
 const TabContent: React.FC<TabContentProps> = ({
@@ -40,7 +42,8 @@ const TabContent: React.FC<TabContentProps> = ({
   getStakeholderPriorityColor,
   getSurveyStatusColor,
   getSurveyStatusText,
-  surveyProgress
+  surveyProgress,
+  handleUpdateIssue
 }) => {
   if (activeTab === 'issues') {
     return (
@@ -50,6 +53,7 @@ const TabContent: React.FC<TabContentProps> = ({
         onAddCustomIssue={addCustomIssue}
         onRemoveIssue={removeIssue}
         surveyProgress={surveyProgress}
+        handleUpdateIssue={handleUpdateIssue}
       />
     );
   }

@@ -7,6 +7,21 @@ export interface MaterialityIssue {
   financialRelevance: number;
   isMaterial: boolean;
   stakeholderRelevance?: number; // Media delle valutazioni degli stakeholder
+  iroSelections?: IROSelections; // Aggiungiamo le selezioni IRO
+}
+
+export interface IROData {
+  impacts: string[];
+  risks: string[];
+  opportunities: string[];
+  actions: string[];
+}
+
+export interface IROSelections {
+  selectedImpacts: string[];
+  selectedRisks: string[];
+  selectedOpportunities: string[];
+  selectedActions: string[];
 }
 
 export interface Stakeholder {

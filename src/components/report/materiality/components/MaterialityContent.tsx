@@ -5,6 +5,7 @@ import MaterialityHeader from './MaterialityHeader';
 import TabContent from './TabContent';
 import SurveyDialogWrapper from './SurveyDialogWrapper';
 import { useMaterialityContext } from '../context/MaterialityContext';
+import IROSummary from './IROSummary';
 
 const MaterialityContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('issues');
@@ -57,6 +58,7 @@ const MaterialityContent: React.FC = () => {
         getSurveyStatusColor={getSurveyStatusColor}
         getSurveyStatusText={getSurveyStatusText}
         surveyProgress={surveyProgress}
+        handleUpdateIssue={handleIssueChange}
       />
 
       <SurveyDialogWrapper 
@@ -73,6 +75,11 @@ const MaterialityContent: React.FC = () => {
         getStakeholderPriorityColor={getStakeholderPriorityColor}
         onSendSurveys={handleSendSurveys}
       />
+
+      {/* IRO Summary per visualizzare le selezioni IRO in una vista aggregata */}
+      {materialIssues.length > 0 && activeTab === 'issues' && (
+        <IROSummary materialIssues={materialIssues} />
+      )}
     </div>
   );
 };

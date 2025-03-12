@@ -1,10 +1,11 @@
 
-import React from 'react';
-import { FileText, Check, UsersRound } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Check, UsersRound, Link } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { motion } from 'framer-motion';
 import { MaterialityIssue } from './types';
 import SurveyProgressBar from './SurveyProgressBar';
+import IRODialog from './components/IRODialog';
 
 interface MaterialityReportProps {
   materialIssues: MaterialityIssue[];
@@ -13,12 +14,34 @@ interface MaterialityReportProps {
     completed: number;
     total: number;
   };
+  handleUpdateIssue?: (issueId: string, updatedIssue: Partial<MaterialityIssue>) => void;
 }
 
 const MaterialityReport: React.FC<MaterialityReportProps> = ({ 
   materialIssues,
-  surveyProgress
+  surveyProgress,
+  handleUpdateIssue
 }) => {
+  const [selectedIssue, setSelectedIssue] = useState<MaterialityIssue | null>(null);
+  const [iroDialogOpen, setIroDialogOpen] = useState(false);
+
+  const handleOpenIRODialog = (issue: MaterialityIssue) => {
+    setSelectedIssue(issue);
+    setIroDialogOpen(true);
+  };
+
+  const handleCloseIRODialog = () => {
+    setSelectedIssue(null);
+    setIroDialogOpen(false);
+  };
+
+  const handleSaveIRO = (issueId: string, iroSelections: any) => {
+    if (handleUpdateIssue) {
+      handleUpdateIssue(issueId, { iroSelections });
+    }
+    setIroDialogOpen(false);
+  };
+
   return (
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
@@ -54,11 +77,21 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
                   key={issue.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start space-x-2 p-3 border rounded-lg bg-white"
+                  className="flex items-start space-x-2 p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => handleOpenIRODialog(issue)}
                 >
-                  <Check className="h-5 w-5 text-green-500 mt-0.5" />
+                  <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{issue.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-900">{issue.name}</p>
+                      <Link className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs text-blue-600 font-medium">IRO</span>
+                      {issue.iroSelections && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                          Configurato
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-700">{issue.description}</p>
                     
                     <div className="flex flex-wrap gap-4 mt-2">
@@ -83,6 +116,15 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
           </>
         )}
       </div>
+
+      {selectedIssue && (
+        <IRODialog 
+          open={iroDialogOpen}
+          onOpenChange={setIroDialogOpen}
+          issue={selectedIssue}
+          onSave={handleSaveIRO}
+        />
+      )}
     </GlassmorphicCard>
   );
 };
