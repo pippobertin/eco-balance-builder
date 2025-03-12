@@ -6,6 +6,7 @@ import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
 import { Report } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 interface ReportModuleTabsProps {
   activeTab: string;
@@ -48,11 +49,27 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
 }) => {
   const { toast } = useToast();
   
+  // Add more specific debugging
   useEffect(() => {
-    if (currentReport && !currentReport.company) {
-      console.log("Report exists but company data is missing:", currentReport.id);
+    if (currentReport) {
+      if (!currentReport.company) {
+        console.log("Report exists but company data is missing:", currentReport.id);
+      } else {
+        console.log("Report has company data:", currentReport.company.name);
+      }
+    } else {
+      console.log("No current report loaded");
     }
   }, [currentReport]);
+
+  if (!currentReport) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <p className="text-gray-500">Caricamento report in corso...</p>
+      </div>
+    );
+  }
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">

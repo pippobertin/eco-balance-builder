@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import { Company } from '@/context/types';
 import CompanyGeneralInfo from './CompanyGeneralInfo';
 import CompanyProfileInfo from './CompanyProfileInfo';
@@ -41,7 +41,8 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
         <p className="text-gray-500">Caricamento informazioni aziendali in corso...</p>
       </div>
     );
@@ -73,8 +74,17 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
           className="bg-blue-500 hover:bg-blue-600"
           disabled={isSaving}
         >
-          {isSaving ? 'Salvataggio in corso...' : 'Salva informazioni e continua'}
-          <CheckCircle2 className="ml-2 h-4 w-4" />
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Salvataggio in corso...
+            </>
+          ) : (
+            <>
+              Salva informazioni e continua
+              <CheckCircle2 className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
     </motion.div>

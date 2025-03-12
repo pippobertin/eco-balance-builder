@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/context/ReportContext';
@@ -10,9 +10,20 @@ export const useReportNavigation = () => {
   const { currentCompany, currentReport, loadReport, loadCompanies } = useReport();
   const [isLoading, setIsLoading] = useState(true);
   
+  // Add refs to track data loading state and prevent loops
+  const isLoadingRef = useRef(false);
+  const reportLoadAttemptedRef = useRef(false);
+  
   useEffect(() => {
     const fetchData = async () => {
+      // Prevent concurrent loading attempts
+      if (isLoadingRef.current) {
+        return;
+      }
+      
+      isLoadingRef.current = true;
       setIsLoading(true);
+      
       try {
         // Ensure we have companies loaded
         if (!currentCompany) {
@@ -20,10 +31,12 @@ export const useReportNavigation = () => {
           await loadCompanies();
         }
         
-        // If we have a currentReport but it doesn't have complete company data, reload it
-        if (currentReport && currentReport.id) {
+        // Only attempt to load the report once per component lifecycle
+        // Unless we have a report ID but missing company data
+        if (currentReport && currentReport.id && !reportLoadAttemptedRef.current) {
           if (!currentReport.company || !currentReport.company.name) {
             console.log("Report exists but missing company data. Loading full report:", currentReport.id);
+            reportLoadAttemptedRef.current = true;
             await loadReport(currentReport.id);
           } else {
             console.log("Report already has company data:", currentReport.company.name);
@@ -58,11 +71,12 @@ export const useReportNavigation = () => {
         navigate('/companies');
       } finally {
         setIsLoading(false);
+        isLoadingRef.current = false;
       }
     };
     
     fetchData();
-  }, [currentCompany, currentReport, navigate, toast, loadReport, loadCompanies]);
+  }, [currentCompany?.id, currentReport?.id]); // Only trigger on ID changes, not the entire objects
 
   return { currentCompany, currentReport, isLoading };
 };

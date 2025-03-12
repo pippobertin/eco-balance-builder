@@ -106,7 +106,7 @@ export const useReportFetchOperations = () => {
       const reportPromise = withRetry(async () => {
         let query = supabase
           .from('reports')
-          .select('*, companies!inner(created_by)')
+          .select('*, companies(*)')  // Use simpler select to get complete company data
           .eq('id', reportId);
         
         // For regular users, only load reports from companies they created
@@ -121,9 +121,10 @@ export const useReportFetchOperations = () => {
           throw error;
         }
 
-        // Remove the companies data from the result
+        // Process the data if it exists
         if (data) {
           const { companies, ...reportData } = data;
+          reportData.company = companies;
           
           // Load subsidiaries if the report is consolidated
           let subsidiaries = undefined;

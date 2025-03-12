@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/context/types';
 import { supabase, withRetry } from '@/integrations/supabase/client';
@@ -24,6 +24,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const loadingAttemptedRef = useRef(false);
   
   const [companyData, setCompanyData] = useState<CompanyDataState>({
     name: '',
@@ -43,65 +44,71 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
 
   useEffect(() => {
     // Reset loading state when component mounts or currentCompany changes
-    setIsLoading(true);
-    
-    if (currentCompany && currentCompany.id) {
-      // Load the company data
-      const loadCompanyDetails = async () => {
-        try {
-          console.log("Loading company details for:", currentCompany.id);
-          
-          const { data, error } = await withRetry(() => 
-            supabase
-              .from('companies')
-              .select('*')
-              .eq('id', currentCompany.id)
-              .single()
-          );
-
-          if (error) {
-            console.error("Error loading company data:", error);
-            throw error;
-          }
-
-          if (data) {
-            console.log("Company data loaded successfully:", data);
-            setCompanyData({
-              name: data.name || '',
-              vat_number: data.vat_number || '',
-              sector: data.sector || '',
-              ateco_code: data.ateco_code || '',
-              nace_code: data.nace_code || '',
-              legal_form: data.legal_form || '',
-              collective_agreement: data.collective_agreement || '',
-              profile_about: data.profile_about || '',
-              profile_values: data.profile_values || '',
-              profile_mission: data.profile_mission || '',
-              profile_vision: data.profile_vision || '',
-              profile_value_chain: data.profile_value_chain || '',
-              profile_value_creation_factors: data.profile_value_creation_factors || ''
-            });
-          } else {
-            console.error("No company data found for ID:", currentCompany.id);
-          }
-        } catch (error) {
-          console.error('Error loading company details:', error);
-          toast({
-            title: 'Errore',
-            description: 'Impossibile caricare i dettagli aziendali',
-            variant: 'destructive'
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      loadCompanyDetails();
-    } else {
-      // If there's no company, we're not loading
+    if (!currentCompany || !currentCompany.id) {
       setIsLoading(false);
+      return;
     }
-  }, [currentCompany, toast]);
+    
+    // Prevent duplicate loading
+    if (loadingAttemptedRef.current && companyData.name) {
+      return;
+    }
+    
+    setIsLoading(true);
+    loadingAttemptedRef.current = true;
+    
+    // Load the company data
+    const loadCompanyDetails = async () => {
+      try {
+        console.log("Loading company details for:", currentCompany.id);
+        
+        const { data, error } = await withRetry(() => 
+          supabase
+            .from('companies')
+            .select('*')
+            .eq('id', currentCompany.id)
+            .single()
+        );
+
+        if (error) {
+          console.error("Error loading company data:", error);
+          throw error;
+        }
+
+        if (data) {
+          console.log("Company data loaded successfully:", data);
+          setCompanyData({
+            name: data.name || '',
+            vat_number: data.vat_number || '',
+            sector: data.sector || '',
+            ateco_code: data.ateco_code || '',
+            nace_code: data.nace_code || '',
+            legal_form: data.legal_form || '',
+            collective_agreement: data.collective_agreement || '',
+            profile_about: data.profile_about || '',
+            profile_values: data.profile_values || '',
+            profile_mission: data.profile_mission || '',
+            profile_vision: data.profile_vision || '',
+            profile_value_chain: data.profile_value_chain || '',
+            profile_value_creation_factors: data.profile_value_creation_factors || ''
+          });
+        } else {
+          console.error("No company data found for ID:", currentCompany.id);
+        }
+      } catch (error) {
+        console.error('Error loading company details:', error);
+        toast({
+          title: 'Errore',
+          description: 'Impossibile caricare i dettagli aziendali',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCompanyDetails();
+  }, [currentCompany?.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
