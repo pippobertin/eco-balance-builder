@@ -12,28 +12,28 @@ import { predefinedIssues } from '../utils/materialityUtils';
 import { useToast } from '@/hooks/use-toast';
 import { categorizeIssuesByESG, getESGCategory } from '../utils/esgCategoryUtils';
 
+// Categorie per temi ambientali
+const environmentalPatterns = [
+  'climate-', 'energy', 'pollution-', 'substances-', 
+  'water-', 'ocean-', 'marine-', 'biodiversity-', 
+  'species-', 'soil-', 'desertification', 'ecosystem-', 
+  'resource-', 'waste'
+];
+
+// Categorie per temi sociali
+const socialPatterns = [
+  'labor-', 'supply-', 'community-', 'indigenous-', 
+  'consumer-'
+];
+
+// Categorie per temi di governance
+const governancePatterns = [
+  'business-', 'whistleblower-', 'animal-', 
+  'political-', 'supplier-', 'corruption-'
+];
+
 // Aggiungi categoria ESG ai temi predefiniti in modo più accurato
 const predefinedIssuesWithCategory = predefinedIssues.map(issue => {
-  // Categorie per temi ambientali
-  const environmentalPatterns = [
-    'climate-', 'energy', 'pollution-', 'substances-', 
-    'water-', 'ocean-', 'marine-', 'biodiversity-', 
-    'species-', 'soil-', 'desertification', 'ecosystem-', 
-    'resource-', 'waste'
-  ];
-  
-  // Categorie per temi sociali
-  const socialPatterns = [
-    'labor-', 'supply-', 'community-', 'indigenous-', 
-    'consumer-'
-  ];
-  
-  // Categorie per temi di governance
-  const governancePatterns = [
-    'business-', 'whistleblower-', 'animal-', 
-    'political-', 'supplier-', 'corruption-'
-  ];
-  
   // Determina la categoria in base al pattern dell'ID
   let category = 'governance'; // Default
   
@@ -103,8 +103,16 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
       return;
     }
     
+    // Add default values for impact and financial relevance
+    const issueWithValues = {
+      ...issue,
+      impactRelevance: 50, // Default value
+      financialRelevance: 50, // Default value
+      isMaterial: false
+    };
+    
     // Call the parent component's handler
-    onIssueSelect(issue);
+    onIssueSelect(issueWithValues);
     
     toast({
       title: "Tema aggiunto",
@@ -196,6 +204,11 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
                   >
                     <div>
                       <p className="font-medium text-sm">{issue.name}</p>
+                      {issue.impactRelevance !== undefined && (
+                        <p className="text-xs text-muted-foreground">
+                          Impatto: {issue.impactRelevance}% | Finanziario: {issue.financialRelevance}%
+                        </p>
+                      )}
                     </div>
                     <TooltipProvider>
                       <Tooltip>
@@ -233,4 +246,3 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
 };
 
 export default DragDropThemes;
-
