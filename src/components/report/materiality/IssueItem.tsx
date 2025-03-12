@@ -31,13 +31,13 @@ const IssueItem: React.FC<IssueItemProps> = ({
 
   const handleImpactChange = (value: number[]) => {
     console.log(`Changing impact relevance for ${issue.id} from ${issue.impactRelevance} to ${value[0]}`);
-    // Ensure numeric value is passed
+    // Explicitly ensure we're passing a number
     onIssueChange(issue.id, 'impactRelevance', Number(value[0]));
   };
 
   const handleFinancialChange = (value: number[]) => {
     console.log(`Changing financial relevance for ${issue.id} from ${issue.financialRelevance} to ${value[0]}`);
-    // Ensure numeric value is passed
+    // Explicitly ensure we're passing a number
     onIssueChange(issue.id, 'financialRelevance', Number(value[0]));
   };
 
@@ -71,7 +71,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             <Label className="text-gray-900">Rilevanza dell'impatto: {issue.impactRelevance}%</Label>
           </div>
           <Slider
-            value={[issue.impactRelevance]}
+            value={[Number(issue.impactRelevance)]}
             min={0}
             max={100}
             step={1}
@@ -85,7 +85,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             <Label className="text-gray-900">Rilevanza finanziaria: {issue.financialRelevance}%</Label>
           </div>
           <Slider
-            value={[issue.financialRelevance]}
+            value={[Number(issue.financialRelevance)]}
             min={0}
             max={100}
             step={1}
@@ -105,7 +105,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
               Questione materiale
             </Label>
             <p className="text-sm text-gray-700">
-              {determineQuadrant(issue.impactRelevance, issue.financialRelevance)}
+              {determineQuadrant(Number(issue.impactRelevance), Number(issue.financialRelevance))}
             </p>
           </div>
         </div>

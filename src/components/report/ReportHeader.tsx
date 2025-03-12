@@ -2,18 +2,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { FileBarChart, Save } from 'lucide-react';
+import { FileBarChart, Save, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Company, Report } from '@/context/types';
 
 interface ReportHeaderProps {
   currentCompany: Company | null;
   handleSaveReport: () => Promise<void>;
+  needsSaving?: boolean;
 }
 
 const ReportHeader: React.FC<ReportHeaderProps> = ({ 
   currentCompany, 
-  handleSaveReport 
+  handleSaveReport,
+  needsSaving = false
 }) => {
   const navigate = useNavigate();
 
@@ -38,9 +40,16 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
         </p>
       </div>
       
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
+        {needsSaving && (
+          <div className="flex items-center text-amber-500 text-sm mr-2">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            <span>Modifiche non salvate</span>
+          </div>
+        )}
+        
         <Button 
-          variant="outline" 
+          variant={needsSaving ? "default" : "outline"}
           className="flex items-center gap-2"
           onClick={handleSaveReport}
         >

@@ -19,7 +19,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   getSurveyStatusColor,
   getSurveyStatusText
 }) => {
-  const { reportData, updateReportData, saveCurrentReport } = useReport();
+  const { reportData, updateReportData } = useReport();
   
   // Use custom hooks for materiality issues
   const { 
@@ -107,36 +107,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     }
   };
 
-  // Force an immediate save when issues or stakeholders change
-  useEffect(() => {
-    if (issues.length > 0 || stakeholders.length > 0) {
-      console.log("Issues or stakeholders changed, triggering immediate save");
-      const timeoutId = setTimeout(() => {
-        saveCurrentReport()
-          .then(() => console.log("Materiality data saved successfully after change"))
-          .catch(err => console.error("Error saving materiality data:", err));
-      }, 500);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [issues, stakeholders, saveCurrentReport]);
-
-  // Add an additional useEffect specifically for impact and financial relevance changes
-  useEffect(() => {
-    if (issues.length > 0) {
-      const relevanceChanged = issues.some(issue => 
-        typeof issue.impactRelevance === 'number' && 
-        typeof issue.financialRelevance === 'number'
-      );
-      
-      if (relevanceChanged) {
-        console.log("Relevance values changed, triggering immediate save", issues);
-        saveCurrentReport()
-          .then(() => console.log("Relevance values saved successfully"))
-          .catch(err => console.error("Error saving relevance values:", err));
-      }
-    }
-  }, [issues, saveCurrentReport]);
+  // We've removed the auto-save effects to rely on explicit saving instead
 
   const value = {
     // Issues

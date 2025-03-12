@@ -54,12 +54,19 @@ export const updateFormWithStakeholders = (
 ) => {
   console.log("Updating stakeholders:", updatedStakeholders);
   
+  // Process stakeholders to ensure numeric values
+  const processedStakeholders = updatedStakeholders.map(stakeholder => ({
+    ...stakeholder,
+    influence: Number(stakeholder.influence),
+    interest: Number(stakeholder.interest)
+  }));
+  
   // Create a new form values object with the updated stakeholders
   const updatedFormValues = {
     ...formValues,
     materialityAnalysis: {
       ...formValues.materialityAnalysis,
-      stakeholders: updatedStakeholders
+      stakeholders: processedStakeholders
     }
   };
   
@@ -70,7 +77,7 @@ export const updateFormWithStakeholders = (
   updateReportData({
     materialityAnalysis: {
       ...reportData.materialityAnalysis,
-      stakeholders: updatedStakeholders
+      stakeholders: processedStakeholders
     }
   });
   

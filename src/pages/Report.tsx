@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -7,18 +7,28 @@ import BaseModuleMetrics from '@/components/report/BaseModuleMetrics';
 import CompanyInformation from '@/components/report/CompanyInformation';
 import ReportHeader from '@/components/report/ReportHeader';
 import BasicInfoSection from '@/components/report/BasicInfoSection';
+import UnsavedChangesDialog from '@/components/report/UnsavedChangesDialog';
 import { useSubsidiaries } from '@/hooks/use-subsidiaries';
 import { useReport } from '@/context/ReportContext';
 import { useReportForm } from '@/hooks/use-report-form';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate, useBeforeUnload } from 'react-router-dom';
 
 const Report = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [pendingTab, setPendingTab] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<() => void | null>(() => null);
+  
   const {
     currentCompany,
     currentReport,
     saveCurrentReport,
-    saveSubsidiaries
+    saveSubsidiaries,
+    reportData,
+    updateReportData,
+    needsSaving
   } = useReport();
   
   // Use custom hooks for state management
@@ -46,6 +56,16 @@ const Report = () => {
     removeSubsidiary
   } = useSubsidiaries();
 
+  // Handle tab change with unsaved changes check
+  const handleTabChange = (value: string) => {
+    if (needsSaving) {
+      setPendingTab(value);
+      setShowUnsavedDialog(true);
+    } else {
+      setActiveTab(value);
+    }
+  };
+
   // Handle saving the report with subsidiaries
   const handleSaveWithSubsidiaries = async () => {
     await saveCurrentReport();
@@ -60,7 +80,49 @@ const Report = () => {
     });
   };
 
-  // Handle saving metrics with subsidiaries
+  // Handle saving and navigation
+  const handleSaveAndContinue = async () => {
+    try {
+      await handleSaveWithSubsidiaries();
+      
+      if (pendingTab) {
+        setActiveTab(pendingTab);
+        setPendingTab(null);
+      } else if (pendingAction) {
+        pendingAction();
+      }
+      
+      setShowUnsavedDialog(false);
+    } catch (error) {
+      console.error("Error saving:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle discarding changes
+  const handleDiscardChanges = () => {
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    } else if (pendingAction) {
+      pendingAction();
+    }
+    
+    setShowUnsavedDialog(false);
+  };
+
+  // Handle closing the dialog
+  const handleCloseDialog = () => {
+    setPendingTab(null);
+    setPendingAction(() => null);
+    setShowUnsavedDialog(false);
+  };
+
+  // Save metrics with subsidiaries
   const saveMetricsWithSubsidiaries = async () => {
     saveMetrics();
     
@@ -68,6 +130,19 @@ const Report = () => {
       await saveSubsidiaries(subsidiaries, currentReport.id);
     }
   };
+  
+  // Warn user before unload if there are unsaved changes
+  useBeforeUnload(
+    React.useCallback(
+      (event) => {
+        if (needsSaving) {
+          event.preventDefault();
+          return '';
+        }
+      },
+      [needsSaving]
+    )
+  );
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -78,9 +153,10 @@ const Report = () => {
           <ReportHeader 
             currentCompany={currentCompany} 
             handleSaveReport={handleSaveWithSubsidiaries} 
+            needsSaving={needsSaving}
           />
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="company-info">Informazioni Azienda</TabsTrigger>
               <TabsTrigger value="basic-info">Informazioni Base</TabsTrigger>
@@ -90,7 +166,14 @@ const Report = () => {
             <TabsContent value="company-info">
               <CompanyInformation 
                 currentCompany={currentCompany}
-                onNext={() => setActiveTab('basic-info')}
+                onNext={() => {
+                  if (needsSaving) {
+                    setPendingTab('basic-info');
+                    setShowUnsavedDialog(true);
+                  } else {
+                    setActiveTab('basic-info');
+                  }
+                }}
               />
             </TabsContent>
 
@@ -105,7 +188,14 @@ const Report = () => {
                 setNewSubsidiary={setNewSubsidiary}
                 handleAddSubsidiary={handleAddSubsidiary}
                 removeSubsidiary={removeSubsidiary}
-                onContinue={saveBasicInfo}
+                onContinue={() => {
+                  if (needsSaving) {
+                    setPendingTab('metrics');
+                    setShowUnsavedDialog(true);
+                  } else {
+                    saveBasicInfo();
+                  }
+                }}
               />
             </TabsContent>
             
@@ -113,7 +203,14 @@ const Report = () => {
               <BaseModuleMetrics 
                 formValues={formValues} 
                 setFormValues={setFormValues} 
-                onPrevious={() => setActiveTab('basic-info')} 
+                onPrevious={() => {
+                  if (needsSaving) {
+                    setPendingTab('basic-info');
+                    setShowUnsavedDialog(true);
+                  } else {
+                    setActiveTab('basic-info');
+                  }
+                }} 
                 onSave={saveMetricsWithSubsidiaries} 
                 selectedOption={currentReport?.report_type || 'A'}
                 initialSection={initialSection}
@@ -125,6 +222,13 @@ const Report = () => {
       </main>
       
       <Footer />
+      
+      <UnsavedChangesDialog 
+        open={showUnsavedDialog}
+        onClose={handleCloseDialog}
+        onSave={handleSaveAndContinue}
+        onDiscard={handleDiscardChanges}
+      />
     </div>
   );
 };
