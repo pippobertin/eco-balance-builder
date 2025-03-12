@@ -1,3 +1,4 @@
+
 import { MaterialityIssue } from '../types';
 
 const createBasicIssue = (id: string, name: string, description: string): MaterialityIssue => ({
@@ -46,14 +47,17 @@ export const predefinedIssues: MaterialityIssue[] = [
 
   // AMBIENTE - Biodiversità ed ecosistemi
   createHeaderTheme('environmental-biodiversity-header', 'Biodiversità ed ecosistemi'),
+  // Fattori di impatto diretto sulla perdita di biodiversità
   createBasicIssue('biodiversity-climate', 'Cambiamenti climatici', 'Impatto dei cambiamenti climatici sulla biodiversità'),
   createBasicIssue('biodiversity-land-use', 'Cambiamento di uso del suolo, dell\'acqua dolce e del mare', 'Impatto dei cambiamenti di uso del territorio sulla biodiversità'),
   createBasicIssue('biodiversity-exploitation', 'Sfruttamento diretto', 'Impatto dello sfruttamento diretto sulla biodiversità'),
   createBasicIssue('biodiversity-species', 'Specie esotiche invasive', 'Gestione delle specie esotiche invasive'),
   createBasicIssue('biodiversity-pollution', 'Inquinamento', 'Impatto dell\'inquinamento sulla biodiversità'),
   createBasicIssue('biodiversity-other', 'Altro', 'Altri fattori di impatto sulla biodiversità'),
+  // Impatti sullo stato delle specie
   createBasicIssue('species-population', 'Dimensioni della popolazione di una specie', 'Impatto sulle dimensioni della popolazione di una specie'),
   createBasicIssue('species-extinction', 'Rischio di estinzione globale di una specie', 'Contributo al rischio di estinzione di una specie'),
+  // Impatti sull'estensione e sulla condizione degli ecosistemi
   createBasicIssue('ecosystem-soil', 'Degrado del suolo', 'Impatti sul degrado del suolo'),
   createBasicIssue('ecosystem-desertification', 'Desertificazione', 'Contributo alla desertificazione'),
   createBasicIssue('ecosystem-impermeability', 'Impermeabilizzazione del suolo', 'Impatti legati all\'impermeabilizzazione del suolo'),
