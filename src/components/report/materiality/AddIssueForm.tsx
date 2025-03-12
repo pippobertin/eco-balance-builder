@@ -8,15 +8,17 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
 interface AddIssueFormProps {
   onAddIssue: (name: string, description: string) => void;
+  onClose: () => void;
 }
 
-const AddIssueForm: React.FC<AddIssueFormProps> = ({ onAddIssue }) => {
+const AddIssueForm: React.FC<AddIssueFormProps> = ({ onAddIssue, onClose }) => {
   const [newIssue, setNewIssue] = useState({ name: '', description: '' });
 
   const handleAddIssue = () => {
     if (newIssue.name.trim() && newIssue.description.trim()) {
       onAddIssue(newIssue.name, newIssue.description);
       setNewIssue({ name: '', description: '' });
+      onClose(); // Call onClose after adding the issue
     }
   };
 
@@ -50,14 +52,24 @@ const AddIssueForm: React.FC<AddIssueFormProps> = ({ onAddIssue }) => {
           />
         </div>
         
-        <Button 
-          onClick={handleAddIssue}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-          disabled={!newIssue.name.trim() || !newIssue.description.trim()}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Aggiungi questione
-        </Button>
+        <div className="flex justify-between gap-2">
+          <Button 
+            onClick={onClose}
+            variant="outline"
+            className="w-full"
+          >
+            Annulla
+          </Button>
+          
+          <Button 
+            onClick={handleAddIssue}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            disabled={!newIssue.name.trim() || !newIssue.description.trim()}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Aggiungi questione
+          </Button>
+        </div>
       </div>
     </GlassmorphicCard>
   );
