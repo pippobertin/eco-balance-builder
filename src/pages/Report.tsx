@@ -17,7 +17,7 @@ const Report = () => {
   const [pendingAction, setPendingAction] = useState<() => void | null>(() => null);
   
   const { needsSaving, saveCurrentReport } = useReport();
-  const { currentCompany } = useReportNavigation();
+  const { currentCompany, currentReport } = useReportNavigation();
   
   const {
     activeTab,
@@ -101,7 +101,7 @@ const Report = () => {
             setFormValues={setFormValues}
             isConsolidated={isConsolidated}
             subsidiaries={subsidiaries}
-            currentReport={null} // Pass from useReportForm
+            currentReport={currentReport} // Corretto il passaggio di currentReport
             sustainabilityPractices={sustainabilityPractices}
             setSustainabilityPractices={setSustainabilityPractices}
             newSubsidiary={newSubsidiary}
