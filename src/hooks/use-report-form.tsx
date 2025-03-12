@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -19,10 +18,8 @@ export const useReportForm = () => {
     loadReport
   } = useReport();
   
-  // Use the extracted subsidiaries hook
   const subsidiariesState = useSubsidiaries();
   
-  // Check if a specific tab is requested in the location state
   const initialTab = location.state?.activeTab || 'company-info';
   const initialSection = location.state?.section;
   const initialField = location.state?.field;
@@ -38,12 +35,10 @@ export const useReportForm = () => {
     materialityAnalysis: reportData.materialityAnalysis || {}
   });
 
-  // Load current report data
   useEffect(() => {
     if (currentReport) {
       setIsConsolidated(currentReport.is_consolidated);
       
-      // Load form data from report
       setFormValues({
         environmentalMetrics: reportData.environmentalMetrics || {},
         socialMetrics: reportData.socialMetrics || {},
@@ -52,13 +47,11 @@ export const useReportForm = () => {
         materialityAnalysis: reportData.materialityAnalysis || {}
       });
       
-      // If the report doesn't have company data loaded yet, load it
-      if (currentReport.id && (!currentReport.company || !currentReport.company.name)) {
+      if (currentReport.id && (!currentReport.company || !currentReport.company?.name)) {
         console.log("Loading full report data");
         loadReport(currentReport.id);
       }
       
-      // If no company or report is selected, redirect to the companies page
       if (!currentCompany) {
         toast({
           title: "Nessuna azienda selezionata",
@@ -68,7 +61,6 @@ export const useReportForm = () => {
         navigate('/companies');
       }
     } else {
-      // If no active report, redirect to the companies page
       toast({
         title: "Nessun report attivo",
         description: "Seleziona o crea un report per continuare",
@@ -78,9 +70,7 @@ export const useReportForm = () => {
     }
   }, [currentReport, currentCompany, navigate, toast, reportData, loadReport]);
 
-  // Save report handler
   const handleSaveReport = async () => {
-    // Make sure to update the reportData with the current formValues before saving
     updateReportData(formValues);
     
     await saveCurrentReport();
@@ -91,9 +81,7 @@ export const useReportForm = () => {
     });
   };
 
-  // Navigate to basic info tab
   const saveBasicInfo = () => {
-    // Save subsidiaries if the report is consolidated
     if (isConsolidated && currentReport) {
       saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
     }
@@ -105,9 +93,7 @@ export const useReportForm = () => {
     setActiveTab('metrics');
   };
   
-  // Save metrics
   const saveMetrics = async () => {
-    // Make sure to update the reportData with the current formValues before saving
     updateReportData(formValues);
     
     await saveCurrentReport();
@@ -130,10 +116,8 @@ export const useReportForm = () => {
     handleSaveReport,
     saveBasicInfo,
     saveMetrics,
-    // Return the section and field for scrolling to the specific section
     initialSection,
     initialField,
-    // Return subsidiaries state
     ...subsidiariesState
   };
 };

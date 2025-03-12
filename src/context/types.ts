@@ -27,6 +27,7 @@ export interface Company {
 export interface Report {
   id: string;
   company_id: string;
+  company?: Company; // Add this to support the joined company data
   report_year: string;
   report_type: string; // A, B, C, D
   is_consolidated: boolean;

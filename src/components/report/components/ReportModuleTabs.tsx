@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyInformation from '../CompanyInformation';
 import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
-import { Company, Report } from '@/context/types';
+import { Report } from '@/context/types';
 
 interface ReportModuleTabsProps {
   activeTab: string;
@@ -55,7 +54,7 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
 
       <TabsContent value="company-info">
         <CompanyInformation 
-          currentCompany={currentReport?.company}
+          currentCompany={currentReport?.company || null}
           onNext={() => onTabChange('basic-info')}
         />
       </TabsContent>
