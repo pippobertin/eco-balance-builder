@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Circular economy related IRO data
 export const circularEconomyIROData: Record<string, IROData> = {
   'resource-inflows': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione dell\'utilizzo di materie prime vergini',
       'Diminuzione dell\'impronta ecologica dei prodotti',
       'Riduzione degli impatti ambientali dell\'estrazione di risorse',
       'Preservazione delle risorse naturali non rinnovabili'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di nuovi processi',
+      'Investimenti in ricerca e sviluppo',
+      'Limitazioni nella disponibilità di materiali alternativi',
+      'Potenziali compromessi nella qualità dei prodotti'
     ],
     risks: [
       'Volatilità dei prezzi delle materie prime',
@@ -30,11 +36,17 @@ export const circularEconomyIROData: Record<string, IROData> = {
     ]
   },
   'resource-outflows': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione dei rifiuti',
       'Aumento del riciclo e del riutilizzo',
       'Diminuzione dell\'inquinamento',
       'Preservazione delle risorse naturali'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi di gestione dei rifiuti',
+      'Investimenti in tecnologie di riciclo',
+      'Complessità logistica nella gestione dei flussi di materiali',
+      'Potenziali limitazioni nella valorizzazione di alcuni materiali'
     ],
     risks: [
       'Aumento dei costi di smaltimento',
@@ -56,11 +68,17 @@ export const circularEconomyIROData: Record<string, IROData> = {
     ]
   },
   'waste': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione della produzione di rifiuti',
       'Aumento del riciclo e del riutilizzo',
       'Diminuzione dell\'inquinamento',
       'Preservazione delle risorse naturali'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi di riduzione dei rifiuti',
+      'Investimenti in tecnologie e processi alternativi',
+      'Complessità nella gestione di filiere produttive complesse',
+      'Potenziali limitazioni nella varietà di prodotti offerti'
     ],
     risks: [
       'Aumento dei costi di smaltimento',

@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Affected communities related IRO data
 export const communityIROData: Record<string, IROData> = {
   'community-local-impacts': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento delle condizioni di vita delle comunità locali',
       'Creazione di posti di lavoro',
       'Sviluppo economico',
       'Protezione dell\'ambiente'
+    ],
+    negativeImpacts: [
+      'Potenziale impatto su ecosistemi locali',
+      'Cambiamenti nelle dinamiche sociali',
+      'Utilizzo di risorse condivise',
+      'Effetti su attività economiche tradizionali'
     ],
     risks: [
       'Conflitti con le comunità locali',
@@ -30,11 +36,17 @@ export const communityIROData: Record<string, IROData> = {
     ]
   },
   'community-human-rights': {
-    impacts: [
+    positiveImpacts: [
       'Protezione dei diritti umani',
       'Miglioramento delle condizioni di vita',
       'Riduzione della povertà',
       'Sviluppo sociale'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi di monitoraggio',
+      'Investimenti in formazione e sensibilizzazione',
+      'Complessità nel gestire contesti culturalmente diversi',
+      'Potenziali contrasti con pratiche locali'
     ],
     risks: [
       'Sanzioni normative',
@@ -56,11 +68,17 @@ export const communityIROData: Record<string, IROData> = {
     ]
   },
   'community-access-resources': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento dell\'accesso alle risorse',
       'Sviluppo economico',
       'Riduzione della povertà',
       'Miglioramento delle condizioni di vita'
+    ],
+    negativeImpacts: [
+      'Potenziale competizione per risorse limitate',
+      'Disparità di accesso tra gruppi sociali',
+      'Pressione su risorse naturali comuni',
+      'Alterazione di modelli tradizionali di utilizzo'
     ],
     risks: [
       'Conflitti con le comunità locali',

@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Own workforce related IRO data
 export const workforceIROData: Record<string, IROData> = {
   'labor-working-conditions': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento delle condizioni di lavoro',
       'Aumento della soddisfazione dei dipendenti',
       'Riduzione degli infortuni e delle malattie professionali',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di miglioramenti',
+      'Potenziale interruzione temporanea delle attività',
+      'Necessità di aggiornamento dei processi',
+      'Investimenti in infrastrutture'
     ],
     risks: [
       'Aumento dei costi del lavoro',
@@ -30,11 +36,17 @@ export const workforceIROData: Record<string, IROData> = {
     ]
   },
   'labor-health-safety': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione degli infortuni e delle malattie professionali',
       'Miglioramento della salute e della sicurezza',
       'Aumento della produttività',
       'Diminuzione dei costi sanitari'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi di sicurezza',
+      'Investimenti in dispositivi di protezione',
+      'Tempo dedicato alla formazione',
+      'Spese di monitoraggio e reporting'
     ],
     risks: [
       'Sanzioni normative',
@@ -56,11 +68,17 @@ export const workforceIROData: Record<string, IROData> = {
     ]
   },
   'labor-social-dialogue': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento del dialogo sociale',
       'Aumento della fiducia tra management e dipendenti',
       'Riduzione dei conflitti',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Tempo dedicato alle consultazioni',
+      'Necessità di strutture di rappresentanza',
+      'Complessità nella gestione delle relazioni',
+      'Potenziali ritardi decisionali'
     ],
     risks: [
       'Aumento dei costi di negoziazione',
@@ -82,11 +100,17 @@ export const workforceIROData: Record<string, IROData> = {
     ]
   },
   'labor-equal-opportunities': {
-    impacts: [
+    positiveImpacts: [
       'Promozione delle pari opportunità',
       'Aumento della diversità',
       'Miglioramento dell\'inclusione',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di politiche inclusive',
+      'Investimenti in formazione sulla diversità',
+      'Adattamento dell\'ambiente di lavoro',
+      'Spese per programmi specifici'
     ],
     risks: [
       'Sanzioni normative',
@@ -108,11 +132,17 @@ export const workforceIROData: Record<string, IROData> = {
     ]
   },
   'labor-work-life-balance': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento del work-life balance',
       'Aumento della soddisfazione dei dipendenti',
       'Riduzione dello stress',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di orari flessibili',
+      'Investimenti in tecnologie per il lavoro remoto',
+      'Complessità nella gestione di team distribuiti',
+      'Potenziale riduzione della collaborazione spontanea'
     ],
     risks: [
       'Aumento dei costi del lavoro',
@@ -134,11 +164,17 @@ export const workforceIROData: Record<string, IROData> = {
     ]
   },
   'labor-training-development': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento delle competenze dei dipendenti',
       'Aumento della produttività',
       'Innovazione',
       'Miglioramento della qualità dei prodotti e dei servizi'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di programmi formativi',
+      'Tempo sottratto alle attività produttive',
+      'Investimenti in materiali e piattaforme',
+      'Complessità nella valutazione dell\'efficacia'
     ],
     risks: [
       'Aumento dei costi di formazione',

@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Consumers and end-users related IRO data
 export const consumerIROData: Record<string, IROData> = {
   'consumer-health-safety': {
-    impacts: [
+    positiveImpacts: [
       'Protezione della salute e della sicurezza dei consumatori',
       'Miglioramento della qualità dei prodotti',
       'Aumento della fiducia dei consumatori',
       'Riduzione degli incidenti legati ai prodotti'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di standard elevati',
+      'Investimenti in test e certificazioni',
+      'Potenziale riduzione della gamma prodotti',
+      'Limitazioni creative nel design dei prodotti'
     ],
     risks: [
       'Sanzioni normative',

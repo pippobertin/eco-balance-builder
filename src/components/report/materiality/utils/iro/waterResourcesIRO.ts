@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Water and marine resources related IRO data
 export const waterResourcesIROData: Record<string, IROData> = {
   'water-consumption': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione del consumo idrico',
       'Preservazione delle risorse idriche',
       'Miglioramento dell\'efficienza idrica',
       'Diminuzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi efficienti',
+      'Potenziale riduzione della produttività a breve termine',
+      'Necessità di formazione del personale',
+      'Spese di monitoraggio e manutenzione'
     ],
     risks: [
       'Aumento dei costi dell\'acqua',
@@ -30,11 +36,17 @@ export const waterResourcesIROData: Record<string, IROData> = {
     ]
   },
   'water-withdrawal': {
-    impacts: [
+    positiveImpacts: [
       'Gestione sostenibile dei prelievi idrici',
       'Protezione degli ecosistemi acquatici',
       'Miglioramento della disponibilità di acqua',
       'Diminuzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Limitazioni ai prelievi idrici',
+      'Investimenti in infrastrutture alternative',
+      'Costi di monitoraggio e reporting',
+      'Potenziali conflitti con altri utilizzatori'
     ],
     risks: [
       'Aumento dei costi di prelievo',
@@ -56,11 +68,17 @@ export const waterResourcesIROData: Record<string, IROData> = {
     ]
   },
   'water-discharge': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione dell\'inquinamento idrico',
       'Protezione degli ecosistemi acquatici',
       'Miglioramento della qualità dell\'acqua',
       'Diminuzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Costi di trattamento delle acque reflue',
+      'Investimenti in tecnologie di depurazione',
+      'Spese di monitoraggio e reporting',
+      'Potenziali limitazioni operative'
     ],
     risks: [
       'Sanzioni normative',
@@ -82,11 +100,17 @@ export const waterResourcesIROData: Record<string, IROData> = {
     ]
   },
   'ocean-discharge': {
-    impacts: [
+    positiveImpacts: [
       'Protezione degli ecosistemi marini',
       'Riduzione dell\'inquinamento degli oceani',
       'Miglioramento della qualità dell\'acqua marina',
       'Diminuzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di sistemi di trattamento',
+      'Investimenti in tecnologie marine specializzate',
+      'Limitazioni alle operazioni marittime',
+      'Complessità normativa internazionale'
     ],
     risks: [
       'Sanzioni normative',
@@ -108,11 +132,17 @@ export const waterResourcesIROData: Record<string, IROData> = {
     ]
   },
   'marine-resources': {
-    impacts: [
+    positiveImpacts: [
       'Utilizzo sostenibile delle risorse marine',
       'Protezione della biodiversità marina',
       'Miglioramento della gestione delle risorse',
       'Diminuzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Limitazioni all\'accesso alle risorse marine',
+      'Costi di implementazione di pratiche sostenibili',
+      'Restrizioni sulle attività di pesca',
+      'Complessità normativa internazionale'
     ],
     risks: [
       'Sanzioni normative',

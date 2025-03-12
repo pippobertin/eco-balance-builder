@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Workers in the value chain related IRO data
 export const supplyChainIROData: Record<string, IROData> = {
   'labor-child': {
-    impacts: [
+    positiveImpacts: [
       'Prevenzione e contrasto del lavoro minorile',
       'Miglioramento delle condizioni di vita dei bambini',
       'Aumento dell\'istruzione',
       'Riduzione della povertà'
+    ],
+    negativeImpacts: [
+      'Costi di monitoraggio della catena di fornitura',
+      'Potenziali interruzioni di fornitura',
+      'Investimenti in programmi alternativi',
+      'Complessità nel gestire fornitori esteri'
     ],
     risks: [
       'Sanzioni normative',
@@ -30,11 +36,17 @@ export const supplyChainIROData: Record<string, IROData> = {
     ]
   },
   'labor-forced': {
-    impacts: [
+    positiveImpacts: [
       'Prevenzione e contrasto del lavoro forzato',
       'Miglioramento delle condizioni di vita dei lavoratori',
       'Aumento della libertà e della dignità',
       'Riduzione della povertà'
+    ],
+    negativeImpacts: [
+      'Costi di monitoraggio della catena di fornitura',
+      'Potenziali interruzioni di fornitura',
+      'Investimenti in programmi di supporto',
+      'Complessità nel verificare condizioni di lavoro remote'
     ],
     risks: [
       'Sanzioni normative',
@@ -56,11 +68,17 @@ export const supplyChainIROData: Record<string, IROData> = {
     ]
   },
   'labor-adequate-wages': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento delle condizioni di vita dei lavoratori',
       'Aumento del potere d\'acquisto',
       'Riduzione della povertà',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Aumento dei costi di produzione',
+      'Potenziale riduzione dei margini',
+      'Complessità nel determinare salari adeguati',
+      'Disparità tra diversi mercati geografici'
     ],
     risks: [
       'Aumento dei costi del lavoro',
@@ -82,11 +100,17 @@ export const supplyChainIROData: Record<string, IROData> = {
     ]
   },
   'labor-freedom-association': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento del dialogo sociale',
       'Aumento della fiducia tra management e lavoratori',
       'Riduzione dei conflitti',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Complessità nella gestione delle relazioni sindacali',
+      'Potenziali tensioni nei processi negoziali',
+      'Costi di gestione dei processi partecipativi',
+      'Limitazioni operative in alcuni paesi'
     ],
     risks: [
       'Aumento dei costi di negoziazione',
@@ -108,11 +132,17 @@ export const supplyChainIROData: Record<string, IROData> = {
     ]
   },
   'labor-collective-bargaining': {
-    impacts: [
+    positiveImpacts: [
       'Miglioramento delle condizioni di lavoro',
       'Aumento della soddisfazione dei lavoratori',
       'Riduzione dei conflitti',
       'Aumento della produttività'
+    ],
+    negativeImpacts: [
+      'Complessità nei processi di negoziazione',
+      'Potenziali ritardi decisionali',
+      'Costi associati alla contrattazione',
+      'Limitazioni alla flessibilità operativa'
     ],
     risks: [
       'Aumento dei costi del lavoro',

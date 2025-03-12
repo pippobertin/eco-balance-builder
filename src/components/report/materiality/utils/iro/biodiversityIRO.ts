@@ -4,11 +4,17 @@ import { IROData } from '../../types';
 // Biodiversity and ecosystems related IRO data
 export const biodiversityIROData: Record<string, IROData> = {
   'biodiversity-climate': {
-    impacts: [
+    positiveImpacts: [
       'Protezione della biodiversità',
       'Mantenimento degli ecosistemi',
       'Adattamento ai cambiamenti climatici',
       'Mitigazione dei cambiamenti climatici'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di misure protettive',
+      'Investimenti in monitoraggio e ricerca',
+      'Limitazioni all\'espansione territoriale',
+      'Potenziali restrizioni operative'
     ],
     risks: [
       'Perdita di biodiversità',
@@ -30,11 +36,17 @@ export const biodiversityIROData: Record<string, IROData> = {
     ]
   },
   'biodiversity-land-use': {
-    impacts: [
+    positiveImpacts: [
       'Gestione sostenibile del territorio',
       'Protezione della biodiversità',
       'Mantenimento degli ecosistemi',
       'Riduzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Limitazioni nell\'uso del suolo',
+      'Costi di implementazione di pratiche sostenibili',
+      'Potenziale riduzione della produttività a breve termine',
+      'Investimenti in tecniche alternative'
     ],
     risks: [
       'Perdita di biodiversità',
@@ -56,11 +68,17 @@ export const biodiversityIROData: Record<string, IROData> = {
     ]
   },
   'biodiversity-water-use': {
-    impacts: [
+    positiveImpacts: [
       'Gestione sostenibile delle risorse idriche',
       'Protezione della biodiversità acquatica',
       'Mantenimento degli ecosistemi acquatici',
       'Riduzione dell\'impatto ambientale'
+    ],
+    negativeImpacts: [
+      'Limitazioni nell\'uso dell\'acqua',
+      'Costi di implementazione di sistemi efficienti',
+      'Investimenti in tecnologie di trattamento',
+      'Potenziali restrizioni operative'
     ],
     risks: [
       'Perdita di biodiversità acquatica',
@@ -82,11 +100,17 @@ export const biodiversityIROData: Record<string, IROData> = {
     ]
   },
   'biodiversity-pollution': {
-    impacts: [
+    positiveImpacts: [
       'Riduzione dell\'inquinamento',
       'Protezione della biodiversità',
       'Mantenimento degli ecosistemi',
       'Miglioramento della salute umana'
+    ],
+    negativeImpacts: [
+      'Costi di implementazione di tecnologie pulite',
+      'Investimenti in sistemi di monitoraggio',
+      'Potenziali limitazioni produttive',
+      'Complessità nella gestione di inquinanti esistenti'
     ],
     risks: [
       'Perdita di biodiversità',

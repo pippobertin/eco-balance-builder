@@ -1,6 +1,6 @@
 
 import { IROData } from '../../types';
-import { environmentalIROData } from './environmentalIRO';
+import { environmentalIROData } from './environmental';
 import { waterResourcesIROData } from './waterResourcesIRO';
 import { biodiversityIROData } from './biodiversityIRO';
 import { circularEconomyIROData } from './circularEconomyIRO';
