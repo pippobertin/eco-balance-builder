@@ -65,9 +65,11 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
     setNewStakeholder(prev => ({ ...prev, [field]: value }));
   };
 
-  const isFormValid = newStakeholder.name.trim() && 
+  const isFormValid = Boolean(
+    newStakeholder.name.trim() && 
     newStakeholder.category && 
-    newStakeholder.email.trim();
+    newStakeholder.email.trim()
+  );
 
   return (
     <GlassmorphicCard className="bg-gray-50 dark:bg-gray-800/50">
