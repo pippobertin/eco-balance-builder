@@ -31,7 +31,7 @@ export const useMaterialityIssues = (
         setIssues(initialIssues);
       }
     }
-  }, [initialIssues, issues]);
+  }, [initialIssues]);
 
   // Call onUpdate whenever issues changes
   const triggerUpdate = useCallback(() => {
@@ -57,11 +57,15 @@ export const useMaterialityIssues = (
 
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     console.log(`Changing issue ${id} field ${String(field)} to`, value);
-    setIssues(prevIssues => 
-      prevIssues.map(issue => 
+    setIssues(prevIssues => {
+      const updatedIssues = prevIssues.map(issue => 
         issue.id === id ? { ...issue, [field]: value } : issue
-      )
-    );
+      );
+      
+      // Log the change and return updated issues
+      console.log("Updated issues after change:", updatedIssues);
+      return updatedIssues;
+    });
   };
 
   const addCustomIssue = (name: string, description: string) => {
@@ -72,9 +76,9 @@ export const useMaterialityIssues = (
     
     console.log("Adding issue:", name, "predefined:", !!predefinedIssue);
     
-    if (predefinedIssue) {
-      // If it's predefined, use its ID and add default values for required properties
-      setIssues(prevIssues => {
+    setIssues(prevIssues => {
+      if (predefinedIssue) {
+        // If it's predefined, use its ID and add default values for required properties
         // Check if issue with this ID already exists to avoid duplicates
         if (prevIssues.some(issue => issue.id === predefinedIssue.id)) {
           console.log("Issue already exists, not adding duplicate:", predefinedIssue.id);
@@ -82,7 +86,7 @@ export const useMaterialityIssues = (
         }
         
         console.log("Adding predefined issue:", predefinedIssue);
-        return [
+        const updatedIssues = [
           ...prevIssues,
           {
             id: predefinedIssue.id,
@@ -93,28 +97,45 @@ export const useMaterialityIssues = (
             isMaterial: false
           }
         ];
-      });
-    } else {
-      // If it's custom, generate a new ID and add default values for required properties
-      const id = `custom-${Date.now()}`;
-      console.log("Adding custom issue with ID:", id);
-      setIssues(prevIssues => [
-        ...prevIssues,
-        {
-          id,
-          name,
-          description,
-          impactRelevance: 50,
-          financialRelevance: 50,
-          isMaterial: false
-        }
-      ]);
-    }
+        
+        // Immediately trigger an update to save changes
+        setTimeout(() => onUpdate(updatedIssues), 0);
+        
+        return updatedIssues;
+      } else {
+        // If it's custom, generate a new ID and add default values for required properties
+        const id = `custom-${Date.now()}`;
+        console.log("Adding custom issue with ID:", id);
+        const updatedIssues = [
+          ...prevIssues,
+          {
+            id,
+            name,
+            description,
+            impactRelevance: 50,
+            financialRelevance: 50,
+            isMaterial: false
+          }
+        ];
+        
+        // Immediately trigger an update to save changes
+        setTimeout(() => onUpdate(updatedIssues), 0);
+        
+        return updatedIssues;
+      }
+    });
   };
 
   const removeIssue = (id: string) => {
     console.log("Removing issue:", id);
-    setIssues(prevIssues => prevIssues.filter(issue => issue.id !== id));
+    setIssues(prevIssues => {
+      const updatedIssues = prevIssues.filter(issue => issue.id !== id);
+      
+      // Immediately trigger an update to save changes
+      setTimeout(() => onUpdate(updatedIssues), 0);
+      
+      return updatedIssues;
+    });
   };
 
   // Update issues with stakeholder relevance data
@@ -125,12 +146,17 @@ export const useMaterialityIssues = (
     );
     
     // Update all issues with their respective stakeholder relevance
-    setIssues(prevIssues => 
-      prevIssues.map(issue => ({
+    setIssues(prevIssues => {
+      const newIssues = prevIssues.map(issue => ({
         ...issue,
         stakeholderRelevance: relevanceMap.get(issue.id)
-      }))
-    );
+      }));
+      
+      // Immediately trigger an update to save changes
+      setTimeout(() => onUpdate(newIssues), 0);
+      
+      return newIssues;
+    });
   };
 
   return {

@@ -12,6 +12,7 @@ export const updateFormWithIssues = (
 ) => {
   console.log("Updating materiality issues:", updatedIssues);
   
+  // Create a new form values object with the updated issues
   const updatedFormValues = {
     ...formValues,
     materialityAnalysis: {
@@ -20,6 +21,7 @@ export const updateFormWithIssues = (
     }
   };
   
+  // Update the form state
   setFormValues(updatedFormValues);
   
   // Also update the report context
@@ -31,6 +33,8 @@ export const updateFormWithIssues = (
       esgScore: calculateEsgScore(updatedIssues)
     }
   });
+  
+  console.log("Form and report data updated with new issues");
 };
 
 // Helper function to update form values with stakeholders
@@ -41,6 +45,9 @@ export const updateFormWithStakeholders = (
   updateReportData: (data: any) => void,
   reportData: any
 ) => {
+  console.log("Updating stakeholders:", updatedStakeholders);
+  
+  // Create a new form values object with the updated stakeholders
   const updatedFormValues = {
     ...formValues,
     materialityAnalysis: {
@@ -49,6 +56,7 @@ export const updateFormWithStakeholders = (
     }
   };
   
+  // Update the form state
   setFormValues(updatedFormValues);
   
   // Also update the report context
@@ -58,4 +66,6 @@ export const updateFormWithStakeholders = (
       stakeholders: updatedStakeholders
     }
   });
+  
+  console.log("Form and report data updated with new stakeholders");
 };

@@ -35,7 +35,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
               variant: "destructive"
             });
           });
-      }, 2000); // 2 seconds delay to avoid too frequent saves
+      }, 1000); // 1 second delay to avoid too frequent saves
       
       return () => clearTimeout(timeoutId);
     }

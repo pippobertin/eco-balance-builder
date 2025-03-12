@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useReport } from '@/context/ReportContext';
 import { MaterialityIssue, Stakeholder } from '../types';
 import { useMaterialityIssues } from '../hooks/useMaterialityIssues';
@@ -19,7 +19,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   getSurveyStatusColor,
   getSurveyStatusText
 }) => {
-  const { reportData, updateReportData } = useReport();
+  const { reportData, updateReportData, saveCurrentReport } = useReport();
   
   // Use custom hooks for materiality issues
   const { 
@@ -106,6 +106,20 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
       setSurveyDialogOpen(false);
     }
   };
+
+  // Force an immediate save when issues or stakeholders change
+  useEffect(() => {
+    if (issues.length > 0 || stakeholders.length > 0) {
+      console.log("Issues or stakeholders changed, triggering immediate save");
+      const timeoutId = setTimeout(() => {
+        saveCurrentReport()
+          .then(() => console.log("Materiality data saved successfully after change"))
+          .catch(err => console.error("Error saving materiality data:", err));
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [issues, stakeholders, saveCurrentReport]);
 
   const value = {
     // Issues

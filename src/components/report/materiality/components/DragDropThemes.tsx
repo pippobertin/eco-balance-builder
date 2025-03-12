@@ -1,209 +1,138 @@
 
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { MoveRight, Info } from 'lucide-react';
-import { MaterialityIssue } from '../types';
+import { cn } from '@/lib/utils';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ESRSThemeFilter from './ESRSThemeFilter';
+import PredefinedIssuesSelector from './PredefinedIssuesSelector';
 import { predefinedIssues } from '../utils/materialityUtils';
-import { 
-  categorizeIssuesByESG, 
-  translateESGCategory,
-  ESGCategorizedIssues,
-  PredefinedIssue
-} from '../utils/esgCategoryUtils';
-import NoIssuesFound from './NoIssuesFound';
+import { useToast } from '@/hooks/use-toast';
 
 interface DragDropThemesProps {
-  selectedIssues: MaterialityIssue[];
-  onIssueSelect: (issue: { id: string; name: string; description: string }) => void;
+  selectedIssues: any[];
+  onIssueSelect: (issue: any) => void;
   onIssueRemove: (id: string) => void;
 }
 
-const DragDropThemes: React.FC<DragDropThemesProps> = ({
-  selectedIssues,
-  onIssueSelect,
-  onIssueRemove
+const DragDropThemes: React.FC<DragDropThemesProps> = ({ 
+  selectedIssues, 
+  onIssueSelect, 
+  onIssueRemove 
 }) => {
-  const [activeTab, setActiveTab] = useState('environment');
-  const [categories, setCategories] = useState<ESGCategorizedIssues>({
-    environment: [],
-    social: [],
-    governance: []
-  });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState(predefinedIssues);
+  const { toast } = useToast();
   
-  const selectedIssueIds = selectedIssues.map(issue => issue.id);
-  
-  // Refresh categories every time component mounts or selectedIssues changes
+  // Filter issues based on selected categories
   useEffect(() => {
-    const categorizedIssues = categorizeIssuesByESG();
-    console.log('Themes categorized by ESG:', categorizedIssues);
-    console.log('Currently selected issues:', selectedIssues);
-    setCategories(categorizedIssues);
-  }, [selectedIssues]); // Re-run when selectedIssues changes to properly update available issues
-  
-  // Handle drag start
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, issue: PredefinedIssue) => {
-    console.log('Drag started for issue:', issue.id);
-    e.dataTransfer.setData('application/json', JSON.stringify(issue));
-    e.currentTarget.classList.add('opacity-50');
-  };
-  
-  // Handle drag end
-  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.classList.remove('opacity-50');
-  };
-  
-  // Handle drag over
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.add('bg-green-50', 'border-green-300');
-  };
-  
-  // Handle drag leave
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.classList.remove('bg-green-50', 'border-green-300');
-  };
-  
-  // Handle drop
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('bg-green-50', 'border-green-300');
-    
-    try {
-      const issueData = JSON.parse(e.dataTransfer.getData('application/json'));
-      if (!selectedIssueIds.includes(issueData.id)) {
-        console.log("Adding issue via drop:", issueData);
-        onIssueSelect(issueData);
-      } else {
-        console.log("Issue already selected, not adding duplicate:", issueData.id);
-      }
-    } catch (error) {
-      console.error("Error during drop:", error);
-    }
-  };
-  
-  // Handle manual click to add an issue
-  const handleAddIssue = (issue: PredefinedIssue) => {
-    if (!selectedIssueIds.includes(issue.id)) {
-      console.log("Adding issue via click:", issue);
-      onIssueSelect(issue);
+    if (selectedCategories.length === 0) {
+      setFilteredIssues(predefinedIssues);
     } else {
-      console.log("Issue already selected, not adding duplicate:", issue.id);
+      const filtered = predefinedIssues.filter(issue => 
+        selectedCategories.includes(issue.category)
+      );
+      setFilteredIssues(filtered);
     }
-  };
+  }, [selectedCategories]);
   
-  // Filter available issues for each category
-  const getAvailableIssues = (category: keyof ESGCategorizedIssues) => {
-    return categories[category].filter(issue => !selectedIssueIds.includes(issue.id));
-  };
+  // Get the selected issue IDs for quick lookup
+  const selectedIssueIds = new Set(selectedIssues.map(issue => issue.id));
   
-  // Filter selected issues for each category
-  const getSelectedIssuesForCategory = (category: keyof ESGCategorizedIssues) => {
-    return selectedIssues.filter(issue => {
-      const matchingPredefined = predefinedIssues.find(p => p.id === issue.id);
-      return matchingPredefined && categories[category].some(c => c.id === issue.id);
+  // Handle issue selection
+  const handleIssueSelect = (issue: any) => {
+    console.log("Selected issue:", issue);
+    
+    // Check if this issue is already selected
+    if (selectedIssueIds.has(issue.id)) {
+      toast({
+        title: "Tema già selezionato",
+        description: "Questo tema è già stato aggiunto all'analisi",
+        variant: "default"
+      });
+      return;
+    }
+    
+    // Call the parent component's handler
+    onIssueSelect(issue);
+    
+    toast({
+      title: "Tema aggiunto",
+      description: `"${issue.name}" è stato aggiunto all'analisi`,
+      variant: "default"
     });
   };
   
   return (
-    <div className="space-y-6">
-      <div className="bg-blue-50 rounded-md p-4 mb-4 border border-blue-100">
-        <div className="flex items-start space-x-2">
-          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-sm">Come selezionare i temi materiali</h4>
-            <p className="text-sm text-gray-700 mt-1">
-              Trascina i temi che consideri materiali dalla colonna "Temi disponibili" alla colonna "Temi selezionati".
-              Puoi navigare tra le categorie ESG utilizzando le schede sopra.
-            </p>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Seleziona i temi da analizzare</h3>
+      
+      <ESRSThemeFilter 
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg border bg-card shadow-sm">
+          <div className="p-4 font-semibold bg-muted/50 rounded-t-lg">
+            Temi disponibili
           </div>
+          <ScrollArea className="h-[300px] p-4">
+            <PredefinedIssuesSelector 
+              issues={filteredIssues}
+              selectedIssueIds={selectedIssueIds}
+              onIssueSelect={handleIssueSelect}
+            />
+          </ScrollArea>
+        </div>
+        
+        <div className="rounded-lg border bg-card shadow-sm">
+          <div className="p-4 font-semibold bg-muted/50 rounded-t-lg">
+            Temi selezionati ({selectedIssues.length})
+          </div>
+          <ScrollArea className="h-[300px] p-4">
+            {selectedIssues.length > 0 ? (
+              <div className="space-y-2">
+                {selectedIssues.map(issue => (
+                  <div 
+                    key={issue.id}
+                    className="p-3 rounded-md bg-background flex justify-between items-center group hover:bg-muted/50"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">{issue.name}</p>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => onIssueRemove(issue.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Rimuovi tema</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Rimuovi tema</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-muted-foreground text-sm">
+                  Nessun tema selezionato. Clicca sui temi a sinistra per aggiungerli.
+                </p>
+              </div>
+            )}
+          </ScrollArea>
         </div>
       </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-6">
-          <TabsTrigger value="environment">Ambiente</TabsTrigger>
-          <TabsTrigger value="social">Sociale</TabsTrigger>
-          <TabsTrigger value="governance">Governance</TabsTrigger>
-        </TabsList>
-        
-        {(['environment', 'social', 'governance'] as const).map((category) => (
-          <TabsContent key={category} value={category} className="mt-0">
-            <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
-              {/* Available themes column */}
-              <div className="w-full md:w-1/2">
-                <h3 className="text-sm font-medium mb-2 text-gray-700">
-                  Temi disponibili <span className="text-green-600 font-normal">(in verde quelli consigliati)</span>
-                </h3>
-                <div className="border rounded-md p-2 h-[400px] overflow-y-auto bg-gray-50">
-                  {getAvailableIssues(category).length > 0 ? (
-                    <div className="space-y-2">
-                      {getAvailableIssues(category).map(issue => (
-                        <div
-                          key={issue.id}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, issue)}
-                          onDragEnd={handleDragEnd}
-                          onClick={() => handleAddIssue(issue)}
-                          className="p-3 bg-white rounded border border-gray-200 cursor-pointer hover:border-green-300 hover:shadow-sm transition-all"
-                        >
-                          <h5 className="text-sm font-medium">{issue.name}</h5>
-                          <p className="text-xs text-gray-600 mt-1">{issue.description}</p>
-                          <button className="mt-2 text-xs text-blue-600 hover:text-blue-800">Clicca per aggiungere</button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      Tutti i temi disponibili sono già stati selezionati
-                    </p>
-                  )}
-                </div>
-              </div>
-              
-              <div className="hidden md:flex items-center justify-center">
-                <MoveRight className="h-8 w-8 text-gray-400" />
-              </div>
-              
-              {/* Selected themes column */}
-              <div className="w-full md:w-1/2">
-                <h3 className="text-sm font-medium mb-2 text-gray-700">Temi selezionati</h3>
-                <div 
-                  className="border rounded-md p-2 h-[400px] overflow-y-auto bg-white border-dashed"
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  {getSelectedIssuesForCategory(category).length > 0 ? (
-                    <div className="space-y-2">
-                      {getSelectedIssuesForCategory(category).map(issue => (
-                        <div key={issue.id} className="p-3 bg-green-50 rounded border border-green-200">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h5 className="text-sm font-medium">{issue.name}</h5>
-                              <p className="text-xs text-gray-600 mt-1">{issue.description}</p>
-                            </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                              onClick={() => onIssueRemove(issue.id)}
-                            >
-                              Rimuovi
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <NoIssuesFound />
-                  )}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
     </div>
   );
 };
