@@ -1,12 +1,10 @@
 
 import React from 'react';
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Stakeholder, SurveyTemplate } from '../../types';
-import StakeholderSelector from '../StakeholderSelector';
-import SurveyCustomizer from '../SurveyCustomizer';
-import SurveyPreview from '../SurveyPreview';
+import SurveyConfigMode from './SurveyConfigMode';
+import SurveyPreviewMode from './SurveyPreviewMode';
 import SuccessMessage from '../SuccessMessage';
-import DialogFooterActions from '../DialogFooterActions';
 
 interface SurveyDialogContentProps {
   surveyTemplate: SurveyTemplate;
@@ -33,7 +31,6 @@ interface SurveyDialogContentProps {
 const SurveyDialogContent: React.FC<SurveyDialogContentProps> = ({
   surveyTemplate,
   setSurveyTemplate,
-  stakeholders,
   stakeholderGroups,
   selectedStakeholders,
   setSelectedStakeholders,
@@ -44,8 +41,7 @@ const SurveyDialogContent: React.FC<SurveyDialogContentProps> = ({
   onOpenChange,
   surveyPreviewMode,
   setSurveyPreviewMode,
-  showSurveySuccess,
-  setShowSurveySuccess
+  showSurveySuccess
 }) => {
   const toggleSelectAllStakeholders = () => {
     const allStakeholdersIds = [
@@ -74,13 +70,10 @@ const SurveyDialogContent: React.FC<SurveyDialogContentProps> = ({
 
   const handleSendSurveys = () => {
     onSendSurveys();
-    setShowSurveySuccess(true);
     
     // Close dialog after a delay
     setTimeout(() => {
       onOpenChange(false);
-      setShowSurveySuccess(false);
-      setSurveyPreviewMode(false);
     }, 3000);
   };
 
@@ -90,52 +83,31 @@ const SurveyDialogContent: React.FC<SurveyDialogContentProps> = ({
 
   return (
     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle>
-          {surveyPreviewMode 
-            ? "Anteprima del sondaggio di materialità" 
-            : "Crea e invia sondaggio agli stakeholder"}
-        </DialogTitle>
-        <DialogDescription>
-          {surveyPreviewMode 
-            ? "Questa è un'anteprima di come apparirà il sondaggio agli stakeholder."
-            : "Seleziona gli stakeholder a cui inviare il sondaggio di materialità."
-          }
-        </DialogDescription>
-      </DialogHeader>
-
       {showSurveySuccess ? (
         <SuccessMessage selectedStakeholdersCount={selectedStakeholders.length} />
       ) : surveyPreviewMode ? (
-        <SurveyPreview surveyTemplate={surveyTemplate} />
-      ) : (
-        <div className="space-y-6 py-4">
-          <StakeholderSelector 
-            stakeholderGroups={stakeholderGroups}
-            selectedStakeholders={selectedStakeholders}
-            onStakeholderSelection={handleStakeholderSelection}
-            toggleSelectAllStakeholders={toggleSelectAllStakeholders}
-            getStakeholderPriorityColor={getStakeholderPriorityColor}
-            forceResend={forceResend}
-            onToggleForceResend={toggleForceResend}
-          />
-          
-          <SurveyCustomizer 
-            surveyTemplate={surveyTemplate}
-            onSurveyTemplateChange={handleSurveyTemplateChange}
-          />
-        </div>
-      )}
-      
-      <DialogFooter className="flex justify-between items-center space-x-2">
-        <DialogFooterActions 
-          isPreviewMode={surveyPreviewMode}
+        <SurveyPreviewMode 
+          surveyTemplate={surveyTemplate}
           selectedStakeholdersCount={selectedStakeholders.length}
-          onClose={() => onOpenChange(false)}
           onTogglePreviewMode={toggleSurveyPreviewMode}
           onSendSurveys={handleSendSurveys}
         />
-      </DialogFooter>
+      ) : (
+        <SurveyConfigMode 
+          surveyTemplate={surveyTemplate}
+          onSurveyTemplateChange={handleSurveyTemplateChange}
+          stakeholderGroups={stakeholderGroups}
+          selectedStakeholders={selectedStakeholders}
+          onStakeholderSelection={handleStakeholderSelection}
+          toggleSelectAllStakeholders={toggleSelectAllStakeholders}
+          getStakeholderPriorityColor={getStakeholderPriorityColor}
+          forceResend={forceResend}
+          onToggleForceResend={toggleForceResend}
+          onTogglePreviewMode={toggleSurveyPreviewMode}
+          onSendSurveys={handleSendSurveys}
+          onClose={() => onOpenChange(false)}
+        />
+      )}
     </DialogContent>
   );
 };

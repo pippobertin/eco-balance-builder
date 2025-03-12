@@ -43,7 +43,8 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
     setSurveyPreviewMode,
     showSurveySuccess,
     setShowSurveySuccess,
-    resetDialogState
+    resetDialogState,
+    handleSendSurveysSuccess
   } = useSurveyDialogState();
 
   // Reset dialog state when closing
@@ -52,6 +53,12 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
       resetDialogState();
     }
     onOpenChange(newOpen);
+  };
+
+  // Handle survey sending with success handling
+  const handleSendSurvey = () => {
+    onSendSurveys();
+    handleSendSurveysSuccess(onOpenChange);
   };
 
   return (
@@ -66,7 +73,7 @@ const SurveyDialog: React.FC<SurveyDialogProps> = ({
         forceResend={forceResend}
         toggleForceResend={toggleForceResend}
         getStakeholderPriorityColor={getStakeholderPriorityColor}
-        onSendSurveys={onSendSurveys}
+        onSendSurveys={handleSendSurvey}
         onOpenChange={handleOpenChange}
         surveyPreviewMode={surveyPreviewMode}
         setSurveyPreviewMode={setSurveyPreviewMode}
