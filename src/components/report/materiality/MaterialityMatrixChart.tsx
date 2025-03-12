@@ -18,7 +18,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
   const { environmentalIssues, socialIssues, governanceIssues } = groupDataByCategory(chartData);
 
   return (
-    <div className="w-full h-[600px] p-4 bg-white rounded-lg shadow-sm">
+    <div className="w-full h-[600px] p-4 bg-white rounded-lg shadow-sm mb-12">
       <h3 className="text-lg font-semibold mb-6">Matrice di Doppia Materialità</h3>
       
       <div style={quadrantStyles.container}>
