@@ -20,36 +20,58 @@ const IssueItem: React.FC<IssueItemProps> = ({
   onRemoveIssue,
   isPredefined = false
 }) => {
-  const isHeader = isHeaderTheme(issue.id);
+  // Check if this issue is a header theme
+  const isHeader = isHeaderTheme(issue.id) || 
+                   (issue.name && ['Cambiamenti climatici', 'Biodiversità ed ecosistemi', 'Inquinamento', 
+                               'Acque e risorse marine', 'Economia circolare'].includes(issue.name));
   
   // Get the appropriate background color for different header categories
   const getHeaderBackgroundColor = (id: string) => {
-    if (id.startsWith('environmental')) return 'bg-green-200 border-green-300';
-    if (id.startsWith('social')) return 'bg-blue-200 border-blue-300';
-    if (id.startsWith('governance')) return 'bg-purple-200 border-purple-300';
+    if (id.startsWith('environmental') || 
+        id.includes('climate') || 
+        id.includes('biodiversity') || 
+        id.includes('pollution') || 
+        id.includes('water') || 
+        id.includes('circular')) return 'bg-green-200 border-green-300';
+    
+    if (id.startsWith('social') || 
+        id.includes('workforce') || 
+        id.includes('communities') || 
+        id.includes('consumers')) return 'bg-blue-200 border-blue-300';
+    
+    if (id.startsWith('governance') || 
+        id.includes('conduct')) return 'bg-purple-200 border-purple-300';
+    
     return 'bg-gray-200 border-gray-300';
   };
+  
+  // Is this issue a category header like "Cambiamenti climatici"?
+  const isCategoryHeader = issue.name === 'Cambiamenti climatici' || 
+                          issue.name === 'Biodiversità ed ecosistemi' ||
+                          issue.name === 'Inquinamento' ||
+                          issue.name === 'Acque e risorse marine' ||
+                          issue.name === 'Economia circolare';
   
   return (
     <div 
       className={`p-4 rounded-lg border mb-2 ${
-        isHeader 
+        isHeader || isCategoryHeader
           ? `${getHeaderBackgroundColor(issue.id)} font-bold` 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h4 className={`${isHeader ? 'font-bold text-gray-900' : 'text-sm font-medium text-gray-900'}`}>
+          <h4 className={`${isHeader || isCategoryHeader ? 'font-bold text-gray-900' : 'text-sm font-medium text-gray-900'}`}>
             {issue.name}
           </h4>
-          {issue.description && !isHeader && (
+          {issue.description && !isHeader && !isCategoryHeader && (
             <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
           )}
         </div>
         
         {/* Only show action buttons for non-header items */}
-        {!isHeader && (
+        {!isHeader && !isCategoryHeader && (
           <div className="flex items-center gap-2">
             {!isPredefined && onRemoveIssue && issue.isMaterial && (
               <Button
@@ -74,7 +96,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
       </div>
 
       {/* Show sliders only for material (selected) non-header issues */}
-      {!isHeader && issue.isMaterial && (
+      {!isHeader && !isCategoryHeader && issue.isMaterial && (
         <div className="mt-4 space-y-4">
           <div>
             <div className="flex justify-between mb-2">

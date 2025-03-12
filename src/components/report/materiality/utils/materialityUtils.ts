@@ -16,11 +16,27 @@ const themeHeaders = [
   'social-value-chain-header',         // Lavoratori nella catena del valore
   'social-communities-header',         // Comunità interessate
   'social-consumers-header',           // Consumatori e utilizzatori finali
-  'governance-conduct-header'          // Condotta delle imprese
+  'governance-conduct-header',         // Condotta delle imprese
+  // Adding plain text headers too
+  'climate-change',                    // Cambiamenti climatici
+  'biodiversity',                      // Biodiversità
+  'pollution',                         // Inquinamento
+  'water-resources',                   // Risorse idriche
+  'circular-economy'                   // Economia circolare
 ];
 
 export const isHeaderTheme = (id: string): boolean => {
-  return themeHeaders.includes(id);
+  // Check if it's in the themeHeaders array
+  if (themeHeaders.includes(id)) return true;
+  
+  // Also check for names that are common headers
+  const headerNames = ['Cambiamenti climatici', 'Biodiversità ed ecosistemi', 'Inquinamento', 
+                     'Acque e risorse marine', 'Economia circolare', 'Governance'];
+  
+  // If the ID contains any of these patterns, it's likely a header
+  return id.toLowerCase().includes('header') || 
+         id.toLowerCase().includes('-header') ||
+         headerNames.some(name => id.toLowerCase().includes(name.toLowerCase()));
 };
 
 // Helper functions for styling

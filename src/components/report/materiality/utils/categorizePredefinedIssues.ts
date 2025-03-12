@@ -1,3 +1,4 @@
+
 import { predefinedIssues } from './materialityUtils';
 import { determineESGCategory, environmentalPatterns, socialPatterns, governancePatterns } from './categoryPatterns';
 import { MaterialityIssue } from '../types';
@@ -23,26 +24,32 @@ export const getIssuesByCategory = () => {
       
       // Explicit pattern matching for environmental themes
       const id = issue.id.toLowerCase();
+      const name = issue.name.toLowerCase();
       
       // Make sure all biodiversity themes are categorized as environmental
       if (id.includes('biodiversity') || id.includes('species') || 
-          id.includes('ecosystem')) return true;
+          id.includes('ecosystem') || name.includes('biodiversità')) return true;
       
       // Climate change themes
-      if (id.includes('climate') || id.includes('energy')) return true;
+      if (id.includes('climate') || id.includes('energy') || 
+          name.includes('cambiamenti climatici')) return true;
       
       // Pollution themes
-      if (id.includes('pollution') || id.includes('substances')) return true;
+      if (id.includes('pollution') || id.includes('substances') ||
+          name.includes('inquinamento')) return true;
       
       // Water and marine resources
-      if (id.includes('water') || id.includes('marine') || id.includes('ocean')) return true;
+      if (id.includes('water') || id.includes('marine') || id.includes('ocean') ||
+          name.includes('acque') || name.includes('risorse marine')) return true;
       
       // Biodiversity and ecosystems
       if (id.includes('biodiversity') || id.includes('ecosystem') || 
-          id.includes('species') || id.includes('soil') || id.includes('land')) return true;
+          id.includes('species') || id.includes('soil') || id.includes('land') ||
+          name.includes('biodiversità') || name.includes('ecosistemi')) return true;
       
       // Circular economy
-      if (id.includes('circular') || id.includes('resource') || id.includes('waste')) return true;
+      if (id.includes('circular') || id.includes('resource') || id.includes('waste') || 
+          name.includes('economia circolare')) return true;
       
       return false;
     }),
@@ -58,7 +65,15 @@ export const getIssuesByCategory = () => {
       
       // Specifically exclude biodiversity-related items which should be environmental
       if (id.includes('biodiversity') || id.includes('species') || 
-          id.includes('ecosystem')) return false;
+          id.includes('ecosystem') || name.includes('biodiversità') || 
+          name.includes('ecosistemi')) return false;
+      
+      // Exclude other environmental themes
+      if (name.includes('cambiamenti climatici') || 
+          name.includes('inquinamento') ||
+          name.includes('acque') ||
+          name.includes('risorse marine') ||
+          name.includes('economia circolare')) return false;
       
       // Workforce themes
       if (id.includes('workforce') || id.includes('labor') || id.includes('employee')) return true;
