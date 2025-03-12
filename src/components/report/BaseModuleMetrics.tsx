@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
@@ -10,7 +9,6 @@ import ConductMetrics from './ConductMetrics';
 import NarrativePATMetrics from './NarrativePATMetrics';
 import MaterialityAnalysis from './MaterialityAnalysis';
 import BusinessPartnersMetrics from './BusinessPartnersMetrics';
-
 interface BaseModuleMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
@@ -20,7 +18,6 @@ interface BaseModuleMetricsProps {
   initialSection?: string;
   initialField?: string;
 }
-
 const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   formValues,
   setFormValues,
@@ -30,7 +27,9 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   initialSection,
   initialField
 }) => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality' | 'business-partners'>('environmental');
 
   // Determina quali moduli devono essere mostrati in base all'opzione selezionata
@@ -48,7 +47,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   // Set the initial active section based on the initialSection prop
   useEffect(() => {
     if (initialSection) {
-      switch(initialSection) {
+      switch (initialSection) {
         case 'environmental':
           setActiveSection('environmental');
           break;
@@ -78,7 +77,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       }
     }
   }, [initialSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
-  
   const handleSave = () => {
     toast({
       title: "Metriche salvate",
@@ -86,7 +84,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     });
     onSave();
   };
-  
   const containerAnimation = {
     hidden: {
       opacity: 0
@@ -114,9 +111,8 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
         return 'Seleziona un\'opzione per la tua relazione sulla sostenibilità';
     }
   };
-  
   return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
-      <div className="p-4 rounded-md mb-6 bg-blue-600">
+      <div className="p-4 rounded-md mb-6 bg-gray-500">
         <div className="flex items-start">
           <Info className="mt-0.5 mr-2 h-5 w-5 text-white" />
           <div>
@@ -179,5 +175,4 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       </div>
     </motion.div>;
 };
-
 export default BaseModuleMetrics;
