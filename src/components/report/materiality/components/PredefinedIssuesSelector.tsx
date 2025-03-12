@@ -4,6 +4,7 @@ import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { translateESGCategory } from '../utils/esgCategoryUtils';
+import { MaterialityIssue } from '../types';
 
 interface PredefinedIssue {
   id: string;
@@ -13,18 +14,44 @@ interface PredefinedIssue {
 }
 
 interface PredefinedIssuesSelectorProps {
-  issues: PredefinedIssue[];
-  selectedIssueIds: Set<string>;
-  onIssueSelect: (issue: PredefinedIssue) => void;
+  issues?: PredefinedIssue[];
+  selectedIssueIds?: Set<string>;
+  onIssueSelect?: (issue: PredefinedIssue) => void;
   groupByCategory?: boolean;
+  // Added new props to match usage in MaterialityIssuesTab
+  onAddIssue?: (name: string, description: string) => void;
+  currentIssues?: MaterialityIssue[];
 }
 
 const PredefinedIssuesSelector: React.FC<PredefinedIssuesSelectorProps> = ({
-  issues,
-  selectedIssueIds,
+  issues = [],
+  selectedIssueIds = new Set(),
   onIssueSelect,
-  groupByCategory = false // Changed default to false since we're using tabs
+  groupByCategory = false, // Changed default to false since we're using tabs
+  onAddIssue,
+  currentIssues = []
 }) => {
+  // If onAddIssue is provided, we're in the "add" mode rather than "select" mode
+  const isAddMode = !!onAddIssue;
+  
+  // Handle the addition of an issue
+  const handleAddIssue = (issue: PredefinedIssue) => {
+    if (onAddIssue) {
+      onAddIssue(issue.name, issue.description);
+    } else if (onIssueSelect) {
+      onIssueSelect(issue);
+    }
+  };
+
+  // Check if an issue is already added (for add mode)
+  const isIssueAlreadyAdded = (issue: PredefinedIssue) => {
+    return currentIssues.some(
+      existingIssue => 
+        existingIssue.name === issue.name && 
+        existingIssue.description === issue.description
+    );
+  };
+  
   // Se non ci sono issues, mostra il messaggio
   if (issues.length === 0) {
     return (
@@ -59,8 +86,8 @@ const PredefinedIssuesSelector: React.FC<PredefinedIssuesSelectorProps> = ({
               <IssueCard 
                 key={issue.id} 
                 issue={issue} 
-                isSelected={selectedIssueIds.has(issue.id)} 
-                onSelect={onIssueSelect} 
+                isSelected={isAddMode ? isIssueAlreadyAdded(issue) : selectedIssueIds.has(issue.id)} 
+                onSelect={handleAddIssue} 
               />
             ))}
           </div>
@@ -76,8 +103,8 @@ const PredefinedIssuesSelector: React.FC<PredefinedIssuesSelectorProps> = ({
         <IssueCard 
           key={issue.id} 
           issue={issue} 
-          isSelected={selectedIssueIds.has(issue.id)} 
-          onSelect={onIssueSelect} 
+          isSelected={isAddMode ? isIssueAlreadyAdded(issue) : selectedIssueIds.has(issue.id)} 
+          onSelect={handleAddIssue} 
         />
       ))}
     </div>
