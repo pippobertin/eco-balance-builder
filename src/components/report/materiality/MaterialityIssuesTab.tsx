@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Target, Filter, PlusCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
@@ -91,7 +92,9 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
     });
   };
   
-  const addPredefinedIssue = (predefinedIssue: MaterialityIssue) => {
+  // This was the function causing the error - we're now just passing the name and description
+  // to onAddCustomIssue instead of the entire predefined issue
+  const addPredefinedIssue = (predefinedIssue: { id: string; name: string; description: string }) => {
     onAddCustomIssue(predefinedIssue.name, predefinedIssue.description);
   };
 
