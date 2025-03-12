@@ -10,6 +10,7 @@ import MaterialityMatrixChart from './MaterialityMatrixChart';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
 import NoIssuesFound from './components/NoIssuesFound';
+import PredefinedIssuesSelector from './components/PredefinedIssuesSelector';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -86,6 +87,12 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
               />
             </div>
           )}
+          
+          {/* Re-add the PredefinedIssuesSelector component */}
+          <PredefinedIssuesSelector 
+            onAddIssue={onAddCustomIssue}
+            currentIssues={issues}
+          />
           
           {filteredIssues.length === 0 ? (
             <NoIssuesFound />

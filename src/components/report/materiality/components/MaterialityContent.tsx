@@ -6,6 +6,7 @@ import TabContent from './TabContent';
 import SurveyDialogWrapper from './SurveyDialogWrapper';
 import { useMaterialityContext } from '../context/MaterialityContext';
 import IROSummary from './IROSummary';
+import ThemesCategoryTabs from './ThemesCategoryTabs';
 import { MaterialityIssue } from '../types';
 
 const MaterialityContent: React.FC = () => {
@@ -49,6 +50,11 @@ const MaterialityContent: React.FC = () => {
       <MaterialityHeader title="Analisi di Materialità" />
       
       <MaterialityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* Add ThemesCategoryTabs component for E, S, G theme selection */}
+      {activeTab === 'issues' && (
+        <ThemesCategoryTabs onAddIssue={addCustomIssue} />
+      )}
       
       <TabContent 
         activeTab={activeTab}
