@@ -20,7 +20,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
   onRemoveIssue,
   isPredefined = false
 }) => {
-  // Check if this issue is a header theme with improved detection
+  // Check if this issue is a header theme
   const isHeader = isHeaderTheme(issue.id, issue.name);
 
   // Check if this is a category header by exact name match
@@ -37,9 +37,9 @@ const IssueItem: React.FC<IssueItemProps> = ({
     'Condotta delle imprese'
   ].includes(issue.name);
   
-  // Get the appropriate background color for different header categories
+  // Get the appropriate background color for different header categories - using more delicate colors
   const getHeaderBackgroundColor = (id: string, name: string) => {
-    // Environmental headers - green
+    // Environmental headers - soft green
     if (id.includes('environmental') || 
         id.includes('climate') || 
         id.includes('biodiversity') || 
@@ -51,10 +51,10 @@ const IssueItem: React.FC<IssueItemProps> = ({
         name.includes('Inquinamento') ||
         name.includes('Acque') ||
         name.includes('Economia circolare')) {
-      return 'bg-green-200 border-green-300';
+      return 'bg-[#F2FCE2] border-[#E0F0C0]';
     }
     
-    // Social headers - blue
+    // Social headers - soft blue
     if (id.includes('social') || 
         id.includes('workforce') || 
         id.includes('communities') || 
@@ -63,17 +63,17 @@ const IssueItem: React.FC<IssueItemProps> = ({
         name.includes('Lavoratori') ||
         name.includes('Comunità') ||
         name.includes('Consumatori')) {
-      return 'bg-blue-200 border-blue-300';
+      return 'bg-[#D3E4FD] border-[#B9D5F9]';
     }
     
-    // Governance headers - purple
+    // Governance headers - soft purple
     if (id.includes('governance') || 
         id.includes('conduct') ||
         name.includes('Condotta')) {
-      return 'bg-purple-200 border-purple-300';
+      return 'bg-[#E5DEFF] border-[#D0C9F0]';
     }
     
-    return 'bg-gray-200 border-gray-300';
+    return 'bg-gray-100 border-gray-200';
   };
   
   const isHeaderItem = isHeader || isCategoryHeader;
@@ -82,13 +82,13 @@ const IssueItem: React.FC<IssueItemProps> = ({
     <div 
       className={`p-4 rounded-lg border mb-2 ${
         isHeaderItem
-          ? `${getHeaderBackgroundColor(issue.id, issue.name)} font-bold text-gray-900` 
+          ? `${getHeaderBackgroundColor(issue.id, issue.name)} font-semibold text-gray-800` 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h4 className={`${isHeaderItem ? 'font-bold text-gray-900 text-base' : 'text-sm font-medium text-gray-900'}`}>
+          <h4 className={`${isHeaderItem ? 'font-semibold text-gray-800 text-base' : 'text-sm font-medium text-gray-900'}`}>
             {issue.name}
           </h4>
           {issue.description && !isHeaderItem && (

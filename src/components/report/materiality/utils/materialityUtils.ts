@@ -1,4 +1,3 @@
-
 export * from './stakeholderUtils';
 export * from './surveyUtils';
 export * from './predefinedIssues';
@@ -7,29 +6,38 @@ export * from './esgCategoryUtils';
 
 // Main theme headers that should not be selectable
 const themeHeaders = [
+  // Environmental headers
   'environmental-climate-header',      // Cambiamenti climatici
   'environmental-pollution-header',    // Inquinamento
   'environmental-water-header',        // Acque e risorse marine
   'environmental-biodiversity-header', // Biodiversità ed ecosistemi
   'environmental-circular-header',     // Economia circolare
+  
+  // Social headers
   'social-workforce-header',           // Forza lavoro propria
   'social-value-chain-header',         // Lavoratori nella catena del valore
   'social-communities-header',         // Comunità interessate
   'social-consumers-header',           // Consumatori e utilizzatori finali
+  
+  // Governance headers
   'governance-conduct-header',         // Condotta delle imprese
-  // Adding plain text headers too
+  
+  // Plain text headers
   'climate-change',                    // Cambiamenti climatici
   'biodiversity',                      // Biodiversità
   'pollution',                         // Inquinamento
   'water-resources',                   // Risorse idriche
   'circular-economy',                  // Economia circolare
-  // Add header IDs that might be used in the application
+  
+  // Generic category headers
   'environmental',
   'social',
   'governance',
   'ambiente',
   'sociale',
   'governance-header',
+  
+  // Exact Italian header names
   'cambiamenti climatici',
   'biodiversità ed ecosistemi',
   'inquinamento',
@@ -39,7 +47,25 @@ const themeHeaders = [
   'lavoratori nella catena del valore',
   'comunità interessate',
   'consumatori e utilizzatori finali',
-  'condotta delle imprese'
+  'condotta delle imprese',
+  
+  // Additional sub-headers in biodiversity section
+  'biodiversity-climate',           // Cambiamenti climatici (biodiversità)
+  'biodiversity-land-use',          // Cambiamento di uso del suolo
+  'biodiversity-exploitation',      // Sfruttamento diretto
+  'biodiversity-species',           // Specie esotiche invasive
+  'biodiversity-pollution',         // Inquinamento (biodiversità)
+  'biodiversity-other',             // Altro
+  
+  // Headers for species
+  'species-population',             // Dimensione della popolazione
+  'species-extinction',             // Rischio di estinzione
+  
+  // Headers for ecosystem impacts
+  'ecosystem-soil',                 // Degrado del suolo
+  'ecosystem-desertification',      // Desertificazione
+  'ecosystem-impermeability',       // Impermeabilizzazione
+  'ecosystem-services'              // Servizi ecosistemici
 ];
 
 // Text patterns that indicate a header
@@ -53,7 +79,9 @@ const headerNamePatterns = [
   'lavoratori nella catena del valore',
   'comunità interessate',
   'consumatori e utilizzatori finali',
-  'condotta delle imprese'
+  'condotta delle imprese',
+  'diritti economici',  // Comunità interessate - alternative name
+  'consumatori e utilizzatori' // Alternative for consumers
 ];
 
 export const isHeaderTheme = (id: string, name?: string): boolean => {
@@ -65,8 +93,22 @@ export const isHeaderTheme = (id: string, name?: string): boolean => {
   if (themeHeaders.includes(id)) return true;
   if (themeHeaders.includes(lowercaseId)) return true;
   
-  // Check if name matches a header name pattern
-  if (name && headerNamePatterns.includes(lowercaseName)) return true;
+  // Check if name matches a header name pattern exactly
+  if (name && headerNamePatterns.some(pattern => lowercaseName === pattern)) return true;
+  
+  // Check exact matches for main category headers
+  if (name === 'Cambiamenti climatici' || 
+      name === 'Biodiversità ed ecosistemi' ||
+      name === 'Inquinamento' ||
+      name === 'Acque e risorse marine' ||
+      name === 'Economia circolare' ||
+      name === 'Forza lavoro propria' ||
+      name === 'Lavoratori nella catena del valore' ||
+      name === 'Comunità interessate' ||
+      name === 'Consumatori e utilizzatori finali' ||
+      name === 'Condotta delle imprese') {
+    return true;
+  }
   
   // Check if it contains common header patterns
   if (lowercaseId.includes('header') || lowercaseId.includes('-header')) return true;
@@ -79,22 +121,24 @@ export const isHeaderTheme = (id: string, name?: string): boolean => {
   // Check if it starts with common ESG prefixes followed by a dash
   if (lowercaseId.startsWith('environmental-') || 
       lowercaseId.startsWith('social-') || 
-      lowercaseId.startsWith('governance-')) return true;
+      lowercaseId.startsWith('governance-')) {
+    // But exclude specific non-header items that start with these patterns
+    const nonHeaderPatterns = [
+      'climate-adaptation',
+      'climate-mitigation',
+      'pollution-air',
+      'pollution-water',
+      'pollution-soil',
+      'workforce-security',
+      'workforce-hours'
+    ];
+    
+    if (!nonHeaderPatterns.some(pattern => lowercaseId === pattern)) {
+      return true;
+    }
+  }
   
-  // Check specific header names that have dedicated IDs
-  if (
-    lowercaseId === 'climate-change' || 
-    lowercaseId === 'biodiversity' || 
-    lowercaseId === 'pollution' || 
-    lowercaseId === 'water-resources' || 
-    lowercaseId === 'circular-economy'
-  ) return true;
-  
-  // Check if the ID or name is a known header name
-  return headerNamePatterns.some(pattern => 
-    lowercaseId.includes(pattern.toLowerCase()) || 
-    (name && lowercaseName.includes(pattern.toLowerCase()))
-  );
+  return false;
 };
 
 // Helper functions for styling
