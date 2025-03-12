@@ -30,6 +30,52 @@ export const translateESGCategory = (category: string): string => {
   }
 };
 
+// Mappa i temi predefiniti alle categorie ESG in base agli ESRS temi
+const mapIssuesToESGCategories = (): PredefinedIssue[] => {
+  // Cloniamo i temi predefiniti per non modificare l'originale
+  return predefinedIssues.map(issue => {
+    const issueWithCategory = { ...issue } as PredefinedIssue;
+    
+    // Assegna categorie in base all'ID del tema
+    if (issue.id.startsWith('climate-') || 
+        issue.id.startsWith('energy') || 
+        issue.id.startsWith('pollution-') || 
+        issue.id.startsWith('substances-') || 
+        issue.id.startsWith('water-') || 
+        issue.id.startsWith('ocean-') ||
+        issue.id.startsWith('marine-') ||
+        issue.id.startsWith('biodiversity-') ||
+        issue.id.startsWith('species-') ||
+        issue.id.startsWith('soil-') ||
+        issue.id.startsWith('desertification') ||
+        issue.id.startsWith('ecosystem-') ||
+        issue.id.startsWith('resource-') ||
+        issue.id.startsWith('waste')) {
+      issueWithCategory.category = 'environmental';
+    } 
+    else if (issue.id.startsWith('labor-') || 
+             issue.id.startsWith('supply-') ||
+             issue.id.startsWith('community-') ||
+             issue.id.startsWith('indigenous-') ||
+             issue.id.startsWith('consumer-')) {
+      issueWithCategory.category = 'social';
+    } 
+    else if (issue.id.startsWith('business-') ||
+             issue.id.startsWith('whistleblower-') ||
+             issue.id.startsWith('animal-') ||
+             issue.id.startsWith('political-') ||
+             issue.id.startsWith('supplier-') ||
+             issue.id.startsWith('corruption-')) {
+      issueWithCategory.category = 'governance';
+    } 
+    else {
+      issueWithCategory.category = 'default';
+    }
+    
+    return issueWithCategory;
+  });
+};
+
 export const categorizeIssuesByESG = (): ESGCategorizedIssues => {
   const categories: ESGCategorizedIssues = {
     environment: [],
@@ -37,8 +83,11 @@ export const categorizeIssuesByESG = (): ESGCategorizedIssues => {
     governance: []
   };
 
-  // Type assertion is safer with the PredefinedIssue interface
-  (predefinedIssues as PredefinedIssue[]).forEach(issue => {
+  // Ottiene i temi con le categorie assegnate
+  const issuesWithCategories = mapIssuesToESGCategories();
+  
+  // Filtra i temi in base alle categorie
+  issuesWithCategories.forEach(issue => {
     if (issue.category === 'environmental') {
       categories.environment.push(issue);
     } else if (issue.category === 'social') {
@@ -60,18 +109,12 @@ export const categoryColors: Record<ESGCategory, string> = {
 };
 
 export const getESGCategory = (issueId: string): ESGCategory => {
-  const issue = predefinedIssues.find(i => i.id === issueId);
-  if (!issue) return 'default';
+  // Riutilizziamo la funzione di mappatura per ottenere la categoria
+  const issuesWithCategories = mapIssuesToESGCategories();
+  const issue = issuesWithCategories.find(i => i.id === issueId);
   
-  // Safe type casting with the PredefinedIssue interface
-  const predefinedIssue = issue as PredefinedIssue;
-  if (predefinedIssue.category && 
-      (predefinedIssue.category === 'environmental' || 
-       predefinedIssue.category === 'social' || 
-       predefinedIssue.category === 'governance')) {
-    return predefinedIssue.category;
-  }
-  return 'default';
+  if (!issue || !issue.category) return 'default';
+  return issue.category;
 };
 
 export const calculateImportanceScore = (issue: MaterialityIssue): number => {

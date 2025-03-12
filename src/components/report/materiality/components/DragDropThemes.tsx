@@ -34,7 +34,9 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   const selectedIssueIds = selectedIssues.map(issue => issue.id);
   
   useEffect(() => {
-    setCategories(categorizeIssuesByESG());
+    const categorizedIssues = categorizeIssuesByESG();
+    console.log('Temi categorizzati:', categorizedIssues);
+    setCategories(categorizedIssues);
   }, []);
   
   // Gestisce l'inizio del drag
