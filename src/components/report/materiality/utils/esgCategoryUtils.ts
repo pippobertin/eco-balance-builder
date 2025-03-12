@@ -1,7 +1,16 @@
 
 import { predefinedIssues } from './materialityUtils';
+import { MaterialityIssue } from '../types';
 
-// Categorizza le questioni di materialità in base alle categorie ESG
+// Color mapping for ESG categories
+export const categoryColors = {
+  environmental: '#2E7D32', // Green
+  social: '#1976D2',       // Blue
+  governance: '#9C27B0',   // Purple
+  environment: '#2E7D32',  // Green (alternative naming)
+};
+
+// Categorize materiality issues by ESG category
 export const categorizeIssuesByESG = () => {
   const environment = predefinedIssues.filter(issue => 
     issue.id.startsWith('climate') || 
@@ -41,7 +50,7 @@ export const categorizeIssuesByESG = () => {
   };
 };
 
-// Ottiene la categoria ESG di una questione di materialità
+// Get the ESG category of a materiality issue
 export const getIssueESGCategory = (issueId: string): 'environment' | 'social' | 'governance' => {
   if (
     issueId.startsWith('climate') || 
@@ -70,7 +79,7 @@ export const getIssueESGCategory = (issueId: string): 'environment' | 'social' |
   }
 };
 
-// Traduce la categoria ESG in italiano
+// Translate the ESG category to Italian
 export const translateESGCategory = (category: string): string => {
   switch (category) {
     case 'environment': return 'Ambiente';
@@ -78,4 +87,25 @@ export const translateESGCategory = (category: string): string => {
     case 'governance': return 'Governance';
     default: return category;
   }
+};
+
+// Get the ESG category of a materiality issue - Alias for compatibility
+export const getESGCategory = (issueId: string): 'environmental' | 'social' | 'governance' => {
+  const category = getIssueESGCategory(issueId);
+  // Map environment to environmental for compatibility
+  if (category === 'environment') return 'environmental';
+  return category as 'environmental' | 'social' | 'governance';
+};
+
+// Calculate importance score for a materiality issue
+export const calculateImportanceScore = (issue: MaterialityIssue): number => {
+  // Base calculation is the average of financial and impact relevance
+  let score = (issue.financialRelevance + issue.impactRelevance) / 2;
+  
+  // If stakeholder relevance is available, include it in the calculation
+  if (issue.stakeholderRelevance && issue.stakeholderRelevance > 0) {
+    score = (score + issue.stakeholderRelevance) / 2;
+  }
+  
+  return score;
 };
