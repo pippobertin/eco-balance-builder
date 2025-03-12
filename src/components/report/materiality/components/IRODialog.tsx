@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MaterialityIssue, IROSelections } from '../types';
-import { predefinedIROData } from '../utils/materialityUtils';
+import { predefinedIROData } from '../utils/iroData';
 
 interface IRODialogProps {
   open: boolean;
@@ -27,7 +26,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
     selectedActions: []
   });
 
-  // Impostare le selezioni iniziali se esistono
   useEffect(() => {
     if (issue.iroSelections) {
       setSelections(issue.iroSelections);
@@ -50,7 +48,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
       const newSelections = { ...prev };
       const currentArray = [...(prev[category] || [])];
       
-      // Se l'indice è maggiore della lunghezza dell'array, aggiungiamo elementi vuoti fino a raggiungere l'indice
       while (currentArray.length <= index) {
         currentArray.push('');
       }
@@ -62,7 +59,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
     });
   };
 
-  // Otteniamo i dati IRO predefiniti per questo tema, se disponibili
   const iroData = predefinedIROData[issue.id] || {
     impacts: [],
     risks: [],
@@ -85,7 +81,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
         
         <div className="py-4 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sezione Impatti */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Impatti</h3>
               <p className="text-sm text-gray-500">Seleziona gli impatti rilevanti per questo tema materiale</p>
@@ -112,7 +107,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
               ))}
             </div>
             
-            {/* Sezione Rischi */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Rischi</h3>
               <p className="text-sm text-gray-500">Seleziona i rischi rilevanti per questo tema materiale</p>
@@ -141,7 +135,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sezione Opportunità */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Opportunità</h3>
               <p className="text-sm text-gray-500">Seleziona le opportunità rilevanti per questo tema materiale</p>
@@ -168,7 +161,6 @@ const IRODialog: React.FC<IRODialogProps> = ({
               ))}
             </div>
             
-            {/* Sezione Azioni */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Azioni</h3>
               <p className="text-sm text-gray-500">Seleziona le azioni rilevanti per questo tema materiale</p>
