@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts';
 import { MaterialityIssue } from './types';
@@ -71,7 +72,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 angle={-90} 
                 value="Impatto su Persone e Ambiente - Materialità dell'Impatto" 
                 position="insideLeft" 
-                offset={45}
+                offset={-45}
                 style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} 
               />
             </YAxis>
