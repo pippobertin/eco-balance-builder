@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useReport } from '@/context/ReportContext';
 import MaterialityTabs from './MaterialityTabs';
 import MaterialityIssuesTab from './MaterialityIssuesTab';
@@ -25,6 +25,19 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
   const [activeTab, setActiveTab] = useState('issues');
   const { reportData, updateReportData } = useReport();
   
+  // Initialize materialityAnalysis if it doesn't exist in formValues
+  useEffect(() => {
+    if (!formValues.materialityAnalysis) {
+      setFormValues(prev => ({
+        ...prev,
+        materialityAnalysis: {
+          issues: [],
+          stakeholders: []
+        }
+      }));
+    }
+  }, [formValues, setFormValues]);
+  
   // Use custom hooks for materiality issues
   const { 
     issues, 
@@ -35,6 +48,8 @@ const MaterialityAnalysisContainer: React.FC<MaterialityAnalysisContainerProps> 
   } = useMaterialityIssues(
     formValues.materialityAnalysis?.issues,
     (updatedIssues) => {
+      console.log("Updating materiality issues:", updatedIssues);
+      
       const updatedFormValues = {
         ...formValues,
         materialityAnalysis: {
