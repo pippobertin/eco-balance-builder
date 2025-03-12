@@ -3,31 +3,34 @@
 
 // Categories for environmental themes
 export const environmentalPatterns = [
-  'climate-', 'energy', 'pollution-', 'substances-', 
+  'env-', 'climate-', 'energy-', 'pollution-', 'substances-', 
   'water-', 'ocean-', 'marine-', 'biodiversity-', 
   'species-', 'soil-', 'desertification', 'ecosystem-', 
-  'resource-', 'waste'
+  'resource-', 'waste-', 'circular-'
 ];
 
 // Categories for social themes
 export const socialPatterns = [
-  'labor-', 'supply-', 'community-', 'indigenous-', 
-  'consumer-'
+  'workforce-', 'labor-', 'supply-chain-', 'community-', 'indigenous-', 
+  'consumer-', 'social-', 'stakeholder-'
 ];
 
 // Categories for governance themes
 export const governancePatterns = [
-  'business-', 'whistleblower-', 'animal-', 
-  'political-', 'supplier-', 'corruption-'
+  'gov-', 'business-', 'whistleblower-', 'animal-', 
+  'political-', 'supplier-', 'corruption-', 'ethics-',
+  'compliance-', 'transparency-'
 ];
 
 // Utility function to determine ESG category based on ID
 export const determineESGCategory = (id: string): 'environmental' | 'social' | 'governance' => {
-  if (environmentalPatterns.some(pattern => id.startsWith(pattern))) {
+  const lowerCaseId = id.toLowerCase();
+  
+  if (environmentalPatterns.some(pattern => lowerCaseId.startsWith(pattern))) {
     return 'environmental';
   } 
-  else if (socialPatterns.some(pattern => id.startsWith(pattern))) {
+  else if (socialPatterns.some(pattern => lowerCaseId.startsWith(pattern))) {
     return 'social';
   } 
-  return 'governance'; // Default to governance
+  return 'governance';
 };
