@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import MaterialityTabs from '../MaterialityTabs';
-import MaterialityIssuesTab from '../MaterialityIssuesTab';
-import StakeholdersTab from '../StakeholdersTab';
-import SurveyDialog from '../SurveyDialog';
+import MaterialityHeader from './MaterialityHeader';
+import TabContent from './TabContent';
+import SurveyDialogWrapper from './SurveyDialogWrapper';
 import { useMaterialityContext } from '../context/MaterialityContext';
 
 const MaterialityContent: React.FC = () => {
@@ -37,36 +37,29 @@ const MaterialityContent: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold mb-4">Analisi di Materialità</h2>
+      <MaterialityHeader title="Analisi di Materialità" />
       
       <MaterialityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      {activeTab === 'issues' && (
-        <MaterialityIssuesTab 
-          issues={issues}
-          onIssueChange={handleIssueChange}
-          onAddCustomIssue={addCustomIssue}
-          onRemoveIssue={removeIssue}
-          surveyProgress={surveyProgress}
-        />
-      )}
-      
-      {activeTab === 'stakeholders' && (
-        <StakeholdersTab 
-          stakeholders={stakeholders}
-          materialIssues={materialIssues}
-          onStakeholderChange={handleStakeholderChange}
-          onAddStakeholder={addStakeholder}
-          onRemoveStakeholder={removeStakeholder}
-          onOpenSurveyDialog={openSurveyDialog}
-          getStakeholderPriorityColor={getStakeholderPriorityColor}
-          getSurveyStatusColor={getSurveyStatusColor}
-          getSurveyStatusText={getSurveyStatusText}
-          surveyProgress={surveyProgress}
-        />
-      )}
+      <TabContent 
+        activeTab={activeTab}
+        issues={issues}
+        handleIssueChange={handleIssueChange}
+        addCustomIssue={addCustomIssue}
+        removeIssue={removeIssue}
+        materialIssues={materialIssues}
+        stakeholders={stakeholders}
+        handleStakeholderChange={handleStakeholderChange}
+        addStakeholder={addStakeholder}
+        removeStakeholder={removeStakeholder}
+        openSurveyDialog={openSurveyDialog}
+        getStakeholderPriorityColor={getStakeholderPriorityColor}
+        getSurveyStatusColor={getSurveyStatusColor}
+        getSurveyStatusText={getSurveyStatusText}
+        surveyProgress={surveyProgress}
+      />
 
-      <SurveyDialog 
+      <SurveyDialogWrapper 
         open={surveyDialogOpen}
         onOpenChange={setSurveyDialogOpen}
         stakeholders={stakeholders}
