@@ -1,18 +1,11 @@
 
 import React, { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { PlusCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import StakeholderBasicInfo from './components/stakeholder-form/StakeholderBasicInfo';
+import StakeholderInfluence from './components/stakeholder-form/StakeholderInfluence';
+import StakeholderContact from './components/stakeholder-form/StakeholderContact';
+import StakeholderFormActions from './components/stakeholder-form/StakeholderFormActions';
 import { Stakeholder } from './types';
 
 interface AddStakeholderFormProps {
@@ -65,6 +58,17 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
     }
   };
 
+  const updateField = <K extends keyof typeof newStakeholder>(
+    field: K,
+    value: typeof newStakeholder[K]
+  ) => {
+    setNewStakeholder(prev => ({ ...prev, [field]: value }));
+  };
+
+  const isFormValid = newStakeholder.name.trim() && 
+    newStakeholder.category && 
+    newStakeholder.email.trim();
+
   return (
     <GlassmorphicCard className="bg-gray-50 dark:bg-gray-800/50">
       <div className="flex items-center mb-4">
@@ -73,126 +77,35 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
       </div>
       
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="stakeholderName">Nome dello stakeholder</Label>
-            <Input
-              id="stakeholderName"
-              value={newStakeholder.name}
-              onChange={(e) => setNewStakeholder({...newStakeholder, name: e.target.value})}
-              placeholder="Es. Associazione Consumatori Italiani"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="stakeholderCategory">Categoria</Label>
-            <Select
-              value={newStakeholder.category}
-              onValueChange={(value) => setNewStakeholder({...newStakeholder, category: value})}
-            >
-              <SelectTrigger id="stakeholderCategory">
-                <SelectValue placeholder="Seleziona una categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {stakeholderCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <StakeholderBasicInfo 
+          name={newStakeholder.name}
+          category={newStakeholder.category}
+          email={newStakeholder.email}
+          stakeholderCategories={stakeholderCategories}
+          onNameChange={(value) => updateField('name', value)}
+          onCategoryChange={(value) => updateField('category', value)}
+          onEmailChange={(value) => updateField('email', value)}
+        />
         
-        <div>
-          <Label htmlFor="stakeholderEmail" className="flex items-center">
-            Email <span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Input
-            id="stakeholderEmail"
-            type="email"
-            value={newStakeholder.email}
-            onChange={(e) => setNewStakeholder({...newStakeholder, email: e.target.value})}
-            placeholder="email@esempio.com"
-            required
-            className="border-red-200 focus-visible:ring-red-300"
-          />
-          <p className="text-xs text-red-500 mt-1">
-            Campo obbligatorio per l'invio dei sondaggi di materialità
-          </p>
-        </div>
+        <StakeholderInfluence 
+          influence={newStakeholder.influence}
+          interest={newStakeholder.interest}
+          onInfluenceChange={(value) => updateField('influence', value)}
+          onInterestChange={(value) => updateField('interest', value)}
+        />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label>Livello di influenza: {newStakeholder.influence}%</Label>
-            <Slider
-              value={[newStakeholder.influence]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={(value) => setNewStakeholder({...newStakeholder, influence: value[0]})}
-              className="mb-4"
-            />
-            <p className="text-xs text-gray-500">
-              Quanto lo stakeholder può influenzare le decisioni e le attività dell'organizzazione
-            </p>
-          </div>
-          
-          <div>
-            <Label>Livello di interesse: {newStakeholder.interest}%</Label>
-            <Slider
-              value={[newStakeholder.interest]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={(value) => setNewStakeholder({...newStakeholder, interest: value[0]})}
-              className="mb-4"
-            />
-            <p className="text-xs text-gray-500">
-              Quanto lo stakeholder è interessato alle questioni di sostenibilità dell'organizzazione
-            </p>
-          </div>
-        </div>
+        <StakeholderContact 
+          contactInfo={newStakeholder.contactInfo}
+          notes={newStakeholder.notes}
+          onContactInfoChange={(value) => updateField('contactInfo', value)}
+          onNotesChange={(value) => updateField('notes', value)}
+        />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="stakeholderContact">Altre informazioni di contatto</Label>
-            <Input
-              id="stakeholderContact"
-              value={newStakeholder.contactInfo}
-              onChange={(e) => setNewStakeholder({...newStakeholder, contactInfo: e.target.value})}
-              placeholder="Telefono, indirizzo, ecc."
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="stakeholderNotes">Note</Label>
-            <Input
-              id="stakeholderNotes"
-              value={newStakeholder.notes}
-              onChange={(e) => setNewStakeholder({...newStakeholder, notes: e.target.value})}
-              placeholder="Note aggiuntive"
-            />
-          </div>
-        </div>
-        
-        <div className="flex justify-between space-x-4">
-          <Button 
-            variant="outline" 
-            onClick={onCancel}
-            className="flex-1"
-          >
-            Annulla
-          </Button>
-          <Button 
-            onClick={handleAddStakeholder}
-            className="flex-1"
-            disabled={!newStakeholder.name.trim() || !newStakeholder.category || !newStakeholder.email.trim()}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Aggiungi stakeholder
-          </Button>
-        </div>
+        <StakeholderFormActions 
+          isValid={isFormValid}
+          onCancel={onCancel}
+          onSubmit={handleAddStakeholder}
+        />
       </div>
     </GlassmorphicCard>
   );
