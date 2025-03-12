@@ -31,7 +31,13 @@ const Report = () => {
     saveBasicInfo,
     saveMetrics,
     initialSection,
-    initialField
+    initialField,
+    // Get subsidiaries state from the hook
+    subsidiaries,
+    newSubsidiary,
+    setNewSubsidiary,
+    handleAddSubsidiary,
+    removeSubsidiary
   } = useReportForm();
 
   const handleTabChange = (value: string) => {
@@ -94,14 +100,14 @@ const Report = () => {
             formValues={formValues}
             setFormValues={setFormValues}
             isConsolidated={isConsolidated}
-            subsidiaries={[]} // Pass from useReportForm
+            subsidiaries={subsidiaries}
             currentReport={null} // Pass from useReportForm
             sustainabilityPractices={sustainabilityPractices}
             setSustainabilityPractices={setSustainabilityPractices}
-            newSubsidiary={{}} // Pass from useReportForm
-            setNewSubsidiary={() => {}} // Pass from useReportForm
-            handleAddSubsidiary={() => {}} // Pass from useReportForm
-            removeSubsidiary={() => {}} // Pass from useReportForm
+            newSubsidiary={newSubsidiary}
+            setNewSubsidiary={setNewSubsidiary}
+            handleAddSubsidiary={handleAddSubsidiary}
+            removeSubsidiary={removeSubsidiary}
             saveBasicInfo={saveBasicInfo}
             saveMetrics={saveMetrics}
             initialSection={initialSection}

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/context/ReportContext';
+import { useSubsidiaries } from './use-subsidiaries';
 
 export const useReportForm = () => {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ export const useReportForm = () => {
     saveCurrentReport,
     saveSubsidiaries
   } = useReport();
+  
+  // Use the extracted subsidiaries hook
+  const subsidiariesState = useSubsidiaries();
   
   // Check if a specific tab is requested in the location state
   const initialTab = location.state?.activeTab || 'company-info';
@@ -82,6 +86,11 @@ export const useReportForm = () => {
 
   // Navigate to basic info tab
   const saveBasicInfo = () => {
+    // Save subsidiaries if the report is consolidated
+    if (isConsolidated && currentReport) {
+      saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
+    }
+    
     toast({
       title: "Informazioni salvate",
       description: "Le informazioni di base sono state salvate con successo."
@@ -116,6 +125,8 @@ export const useReportForm = () => {
     saveMetrics,
     // Return the section and field for scrolling to the specific section
     initialSection,
-    initialField
+    initialField,
+    // Return subsidiaries state
+    ...subsidiariesState
   };
 };
