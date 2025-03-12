@@ -13,40 +13,49 @@ import {
 import { esrsThemes } from '../utils/materialityUtils';
 
 interface ESRSThemeFilterProps {
-  selectedTheme: string;
-  setSelectedTheme: (theme: string) => void;
-  showPredefinedSelector: boolean;
-  togglePredefinedSelector: () => void;
+  selectedCategories: string[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const ESRSThemeFilter: React.FC<ESRSThemeFilterProps> = ({
-  selectedTheme,
-  setSelectedTheme,
-  showPredefinedSelector,
-  togglePredefinedSelector
+  selectedCategories,
+  setSelectedCategories
 }) => {
+  // Handle selection change
+  const handleSelectionChange = (value: string) => {
+    if (value === 'all') {
+      setSelectedCategories([]);
+    } else {
+      // If value is already selected, remove it, otherwise add it
+      if (selectedCategories.includes(value)) {
+        setSelectedCategories(selectedCategories.filter(category => category !== value));
+      } else {
+        setSelectedCategories([...selectedCategories, value]);
+      }
+    }
+  };
+
+  // Get display text for the trigger
+  const getDisplayText = () => {
+    if (selectedCategories.length === 0) {
+      return "Tutti i temi";
+    } else if (selectedCategories.length === 1) {
+      return selectedCategories[0];
+    } else {
+      return `${selectedCategories.length} categorie selezionate`;
+    }
+  };
+
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-gray-600" />
-          <h4 className="text-sm font-medium text-gray-800">Filtra per tema ESRS</h4>
-        </div>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center" 
-          onClick={togglePredefinedSelector}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {showPredefinedSelector ? 'Nascondi temi predefiniti' : 'Aggiungi temi predefiniti'}
-        </Button>
+      <div className="flex items-center mb-4">
+        <Filter className="h-4 w-4 text-gray-600 mr-2" />
+        <h4 className="text-sm font-medium text-gray-800">Filtra per tema ESRS</h4>
       </div>
       
-      <Select value={selectedTheme} onValueChange={setSelectedTheme}>
+      <Select value={selectedCategories.length === 0 ? "all" : selectedCategories[0]} onValueChange={handleSelectionChange}>
         <SelectTrigger className="w-full md:w-[300px]">
-          <SelectValue placeholder="Seleziona un tema ESRS" />
+          <SelectValue placeholder={getDisplayText()} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

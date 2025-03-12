@@ -10,6 +10,12 @@ import PredefinedIssuesSelector from './PredefinedIssuesSelector';
 import { predefinedIssues } from '../utils/materialityUtils';
 import { useToast } from '@/hooks/use-toast';
 
+// Add category property to the predefined issues
+const predefinedIssuesWithCategory = predefinedIssues.map(issue => ({
+  ...issue,
+  category: issue.id.split('-')[0] // Simple way to extract category from ID
+}));
+
 interface DragDropThemesProps {
   selectedIssues: any[];
   onIssueSelect: (issue: any) => void;
@@ -22,16 +28,16 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   onIssueRemove 
 }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [filteredIssues, setFilteredIssues] = useState(predefinedIssues);
+  const [filteredIssues, setFilteredIssues] = useState(predefinedIssuesWithCategory);
   const { toast } = useToast();
   
   // Filter issues based on selected categories
   useEffect(() => {
     if (selectedCategories.length === 0) {
-      setFilteredIssues(predefinedIssues);
+      setFilteredIssues(predefinedIssuesWithCategory);
     } else {
-      const filtered = predefinedIssues.filter(issue => 
-        selectedCategories.includes(issue.category)
+      const filtered = predefinedIssuesWithCategory.filter(issue => 
+        selectedCategories.some(cat => issue.id.startsWith(cat))
       );
       setFilteredIssues(filtered);
     }

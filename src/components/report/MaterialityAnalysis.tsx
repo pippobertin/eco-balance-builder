@@ -41,6 +41,23 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
     }
   }, [formValues.materialityAnalysis, saveCurrentReport, toast]);
 
+  // Force an immediate save when the component mounts
+  useEffect(() => {
+    if (formValues?.materialityAnalysis) {
+      console.log("MaterialityAnalysis component mounted, forcing immediate save");
+      saveCurrentReport()
+        .then(() => console.log("Initial materiality data save successful"))
+        .catch(error => {
+          console.error("Error saving initial materiality data:", error);
+          toast({
+            title: "Errore di salvataggio iniziale",
+            description: "Non è stato possibile salvare i dati di materialità iniziali",
+            variant: "destructive"
+          });
+        });
+    }
+  }, []); // Empty dependency array ensures this runs once on mount
+
   return (
     <MaterialityAnalysisContainer 
       formValues={formValues} 

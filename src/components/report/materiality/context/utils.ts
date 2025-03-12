@@ -69,3 +69,33 @@ export const updateFormWithStakeholders = (
   
   console.log("Form and report data updated with new stakeholders");
 };
+
+// Helper to ensure materiality analysis exists in form values
+export const ensureMaterialityAnalysisExists = (
+  formValues: any,
+  setFormValues: React.Dispatch<React.SetStateAction<any>>
+) => {
+  if (!formValues.materialityAnalysis) {
+    console.log("Creating initial materiality analysis structure");
+    setFormValues({
+      ...formValues,
+      materialityAnalysis: {
+        issues: [],
+        stakeholders: []
+      }
+    });
+    return false;
+  }
+  return true;
+};
+
+// Helper to check for duplicate issues
+export const isDuplicateIssue = (
+  issues: MaterialityIssue[],
+  newIssue: { id: string; name: string }
+): boolean => {
+  return issues.some(issue => 
+    issue.id === newIssue.id || 
+    issue.name.toLowerCase() === newIssue.name.toLowerCase()
+  );
+};
