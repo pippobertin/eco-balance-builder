@@ -47,7 +47,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
             >
               <Label 
                 value="Impatto sul Valore Aziendale - Materialità Finanziaria" 
-                offset={-5} 
+                offset={-35} 
                 position="insideBottom" 
                 style={{ fontSize: 12, fill: '#64748b' }} 
               />
