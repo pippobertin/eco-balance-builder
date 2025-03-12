@@ -33,11 +33,12 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   
   const selectedIssueIds = selectedIssues.map(issue => issue.id);
   
+  // Refresh categories every time selectedIssues changes
   useEffect(() => {
     const categorizedIssues = categorizeIssuesByESG();
     console.log('Temi categorizzati:', categorizedIssues);
     setCategories(categorizedIssues);
-  }, []);
+  }, [selectedIssues]); // Add selectedIssues as dependency to refresh when selections change
   
   // Gestisce l'inizio del drag
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, issue: any) => {
@@ -69,6 +70,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
     try {
       const issueData = JSON.parse(e.dataTransfer.getData('application/json'));
       if (!selectedIssueIds.includes(issueData.id)) {
+        console.log("Adding issue:", issueData);
         onIssueSelect(issueData);
       }
     } catch (error) {

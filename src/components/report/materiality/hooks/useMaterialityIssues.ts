@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MaterialityIssue } from '../types';
 import { predefinedIssues } from '../utils/materialityUtils';
 
@@ -16,16 +16,30 @@ export const useMaterialityIssues = (
   // Make sure to update issues when initialIssues change (e.g., when loading saved data)
   useEffect(() => {
     if (initialIssues && initialIssues.length > 0) {
-      setIssues(initialIssues);
+      // Don't overwrite if we already have the same number of issues
+      // This prevents infinite loops when our own updates come back to us
+      if (issues.length !== initialIssues.length || 
+          JSON.stringify(issues) !== JSON.stringify(initialIssues)) {
+        console.log("Updating issues from initialIssues:", initialIssues);
+        setIssues(initialIssues);
+      }
     }
   }, [initialIssues]);
 
   // Call onUpdate whenever issues changes
-  useEffect(() => {
+  // Use useCallback to memoize the update function
+  const triggerUpdate = useCallback(() => {
+    console.log("Triggering update with issues:", issues);
     onUpdate(issues);
   }, [issues, onUpdate]);
 
+  // Use useEffect to call the update function
+  useEffect(() => {
+    triggerUpdate();
+  }, [triggerUpdate]);
+
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
+    console.log(`Changing issue ${id} field ${String(field)} to`, value);
     setIssues(prevIssues => 
       prevIssues.map(issue => 
         issue.id === id ? { ...issue, [field]: value } : issue
@@ -39,19 +53,28 @@ export const useMaterialityIssues = (
       issue => issue.name === name && issue.description === description
     );
     
+    console.log("Adding issue:", name, "predefined:", !!predefinedIssue);
+    
     if (predefinedIssue) {
       // If it's predefined, use its ID and add default values for required properties
-      setIssues(prevIssues => [
-        ...prevIssues,
-        {
-          id: predefinedIssue.id,
-          name: predefinedIssue.name,
-          description: predefinedIssue.description,
-          impactRelevance: 50,
-          financialRelevance: 50,
-          isMaterial: false
+      setIssues(prevIssues => {
+        // Check if issue with this ID already exists to avoid duplicates
+        if (prevIssues.some(issue => issue.id === predefinedIssue.id)) {
+          return prevIssues;
         }
-      ]);
+        
+        return [
+          ...prevIssues,
+          {
+            id: predefinedIssue.id,
+            name: predefinedIssue.name,
+            description: predefinedIssue.description,
+            impactRelevance: 50,
+            financialRelevance: 50,
+            isMaterial: false
+          }
+        ];
+      });
     } else {
       // If it's custom, generate a new ID and add default values for required properties
       const id = `custom-${Date.now()}`;
@@ -70,6 +93,7 @@ export const useMaterialityIssues = (
   };
 
   const removeIssue = (id: string) => {
+    console.log("Removing issue:", id);
     setIssues(prevIssues => prevIssues.filter(issue => issue.id !== id));
   };
 

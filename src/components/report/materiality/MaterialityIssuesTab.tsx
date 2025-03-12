@@ -34,6 +34,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   
   // Funzione per gestire la selezione di un tema predefinito
   const handleIssueSelect = (predefinedIssue: { id: string; name: string; description: string }) => {
+    console.log("Selected issue:", predefinedIssue);
     onAddCustomIssue(predefinedIssue.name, predefinedIssue.description);
   };
 
