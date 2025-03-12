@@ -1,8 +1,8 @@
-
 import React from 'react';
 import MaterialityIssuesTab from '../MaterialityIssuesTab';
 import StakeholdersTab from '../StakeholdersTab';
 import { MaterialityIssue } from '../types';
+import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from '../utils/materialityUtils';
 
 interface TabContentProps {
   activeTab: string;
