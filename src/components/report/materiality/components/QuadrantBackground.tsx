@@ -10,8 +10,8 @@ export const quadrantStyles = {
   backgroundQuadrants: {
     position: 'absolute' as 'absolute',
     top: '60px',
-    left: '60px',
-    right: '30px',
+    left: '100px',
+    right: '40px',
     bottom: '50px',
     zIndex: 0,
     display: 'grid',

@@ -28,7 +28,7 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
         
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart
-            margin={{ top: 20, right: 30, bottom: 70, left: 80 }}
+            margin={{ top: 20, right: 40, bottom: 70, left: 100 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
             <XAxis 
@@ -74,14 +74,14 @@ const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues 
                 angle={-90} 
                 value="Impatto su Persone e Ambiente - Materialità dell'Impatto" 
                 position="insideLeft" 
-                offset={10}
+                offset={15}
                 style={{ textAnchor: 'middle', fontSize: 12, fill: '#64748b' }} 
               />
             </YAxis>
             <ZAxis
               type="number"
               dataKey="z"
-              range={[200, 600]}
+              range={[300, 900]}
               name="Importanza"
             />
             <Tooltip content={<MaterialityTooltip />} />
