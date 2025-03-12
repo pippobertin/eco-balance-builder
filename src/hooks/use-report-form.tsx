@@ -26,11 +26,11 @@ export const useReportForm = () => {
   const [isConsolidated, setIsConsolidated] = useState<boolean>(false);
   const [sustainabilityPractices, setSustainabilityPractices] = useState<string>('');
   const [formValues, setFormValues] = useState({
-    environmentalMetrics: {},
-    socialMetrics: {},
-    conductMetrics: {},
-    narrativePATMetrics: {},
-    materialityAnalysis: {}
+    environmentalMetrics: reportData.environmentalMetrics || {},
+    socialMetrics: reportData.socialMetrics || {},
+    conductMetrics: reportData.conductMetrics || {},
+    narrativePATMetrics: reportData.narrativePATMetrics || {},
+    materialityAnalysis: reportData.materialityAnalysis || {}
   });
 
   // Load current report data
@@ -69,6 +69,9 @@ export const useReportForm = () => {
 
   // Save report handler
   const handleSaveReport = async () => {
+    // Make sure to update the reportData with the current formValues before saving
+    updateReportData(formValues);
+    
     await saveCurrentReport();
     
     toast({
@@ -88,6 +91,7 @@ export const useReportForm = () => {
   
   // Save metrics
   const saveMetrics = async () => {
+    // Make sure to update the reportData with the current formValues before saving
     updateReportData(formValues);
     
     await saveCurrentReport();

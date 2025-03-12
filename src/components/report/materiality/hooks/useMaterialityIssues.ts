@@ -13,6 +13,14 @@ export const useMaterialityIssues = (
       : []
   );
 
+  // Make sure to update issues when initialIssues change (e.g., when loading saved data)
+  useEffect(() => {
+    if (initialIssues && initialIssues.length > 0) {
+      setIssues(initialIssues);
+    }
+  }, [initialIssues]);
+
+  // Call onUpdate whenever issues changes
   useEffect(() => {
     onUpdate(issues);
   }, [issues, onUpdate]);
@@ -33,8 +41,8 @@ export const useMaterialityIssues = (
     
     if (predefinedIssue) {
       // If it's predefined, use its ID and add default values for required properties
-      setIssues([
-        ...issues,
+      setIssues(prevIssues => [
+        ...prevIssues,
         {
           id: predefinedIssue.id,
           name: predefinedIssue.name,
@@ -47,8 +55,8 @@ export const useMaterialityIssues = (
     } else {
       // If it's custom, generate a new ID and add default values for required properties
       const id = `custom-${Date.now()}`;
-      setIssues([
-        ...issues,
+      setIssues(prevIssues => [
+        ...prevIssues,
         {
           id,
           name,
@@ -62,7 +70,7 @@ export const useMaterialityIssues = (
   };
 
   const removeIssue = (id: string) => {
-    setIssues(issues.filter(issue => issue.id !== id));
+    setIssues(prevIssues => prevIssues.filter(issue => issue.id !== id));
   };
 
   // Update issues with stakeholder relevance data
