@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
@@ -10,6 +10,7 @@ import { predefinedIssues } from './utils/materialityUtils';
 import MaterialityIntro from './components/MaterialityIntro';
 import DragDropThemes from './components/DragDropThemes';
 import NoIssuesFound from './components/NoIssuesFound';
+import { useToast } from '@/hooks/use-toast';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -31,11 +32,40 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   surveyProgress = { sent: 0, completed: 0, total: 0 }
 }) => {
   const [showDragDropSelector, setShowDragDropSelector] = useState(true);
+  const { toast } = useToast();
+  
+  // Log changes to issues
+  useEffect(() => {
+    console.log("MaterialityIssuesTab received updated issues:", issues);
+  }, [issues]);
   
   // Funzione per gestire la selezione di un tema predefinito
   const handleIssueSelect = (predefinedIssue: { id: string; name: string; description: string }) => {
     console.log("Selected issue:", predefinedIssue);
     onAddCustomIssue(predefinedIssue.name, predefinedIssue.description);
+    toast({
+      title: "Tema aggiunto",
+      description: `${predefinedIssue.name} è stato aggiunto alla lista dei temi`,
+    });
+  };
+
+  // Handler for issue change with immediate feedback
+  const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
+    console.log(`MaterialityIssuesTab handling change for ${id}, field ${String(field)}:`, value);
+    
+    // For numeric fields, ensure we're using numbers
+    if (field === 'impactRelevance' || field === 'financialRelevance') {
+      const numericValue = typeof value === 'string' ? Number(value) : value;
+      onIssueChange(id, field, numericValue);
+      
+      // Show toast for relevance changes
+      toast({
+        title: "Valore aggiornato",
+        description: `${field === 'impactRelevance' ? 'Rilevanza dell\'impatto' : 'Rilevanza finanziaria'} aggiornata a ${numericValue}%`,
+      });
+    } else {
+      onIssueChange(id, field, value);
+    }
   };
 
   return (
@@ -60,7 +90,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
               <IssueItem 
                 key={issue.id}
                 issue={issue}
-                onIssueChange={onIssueChange}
+                onIssueChange={handleIssueChange}
                 onRemoveIssue={onRemoveIssue}
                 isPredefined={predefinedIssues.some(predefined => predefined.id === issue.id)}
               />

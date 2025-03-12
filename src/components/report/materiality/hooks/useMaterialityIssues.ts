@@ -28,7 +28,13 @@ export const useMaterialityIssues = (
       
       if (needsUpdate) {
         console.log("Updating issues from initialIssues:", initialIssues);
-        setIssues(initialIssues);
+        // Ensure all numeric values are properly converted
+        const processedIssues = initialIssues.map(issue => ({
+          ...issue,
+          impactRelevance: Number(issue.impactRelevance),
+          financialRelevance: Number(issue.financialRelevance)
+        }));
+        setIssues(processedIssues);
       }
     }
   }, [initialIssues]);
@@ -73,6 +79,12 @@ export const useMaterialityIssues = (
       
       // Log the change and return updated issues
       console.log("Updated issues after change:", updatedIssues);
+      
+      // Force an immediate save after a change
+      setTimeout(() => {
+        onUpdate(updatedIssues);
+      }, 50);
+      
       return updatedIssues;
     });
   };

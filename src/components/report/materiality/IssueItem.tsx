@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,21 @@ const IssueItem: React.FC<IssueItemProps> = ({
   };
 
   const handleImpactChange = (value: number[]) => {
+    console.log(`Changing impact relevance for ${issue.id} from ${issue.impactRelevance} to ${value[0]}`);
     // Ensure numeric value is passed
     onIssueChange(issue.id, 'impactRelevance', Number(value[0]));
   };
 
   const handleFinancialChange = (value: number[]) => {
+    console.log(`Changing financial relevance for ${issue.id} from ${issue.financialRelevance} to ${value[0]}`);
     // Ensure numeric value is passed
     onIssueChange(issue.id, 'financialRelevance', Number(value[0]));
   };
+
+  // Effect to log issue changes
+  useEffect(() => {
+    console.log(`Issue updated:`, issue);
+  }, [issue]);
 
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm">

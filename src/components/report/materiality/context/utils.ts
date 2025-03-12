@@ -12,12 +12,19 @@ export const updateFormWithIssues = (
 ) => {
   console.log("Updating materiality issues:", updatedIssues);
   
+  // Ensure all numeric values are properly typed
+  const processedIssues = updatedIssues.map(issue => ({
+    ...issue,
+    impactRelevance: Number(issue.impactRelevance),
+    financialRelevance: Number(issue.financialRelevance)
+  }));
+  
   // Create a new form values object with the updated issues
   const updatedFormValues = {
     ...formValues,
     materialityAnalysis: {
       ...formValues.materialityAnalysis,
-      issues: updatedIssues
+      issues: processedIssues
     }
   };
   
@@ -28,9 +35,9 @@ export const updateFormWithIssues = (
   updateReportData({
     materialityAnalysis: {
       ...reportData.materialityAnalysis,
-      issues: updatedIssues,
+      issues: processedIssues,
       // Calculate a simple ESG score based on material issues
-      esgScore: calculateEsgScore(updatedIssues)
+      esgScore: calculateEsgScore(processedIssues)
     }
   });
   

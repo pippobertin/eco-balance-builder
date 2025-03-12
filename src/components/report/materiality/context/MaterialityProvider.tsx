@@ -121,6 +121,23 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     }
   }, [issues, stakeholders, saveCurrentReport]);
 
+  // Add an additional useEffect specifically for impact and financial relevance changes
+  useEffect(() => {
+    if (issues.length > 0) {
+      const relevanceChanged = issues.some(issue => 
+        typeof issue.impactRelevance === 'number' && 
+        typeof issue.financialRelevance === 'number'
+      );
+      
+      if (relevanceChanged) {
+        console.log("Relevance values changed, triggering immediate save", issues);
+        saveCurrentReport()
+          .then(() => console.log("Relevance values saved successfully"))
+          .catch(err => console.error("Error saving relevance values:", err));
+      }
+    }
+  }, [issues, saveCurrentReport]);
+
   const value = {
     // Issues
     issues,
