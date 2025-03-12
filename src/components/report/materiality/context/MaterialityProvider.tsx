@@ -62,7 +62,8 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     }
   );
   
-  const materialIssues = issues.filter(issue => issue.isMaterial);
+  // All issues are now material - no filter needed
+  const materialIssues = issues;
   
   // Use survey dialog hook
   const { 
@@ -75,7 +76,8 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     stakeholderGroups,
     forceResend,
     toggleForceResend,
-    surveyProgress
+    surveyProgress,
+    openSurveyDialog: openSurveyDialogInternal
   } = useSurveyDialog(materialIssues, stakeholders);
 
   // Use survey validation hook
@@ -97,6 +99,9 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   // Open survey dialog with validation
   const openSurveyDialog = () => {
     validateAndOpenSurvey(materialIssues, stakeholders);
+    if (materialIssues.length > 0 && stakeholders.length > 0) {
+      openSurveyDialogInternal();
+    }
   };
   
   // Handle survey sending
@@ -106,8 +111,6 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
       setSurveyDialogOpen(false);
     }
   };
-
-  // We've removed the auto-save effects to rely on explicit saving instead
 
   const value = {
     // Issues

@@ -104,7 +104,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
       </GlassmorphicCard>
       
       <MaterialityReport 
-        materialIssues={issues.filter(issue => issue.isMaterial)}
+        materialIssues={issues}
         surveyProgress={surveyProgress}
       />
     </>

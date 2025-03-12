@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { MaterialityIssue } from '../types';
 import { predefinedIssues } from '../utils/materialityUtils';
@@ -26,7 +27,7 @@ export const useMaterialityIssues = (
         console.log("Updating issues from initialIssues:", initialIssues);
         const processedIssues = initialIssues.map(issue => ({
           ...issue,
-          isMaterial: true,
+          isMaterial: true, // Always set as material
           impactRelevance: Number(issue.impactRelevance),
           financialRelevance: Number(issue.financialRelevance)
         }));
@@ -101,7 +102,7 @@ export const useMaterialityIssues = (
             description: predefinedIssue.description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true
+            isMaterial: true // Always set as material
           }
         ];
         
@@ -118,7 +119,7 @@ export const useMaterialityIssues = (
             description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true
+            isMaterial: true // Always set as material
           }
         ];
         
