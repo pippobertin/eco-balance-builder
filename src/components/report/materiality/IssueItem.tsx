@@ -29,6 +29,16 @@ const IssueItem: React.FC<IssueItemProps> = ({
     return "Basso impatto, Bassa rilevanza finanziaria";
   };
 
+  const handleImpactChange = (value: number[]) => {
+    // Ensure numeric value is passed
+    onIssueChange(issue.id, 'impactRelevance', Number(value[0]));
+  };
+
+  const handleFinancialChange = (value: number[]) => {
+    // Ensure numeric value is passed
+    onIssueChange(issue.id, 'financialRelevance', Number(value[0]));
+  };
+
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm">
       <div className="flex justify-between items-start mb-2">
@@ -58,7 +68,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             min={0}
             max={100}
             step={1}
-            onValueChange={(value) => onIssueChange(issue.id, 'impactRelevance', value[0])}
+            onValueChange={handleImpactChange}
             className="mb-4"
           />
         </div>
@@ -72,7 +82,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             min={0}
             max={100}
             step={1}
-            onValueChange={(value) => onIssueChange(issue.id, 'financialRelevance', value[0])}
+            onValueChange={handleFinancialChange}
             className="mb-4"
           />
         </div>

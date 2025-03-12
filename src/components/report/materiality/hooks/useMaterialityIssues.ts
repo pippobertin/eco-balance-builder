@@ -57,10 +57,19 @@ export const useMaterialityIssues = (
 
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     console.log(`Changing issue ${id} field ${String(field)} to`, value);
+    
     setIssues(prevIssues => {
-      const updatedIssues = prevIssues.map(issue => 
-        issue.id === id ? { ...issue, [field]: value } : issue
-      );
+      const updatedIssues = prevIssues.map(issue => {
+        if (issue.id === id) {
+          // Ensure we convert to number for numeric fields
+          if (field === 'impactRelevance' || field === 'financialRelevance') {
+            const numericValue = typeof value === 'string' ? Number(value) : value;
+            return { ...issue, [field]: numericValue };
+          }
+          return { ...issue, [field]: value };
+        }
+        return issue;
+      });
       
       // Log the change and return updated issues
       console.log("Updated issues after change:", updatedIssues);
