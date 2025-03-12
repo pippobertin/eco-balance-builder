@@ -27,6 +27,15 @@ const IRODialog: React.FC<IRODialogProps> = ({
     selectedActions: []
   });
 
+  // Ottieni i dati IRO per l'issue corrente
+  const iroData = predefinedIROData[issue.id] || {
+    impacts: [],
+    risks: [],
+    opportunities: [],
+    actions: []
+  };
+
+  // Aggiorna le selezioni quando cambia l'issue
   useEffect(() => {
     if (issue.iroSelections) {
       setSelections(issue.iroSelections);
@@ -61,12 +70,9 @@ const IRODialog: React.FC<IRODialogProps> = ({
     });
   };
 
-  const iroData = predefinedIROData[issue.id] || {
-    impacts: [],
-    risks: [],
-    opportunities: [],
-    actions: []
-  };
+  // Log dei dati IRO per debug
+  console.log('IRO Data for issue:', issue.id, iroData);
+  console.log('Current selections:', selections);
 
   const renderSelectGroup = (
     title: string,
