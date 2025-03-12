@@ -15,7 +15,8 @@ export const useReportForm = () => {
     currentCompany,
     currentReport,
     saveCurrentReport,
-    saveSubsidiaries
+    saveSubsidiaries,
+    loadReport
   } = useReport();
   
   // Use the extracted subsidiaries hook
@@ -51,6 +52,12 @@ export const useReportForm = () => {
         materialityAnalysis: reportData.materialityAnalysis || {}
       });
       
+      // If the report doesn't have company data loaded yet, load it
+      if (currentReport.id && (!currentReport.company || !currentReport.company.name)) {
+        console.log("Loading full report data");
+        loadReport(currentReport.id);
+      }
+      
       // If no company or report is selected, redirect to the companies page
       if (!currentCompany) {
         toast({
@@ -69,7 +76,7 @@ export const useReportForm = () => {
       });
       navigate('/companies');
     }
-  }, [currentReport, currentCompany, navigate, toast, reportData]);
+  }, [currentReport, currentCompany, navigate, toast, reportData, loadReport]);
 
   // Save report handler
   const handleSaveReport = async () => {

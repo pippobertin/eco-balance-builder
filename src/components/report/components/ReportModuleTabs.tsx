@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyInformation from '../CompanyInformation';
 import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
+import { Company, Report } from '@/context/types';
 
 interface ReportModuleTabsProps {
   activeTab: string;
@@ -12,7 +13,7 @@ interface ReportModuleTabsProps {
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
   isConsolidated: boolean;
   subsidiaries: any[];
-  currentReport: any;
+  currentReport: Report | null;
   sustainabilityPractices: string;
   setSustainabilityPractices: React.Dispatch<React.SetStateAction<string>>;
   newSubsidiary: any;

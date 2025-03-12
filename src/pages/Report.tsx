@@ -101,7 +101,7 @@ const Report = () => {
             setFormValues={setFormValues}
             isConsolidated={isConsolidated}
             subsidiaries={subsidiaries}
-            currentReport={currentReport} // Corretto il passaggio di currentReport
+            currentReport={currentReport}
             sustainabilityPractices={sustainabilityPractices}
             setSustainabilityPractices={setSustainabilityPractices}
             newSubsidiary={newSubsidiary}
