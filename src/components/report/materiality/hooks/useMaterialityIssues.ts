@@ -16,27 +16,44 @@ export const useMaterialityIssues = (
   // Make sure to update issues when initialIssues change (e.g., when loading saved data)
   useEffect(() => {
     if (initialIssues && initialIssues.length > 0) {
-      // Don't overwrite if we already have the same number of issues
-      // This prevents infinite loops when our own updates come back to us
-      if (issues.length !== initialIssues.length || 
-          JSON.stringify(issues) !== JSON.stringify(initialIssues)) {
+      // Only update if the data is actually different to prevent infinite loops
+      const currentIds = new Set(issues.map(issue => issue.id));
+      const initialIds = new Set(initialIssues.map(issue => issue.id));
+      
+      // Check if arrays have different lengths or different elements
+      const needsUpdate = 
+        issues.length !== initialIssues.length || 
+        initialIssues.some(issue => !currentIds.has(issue.id)) ||
+        issues.some(issue => !initialIds.has(issue.id));
+      
+      if (needsUpdate) {
         console.log("Updating issues from initialIssues:", initialIssues);
         setIssues(initialIssues);
       }
     }
-  }, [initialIssues]);
+  }, [initialIssues, issues]);
 
   // Call onUpdate whenever issues changes
-  // Use useCallback to memoize the update function
   const triggerUpdate = useCallback(() => {
-    console.log("Triggering update with issues:", issues);
-    onUpdate(issues);
+    if (issues && issues.length > 0) {
+      console.log("Triggering update with issues:", issues);
+      onUpdate(issues);
+    }
   }, [issues, onUpdate]);
 
   // Use useEffect to call the update function
   useEffect(() => {
-    triggerUpdate();
-  }, [triggerUpdate]);
+    // Only trigger update if issues exist and are changed from initial state
+    if (issues && issues.length > 0) {
+      console.log("Issues changed, scheduling update");
+      // Add a small delay to avoid rapid consecutive updates
+      const timeoutId = setTimeout(() => {
+        triggerUpdate();
+      }, 300);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [triggerUpdate, issues]);
 
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     console.log(`Changing issue ${id} field ${String(field)} to`, value);
@@ -60,9 +77,11 @@ export const useMaterialityIssues = (
       setIssues(prevIssues => {
         // Check if issue with this ID already exists to avoid duplicates
         if (prevIssues.some(issue => issue.id === predefinedIssue.id)) {
+          console.log("Issue already exists, not adding duplicate:", predefinedIssue.id);
           return prevIssues;
         }
         
+        console.log("Adding predefined issue:", predefinedIssue);
         return [
           ...prevIssues,
           {
@@ -78,6 +97,7 @@ export const useMaterialityIssues = (
     } else {
       // If it's custom, generate a new ID and add default values for required properties
       const id = `custom-${Date.now()}`;
+      console.log("Adding custom issue with ID:", id);
       setIssues(prevIssues => [
         ...prevIssues,
         {

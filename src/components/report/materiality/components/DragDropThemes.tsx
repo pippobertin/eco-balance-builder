@@ -33,36 +33,38 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   
   const selectedIssueIds = selectedIssues.map(issue => issue.id);
   
-  // Refresh categories every time selectedIssues changes
+  // Refresh categories every time component mounts or selectedIssues changes
   useEffect(() => {
     const categorizedIssues = categorizeIssuesByESG();
-    console.log('Temi categorizzati:', categorizedIssues);
+    console.log('Themes categorized by ESG:', categorizedIssues);
+    console.log('Currently selected issues:', selectedIssues);
     setCategories(categorizedIssues);
-  }, [selectedIssues]); // Add selectedIssues as dependency to refresh when selections change
+  }, [selectedIssues]); // Re-run when selectedIssues changes to properly update available issues
   
-  // Gestisce l'inizio del drag
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, issue: any) => {
+  // Handle drag start
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, issue: PredefinedIssue) => {
+    console.log('Drag started for issue:', issue.id);
     e.dataTransfer.setData('application/json', JSON.stringify(issue));
     e.currentTarget.classList.add('opacity-50');
   };
   
-  // Gestisce il termine del drag
+  // Handle drag end
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     e.currentTarget.classList.remove('opacity-50');
   };
   
-  // Gestisce l'entrata nel drop target
+  // Handle drag over
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.currentTarget.classList.add('bg-green-50', 'border-green-300');
   };
   
-  // Gestisce l'uscita dal drop target
+  // Handle drag leave
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.currentTarget.classList.remove('bg-green-50', 'border-green-300');
   };
   
-  // Gestisce il drop
+  // Handle drop
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.currentTarget.classList.remove('bg-green-50', 'border-green-300');
@@ -70,20 +72,32 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
     try {
       const issueData = JSON.parse(e.dataTransfer.getData('application/json'));
       if (!selectedIssueIds.includes(issueData.id)) {
-        console.log("Adding issue:", issueData);
+        console.log("Adding issue via drop:", issueData);
         onIssueSelect(issueData);
+      } else {
+        console.log("Issue already selected, not adding duplicate:", issueData.id);
       }
     } catch (error) {
-      console.error("Errore durante il drop:", error);
+      console.error("Error during drop:", error);
     }
   };
   
-  // Filtra le questioni disponibili per ogni categoria
+  // Handle manual click to add an issue
+  const handleAddIssue = (issue: PredefinedIssue) => {
+    if (!selectedIssueIds.includes(issue.id)) {
+      console.log("Adding issue via click:", issue);
+      onIssueSelect(issue);
+    } else {
+      console.log("Issue already selected, not adding duplicate:", issue.id);
+    }
+  };
+  
+  // Filter available issues for each category
   const getAvailableIssues = (category: keyof ESGCategorizedIssues) => {
     return categories[category].filter(issue => !selectedIssueIds.includes(issue.id));
   };
   
-  // Filtra le questioni selezionate per ogni categoria
+  // Filter selected issues for each category
   const getSelectedIssuesForCategory = (category: keyof ESGCategorizedIssues) => {
     return selectedIssues.filter(issue => {
       const matchingPredefined = predefinedIssues.find(p => p.id === issue.id);
@@ -116,7 +130,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
         {(['environment', 'social', 'governance'] as const).map((category) => (
           <TabsContent key={category} value={category} className="mt-0">
             <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
-              {/* Colonna dei temi disponibili */}
+              {/* Available themes column */}
               <div className="w-full md:w-1/2">
                 <h3 className="text-sm font-medium mb-2 text-gray-700">
                   Temi disponibili <span className="text-green-600 font-normal">(in verde quelli consigliati)</span>
@@ -130,10 +144,12 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
                           draggable
                           onDragStart={(e) => handleDragStart(e, issue)}
                           onDragEnd={handleDragEnd}
-                          className="p-3 bg-white rounded border border-gray-200 cursor-move hover:border-green-300 hover:shadow-sm transition-all"
+                          onClick={() => handleAddIssue(issue)}
+                          className="p-3 bg-white rounded border border-gray-200 cursor-pointer hover:border-green-300 hover:shadow-sm transition-all"
                         >
                           <h5 className="text-sm font-medium">{issue.name}</h5>
                           <p className="text-xs text-gray-600 mt-1">{issue.description}</p>
+                          <button className="mt-2 text-xs text-blue-600 hover:text-blue-800">Clicca per aggiungere</button>
                         </div>
                       ))}
                     </div>
@@ -149,7 +165,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
                 <MoveRight className="h-8 w-8 text-gray-400" />
               </div>
               
-              {/* Colonna dei temi selezionati */}
+              {/* Selected themes column */}
               <div className="w-full md:w-1/2">
                 <h3 className="text-sm font-medium mb-2 text-gray-700">Temi selezionati</h3>
                 <div 

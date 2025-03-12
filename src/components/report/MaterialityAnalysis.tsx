@@ -19,9 +19,8 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   // Auto-save when materiality data changes
   useEffect(() => {
     // Only trigger save if we have materiality data
-    if (formValues.materialityAnalysis && 
-        (formValues.materialityAnalysis.issues?.length > 0 || 
-         formValues.materialityAnalysis.stakeholders?.length > 0)) {
+    if (formValues?.materialityAnalysis) {
+      console.log("Materiality data changed, preparing to auto-save...", formValues.materialityAnalysis);
       
       const timeoutId = setTimeout(() => {
         saveCurrentReport()
