@@ -1,17 +1,18 @@
 
 import { predefinedIssues } from './materialityUtils';
+import { MaterialityIssue } from '../types';
 
-// Define a type for predefined issues that includes the category property
-type PredefinedIssue = {
-  id: string;
-  name: string;
-  description: string;
-  category?: 'environmental' | 'social' | 'governance';
-};
+// Strong typing for ESG categories
+export type ESGCategory = 'environmental' | 'social' | 'governance' | 'default';
+
+// Interface for predefined issues with category
+export interface PredefinedIssue extends MaterialityIssue {
+  category?: ESGCategory;
+}
 
 export const translateESGCategory = (category: string): string => {
   switch (category) {
-    case 'environment':
+    case 'environmental':
       return 'Ambiente';
     case 'social':
       return 'Sociale';
@@ -23,21 +24,19 @@ export const translateESGCategory = (category: string): string => {
 };
 
 export const categorizeIssuesByESG = () => {
-  const categories = {
-    environment: [] as PredefinedIssue[],
-    social: [] as PredefinedIssue[],
-    governance: [] as PredefinedIssue[]
+  const categories: Record<string, PredefinedIssue[]> = {
+    environment: [],
+    social: [],
+    governance: []
   };
 
-  predefinedIssues.forEach(issue => {
-    // Safely check if the issue has a category property before using it
-    const issueCategory = (issue as unknown as { category?: string }).category;
-    
-    if (issueCategory === 'environmental') {
+  // Type assertion is safer with the PredefinedIssue interface
+  (predefinedIssues as PredefinedIssue[]).forEach(issue => {
+    if (issue.category === 'environmental') {
       categories.environment.push(issue);
-    } else if (issueCategory === 'social') {
+    } else if (issue.category === 'social') {
       categories.social.push(issue);
-    } else if (issueCategory === 'governance') {
+    } else if (issue.category === 'governance') {
       categories.governance.push(issue);
     }
   });
@@ -45,28 +44,30 @@ export const categorizeIssuesByESG = () => {
   return categories;
 };
 
-// Export categoryColors for components like MaterialityMatrixChart, MaterialityLegend, and MaterialityTooltip
-export const categoryColors = {
+// Export categoryColors with a proper type
+export const categoryColors: Record<ESGCategory, string> = {
   environmental: '#10B981', // Green
   social: '#3B82F6',       // Blue
   governance: '#8B5CF6',   // Purple
   default: '#6B7280'       // Gray
 };
 
-// Create an alias for getIssueCategory for backward compatibility
-export const getESGCategory = (issueId: string): 'environmental' | 'social' | 'governance' | 'default' => {
+export const getESGCategory = (issueId: string): ESGCategory => {
   const issue = predefinedIssues.find(i => i.id === issueId);
   if (!issue) return 'default';
   
-  // Safely access the category property
-  const issueCategory = (issue as unknown as { category?: string }).category;
-  if (issueCategory === 'environmental' || issueCategory === 'social' || issueCategory === 'governance') {
-    return issueCategory;
+  // Safe type casting with the PredefinedIssue interface
+  const predefinedIssue = issue as PredefinedIssue;
+  if (predefinedIssue.category && 
+      (predefinedIssue.category === 'environmental' || 
+       predefinedIssue.category === 'social' || 
+       predefinedIssue.category === 'governance')) {
+    return predefinedIssue.category;
   }
   return 'default';
 };
 
-export const calculateImportanceScore = (issue: any): number => {
+export const calculateImportanceScore = (issue: MaterialityIssue): number => {
   // Calculate importance score based on impact, financial relevance and stakeholder relevance
   const impactWeight = 0.4;
   const financialWeight = 0.4;
