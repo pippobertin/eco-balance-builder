@@ -44,17 +44,18 @@ const IRODialog: React.FC<IRODialogProps> = ({
     onSave(issue.id, selections);
   };
 
-  const handleSelectionChange = (category: keyof IROSelections, index: number, value: string) => {
+  const handleSelectionChange = (category: keyof IROSelections, value: string) => {
     setSelections(prev => {
       const newSelections = { ...prev };
-      const currentArray = [...(prev[category] || [])];
+      const currentValues = [...(prev[category] || [])];
       
-      while (currentArray.length <= index) {
-        currentArray.push('');
+      // If value is already selected, remove it
+      if (currentValues.includes(value)) {
+        newSelections[category] = currentValues.filter(item => item !== value);
+      } else {
+        // Add the value if not already selected
+        newSelections[category] = [...currentValues, value];
       }
-      
-      currentArray[index] = value;
-      newSelections[category] = currentArray;
       
       return newSelections;
     });
@@ -77,26 +78,50 @@ const IRODialog: React.FC<IRODialogProps> = ({
       <h3 className="text-lg font-medium text-gray-900">{title}</h3>
       <p className="text-sm text-gray-500">{description}</p>
       
-      {[0, 1, 2, 3].map((index) => (
-        <div key={`${category}-${index}`} className="mb-2">
-          <Select 
-            value={selections[category][index] || "none"} 
-            onValueChange={(value) => handleSelectionChange(category, index, value === "none" ? "" : value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={`Seleziona ${title.toLowerCase()}`} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Nessuna selezione</SelectItem>
-              {options.map((option, i) => (
-                <SelectItem key={`${category}-option-${i}`} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-gray-700">Selezionati: {selections[category].length > 0 ? 
+          selections[category].join(', ') : 'Nessuna selezione'}</p>
+        
+        <Select
+          onValueChange={(value) => handleSelectionChange(category, value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={`Seleziona ${title.toLowerCase()}`} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option, i) => (
+              <SelectItem 
+                key={`${category}-option-${i}`} 
+                value={option}
+                className={selections[category].includes(option) ? "bg-gray-100" : ""}
+              >
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {selections[category].length > 0 && (
+        <div className="mt-2">
+          <ul className="list-disc list-inside space-y-1">
+            {selections[category].map((selected, idx) => (
+              <li key={idx} className="flex items-center text-sm">
+                <span>{selected}</span>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="ml-2 h-6 w-6 p-0" 
+                  onClick={() => handleSelectionChange(category, selected)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </li>
+            ))}
+          </ul>
         </div>
-      ))}
+      )}
     </div>
   );
 
