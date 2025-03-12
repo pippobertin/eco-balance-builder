@@ -3,32 +3,47 @@
 
 // Categories for environmental themes
 export const environmentalPatterns = [
-  'climate-',     // Climate change themes
-  'pollution-',   // Pollution themes
-  'water-',       // Water and marine resources
-  'marine-',      // Marine resources
+  'climate-',      // Climate change themes (adaptation, mitigation, energy)
+  'energy-',       // Energy themes
+  'pollution-',    // Pollution themes
+  'substances-',   // Substances of concern
+  'water-',        // Water resources
+  'marine-',       // Marine resources
+  'ocean-',        // Ocean related
   'biodiversity-', // Biodiversity and ecosystems
-  'ecosystem-',   // Ecosystem themes
-  'species-',     // Species impact
-  'circular-'     // Circular economy
+  'ecosystem-',    // Ecosystem themes
+  'species-',      // Species impact
+  'soil-',         // Soil degradation
+  'land-',         // Land use
+  'circular-',     // Circular economy
+  'resource-',     // Resource use
+  'waste-'         // Waste management
 ];
 
 // Categories for social themes
 export const socialPatterns = [
-  'workforce-',   // Own workforce
-  'labor-',       // Workers in value chain
-  'community-',   // Affected communities
-  'consumer-'     // Consumers and end users
+  'workforce-',    // Own workforce
+  'labor-',        // Workers in value chain
+  'community-',    // Affected communities
+  'indigenous-',   // Indigenous rights
+  'consumer-',     // Consumers and end users
+  'equality-',     // Equality and diversity
+  'health-',       // Health and safety
+  'privacy-',      // Data privacy
+  'human-rights-'  // Human rights
 ];
 
 // Categories for governance themes
 export const governancePatterns = [
-  'gov-',         // Business conduct
-  'corruption-',  // Active and passive corruption
-  'business-',    // Business conduct
-  'political-',   // Political engagement
-  'supplier-',    // Supplier relationships
-  'ethics-'       // Business ethics
+  'business-',     // Business conduct
+  'corruption-',   // Active and passive corruption
+  'whistleblower-',// Whistleblower protection
+  'animal-',       // Animal welfare
+  'political-',    // Political engagement
+  'supplier-',     // Supplier relationships
+  'gov-',          // General governance
+  'ethics-',       // Business ethics
+  'compliance-'    // Compliance
 ];
 
 // Utility function to determine ESG category based on ID
