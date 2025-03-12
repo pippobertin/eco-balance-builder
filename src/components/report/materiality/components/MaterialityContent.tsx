@@ -6,12 +6,13 @@ import TabContent from './TabContent';
 import SurveyDialogWrapper from './SurveyDialogWrapper';
 import { useMaterialityContext } from '../context/MaterialityContext';
 import IROSummary from './IROSummary';
+import { MaterialityIssue } from '../types';
 
 const MaterialityContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('issues');
   const { 
     issues, 
-    handleIssueChange, 
+    handleIssueChange: originalHandleIssueChange, 
     addCustomIssue, 
     removeIssue,
     materialIssues,
@@ -35,6 +36,13 @@ const MaterialityContent: React.FC = () => {
     getSurveyStatusColor,
     getSurveyStatusText
   } = useMaterialityContext();
+
+  // Adapter function to match the expected signature
+  const handleIssueChange = (id: string, updatedIssue: Partial<MaterialityIssue>) => {
+    Object.entries(updatedIssue).forEach(([field, value]) => {
+      originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
+    });
+  };
 
   return (
     <div className="space-y-6">

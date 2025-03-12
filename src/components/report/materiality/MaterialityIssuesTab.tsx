@@ -1,15 +1,13 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Chart, Check, List, Search } from 'lucide-react';
+import { BarChart2, List, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
 import MaterialityMatrixChart from './MaterialityMatrixChart';
 import MaterialityReport from './MaterialityReport';
-import { MaterialityIssue } from './types';
+import { MaterialityIssue, IROSelections } from './types';
 import PredefinedIssuesSelector from './components/PredefinedIssuesSelector';
 import ESRSThemeFilter from './components/ESRSThemeFilter';
 import NoIssuesFound from './components/NoIssuesFound';
@@ -56,50 +54,6 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         issue.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : issues;
-    
-  // Get issues for the predefined tab with theme filter
-  const getFilteredPredefinedIssues = () => {
-    let filtered = categorizedIssues;
-    
-    // Filter by ESRS theme if not 'all'
-    if (selectedTheme !== 'all') {
-      const themeIndex = esrsThemes.findIndex(theme => theme === selectedTheme);
-      filtered = { [selectedTheme]: categorizedIssues[selectedTheme] || [] };
-    }
-    
-    // Filter by category tab if not 'all'
-    if (themesTabValue !== 'all') {
-      const result: Record<string, any[]> = {};
-      Object.keys(filtered).forEach(key => {
-        if (themesTabValue === key) {
-          result[key] = filtered[key];
-        }
-      });
-      return result;
-    }
-    
-    return filtered;
-  };
-  
-  // Handler for clicking "Aggiungi Questione Personalizzata"
-  const handleAddCustomClick = () => {
-    setIsAddingCustomIssue(true);
-  };
-  
-  // Handler for canceling the addition of a custom issue
-  const handleCancelAddCustom = () => {
-    setIsAddingCustomIssue(false);
-  };
-  
-  // Handler for theme selection
-  const handleThemeChange = (value: string) => {
-    setSelectedTheme(value);
-  };
-  
-  // Determine if an issue from predefined list is already added
-  const isIssueAdded = (id: string) => {
-    return issues.some(issue => issue.id === id);
-  };
 
   return (
     <div className="space-y-6">
@@ -110,12 +64,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
             Temi Materialità
           </TabsTrigger>
           <TabsTrigger value="matrix" className="flex items-center">
-            <Chart className="mr-2 h-4 w-4" />
+            <BarChart2 className="mr-2 h-4 w-4" />
             Matrice di Materialità
-          </TabsTrigger>
-          <TabsTrigger value="predefined" className="flex items-center">
-            <Check className="mr-2 h-4 w-4" />
-            Temi Predefiniti
           </TabsTrigger>
         </TabsList>
         
@@ -131,7 +81,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
               />
             </div>
             
-            <Button onClick={handleAddCustomClick} disabled={isAddingCustomIssue}>
+            <Button onClick={() => setIsAddingCustomIssue(true)} disabled={isAddingCustomIssue}>
               Aggiungi Tema Personalizzato
             </Button>
           </div>
@@ -139,14 +89,14 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
           {isAddingCustomIssue && (
             <div className="p-4 border rounded-lg bg-gray-50">
               <AddIssueForm 
-                onAddIssue={onAddCustomIssue} 
-                onCancel={handleCancelAddCustom} 
+                onAddIssue={onAddCustomIssue}
+                onClose={() => setIsAddingCustomIssue(false)}
               />
             </div>
           )}
           
           {filteredIssues.length === 0 ? (
-            <NoIssuesFound searchQuery={searchQuery} />
+            <NoIssuesFound />
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-gray-500">
@@ -160,6 +110,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
                     issue={issue}
                     onIssueChange={onIssueChange}
                     onRemoveIssue={onRemoveIssue}
+                    isPredefined={issue.id.startsWith('custom-')}
                   />
                 ))}
               </div>
@@ -170,34 +121,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         <TabsContent value="matrix">
           <MaterialityMatrixChart issues={issues} />
         </TabsContent>
-        
-        <TabsContent value="predefined" className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <ESRSThemeFilter 
-              selectedTheme={selectedTheme} 
-              onThemeChange={handleThemeChange} 
-            />
-            
-            <div className="flex-1">
-              <ThemesCategoryTabs 
-                categorizedIssues={getFilteredPredefinedIssues()} 
-                activeTab={themesTabValue}
-                setActiveTab={setThemesTabValue}
-              />
-            </div>
-          </div>
-          
-          <PredefinedIssuesSelector 
-            categorizedIssues={getFilteredPredefinedIssues()}
-            onAddIssue={onAddCustomIssue}
-            isIssueAdded={isIssueAdded}
-            themesTabValue={themesTabValue}
-            selectedTheme={selectedTheme}
-          />
-        </TabsContent>
       </Tabs>
       
-      {/* Materiality Report section at the bottom */}
       <MaterialityReport 
         materialIssues={materialIssues} 
         surveyProgress={surveyProgress}
