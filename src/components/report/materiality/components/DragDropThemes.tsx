@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { MoveRight, Info } from 'lucide-react';
 import { MaterialityIssue } from '../types';
 import { predefinedIssues } from '../utils/materialityUtils';
-import { categorizeIssuesByESG, translateESGCategory } from '../utils/esgCategoryUtils';
+import { 
+  categorizeIssuesByESG, 
+  translateESGCategory,
+  ESGCategorizedIssues,
+  PredefinedIssue
+} from '../utils/esgCategoryUtils';
 import NoIssuesFound from './NoIssuesFound';
 
 interface DragDropThemesProps {
@@ -20,11 +25,11 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   onIssueRemove
 }) => {
   const [activeTab, setActiveTab] = useState('environment');
-  const [categories, setCategories] = useState<{
-    environment: any[];
-    social: any[];
-    governance: any[];
-  }>({ environment: [], social: [], governance: [] });
+  const [categories, setCategories] = useState<ESGCategorizedIssues>({
+    environment: [],
+    social: [],
+    governance: []
+  });
   
   const selectedIssueIds = selectedIssues.map(issue => issue.id);
   
@@ -70,12 +75,12 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   };
   
   // Filtra le questioni disponibili per ogni categoria
-  const getAvailableIssues = (category: 'environment' | 'social' | 'governance') => {
+  const getAvailableIssues = (category: keyof ESGCategorizedIssues) => {
     return categories[category].filter(issue => !selectedIssueIds.includes(issue.id));
   };
   
   // Filtra le questioni selezionate per ogni categoria
-  const getSelectedIssuesForCategory = (category: 'environment' | 'social' | 'governance') => {
+  const getSelectedIssuesForCategory = (category: keyof ESGCategorizedIssues) => {
     return selectedIssues.filter(issue => {
       const matchingPredefined = predefinedIssues.find(p => p.id === issue.id);
       return matchingPredefined && categories[category].some(c => c.id === issue.id);

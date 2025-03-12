@@ -10,6 +10,13 @@ export interface PredefinedIssue extends MaterialityIssue {
   category?: ESGCategory;
 }
 
+// Define the return type for categorizeIssuesByESG
+export interface ESGCategorizedIssues {
+  environment: PredefinedIssue[];
+  social: PredefinedIssue[];
+  governance: PredefinedIssue[];
+}
+
 export const translateESGCategory = (category: string): string => {
   switch (category) {
     case 'environmental':
@@ -23,8 +30,8 @@ export const translateESGCategory = (category: string): string => {
   }
 };
 
-export const categorizeIssuesByESG = () => {
-  const categories: Record<string, PredefinedIssue[]> = {
+export const categorizeIssuesByESG = (): ESGCategorizedIssues => {
+  const categories: ESGCategorizedIssues = {
     environment: [],
     social: [],
     governance: []
