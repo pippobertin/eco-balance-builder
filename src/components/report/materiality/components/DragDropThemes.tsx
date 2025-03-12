@@ -10,27 +10,46 @@ import ESRSThemeFilter from './ESRSThemeFilter';
 import PredefinedIssuesSelector from './PredefinedIssuesSelector';
 import { predefinedIssues } from '../utils/materialityUtils';
 import { useToast } from '@/hooks/use-toast';
-import { categorizeIssuesByESG } from '../utils/esgCategoryUtils';
+import { categorizeIssuesByESG, getESGCategory } from '../utils/esgCategoryUtils';
 
-// Aggiungi categoria ESG ai temi predefiniti
+// Aggiungi categoria ESG ai temi predefiniti in modo più accurato
 const predefinedIssuesWithCategory = predefinedIssues.map(issue => {
-  // Usiamo la funzione getESGCategory per determinare la categoria
-  const esgCategory = issue.id.startsWith('climate-') || 
-                      issue.id.startsWith('energy-') || 
-                      issue.id.startsWith('water-') || 
-                      issue.id.startsWith('biodiversity-') ||
-                      issue.id.startsWith('pollution-') || 
-                      issue.id.startsWith('resource-') ? 
-                      'environmental' : 
-                      issue.id.startsWith('labor-') || 
-                      issue.id.startsWith('community-') || 
-                      issue.id.startsWith('consumer-') ? 
-                      'social' : 
-                      'governance';
+  // Categorie per temi ambientali
+  const environmentalPatterns = [
+    'climate-', 'energy', 'pollution-', 'substances-', 
+    'water-', 'ocean-', 'marine-', 'biodiversity-', 
+    'species-', 'soil-', 'desertification', 'ecosystem-', 
+    'resource-', 'waste'
+  ];
+  
+  // Categorie per temi sociali
+  const socialPatterns = [
+    'labor-', 'supply-', 'community-', 'indigenous-', 
+    'consumer-'
+  ];
+  
+  // Categorie per temi di governance
+  const governancePatterns = [
+    'business-', 'whistleblower-', 'animal-', 
+    'political-', 'supplier-', 'corruption-'
+  ];
+  
+  // Determina la categoria in base al pattern dell'ID
+  let category = 'governance'; // Default
+  
+  // Controlla se l'ID corrisponde a pattern ambientali
+  if (environmentalPatterns.some(pattern => issue.id.startsWith(pattern))) {
+    category = 'environmental';
+  } 
+  // Controlla se l'ID corrisponde a pattern sociali
+  else if (socialPatterns.some(pattern => issue.id.startsWith(pattern))) {
+    category = 'social';
+  } 
+  // Altrimenti è governance (default)
   
   return {
     ...issue,
-    category: esgCategory
+    category
   };
 });
 
@@ -214,3 +233,4 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
 };
 
 export default DragDropThemes;
+

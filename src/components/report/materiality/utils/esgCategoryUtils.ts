@@ -1,4 +1,3 @@
-
 import { predefinedIssues } from './materialityUtils';
 import { MaterialityIssue } from '../types';
 
@@ -36,38 +35,36 @@ const mapIssuesToESGCategories = (): PredefinedIssue[] => {
   return predefinedIssues.map(issue => {
     const issueWithCategory = { ...issue } as PredefinedIssue;
     
+    // Categorie per temi ambientali
+    const environmentalPatterns = [
+      'climate-', 'energy', 'pollution-', 'substances-', 
+      'water-', 'ocean-', 'marine-', 'biodiversity-', 
+      'species-', 'soil-', 'desertification', 'ecosystem-', 
+      'resource-', 'waste'
+    ];
+    
+    // Categorie per temi sociali
+    const socialPatterns = [
+      'labor-', 'supply-', 'community-', 'indigenous-', 
+      'consumer-'
+    ];
+    
+    // Categorie per temi di governance
+    const governancePatterns = [
+      'business-', 'whistleblower-', 'animal-', 
+      'political-', 'supplier-', 'corruption-'
+    ];
+    
     // Assegna categorie in base all'ID del tema
-    if (issue.id.startsWith('climate-') || 
-        issue.id.startsWith('energy') || 
-        issue.id.startsWith('pollution-') || 
-        issue.id.startsWith('substances-') || 
-        issue.id.startsWith('water-') || 
-        issue.id.startsWith('ocean-') ||
-        issue.id.startsWith('marine-') ||
-        issue.id.startsWith('biodiversity-') ||
-        issue.id.startsWith('species-') ||
-        issue.id.startsWith('soil-') ||
-        issue.id.startsWith('desertification') ||
-        issue.id.startsWith('ecosystem-') ||
-        issue.id.startsWith('resource-') ||
-        issue.id.startsWith('waste')) {
+    if (environmentalPatterns.some(pattern => issue.id.startsWith(pattern))) {
       issueWithCategory.category = 'environmental';
     } 
-    else if (issue.id.startsWith('labor-') || 
-             issue.id.startsWith('supply-') ||
-             issue.id.startsWith('community-') ||
-             issue.id.startsWith('indigenous-') ||
-             issue.id.startsWith('consumer-')) {
+    else if (socialPatterns.some(pattern => issue.id.startsWith(pattern))) {
       issueWithCategory.category = 'social';
     } 
-    else if (issue.id.startsWith('business-') ||
-             issue.id.startsWith('whistleblower-') ||
-             issue.id.startsWith('animal-') ||
-             issue.id.startsWith('political-') ||
-             issue.id.startsWith('supplier-') ||
-             issue.id.startsWith('corruption-')) {
+    else if (governancePatterns.some(pattern => issue.id.startsWith(pattern))) {
       issueWithCategory.category = 'governance';
-    } 
+    }
     else {
       issueWithCategory.category = 'default';
     }
@@ -109,12 +106,38 @@ export const categoryColors: Record<ESGCategory, string> = {
 };
 
 export const getESGCategory = (issueId: string): ESGCategory => {
-  // Riutilizziamo la funzione di mappatura per ottenere la categoria
-  const issuesWithCategories = mapIssuesToESGCategories();
-  const issue = issuesWithCategories.find(i => i.id === issueId);
+  // Utilizziamo pattern matching coerente per ottenere la categoria
+  // Categorie per temi ambientali
+  const environmentalPatterns = [
+    'climate-', 'energy', 'pollution-', 'substances-', 
+    'water-', 'ocean-', 'marine-', 'biodiversity-', 
+    'species-', 'soil-', 'desertification', 'ecosystem-', 
+    'resource-', 'waste'
+  ];
   
-  if (!issue || !issue.category) return 'default';
-  return issue.category;
+  // Categorie per temi sociali
+  const socialPatterns = [
+    'labor-', 'supply-', 'community-', 'indigenous-', 
+    'consumer-'
+  ];
+  
+  // Categorie per temi di governance
+  const governancePatterns = [
+    'business-', 'whistleblower-', 'animal-', 
+    'political-', 'supplier-', 'corruption-'
+  ];
+  
+  if (environmentalPatterns.some(pattern => issueId.startsWith(pattern))) {
+    return 'environmental';
+  } 
+  else if (socialPatterns.some(pattern => issueId.startsWith(pattern))) {
+    return 'social';
+  } 
+  else if (governancePatterns.some(pattern => issueId.startsWith(pattern))) {
+    return 'governance';
+  }
+  
+  return 'default';
 };
 
 export const calculateImportanceScore = (issue: MaterialityIssue): number => {
