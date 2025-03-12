@@ -9,12 +9,29 @@ import ESRSThemeFilter from './ESRSThemeFilter';
 import PredefinedIssuesSelector from './PredefinedIssuesSelector';
 import { predefinedIssues } from '../utils/materialityUtils';
 import { useToast } from '@/hooks/use-toast';
+import { categorizeIssuesByESG } from '../utils/esgCategoryUtils';
 
-// Add category property to the predefined issues
-const predefinedIssuesWithCategory = predefinedIssues.map(issue => ({
-  ...issue,
-  category: issue.id.split('-')[0] // Simple way to extract category from ID
-}));
+// Aggiungi categoria ESG ai temi predefiniti
+const predefinedIssuesWithCategory = predefinedIssues.map(issue => {
+  // Usiamo la funzione getESGCategory per determinare la categoria
+  const esgCategory = issue.id.startsWith('climate-') || 
+                      issue.id.startsWith('energy-') || 
+                      issue.id.startsWith('water-') || 
+                      issue.id.startsWith('biodiversity-') ||
+                      issue.id.startsWith('pollution-') || 
+                      issue.id.startsWith('resource-') ? 
+                      'environmental' : 
+                      issue.id.startsWith('labor-') || 
+                      issue.id.startsWith('community-') || 
+                      issue.id.startsWith('consumer-') ? 
+                      'social' : 
+                      'governance';
+  
+  return {
+    ...issue,
+    category: esgCategory
+  };
+});
 
 interface DragDropThemesProps {
   selectedIssues: any[];
@@ -31,13 +48,13 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   const [filteredIssues, setFilteredIssues] = useState(predefinedIssuesWithCategory);
   const { toast } = useToast();
   
-  // Filter issues based on selected categories
+  // Filter issues based on selected ESG categories
   useEffect(() => {
     if (selectedCategories.length === 0) {
       setFilteredIssues(predefinedIssuesWithCategory);
     } else {
       const filtered = predefinedIssuesWithCategory.filter(issue => 
-        selectedCategories.some(cat => issue.id.startsWith(cat))
+        selectedCategories.includes(issue.category || '')
       );
       setFilteredIssues(filtered);
     }
@@ -89,6 +106,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
               issues={filteredIssues}
               selectedIssueIds={selectedIssueIds}
               onIssueSelect={handleIssueSelect}
+              groupByCategory={true}
             />
           </ScrollArea>
         </div>
