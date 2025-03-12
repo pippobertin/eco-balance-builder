@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart2, List, Search } from 'lucide-react';
@@ -7,13 +8,8 @@ import IssueItem from './IssueItem';
 import AddIssueForm from './AddIssueForm';
 import MaterialityMatrixChart from './MaterialityMatrixChart';
 import MaterialityReport from './MaterialityReport';
-import { MaterialityIssue, IROSelections } from './types';
-import PredefinedIssuesSelector from './components/PredefinedIssuesSelector';
-import ESRSThemeFilter from './components/ESRSThemeFilter';
+import { MaterialityIssue } from './types';
 import NoIssuesFound from './components/NoIssuesFound';
-import { categorizePredefinedIssues } from './utils/categorizePredefinedIssues';
-import { esrsThemes } from './utils/materialityUtils';
-import ThemesCategoryTabs from './components/ThemesCategoryTabs';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -39,12 +35,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [isAddingCustomIssue, setIsAddingCustomIssue] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('current');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedTheme, setSelectedTheme] = useState<string>('all');
-  const [themesTabValue, setThemesTabValue] = useState<string>('all');
   
-  const categorizedIssues = categorizePredefinedIssues();
-  
-  // Filter material issues (those marked as material)
+  // Filter material issues (those with isMaterial true)
   const materialIssues = issues.filter(issue => issue.isMaterial);
   
   // Filter current issues based on search query
@@ -110,7 +102,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
                     issue={issue}
                     onIssueChange={onIssueChange}
                     onRemoveIssue={onRemoveIssue}
-                    isPredefined={issue.id.startsWith('custom-')}
+                    isPredefined={!issue.id.startsWith('custom-')}
                   />
                 ))}
               </div>

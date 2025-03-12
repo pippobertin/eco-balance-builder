@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { FileText, Check, UsersRound, Link } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { motion } from 'framer-motion';
 import { MaterialityIssue } from './types';
 import SurveyProgressBar from './SurveyProgressBar';
 import IRODialog from './components/IRODialog';
+import { useIROIntegration } from './hooks/useIROIntegration';
 
 interface MaterialityReportProps {
   materialIssues: MaterialityIssue[];
@@ -22,25 +23,17 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
   surveyProgress,
   handleUpdateIssue
 }) => {
-  const [selectedIssue, setSelectedIssue] = useState<MaterialityIssue | null>(null);
-  const [iroDialogOpen, setIroDialogOpen] = useState(false);
-
-  const handleOpenIRODialog = (issue: MaterialityIssue) => {
-    setSelectedIssue(issue);
-    setIroDialogOpen(true);
-  };
-
-  const handleCloseIRODialog = () => {
-    setSelectedIssue(null);
-    setIroDialogOpen(false);
-  };
-
-  const handleSaveIRO = (issueId: string, iroSelections: any) => {
+  const {
+    selectedIssue,
+    iroDialogOpen,
+    handleOpenIRODialog,
+    handleCloseIRODialog,
+    handleSaveIRO
+  } = useIROIntegration(materialIssues, (issueId, updatedIssue) => {
     if (handleUpdateIssue) {
-      handleUpdateIssue(issueId, { iroSelections });
+      handleUpdateIssue(issueId, updatedIssue);
     }
-    setIroDialogOpen(false);
-  };
+  });
 
   return (
     <GlassmorphicCard>
@@ -120,7 +113,9 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
       {selectedIssue && (
         <IRODialog 
           open={iroDialogOpen}
-          onOpenChange={setIroDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) handleCloseIRODialog();
+          }}
           issue={selectedIssue}
           onSave={handleSaveIRO}
         />

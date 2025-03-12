@@ -1,16 +1,16 @@
+
 import React from 'react';
 import MaterialityIssuesTab from '../MaterialityIssuesTab';
 import StakeholdersTab from '../StakeholdersTab';
 import { MaterialityIssue } from '../types';
-import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from '../utils/materialityUtils';
 
 interface TabContentProps {
   activeTab: string;
-  issues: any[];
-  handleIssueChange: (id: string, field: any, value: any) => void;
+  issues: MaterialityIssue[];
+  handleIssueChange: (id: string, updatedIssue: Partial<MaterialityIssue>) => void;
   addCustomIssue: (name: string, description: string) => void;
   removeIssue: (id: string) => void;
-  materialIssues: any[];
+  materialIssues: MaterialityIssue[];
   stakeholders: any[];
   handleStakeholderChange: (id: string, field: any, value: any) => void;
   addStakeholder: (stakeholder: any) => void;
@@ -49,7 +49,12 @@ const TabContent: React.FC<TabContentProps> = ({
     return (
       <MaterialityIssuesTab 
         issues={issues}
-        onIssueChange={handleIssueChange}
+        onIssueChange={(id, field, value) => {
+          if (field && typeof field === 'string') {
+            const updateObj: Partial<MaterialityIssue> = { [field]: value };
+            handleIssueChange(id, updateObj);
+          }
+        }}
         onAddCustomIssue={addCustomIssue}
         onRemoveIssue={removeIssue}
         surveyProgress={surveyProgress}

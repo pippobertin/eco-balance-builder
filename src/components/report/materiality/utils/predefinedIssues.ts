@@ -1,128 +1,106 @@
+
 import { MaterialityIssue } from '../types';
 
-const createBaseIssue = (id: string, name: string, description: string): MaterialityIssue => ({
+// Funzione di supporto per creare oggetti di issue con valori predefiniti
+const createBasicIssue = (id: string, name: string, description: string): MaterialityIssue => ({
   id,
   name,
   description,
   impactRelevance: 50,
   financialRelevance: 50,
-  isMaterial: true,
-  stakeholderRelevance: undefined,
-  iroSelections: undefined
+  isMaterial: true
 });
 
+// Predefined issues for the application
 export const predefinedIssues: MaterialityIssue[] = [
-  createBaseIssue('climate-adaptation', 'Adattamento ai cambiamenti climatici', 'Strategie e misure per adattarsi ai cambiamenti climatici'),
-  createBaseIssue('climate-mitigation', 'Mitigazione dei cambiamenti climatici', 'Riduzione delle emissioni di gas serra e altri interventi per mitigare i cambiamenti climatici'),
-  createBaseIssue('energy', 'Energia', 'Uso e gestione dell\'energia, inclusa efficienza energetica e fonti rinnovabili'),
+  // Environmental Issues
+  createBasicIssue('env-climate', 'Cambiamento climatico', 'Mitigazione e adattamento ai cambiamenti climatici'),
+  createBasicIssue('env-energy', 'Energia', 'Gestione dell\'energia e transizione alle energie rinnovabili'),
+  createBasicIssue('env-resources', 'Risorse naturali', 'Conservazione e uso sostenibile delle risorse naturali'),
   
-  createBaseIssue('pollution-air', 'Inquinamento dell\'aria', 'Emissioni in atmosfera e impatti sulla qualità dell\'aria'),
-  createBaseIssue('pollution-water', 'Inquinamento dell\'acqua', 'Scarichi idrici e impatti sulla qualità dell\'acqua'),
-  createBaseIssue('pollution-soil', 'Inquinamento del suolo', 'Contaminazione del suolo e impatti sulla qualità del terreno'),
-  createBaseIssue('pollution-organisms', 'Inquinamento di organismi viventi e risorse alimentari', 'Impatti dell\'inquinamento sugli organismi viventi e sulla catena alimentare'),
-  createBaseIssue('substances-concern', 'Sostanze preoccupanti', 'Gestione e riduzione delle sostanze preoccupanti nei processi produttivi e nei prodotti'),
-  createBaseIssue('substances-extreme-concern', 'Sostanze estremamente preoccupanti', 'Gestione e eliminazione delle sostanze estremamente preoccupanti (SVHC)'),
+  // Water Resources
+  createBasicIssue('water-management', 'Gestione delle risorse idriche', 'Uso efficiente e sostenibile dell\'acqua e prevenzione dell\'inquinamento idrico'),
+  createBasicIssue('water-scarcity', 'Scarsità d\'acqua', 'Gestione delle risorse idriche in aree soggette a stress idrico'),
+  createBasicIssue('water-quality', 'Qualità dell\'acqua', 'Monitoraggio e miglioramento della qualità dell\'acqua'),
+  createBasicIssue('water-efficiency', 'Efficienza idrica', 'Riduzione del consumo di acqua tramite tecnologie e processi efficienti'),
+  createBasicIssue('water-recycling', 'Riciclo dell\'acqua', 'Implementazione di sistemi per il riutilizzo e il riciclo dell\'acqua'),
+  createBasicIssue('water-pollution', 'Inquinamento idrico', 'Prevenzione e gestione dell\'inquinamento delle acque'),
   
-  createBaseIssue('water-consumption', 'Consumo idrico', 'Utilizzo e consumo di risorse idriche'),
-  createBaseIssue('water-withdrawal', 'Prelievi idrici', 'Prelievo di acqua da diverse fonti'),
-  createBaseIssue('water-discharge', 'Scarichi di acque', 'Gestione degli scarichi idrici e del loro impatto ambientale'),
-  createBaseIssue('ocean-discharge', 'Scarichi di acque negli oceani', 'Impatti degli scarichi idrici sugli ecosistemi marini'),
-  createBaseIssue('marine-resources', 'Estrazione e uso di risorse marine', 'Utilizzo sostenibile delle risorse marine'),
-  
-  createBaseIssue('biodiversity-climate', 'Biodiversità: Cambiamenti climatici', 'Impatti dei cambiamenti climatici sulla biodiversità'),
-  createBaseIssue('biodiversity-land-use', 'Biodiversità: Cambiamento di uso del suolo e dell\'acqua', 'Impatti del cambiamento di uso del suolo, dell\'acqua dolce e del mare sulla biodiversità'),
-  createBaseIssue('biodiversity-exploitation', 'Biodiversità: Sfruttamento diretto', 'Impatti dello sfruttamento diretto delle risorse naturali sulla biodiversità'),
-  createBaseIssue('biodiversity-invasive', 'Biodiversità: Specie esotiche invasive', 'Impatti delle specie esotiche invasive sugli ecosistemi locali'),
-  createBaseIssue('biodiversity-pollution', 'Biodiversità: Inquinamento', 'Impatti dell\'inquinamento sulla biodiversità'),
-  createBaseIssue('biodiversity-other', 'Biodiversità: Altri fattori di impatto', 'Altri fattori che impattano direttamente sulla biodiversità'),
-  createBaseIssue('species-population', 'Dimensioni della popolazione di una specie', 'Impatti sulle dimensioni delle popolazioni di specie'),
-  createBaseIssue('species-extinction', 'Rischio di estinzione globale di una specie', 'Contributo al rischio di estinzione globale di specie'),
-  createBaseIssue('soil-degradation', 'Degrado del suolo', 'Processi di degrado del suolo e misure di mitigazione'),
-  createBaseIssue('desertification', 'Desertificazione', 'Processi di desertificazione e misure di contrasto'),
-  createBaseIssue('soil-sealing', 'Impermeabilizzazione del suolo', 'Impatti dell\'impermeabilizzazione del suolo e misure di mitigazione'),
-  createBaseIssue('ecosystem-services', 'Servizi ecosistemici', 'Impatti e dipendenze in termini di servizi ecosistemici'),
-  
-  createBaseIssue('resource-inflows', 'Afflussi di risorse', 'Gestione degli afflussi di risorse, compreso l\'uso efficiente delle risorse'),
-  createBaseIssue('resource-outflows', 'Deflussi di risorse', 'Gestione dei deflussi di risorse connessi a prodotti e servizi'),
-  createBaseIssue('waste', 'Rifiuti', 'Gestione dei rifiuti e strategie di riduzione'),
-  
-  createBaseIssue('labor-secure', 'Occupazione sicura', 'Garantire condizioni di occupazione sicura e stabile per i lavoratori'),
-  createBaseIssue('labor-hours', 'Orario di lavoro', 'Gestione dell\'orario di lavoro e rispetto dei limiti previsti'),
-  createBaseIssue('labor-wages', 'Salari adeguati', 'Garantire salari adeguati e dignitosi ai lavoratori'),
-  createBaseIssue('labor-social-dialogue', 'Dialogo sociale', 'Promozione del dialogo tra lavoratori, rappresentanti e azienda'),
-  createBaseIssue('labor-association', 'Libertà di associazione e diritti di informazione', 'Garantire la libertà di associazione, l\'esistenza di comitati aziendali e i diritti di informazione, consultazione e partecipazione dei lavoratori'),
-  createBaseIssue('labor-collective', 'Contrattazione collettiva', 'Garantire il diritto alla contrattazione collettiva, inclusa la percentuale di lavoratori coperti da contratti collettivi'),
-  createBaseIssue('labor-work-life', 'Equilibrio tra vita professionale e vita privata', 'Politiche per favorire l\'equilibrio tra vita professionale e vita privata'),
-  createBaseIssue('labor-safety', 'Salute e sicurezza sul lavoro', 'Protezione della salute e sicurezza dei lavoratori'),
-  createBaseIssue('labor-gender', 'Parità di genere e retribuzione', 'Garantire la parità di genere e la parità di retribuzione per un lavoro di pari valore'),
-  createBaseIssue('labor-training', 'Formazione e sviluppo delle competenze', 'Investimenti nella formazione e nello sviluppo delle competenze dei lavoratori'),
-  createBaseIssue('labor-disability', 'Occupazione e inclusione delle persone con disabilità', 'Politiche per l\'inclusione lavorativa delle persone con disabilità'),
-  createBaseIssue('labor-harassment', 'Misure contro la violenza e le molestie', 'Misure contro la violenza e le molestie sul luogo di lavoro'),
-  createBaseIssue('labor-diversity', 'Diversità', 'Promozione della diversità nella forza lavoro'),
-  createBaseIssue('labor-child', 'Lavoro minorile', 'Prevenzione e contrasto del lavoro minorile'),
-  createBaseIssue('labor-forced', 'Lavoro forzato', 'Prevenzione e contrasto del lavoro forzato'),
-  createBaseIssue('labor-housing', 'Alloggi adeguati', 'Garantire alloggi adeguati ai lavoratori, ove applicabile'),
-  createBaseIssue('labor-privacy', 'Riservatezza', 'Tutela della riservatezza dei dati dei lavoratori'),
-  
-  createBaseIssue('supply-labor-secure', 'Occupazione sicura nella catena del valore', 'Garantire condizioni di occupazione sicura per i lavoratori nella catena di fornitura'),
-  createBaseIssue('supply-labor-hours', 'Orario di lavoro nella catena del valore', 'Monitoraggio dell\'orario di lavoro nella catena di fornitura'),
-  createBaseIssue('supply-labor-wages', 'Salari adeguati nella catena del valore', 'Garantire salari adeguati ai lavoratori nella catena di fornitura'),
-  createBaseIssue('supply-labor-dialogue', 'Dialogo sociale nella catena del valore', 'Promozione del dialogo sociale nella catena di fornitura'),
-  createBaseIssue('supply-labor-association', 'Libertà di associazione nella catena del valore', 'Garantire la libertà di associazione, compresa l\'esistenza di comitati aziendali nella catena di fornitura'),
-  createBaseIssue('supply-labor-collective', 'Contrattazione collettiva nella catena del valore', 'Rispetto della contrattazione collettiva nella catena di fornitura'),
-  createBaseIssue('supply-labor-work-life', 'Equilibrio vita-lavoro nella catena del valore', 'Equilibrio tra vita professionale e vita privata nella catena di fornitura'),
-  createBaseIssue('supply-labor-safety', 'Salute e sicurezza nella catena del valore', 'Salute e sicurezza dei lavoratori nella catena di fornitura'),
-  createBaseIssue('supply-labor-gender', 'Parità di genere nella catena del valore', 'Parità di genere e di retribuzione nella catena di fornitura'),
-  createBaseIssue('supply-labor-training', 'Formazione nella catena del valore', 'Formazione e sviluppo delle competenze nella catena di fornitura'),
-  createBaseIssue('supply-labor-disability', 'Inclusione disabilità nella catena del valore', 'Occupazione e inclusione delle persone con disabilità nella catena di fornitura'),
-  createBaseIssue('supply-labor-harassment', 'Anti-molestie nella catena del valore', 'Misure contro la violenza e le molestie sul luogo di lavoro nella catena di fornitura'),
-  createBaseIssue('supply-labor-diversity', 'Diversità nella catena del valore', 'Promozione della diversità nella catena di fornitura'),
-  createBaseIssue('supply-labor-child', 'Lavoro minorile nella catena del valore', 'Prevenzione del lavoro minorile nella catena di fornitura'),
-  createBaseIssue('supply-labor-forced', 'Lavoro forzato nella catena del valore', 'Prevenzione del lavoro forzato nella catena di fornitura'),
-  createBaseIssue('supply-labor-housing', 'Alloggi nella catena del valore', 'Alloggi adeguati nella catena di fornitura'),
-  createBaseIssue('supply-water-sanitation', 'Acqua e servizi igienico-sanitari', 'Accesso all\'acqua e ai servizi igienico-sanitari nella catena di fornitura'),
-  createBaseIssue('supply-labor-privacy', 'Riservatezza nella catena del valore', 'Tutela della riservatezza nella catena di fornitura'),
-  
-  createBaseIssue('community-housing', 'Alloggi adeguati per le comunità', 'Garantire alloggi adeguati per le comunità locali'),
-  createBaseIssue('community-food', 'Alimentazione adeguata', 'Garantire alimentazione adeguata per le comunità locali'),
-  createBaseIssue('community-water', 'Acqua e servizi igienico-sanitari per le comunità', 'Garantire accesso ad acqua e servizi igienico-sanitari per le comunità locali'),
-  createBaseIssue('community-land', 'Impatti legati al territorio', 'Gestione degli impatti legati al territorio sulle comunità locali'),
-  createBaseIssue('community-security', 'Impatti legati alla sicurezza', 'Gestione degli impatti legati alla sicurezza sulle comunità locali'),
-  createBaseIssue('community-expression', 'Libertà di espressione', 'Rispetto della libertà di espressione delle comunità'),
-  createBaseIssue('community-association', 'Libertà di associazione delle comunità', 'Rispetto della libertà di associazione delle comunità'),
-  createBaseIssue('community-rights-defenders', 'Impatto sui difensori dei diritti umani', 'Gestione dell\'impatto sui difensori dei diritti umani'),
-  createBaseIssue('indigenous-consent', 'Consenso libero, previo e informato', 'Rispetto del consenso libero, previo e informato dei popoli indigeni'),
-  createBaseIssue('indigenous-determination', 'Autodeterminazione', 'Rispetto dell\'autodeterminazione dei popoli indigeni'),
-  createBaseIssue('indigenous-cultural', 'Diritti culturali dei popoli indigeni', 'Rispetto dei diritti culturali dei popoli indigeni'),
-  
-  createBaseIssue('consumer-privacy', 'Riservatezza dei consumatori', 'Tutela della riservatezza dei dati dei consumatori'),
-  createBaseIssue('consumer-expression', 'Libertà di espressione dei consumatori', 'Rispetto della libertà di espressione dei consumatori'),
-  createBaseIssue('consumer-information', 'Accesso a informazioni di qualità', 'Garantire ai consumatori l\'accesso a informazioni di qualità'),
-  createBaseIssue('consumer-health-safety', 'Salute e sicurezza dei consumatori', 'Tutela della salute e sicurezza dei consumatori'),
-  createBaseIssue('consumer-security', 'Sicurezza della persona', 'Tutela della sicurezza personale dei consumatori'),
-  createBaseIssue('consumer-child-protection', 'Protezione dei bambini', 'Misure per la protezione dei bambini consumatori'),
-  createBaseIssue('consumer-non-discrimination', 'Non discriminazione dei consumatori', 'Prevenzione della discriminazione nei confronti dei consumatori'),
-  createBaseIssue('consumer-access', 'Accesso a prodotti e servizi', 'Garantire l\'accesso equo a prodotti e servizi'),
-  createBaseIssue('consumer-practices', 'Pratiche commerciali responsabili', 'Adozione di pratiche commerciali responsabili verso i consumatori'),
-  
-  createBaseIssue('business-culture', 'Cultura d\'impresa', 'Promozione di una cultura d\'impresa etica e responsabile'),
-  createBaseIssue('whistleblower-protection', 'Protezione degli informatori', 'Misure per la protezione degli informatori (whistleblower)'),
-  createBaseIssue('animal-welfare', 'Benessere degli animali', 'Protezione del benessere degli animali'),
-  createBaseIssue('political-engagement', 'Impegno politico e attività di lobbying', 'Gestione responsabile dell\'impegno politico e delle attività di lobbying'),
-  createBaseIssue('supplier-relations', 'Gestione dei rapporti con i fornitori', 'Gestione dei rapporti con i fornitori, comprese le prassi di pagamento'),
-  createBaseIssue('corruption-prevention', 'Prevenzione della corruzione', 'Prevenzione e individuazione della corruzione, compresa la formazione'),
-  createBaseIssue('corruption-incidents', 'Incidenti di corruzione', 'Gestione degli incidenti di corruzione')
-];
+  // Biodiversity
+  createBasicIssue('biodiversity-conservation', 'Conservazione della biodiversità', 'Protezione degli ecosistemi e della diversità biologica'),
+  createBasicIssue('biodiversity-restoration', 'Ripristino degli habitat', 'Iniziative per il ripristino degli ecosistemi danneggiati'),
+  createBasicIssue('biodiversity-monitoring', 'Monitoraggio della biodiversità', 'Sistemi di monitoraggio e reporting sulla biodiversità'),
+  createBasicIssue('biodiversity-impacts', 'Impatti sulla biodiversità', 'Valutazione e gestione degli impatti delle operazioni sulla biodiversità'),
+  createBasicIssue('biodiversity-supply-chain', 'Biodiversità nella catena di approvvigionamento', 'Gestione sostenibile delle catene di approvvigionamento per proteggere la biodiversità'),
 
-export const esrsThemes = [
-  "Cambiamenti climatici",
-  "Inquinamento",
-  "Acque e risorse marine",
-  "Biodiversità ed ecosistemi",
-  "Economia circolare",
-  "Forza lavoro propria",
-  "Lavoratori nella catena del valore",
-  "Comunità interessate",
-  "Consumatori e utilizzatori finali",
-  "Condotta delle imprese"
+  // Circular Economy
+  createBasicIssue('circular-waste', 'Gestione dei rifiuti', 'Riduzione, riciclo e gestione sostenibile dei rifiuti'),
+  createBasicIssue('circular-recycling', 'Riciclo e riutilizzo', 'Promozione del riciclo e del riutilizzo dei materiali'),
+  createBasicIssue('circular-design', 'Design circolare', 'Progettazione di prodotti per la durabilità, il riutilizzo e il riciclo'),
+  createBasicIssue('circular-materials', 'Materiali sostenibili', 'Utilizzo di materiali sostenibili e a basso impatto ambientale'),
+  createBasicIssue('circular-lifecycle', 'Ciclo di vita del prodotto', 'Gestione dell\'intero ciclo di vita del prodotto'),
+  createBasicIssue('circular-innovation', 'Innovazione circolare', 'Sviluppo di nuove tecnologie e modelli di business circolari'),
+  createBasicIssue('circular-packaging', 'Packaging sostenibile', 'Riduzione e miglioramento sostenibile degli imballaggi'),
+  createBasicIssue('circular-recovery', 'Recupero delle risorse', 'Sistemi di recupero e riutilizzo delle risorse'),
+  createBasicIssue('circular-production', 'Produzione sostenibile', 'Processi produttivi efficienti e a basso impatto ambientale'),
+  createBasicIssue('circular-consumption', 'Consumo responsabile', 'Promozione di modelli di consumo sostenibili'),
+  createBasicIssue('circular-business-models', 'Modelli di business circolari', 'Trasformazione verso modelli di business basati sui principi dell\'economia circolare'),
+  createBasicIssue('circular-supply-chain', 'Catena di approvvigionamento circolare', 'Implementazione di pratiche circolari nella catena di approvvigionamento'),
+  createBasicIssue('circular-metrics', 'Metriche di circolarità', 'Sviluppo e monitoraggio di indicatori di circolarità'),
+  createBasicIssue('circular-policy', 'Politiche per l\'economia circolare', 'Contributo allo sviluppo di politiche che favoriscono l\'economia circolare'),
+  
+  // Workforce
+  createBasicIssue('workforce-diversity', 'Diversità e inclusione', 'Promozione della diversità e dell\'inclusione sul posto di lavoro'),
+  createBasicIssue('workforce-health', 'Salute e sicurezza', 'Tutela della salute e della sicurezza dei lavoratori'),
+  createBasicIssue('workforce-development', 'Sviluppo delle competenze', 'Formazione e sviluppo delle competenze dei dipendenti'),
+  
+  // Social
+  createBasicIssue('social-rights', 'Diritti umani', 'Rispetto e promozione dei diritti umani nelle operazioni aziendali e nella catena di fornitura'),
+  createBasicIssue('social-community', 'Impegno comunitario', 'Relazioni con le comunità locali e contributo allo sviluppo sociale'),
+  createBasicIssue('social-equality', 'Equità e pari opportunità', 'Promozione dell\'equità e delle pari opportunità in azienda'),
+  createBasicIssue('social-impact', 'Impatto sociale', 'Valutazione e gestione dell\'impatto sociale delle operazioni aziendali'),
+  createBasicIssue('social-engagement', 'Coinvolgimento degli stakeholder', 'Dialogo e collaborazione con gli stakeholder'),
+  createBasicIssue('social-responsibility', 'Responsabilità sociale', 'Iniziative di responsabilità sociale d\'impresa'),
+  createBasicIssue('social-philanthropy', 'Filantropia', 'Donazioni e sostegno a cause sociali'),
+  
+  // Supply Chain
+  createBasicIssue('supply-chain-transparency', 'Trasparenza della catena di approvvigionamento', 'Miglioramento della trasparenza e della tracciabilità nella catena di fornitura'),
+  createBasicIssue('supply-chain-assessment', 'Valutazione dei fornitori', 'Valutazione delle performance ESG dei fornitori'),
+  createBasicIssue('supply-chain-engagement', 'Coinvolgimento dei fornitori', 'Collaborazione con i fornitori per migliorare le performance di sostenibilità'),
+  createBasicIssue('supply-chain-risk', 'Gestione del rischio', 'Identificazione e gestione dei rischi ESG nella catena di fornitura'),
+  createBasicIssue('supply-chain-standards', 'Standard etici', 'Implementazione di standard etici e di sostenibilità nella catena di fornitura'),
+  createBasicIssue('supply-chain-audits', 'Audit dei fornitori', 'Conduzione di audit per verificare la conformità dei fornitori'),
+  createBasicIssue('supply-chain-local', 'Approvvigionamento locale', 'Promozione dell\'approvvigionamento da fornitori locali'),
+  createBasicIssue('supply-chain-capacity', 'Capacity building', 'Supporto allo sviluppo delle capacità dei fornitori in tema di sostenibilità'),
+  createBasicIssue('supply-chain-innovation', 'Innovazione nella catena di fornitura', 'Implementazione di soluzioni innovative per una catena di fornitura più sostenibile'),
+  createBasicIssue('supply-chain-collaboration', 'Collaborazione settoriale', 'Partecipazione a iniziative di settore per migliorare la sostenibilità della catena di fornitura'),
+  
+  // Governance
+  createBasicIssue('gov-ethics', 'Etica aziendale', 'Promozione di pratiche aziendali etiche e trasparenti'),
+  createBasicIssue('gov-anti-corruption', 'Anti-corruzione', 'Prevenzione della corruzione e delle pratiche commerciali scorrette'),
+  createBasicIssue('gov-transparency', 'Trasparenza', 'Trasparenza nelle operazioni e nella reportistica aziendale'),
+  createBasicIssue('gov-risk', 'Gestione del rischio', 'Identificazione, valutazione e gestione dei rischi aziendali'),
+  createBasicIssue('gov-compliance', 'Conformità normativa', 'Rispetto delle leggi e dei regolamenti applicabili'),
+  createBasicIssue('gov-board', 'Governance del consiglio', 'Composizione, indipendenza e diversità del consiglio di amministrazione'),
+  createBasicIssue('gov-compensation', 'Politiche di remunerazione', 'Pratiche di remunerazione eque e trasparenti'),
+  createBasicIssue('gov-sustainability', 'Governance della sostenibilità', 'Integrazione della sostenibilità nella governance aziendale'),
+  createBasicIssue('gov-data', 'Protezione dei dati e privacy', 'Tutela dei dati personali e della privacy degli stakeholder'),
+  
+  // Consumers
+  createBasicIssue('consumer-health', 'Salute e sicurezza dei prodotti', 'Garanzia della sicurezza e della qualità dei prodotti per i consumatori'),
+  createBasicIssue('consumer-marketing', 'Marketing responsabile', 'Pratiche di marketing etiche e trasparenti'),
+  createBasicIssue('consumer-information', 'Informazioni ai consumatori', 'Fornitura di informazioni accurate e complete sui prodotti'),
+  createBasicIssue('consumer-privacy', 'Privacy dei consumatori', 'Protezione dei dati personali e della privacy dei consumatori'),
+  createBasicIssue('consumer-feedback', 'Feedback dei consumatori', 'Raccolta e gestione del feedback dei consumatori'),
+  createBasicIssue('consumer-quality', 'Qualità del servizio', 'Miglioramento continuo della qualità del servizio offerto ai consumatori'),
+  createBasicIssue('consumer-education', 'Educazione dei consumatori', 'Iniziative per educare i consumatori su temi legati alla sostenibilità'),
+  
+  // Innovation
+  createBasicIssue('innovation-r&d', 'Ricerca e sviluppo sostenibile', 'Investimenti in R&S per soluzioni sostenibili'),
+  createBasicIssue('innovation-digitalization', 'Digitalizzazione', 'Utilizzo delle tecnologie digitali per migliorare la sostenibilità'),
+  createBasicIssue('innovation-collaboration', 'Collaborazione per l\'innovazione', 'Partnership per lo sviluppo di soluzioni innovative'),
+  createBasicIssue('innovation-startups', 'Supporto alle startup', 'Collaborazione con startup per promuovere l\'innovazione sostenibile'),
+  createBasicIssue('innovation-impact', 'Valutazione dell\'impatto', 'Misurazione dell\'impatto delle innovazioni sulla sostenibilità'),
+  createBasicIssue('innovation-open', 'Open innovation', 'Approccio aperto all\'innovazione per affrontare le sfide di sostenibilità'),
+  createBasicIssue('innovation-scaling', 'Scaling delle soluzioni', 'Ampliamento della scala delle soluzioni innovative di successo')
 ];
