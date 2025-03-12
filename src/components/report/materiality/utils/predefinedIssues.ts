@@ -1,4 +1,7 @@
-export const predefinedIssues = [
+
+import { MaterialityIssue } from '../types';
+
+export const predefinedIssues: MaterialityIssue[] = [
   { id: 'climate-adaptation', name: 'Adattamento ai cambiamenti climatici', description: 'Strategie e misure per adattarsi ai cambiamenti climatici' },
   { id: 'climate-mitigation', name: 'Mitigazione dei cambiamenti climatici', description: 'Riduzione delle emissioni di gas serra e altri interventi per mitigare i cambiamenti climatici' },
   { id: 'energy', name: 'Energia', description: 'Uso e gestione dell\'energia, inclusa efficienza energetica e fonti rinnovabili' },

@@ -1,323 +1,479 @@
-
 import { IROData } from '../types';
 
 export const predefinedIROData: Record<string, IROData> = {
+  // Impatti ambientali
   'climate-adaptation': {
     impacts: [
-      'Aumento della resilienza delle operazioni aziendali ai cambiamenti climatici',
-      'Riduzione della vulnerabilità della catena di approvvigionamento agli eventi meteorologici estremi',
-      'Miglioramento della capacità di adattamento dei prodotti e servizi offerti',
-      'Diminuzione dell\'impatto negativo sulle comunità locali'
+      'Riduzione della vulnerabilità agli eventi climatici estremi',
+      'Protezione delle infrastrutture e degli asset aziendali',
+      'Miglioramento della resilienza delle comunità locali',
+      'Adattamento dei processi produttivi ai cambiamenti climatici'
     ],
     risks: [
-      'Interruzione delle operazioni a causa di eventi meteorologici estremi',
-      'Aumento dei costi assicurativi legati ai rischi climatici',
-      'Obsolescenza prematura di impianti e infrastrutture non adattati',
-      'Rischi reputazionali derivanti dall\'inadeguata gestione degli impatti climatici'
+      'Interruzioni operative dovute a eventi climatici',
+      'Aumento dei costi assicurativi',
+      'Danni alle infrastrutture e agli asset',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Sviluppo di nuovi prodotti e servizi resilienti ai cambiamenti climatici',
-      'Accesso a nuovi mercati in risposta a mutate condizioni climatiche',
-      'Posizionamento come leader nel settore dell\'adattamento climatico',
-      'Riduzione dei costi operativi grazie a misure di adattamento preventive'
+      'Sviluppo di nuovi prodotti e servizi per l\'adattamento climatico',
+      'Accesso a finanziamenti e incentivi per la resilienza',
+      'Miglioramento della reputazione aziendale',
+      'Creazione di valore condiviso con le comunità locali'
     ],
     actions: [
-      'Implementare un piano di adattamento climatico aziendale',
-      'Effettuare valutazioni di vulnerabilità climatica per siti operativi chiave',
-      'Diversificare la catena di approvvigionamento per ridurre i rischi legati al clima',
-      'Investire in infrastrutture resilienti ai cambiamenti climatici'
+      'Valutare i rischi climatici e sviluppare piani di adattamento',
+      'Investire in infrastrutture resilienti',
+      'Implementare misure di gestione del rischio climatico',
+      'Collaborare con le comunità locali per promuovere la resilienza'
     ]
   },
   'climate-mitigation': {
     impacts: [
-      'Riduzione dell\'impronta di carbonio aziendale',
-      'Diminuzione delle emissioni indirette lungo la catena del valore',
-      'Contributo positivo agli obiettivi climatici nazionali e internazionali',
-      'Riduzione dell\'impatto ambientale complessivo delle operazioni'
+      'Riduzione delle emissioni di gas serra',
+      'Contributo alla lotta contro il cambiamento climatico',
+      'Miglioramento della qualità dell\'aria',
+      'Promozione di un\'economia a basse emissioni di carbonio'
     ],
     risks: [
-      'Aumento dei costi legati all\'adeguamento normativo',
-      'Rischi di transizione verso un\'economia a basse emissioni di carbonio',
-      'Perdita di competitività rispetto a concorrenti con minori emissioni',
-      'Esposizione a tasse sul carbonio e sistemi di cap-and-trade'
+      'Aumento dei costi energetici',
+      'Restrizioni normative sulle emissioni',
+      'Danni reputazionali',
+      'Perdita di competitività'
     ],
     opportunities: [
       'Riduzione dei costi energetici attraverso l\'efficienza',
-      'Accesso a incentivi e finanziamenti per progetti a basse emissioni',
-      'Miglioramento dell\'immagine aziendale come leader sostenibile',
-      'Sviluppo di prodotti e servizi a basse emissioni di carbonio'
+      'Accesso a finanziamenti e incentivi per le energie rinnovabili',
+      'Sviluppo di nuovi prodotti e servizi a basse emissioni',
+      'Miglioramento della reputazione aziendale'
     ],
     actions: [
-      'Stabilire obiettivi di riduzione delle emissioni basati sulla scienza',
-      'Implementare un piano d\'azione per il clima con target a breve e lungo termine',
-      'Investire in energia rinnovabile e tecnologie a basse emissioni',
-      'Ottimizzare processi e operazioni per ridurre il consumo energetico'
+      'Misurare e ridurre le emissioni di gas serra',
+      'Investire in efficienza energetica',
+      'Utilizzare fonti di energia rinnovabile',
+      'Compensare le emissioni residue'
     ]
   },
   'energy': {
     impacts: [
-      'Riduzione del consumo energetico complessivo',
-      'Diminuzione delle emissioni di gas serra associate all\'energia',
-      'Minore dipendenza da fonti energetiche non rinnovabili',
-      'Miglioramento dell\'efficienza energetica delle operazioni'
+      'Riduzione dei consumi energetici',
+      'Utilizzo di fonti rinnovabili',
+      'Diminuzione dell\'impatto ambientale',
+      'Efficienza energetica'
     ],
     risks: [
-      'Volatilità dei prezzi dell\'energia',
-      'Interruzioni nella fornitura energetica',
-      'Mancato adeguamento alle normative sull\'efficienza energetica',
-      'Costi elevati per la transizione verso fonti energetiche alternative'
+      'Aumento dei costi energetici',
+      'Interruzioni nella fornitura di energia',
+      'Dipendenza da fonti non rinnovabili',
+      'Inefficienze nei processi produttivi'
     ],
     opportunities: [
-      'Riduzione significativa dei costi operativi',
-      'Generazione di energia in loco da fonti rinnovabili',
-      'Miglioramento dell\'immagine aziendale come organizzazione efficiente',
-      'Sviluppo di competenze e tecnologie per l\'efficienza energetica'
+      'Riduzione dei costi attraverso l\'efficienza energetica',
+      'Accesso a incentivi per le energie rinnovabili',
+      'Miglioramento della resilienza energetica',
+      'Creazione di nuovi prodotti e servizi energetici'
     ],
     actions: [
-      'Condurre audit energetici periodici',
-      'Implementare un sistema di gestione dell\'energia (ISO 50001)',
-      'Investire in tecnologie di efficienza energetica',
-      'Passare a fonti di energia rinnovabile per le operazioni aziendali'
+      'Implementare sistemi di gestione dell\'energia',
+      'Effettuare audit energetici',
+      'Investire in tecnologie efficienti',
+      'Utilizzare fonti rinnovabili'
     ]
   },
   
   // Inquinamento
   'pollution-air': {
     impacts: [
-      'Riduzione delle emissioni di inquinanti atmosferici',
-      'Miglioramento della qualità dell\'aria nelle aree operative',
-      'Diminuzione degli impatti sulla salute delle comunità locali',
-      'Riduzione dell\'impatto sui cambiamenti climatici'
+      'Miglioramento della qualità dell\'aria',
+      'Riduzione delle malattie respiratorie',
+      'Protezione degli ecosistemi',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Sanzioni normative per superamento dei limiti di emissione',
-      'Azioni legali da parte delle comunità colpite',
-      'Costi operativi elevati per il controllo dell\'inquinamento',
-      'Rischi reputazionali legati all\'inquinamento atmosferico'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di bonifica',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Implementazione di tecnologie innovative di abbattimento',
-      'Risparmio nei costi attraverso processi più efficienti',
-      'Miglioramento delle relazioni con le comunità locali',
-      'Accesso a mercati con rigorosi standard ambientali'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di bonifica',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Monitorare e riportare regolarmente le emissioni atmosferiche',
-      'Investire in tecnologie di abbattimento degli inquinanti',
-      'Ottimizzare i processi per ridurre le emissioni alla fonte',
-      'Implementare piani di manutenzione preventiva per evitare emissioni fugitive'
+      'Monitorare le emissioni atmosferiche',
+      'Utilizzare tecnologie di abbattimento',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Compensare le emissioni residue'
     ]
   },
   'pollution-water': {
     impacts: [
-      'Riduzione degli scarichi inquinanti nei corpi idrici',
-      'Preservazione della qualità delle acque superficiali e sotterranee',
-      'Protezione degli ecosistemi acquatici',
-      'Diminuzione dell\'impatto sulla biodiversità acquatica'
+      'Miglioramento della qualità dell\'acqua',
+      'Protezione della biodiversità acquatica',
+      'Riduzione delle malattie idriche',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Sanzioni per violazioni dei limiti di scarico',
-      'Aumento dei costi di trattamento delle acque reflue',
-      'Contaminazione delle falde acquifere e responsabilità legali',
-      'Danno all\'immagine aziendale per incidenti di inquinamento idrico'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di bonifica',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Riutilizzo e riciclo delle acque reflue',
-      'Innovazione nei processi di trattamento delle acque',
-      'Riduzione dei costi attraverso il recupero di materiali dagli effluenti',
-      'Miglioramento delle relazioni con stakeholder e comunità locali'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di bonifica',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Implementare sistemi avanzati di trattamento delle acque reflue',
-      'Monitorare costantemente la qualità degli scarichi idrici',
-      'Sviluppare processi a ciclo chiuso per ridurre gli scarichi',
-      'Formare il personale sulle migliori pratiche di gestione delle acque'
+      'Monitorare gli scarichi idrici',
+      'Utilizzare tecnologie di depurazione',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Compensare gli scarichi residui'
     ]
   },
   'pollution-soil': {
     impacts: [
-      'Prevenzione della contaminazione del suolo da sostanze pericolose',
-      'Preservazione della qualità e fertilità del terreno',
-      'Protezione degli ecosistemi terrestri',
-      'Miglioramento della sicurezza alimentare nelle aree agricole'
+      'Miglioramento della qualità del suolo',
+      'Protezione della biodiversità del suolo',
+      'Riduzione della contaminazione',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Responsabilità legali per la bonifica dei siti contaminati',
-      'Costi elevati per il ripristino ambientale',
-      'Restrizioni all\'uso futuro dei terreni contaminati',
-      'Impatti negativi sulla salute della comunità e contenziosi correlati'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di bonifica',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Sviluppo di tecnologie innovative di bonifica',
-      'Valorizzazione di terreni precedentemente contaminati',
-      'Miglioramento dei processi per prevenire sversamenti e perdite',
-      'Rafforzamento della reputazione attraverso la gestione responsabile del suolo'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di bonifica',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Condurre valutazioni periodiche della contaminazione del suolo',
-      'Implementare misure preventive contro sversamenti e perdite',
-      'Sviluppare piani di risposta alle emergenze per incidenti di contaminazione',
-      'Investire in tecnologie di bonifica sostenibili'
+      'Monitorare la qualità del suolo',
+      'Utilizzare pratiche agricole sostenibili',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Bonificare i siti contaminati'
     ]
   },
   'pollution-organisms': {
     impacts: [
-      'Riduzione della bioaccumulazione di inquinanti negli organismi viventi',
-      'Diminuzione dell\'impatto sulla catena alimentare',
-      'Protezione della sicurezza alimentare',
-      'Preservazione della biodiversità e degli ecosistemi'
+      'Protezione degli organismi viventi',
+      'Riduzione della contaminazione alimentare',
+      'Miglioramento della salute umana',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Responsabilità legali per danni alla salute umana',
-      'Restrizioni alla commercializzazione di prodotti contaminati',
-      'Danni reputazionali significativi',
-      'Rischi normativi crescenti legati alla contaminazione alimentare'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di bonifica',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Sviluppo di processi produttivi più sicuri',
-      'Creazione di prodotti alimentari certificati "puliti"',
-      'Accesso a mercati premium per prodotti non contaminati',
-      'Innovazione nelle tecniche di monitoraggio della contaminazione'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di bonifica',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Implementare un sistema di tracciabilità dei contaminanti',
-      'Monitorare regolarmente la presenza di inquinanti nei prodotti',
-      'Adottare principi di produzione pulita e sicura',
-      'Collaborare con le autorità sanitarie e gli esperti del settore'
+      'Monitorare la contaminazione degli organismi',
+      'Utilizzare pratiche agricole sostenibili',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Garantire la sicurezza alimentare'
+    ]
+  },
+  'substances-concern': {
+    impacts: [
+      'Riduzione dell\'uso di sostanze pericolose',
+      'Miglioramento della salute e della sicurezza',
+      'Protezione dell\'ambiente',
+      'Diminuzione dell\'impatto ambientale'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di gestione',
+      'Perdita di produttività'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di gestione',
+      'Innovazione tecnologica'
+    ],
+    actions: [
+      'Identificare le sostanze pericolose utilizzate',
+      'Sostituire le sostanze pericolose con alternative più sicure',
+      'Implementare misure di gestione del rischio',
+      'Formare i dipendenti sull\'uso sicuro delle sostanze'
+    ]
+  },
+  'substances-extreme-concern': {
+    impacts: [
+      'Eliminazione delle sostanze estremamente pericolose',
+      'Miglioramento della salute e della sicurezza',
+      'Protezione dell\'ambiente',
+      'Diminuzione dell\'impatto ambientale'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di gestione',
+      'Perdita di produttività'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di gestione',
+      'Innovazione tecnologica'
+    ],
+    actions: [
+      'Identificare le sostanze estremamente pericolose utilizzate',
+      'Eliminare l\'uso delle sostanze estremamente pericolose',
+      'Sostituire le sostanze estremamente pericolose con alternative più sicure',
+      'Gestire i rifiuti contenenti sostanze estremamente pericolose'
     ]
   },
   
-  // Risorse idriche
+  // Acqua e risorse marine
   'water-consumption': {
     impacts: [
-      'Riduzione del prelievo idrico totale dell\'organizzazione',
-      'Diminuzione della pressione sulle risorse idriche locali',
-      'Miglioramento dell\'accessibilità all\'acqua per le comunità locali',
-      'Preservazione degli ecosistemi acquatici'
+      'Riduzione del consumo idrico',
+      'Preservazione delle risorse idriche',
+      'Miglioramento dell\'efficienza idrica',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Limitazioni all\'accesso alle risorse idriche',
       'Aumento dei costi dell\'acqua',
-      'Conflitti con le comunità locali per l\'uso dell\'acqua',
-      'Interruzioni operative dovute a scarsità idrica'
+      'Restrizioni sull\'uso dell\'acqua',
+      'Interruzioni nella fornitura di acqua',
+      'Danni reputazionali'
     ],
     opportunities: [
-      'Riduzione dei costi operativi attraverso l\'efficienza idrica',
-      'Miglioramento dei processi con tecnologie a ridotto consumo d\'acqua',
-      'Innovazione di prodotti water-saving',
-      'Rafforzamento della reputazione come azienda responsabile'
+      'Riduzione dei costi attraverso l\'efficienza idrica',
+      'Accesso a incentivi per la gestione sostenibile dell\'acqua',
+      'Miglioramento della resilienza idrica',
+      'Creazione di nuovi prodotti e servizi per la gestione dell\'acqua'
     ],
     actions: [
-      'Implementare tecnologie di risparmio idrico',
-      'Monitorare e misurare regolarmente i consumi d\'acqua',
-      'Fissare obiettivi di riduzione del consumo idrico',
-      'Educare dipendenti e fornitori sull\'importanza dell\'efficienza idrica'
+      'Misurare e ridurre il consumo idrico',
+      'Utilizzare tecnologie efficienti',
+      'Riciclare e riutilizzare l\'acqua',
+      'Gestire le acque meteoriche'
     ]
   },
   'water-withdrawal': {
     impacts: [
-      'Riduzione dell\'impatto sulle fonti idriche locali',
-      'Diminuzione della pressione su bacini idrici vulnerabili',
-      'Preservazione del flusso naturale dei corsi d\'acqua',
-      'Mantenimento della disponibilità idrica per altri utenti'
+      'Gestione sostenibile dei prelievi idrici',
+      'Protezione degli ecosistemi acquatici',
+      'Miglioramento della disponibilità di acqua',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Restrizioni normative sui prelievi idrici',
-      'Aumento delle tasse e tariffe idriche',
-      'Opposizione delle comunità ai prelievi aziendali',
-      'Vulnerabilità operativa in periodi di siccità'
+      'Aumento dei costi di prelievo',
+      'Restrizioni sui prelievi idrici',
+      'Interruzioni nella fornitura di acqua',
+      'Danni reputazionali'
     ],
     opportunities: [
-      'Diversificazione delle fonti di approvvigionamento idrico',
-      'Utilizzo di acqua riciclata o di processo',
-      'Implementazione di sistemi di raccolta dell\'acqua piovana',
-      'Sviluppo di tecnologie innovative di raccolta e trattamento'
+      'Riduzione dei costi attraverso la gestione efficiente',
+      'Accesso a incentivi per la gestione sostenibile dell\'acqua',
+      'Miglioramento della resilienza idrica',
+      'Creazione di nuovi prodotti e servizi per la gestione dell\'acqua'
     ],
     actions: [
-      'Condurre valutazioni di impatto sui bacini idrici',
-      'Mappare le fonti di prelievo e valutarne la sostenibilità',
-      'Implementare contatori e sistemi di monitoraggio dei prelievi',
-      'Sviluppare piani di contingenza per periodi di scarsità idrica'
+      'Misurare e gestire i prelievi idrici',
+      'Utilizzare tecnologie efficienti',
+      'Rispettare i limiti di prelievo',
+      'Collaborare con le autorità locali'
     ]
   },
   'water-discharge': {
     impacts: [
-      'Riduzione degli impatti negativi sugli ecosistemi acquatici',
-      'Miglioramento della qualità delle acque riceventi',
-      'Diminuzione degli inquinanti rilasciati nell\'ambiente',
-      'Preservazione della biodiversità acquatica'
+      'Riduzione dell\'inquinamento idrico',
+      'Protezione degli ecosistemi acquatici',
+      'Miglioramento della qualità dell\'acqua',
+      'Diminuzione dell\'impatto ambientale'
     ],
     risks: [
-      'Sanzioni per il superamento dei limiti di scarico',
-      'Costi di conformità a normative sempre più stringenti',
-      'Responsabilità legali per danni ambientali',
-      'Opposizione delle comunità agli scarichi aziendali'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di depurazione',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Recupero e riutilizzo delle acque reflue',
-      'Estrazione di risorse valorizzabili dagli effluenti',
-      'Innovazione nei processi di trattamento delle acque',
-      'Miglioramento dell\'immagine aziendale come gestore responsabile'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di depurazione',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Implementare tecnologie avanzate di trattamento delle acque reflue',
-      'Monitorare continuamente la qualità degli scarichi',
-      'Sviluppare sistemi di riutilizzo delle acque trattate',
-      'Collaborare con le autorità di bacino per la gestione integrata'
+      'Monitorare gli scarichi idrici',
+      'Utilizzare tecnologie di depurazione',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Compensare gli scarichi residui'
+    ]
+  },
+  'ocean-discharge': {
+    impacts: [
+      'Protezione degli ecosistemi marini',
+      'Riduzione dell\'inquinamento degli oceani',
+      'Miglioramento della qualità dell\'acqua marina',
+      'Diminuzione dell\'impatto ambientale'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di depurazione',
+      'Perdita di produttività'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di depurazione',
+      'Innovazione tecnologica'
+    ],
+    actions: [
+      'Monitorare gli scarichi negli oceani',
+      'Utilizzare tecnologie di depurazione avanzate',
+      'Ridurre l\'uso di sostanze inquinanti',
+      'Compensare gli scarichi residui'
+    ]
+  },
+  'marine-resources': {
+    impacts: [
+      'Utilizzo sostenibile delle risorse marine',
+      'Protezione della biodiversità marina',
+      'Miglioramento della gestione delle risorse',
+      'Diminuzione dell\'impatto ambientale'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi di gestione',
+      'Perdita di produttività'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Riduzione dei costi di gestione',
+      'Innovazione tecnologica'
+    ],
+    actions: [
+      'Gestire in modo sostenibile le attività di pesca',
+      'Proteggere gli habitat marini',
+      'Ridurre l\'inquinamento marino',
+      'Promuovere la ricerca scientifica'
     ]
   },
   
-  // Biodiversità
+  // Biodiversità ed ecosistemi
   'biodiversity-climate': {
     impacts: [
-      'Riduzione dell\'impatto dei cambiamenti climatici sulla biodiversità locale',
-      'Preservazione degli habitat naturali vulnerabili agli eventi climatici',
-      'Protezione delle specie minacciate dai cambiamenti climatici',
-      'Mantenimento dei servizi ecosistemici in un clima che cambia'
+      'Protezione della biodiversità',
+      'Mantenimento degli ecosistemi',
+      'Adattamento ai cambiamenti climatici',
+      'Mitigazione dei cambiamenti climatici'
     ],
     risks: [
-      'Perdita di biodiversità nelle aree operative',
-      'Alterazione degli ecosistemi che supportano le attività aziendali',
-      'Rischi reputazionali legati alla perdita di specie emblematiche',
-      'Diminuzione dei servizi ecosistemici essenziali'
+      'Perdita di biodiversità',
+      'Degrado degli ecosistemi',
+      'Aumento dei rischi climatici',
+      'Danni reputazionali'
     ],
     opportunities: [
-      'Sviluppo di soluzioni basate sulla natura per l\'adattamento climatico',
-      'Creazione di valore attraverso la protezione e il ripristino degli ecosistemi',
-      'Accesso a mercati sensibili alla conservazione della biodiversità',
-      'Innovazione di prodotti e servizi climate-resilient'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Accesso a finanziamenti per la biodiversità',
+      'Creazione di nuovi prodotti e servizi ecologici'
     ],
     actions: [
-      'Integrare valutazioni di biodiversità nei piani di adattamento climatico',
-      'Implementare progetti di conservazione degli habitat vulnerabili',
-      'Sviluppare corridoi ecologici che facilitino la migrazione delle specie',
-      'Monitorare gli impatti dei cambiamenti climatici sulla biodiversità locale'
+      'Valutare l\'impatto sulla biodiversità',
+      'Proteggere gli habitat naturali',
+      'Ripristinare gli ecosistemi degradati',
+      'Compensare la perdita di biodiversità'
     ]
   },
   'biodiversity-land-use': {
     impacts: [
-      'Riduzione della frammentazione degli habitat naturali',
-      'Preservazione di aree ad alto valore di biodiversità',
-      'Minimizzazione dell\'impatto sugli ecosistemi sensibili',
-      'Mantenimento della connettività ecologica'
+      'Gestione sostenibile del territorio',
+      'Protezione della biodiversità',
+      'Mantenimento degli ecosistemi',
+      'Riduzione dell\'impatto ambientale'
     ],
     risks: [
-      'Restrizioni all\'uso del suolo in aree di elevato valore ecologico',
-      'Opposizione delle comunità e degli stakeholder ambientali',
-      'Costi di compensazione e ripristino ambientale',
-      'Limitazioni allo sviluppo futuro di siti produttivi'
+      'Perdita di biodiversità',
+      'Degrado degli ecosistemi',
+      'Aumento dei rischi ambientali',
+      'Danni reputazionali'
     ],
     opportunities: [
-      'Valorizzazione dei terreni attraverso la gestione sostenibile',
-      'Miglioramento delle relazioni con le comunità locali',
-      'Accesso a certificazioni e mercati premium',
-      'Sviluppo di approcci innovativi all\'uso del suolo'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Accesso a finanziamenti per la biodiversità',
+      'Creazione di nuovi prodotti e servizi ecologici'
     ],
     actions: [
-      'Implementare la gerarchia di mitigazione per i nuovi sviluppi',
-      'Condurre valutazioni d\'impatto sulla biodiversità',
-      'Sviluppare piani di gestione della biodiversità per i siti operativi',
-      'Implementare programmi di ripristino ecologico'
+      'Valutare l\'impatto sull\'uso del suolo',
+      'Pianificare l\'uso del suolo in modo sostenibile',
+      'Proteggere gli habitat naturali',
+      'Ripristinare gli ecosistemi degradati'
+    ]
+  },
+  'biodiversity-water-use': {
+    impacts: [
+      'Gestione sostenibile delle risorse idriche',
+      'Protezione della biodiversità acquatica',
+      'Mantenimento degli ecosistemi acquatici',
+      'Riduzione dell\'impatto ambientale'
+    ],
+    risks: [
+      'Perdita di biodiversità acquatica',
+      'Degrado degli ecosistemi acquatici',
+      'Aumento dei rischi ambientali',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Accesso a finanziamenti per la biodiversità',
+      'Creazione di nuovi prodotti e servizi ecologici'
+    ],
+    actions: [
+      'Valutare l\'impatto sull\'uso dell\'acqua',
+      'Gestire l\'acqua in modo sostenibile',
+      'Proteggere gli habitat acquatici',
+      'Ripristinare gli ecosistemi degradati'
+    ]
+  },
+  'biodiversity-pollution': {
+    impacts: [
+      'Riduzione dell\'inquinamento',
+      'Protezione della biodiversità',
+      'Mantenimento degli ecosistemi',
+      'Miglioramento della salute umana'
+    ],
+    risks: [
+      'Perdita di biodiversità',
+      'Degrado degli ecosistemi',
+      'Aumento dei rischi per la salute',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Accesso a finanziamenti per la biodiversità',
+      'Creazione di nuovi prodotti e servizi ecologici'
+    ],
+    actions: [
+      'Ridurre l\'inquinamento',
+      'Proteggere gli habitat naturali',
+      'Ripristinare gli ecosistemi degradati',
+      'Monitorare la qualità dell\'ambiente'
     ]
   },
   
@@ -332,8 +488,8 @@ export const predefinedIROData: Record<string, IROData> = {
     risks: [
       'Volatilità dei prezzi delle materie prime',
       'Interruzioni nella catena di approvvigionamento',
-      'Dipendenza da risorse scarse o non rinnovabili',
-      'Aumento dei costi di produzione dovuti a risorse limitate'
+      'Dipendenza da risorse scarse o critiche',
+      'Inefficienze nei processi produttivi'
     ],
     opportunities: [
       'Sviluppo di prodotti con materiali riciclati o rinnovabili',
@@ -350,108 +506,430 @@ export const predefinedIROData: Record<string, IROData> = {
   },
   'resource-outflows': {
     impacts: [
-      'Riduzione dei rifiuti generati dai prodotti a fine vita',
-      'Diminuzione dell\'inquinamento legato allo smaltimento dei rifiuti',
-      'Recupero di materiali di valore dai flussi di scarto',
-      'Creazione di nuovi mercati per i materiali riciclati'
+      'Riduzione dei rifiuti',
+      'Aumento del riciclo e del riutilizzo',
+      'Diminuzione dell\'inquinamento',
+      'Preservazione delle risorse naturali'
     ],
     risks: [
-      'Costi elevati per la gestione dei rifiuti',
-      'Responsabilità estesa del produttore',
-      'Restrizioni normative sullo smaltimento dei rifiuti',
-      'Danni reputazionali legati alla gestione inadeguata dei rifiuti'
+      'Aumento dei costi di smaltimento',
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Perdita di valore dei materiali'
     ],
     opportunities: [
-      'Sviluppo di sistemi di raccolta e riciclo efficienti',
-      'Innovazione nei processi di trattamento dei rifiuti',
-      'Creazione di nuovi prodotti dai materiali riciclati',
-      'Riduzione dei costi attraverso il recupero di risorse'
+      'Creazione di nuovi mercati per i materiali riciclati',
+      'Riduzione dei costi di smaltimento',
+      'Miglioramento dell\'immagine aziendale',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Implementare sistemi di raccolta differenziata',
-      'Investire in tecnologie di riciclo avanzate',
-      'Progettare prodotti per il disassemblaggio e il recupero dei materiali',
-      'Collaborare con le autorità locali per la gestione dei rifiuti'
+      'Implementare sistemi di gestione dei rifiuti',
+      'Promuovere il riciclo e il riutilizzo',
+      'Progettare prodotti per la riciclabilità',
+      'Collaborare con le aziende di riciclo'
     ]
   },
   'waste': {
     impacts: [
-      'Riduzione della quantità totale di rifiuti generati',
-      'Diminuzione degli impatti ambientali dello smaltimento',
-      'Miglioramento dell\'efficienza nell\'uso delle risorse',
-      'Promozione di un\'economia circolare'
+      'Riduzione della produzione di rifiuti',
+      'Aumento del riciclo e del riutilizzo',
+      'Diminuzione dell\'inquinamento',
+      'Preservazione delle risorse naturali'
     ],
     risks: [
-      'Aumento dei costi di smaltimento dei rifiuti',
-      'Responsabilità per la contaminazione dei siti di smaltimento',
-      'Restrizioni normative sullo smaltimento dei rifiuti',
-      'Danni reputazionali legati alla gestione dei rifiuti'
+      'Aumento dei costi di smaltimento',
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Perdita di valore dei materiali'
     ],
     opportunities: [
-      'Implementazione di strategie di prevenzione dei rifiuti',
-      'Riciclo e riutilizzo dei materiali di scarto',
-      'Valorizzazione energetica dei rifiuti non riciclabili',
-      'Riduzione dei costi attraverso la minimizzazione dei rifiuti'
+      'Creazione di nuovi mercati per i materiali riciclati',
+      'Riduzione dei costi di smaltimento',
+      'Miglioramento dell\'immagine aziendale',
+      'Innovazione tecnologica'
     ],
     actions: [
-      'Condurre audit dei rifiuti per identificare le aree di miglioramento',
-      'Implementare programmi di riduzione dei rifiuti alla fonte',
-      'Investire in tecnologie di riciclo e recupero',
-      'Educare i dipendenti sulle pratiche di gestione dei rifiuti'
+      'Implementare sistemi di gestione dei rifiuti',
+      'Promuovere il riciclo e il riutilizzo',
+      'Progettare prodotti per la riciclabilità',
+      'Collaborare con le aziende di riciclo'
     ]
   },
   
-  // Lavoro e diritti umani
-  'labor-secure': {
+  // Forza lavoro propria
+  'labor-working-conditions': {
     impacts: [
-      'Miglioramento delle condizioni di lavoro per i dipendenti',
-      'Aumento della sicurezza sul lavoro',
-      'Riduzione del rischio di incidenti e infortuni',
-      'Miglioramento del benessere dei lavoratori'
+      'Miglioramento delle condizioni di lavoro',
+      'Aumento della soddisfazione dei dipendenti',
+      'Riduzione degli infortuni e delle malattie professionali',
+      'Aumento della produttività'
     ],
     risks: [
-      'Incidenti sul lavoro e infortuni',
-      'Sanzioni normative per violazioni delle leggi sul lavoro',
-      'Azioni legali da parte dei dipendenti',
-      'Danni reputazionali legati alle cattive condizioni di lavoro'
+      'Aumento dei costi del lavoro',
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Miglioramento della produttività e della qualità del lavoro',
-      'Riduzione dell\'assenteismo e del turnover',
-      'Miglioramento del morale dei dipendenti',
-      'Attrazione e fidelizzazione dei talenti'
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
     ],
     actions: [
-      'Implementare sistemi di gestione della sicurezza sul lavoro',
-      'Fornire formazione e attrezzature adeguate ai dipendenti',
-      'Monitorare e valutare regolarmente le condizioni di lavoro',
-      'Coinvolgere i dipendenti nella definizione delle politiche di sicurezza'
+      'Valutare le condizioni di lavoro',
+      'Implementare misure di miglioramento',
+      'Formare i dipendenti sulla sicurezza',
+      'Promuovere la salute e il benessere'
     ]
   },
-  'labor-wages': {
+  'labor-health-safety': {
     impacts: [
-      'Garantire salari adeguati e dignitosi ai lavoratori',
-      'Miglioramento del tenore di vita dei dipendenti',
-      'Riduzione della povertà e della disuguaglianza',
-      'Stimolo della domanda interna'
+      'Riduzione degli infortuni e delle malattie professionali',
+      'Miglioramento della salute e della sicurezza',
+      'Aumento della produttività',
+      'Diminuzione dei costi sanitari'
     ],
     risks: [
-      'Sanzioni normative per violazioni delle leggi sul salario minimo',
-      'Azioni legali da parte dei dipendenti',
-      'Riduzione del morale e della motivazione dei dipendenti',
-      'Difficoltà ad attrarre e fidelizzare i talenti'
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Aumento dei costi assicurativi',
+      'Perdita di produttività'
     ],
     opportunities: [
-      'Miglioramento della produttività e della qualità del lavoro',
-      'Riduzione dell\'assenteismo e del turnover',
       'Miglioramento dell\'immagine aziendale',
-      'Attrazione di investitori socialmente responsabili'
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
     ],
     actions: [
-      'Pagare salari superiori al minimo legale',
-      'Fornire benefit e incentivi ai dipendenti',
-      'Promuovere la trasparenza salariale',
-      'Coinvolgere i dipendenti nella definizione delle politiche salariali'
+      'Valutare i rischi per la salute e la sicurezza',
+      'Implementare misure di prevenzione',
+      'Formare i dipendenti sulla sicurezza',
+      'Fornire dispositivi di protezione individuale'
     ]
-  }
-};
+  },
+  'labor-social-dialogue': {
+    impacts: [
+      'Miglioramento del dialogo sociale',
+      'Aumento della fiducia tra management e dipendenti',
+      'Riduzione dei conflitti',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Aumento dei costi di negoziazione',
+      'Ritardi nelle decisioni',
+      'Perdita di flessibilità',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Implementare sistemi di dialogo sociale',
+      'Consultare i dipendenti sulle decisioni importanti',
+      'Negoziare accordi collettivi',
+      'Promuovere la partecipazione dei dipendenti'
+    ]
+  },
+  'labor-equal-opportunities': {
+    impacts: [
+      'Promozione delle pari opportunità',
+      'Aumento della diversità',
+      'Miglioramento dell\'inclusione',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Perdita di talenti',
+      'Aumento dei conflitti'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Implementare politiche di pari opportunità',
+      'Promuovere la diversità',
+      'Garantire l\'inclusione',
+      'Formare i dipendenti sulla diversità'
+    ]
+  },
+  'labor-work-life-balance': {
+    impacts: [
+      'Miglioramento del work-life balance',
+      'Aumento della soddisfazione dei dipendenti',
+      'Riduzione dello stress',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Aumento dei costi del lavoro',
+      'Perdita di produttività',
+      'Aumento dell\'assenteismo',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Implementare politiche di work-life balance',
+      'Offrire flessibilità',
+      'Promuovere la salute e il benessere',
+      'Supportare i dipendenti con responsabilità familiari'
+    ]
+  },
+  'labor-training-development': {
+    impacts: [
+      'Miglioramento delle competenze dei dipendenti',
+      'Aumento della produttività',
+      'Innovazione',
+      'Miglioramento della qualità dei prodotti e dei servizi'
+    ],
+    risks: [
+      'Aumento dei costi di formazione',
+      'Perdita di produttività durante la formazione',
+      'Rischio di obsolescenza delle competenze',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Valutare le esigenze di formazione',
+      'Implementare programmi di formazione',
+      'Offrire opportunità di sviluppo professionale',
+      'Valutare l\'efficacia della formazione'
+    ]
+  },
+  
+  // Lavoratori nella catena del valore
+  'labor-child': {
+    impacts: [
+      'Prevenzione e contrasto del lavoro minorile',
+      'Miglioramento delle condizioni di vita dei bambini',
+      'Aumento dell\'istruzione',
+      'Riduzione della povertà'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Boicottaggio dei prodotti',
+      'Perdita di clienti'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Aumento della fiducia dei consumatori',
+      'Miglioramento delle relazioni con le comunità locali'
+    ],
+    actions: [
+      'Implementare politiche contro il lavoro minorile',
+      'Monitorare la catena di fornitura',
+      'Collaborare con organizzazioni per la protezione dei bambini',
+      'Sensibilizzare i dipendenti e i fornitori'
+    ]
+  },
+  'labor-forced': {
+    impacts: [
+      'Prevenzione e contrasto del lavoro forzato',
+      'Miglioramento delle condizioni di vita dei lavoratori',
+      'Aumento della libertà e della dignità',
+      'Riduzione della povertà'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Boicottaggio dei prodotti',
+      'Perdita di clienti'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Aumento della fiducia dei consumatori',
+      'Miglioramento delle relazioni con le comunità locali'
+    ],
+    actions: [
+      'Implementare politiche contro il lavoro forzato',
+      'Monitorare la catena di fornitura',
+      'Collaborare con organizzazioni per i diritti umani',
+      'Sensibilizzare i dipendenti e i fornitori'
+    ]
+  },
+  'labor-adequate-wages': {
+    impacts: [
+      'Miglioramento delle condizioni di vita dei lavoratori',
+      'Aumento del potere d\'acquisto',
+      'Riduzione della povertà',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Aumento dei costi del lavoro',
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Perdita di competitività'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Pagare salari adeguati',
+      'Garantire condizioni di lavoro dignitose',
+      'Rispettare i diritti dei lavoratori',
+      'Promuovere il dialogo sociale'
+    ]
+  },
+  'labor-freedom-association': {
+    impacts: [
+      'Miglioramento del dialogo sociale',
+      'Aumento della fiducia tra management e lavoratori',
+      'Riduzione dei conflitti',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Aumento dei costi di negoziazione',
+      'Ritardi nelle decisioni',
+      'Perdita di flessibilità',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Rispettare la libertà di associazione',
+      'Promuovere il dialogo sociale',
+      'Negoziare accordi collettivi',
+      'Coinvolgere i lavoratori nelle decisioni'
+    ]
+  },
+  'labor-collective-bargaining': {
+    impacts: [
+      'Miglioramento delle condizioni di lavoro',
+      'Aumento della soddisfazione dei lavoratori',
+      'Riduzione dei conflitti',
+      'Aumento della produttività'
+    ],
+    risks: [
+      'Aumento dei costi del lavoro',
+      'Ritardi nelle decisioni',
+      'Perdita di flessibilità',
+      'Danni reputazionali'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di talenti',
+      'Riduzione del turnover',
+      'Aumento della motivazione dei dipendenti'
+    ],
+    actions: [
+      'Negoziare accordi collettivi',
+      'Rispettare i diritti dei lavoratori',
+      'Promuovere il dialogo sociale',
+      'Coinvolgere i lavoratori nelle decisioni'
+    ]
+  },
+  
+  // Comunità interessate
+  'community-local-impacts': {
+    impacts: [
+      'Miglioramento delle condizioni di vita delle comunità locali',
+      'Creazione di posti di lavoro',
+      'Sviluppo economico',
+      'Protezione dell\'ambiente'
+    ],
+    risks: [
+      'Conflitti con le comunità locali',
+      'Danni reputazionali',
+      'Ritardi nei progetti',
+      'Aumento dei costi'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Miglioramento delle relazioni con le comunità locali',
+      'Creazione di valore condiviso'
+    ],
+    actions: [
+      'Consultare le comunità locali',
+      'Valutare l\'impatto dei progetti',
+      'Mitigare gli impatti negativi',
+      'Creare benefici per le comunità locali'
+    ]
+  },
+  'community-human-rights': {
+    impacts: [
+      'Protezione dei diritti umani',
+      'Miglioramento delle condizioni di vita',
+      'Riduzione della povertà',
+      'Sviluppo sociale'
+    ],
+    risks: [
+      'Sanzioni normative',
+      'Danni reputazionali',
+      'Boicottaggio dei prodotti',
+      'Perdita di clienti'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Aumento della fiducia dei consumatori',
+      'Miglioramento delle relazioni con le comunità locali'
+    ],
+    actions: [
+      'Rispettare i diritti umani',
+      'Valutare l\'impatto sui diritti umani',
+      'Mitigare gli impatti negativi',
+      'Promuovere i diritti umani'
+    ]
+  },
+  'community-access-resources': {
+    impacts: [
+      'Miglioramento dell\'accesso alle risorse',
+      'Sviluppo economico',
+      'Riduzione della povertà',
+      'Miglioramento delle condizioni di vita'
+    ],
+    risks: [
+      'Conflitti con le comunità locali',
+      'Danni reputazionali',
+      'Ritardi nei progetti',
+      'Aumento dei costi'
+    ],
+    opportunities: [
+      'Miglioramento dell\'immagine aziendale',
+      'Attrazione di investitori socialmente responsabili',
+      'Miglioramento delle relazioni con le comunità locali',
+      'Creazione di valore condiviso'
+    ],
+    actions: [
+      'Consultare le comunità locali',
+      'Valutare l\'impatto dei progetti',
+      'Mitigare gli impatti negativi',
+      'Creare benefici per le comunità locali'
+    ]
+  },
+  
+  // Consumatori e utilizzatori finali
+  'consumer-health-safety': {
+    impacts: [
+      'Protezione della salute e della sicurezza dei consumatori',
+      'Miglioramento della qualità dei prodotti',
+      'A
