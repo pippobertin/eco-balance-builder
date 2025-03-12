@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Trash2 } from 'lucide-react';
 import { MaterialityIssue } from './types';
@@ -31,17 +30,14 @@ const IssueItem: React.FC<IssueItemProps> = ({
 
   const handleImpactChange = (value: number[]) => {
     console.log(`Changing impact relevance for ${issue.id} from ${issue.impactRelevance} to ${value[0]}`);
-    // Explicitly ensure we're passing a number
     onIssueChange(issue.id, 'impactRelevance', Number(value[0]));
   };
 
   const handleFinancialChange = (value: number[]) => {
     console.log(`Changing financial relevance for ${issue.id} from ${issue.financialRelevance} to ${value[0]}`);
-    // Explicitly ensure we're passing a number
     onIssueChange(issue.id, 'financialRelevance', Number(value[0]));
   };
 
-  // Effect to log issue changes
   useEffect(() => {
     console.log(`Issue updated:`, issue);
   }, [issue]);
@@ -94,20 +90,8 @@ const IssueItem: React.FC<IssueItemProps> = ({
           />
         </div>
         
-        <div className="flex items-start space-x-2">
-          <Checkbox 
-            id={`material-${issue.id}`} 
-            checked={issue.isMaterial}
-            onCheckedChange={(checked) => onIssueChange(issue.id, 'isMaterial', checked === true)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <Label htmlFor={`material-${issue.id}`} className="text-sm font-medium text-gray-900">
-              Questione materiale
-            </Label>
-            <p className="text-sm text-gray-700">
-              {determineQuadrant(Number(issue.impactRelevance), Number(issue.financialRelevance))}
-            </p>
-          </div>
+        <div className="text-sm text-gray-700">
+          {determineQuadrant(Number(issue.impactRelevance), Number(issue.financialRelevance))}
         </div>
       </div>
     </div>
