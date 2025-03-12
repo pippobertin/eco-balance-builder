@@ -24,6 +24,10 @@ export const getIssuesByCategory = () => {
       // Explicit pattern matching for environmental themes
       const id = issue.id.toLowerCase();
       
+      // Make sure all biodiversity themes are categorized as environmental
+      if (id.includes('biodiversity') || id.includes('species') || 
+          id.includes('ecosystem')) return true;
+      
       // Climate change themes
       if (id.includes('climate') || id.includes('energy')) return true;
       
@@ -51,6 +55,10 @@ export const getIssuesByCategory = () => {
       // Explicit pattern matching for social themes
       const id = issue.id.toLowerCase();
       const name = issue.name.toLowerCase();
+      
+      // Specifically exclude biodiversity-related items which should be environmental
+      if (id.includes('biodiversity') || id.includes('species') || 
+          id.includes('ecosystem')) return false;
       
       // Workforce themes
       if (id.includes('workforce') || id.includes('labor') || id.includes('employee')) return true;

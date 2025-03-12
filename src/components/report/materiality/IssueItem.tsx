@@ -24,23 +24,23 @@ const IssueItem: React.FC<IssueItemProps> = ({
   
   // Get the appropriate background color for different header categories
   const getHeaderBackgroundColor = (id: string) => {
-    if (id.startsWith('environmental')) return 'bg-green-100 border-green-200';
-    if (id.startsWith('social')) return 'bg-blue-100 border-blue-200';
-    if (id.startsWith('governance')) return 'bg-purple-100 border-purple-200';
-    return 'bg-gray-100 border-gray-300';
+    if (id.startsWith('environmental')) return 'bg-green-200 border-green-300';
+    if (id.startsWith('social')) return 'bg-blue-200 border-blue-300';
+    if (id.startsWith('governance')) return 'bg-purple-200 border-purple-300';
+    return 'bg-gray-200 border-gray-300';
   };
   
   return (
     <div 
       className={`p-4 rounded-lg border mb-2 ${
         isHeader 
-          ? `${getHeaderBackgroundColor(issue.id)} font-semibold` 
+          ? `${getHeaderBackgroundColor(issue.id)} font-bold` 
           : 'bg-white border-gray-100 hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h4 className={`${isHeader ? 'font-semibold text-gray-800' : 'text-sm font-medium text-gray-900'}`}>
+          <h4 className={`${isHeader ? 'font-bold text-gray-900' : 'text-sm font-medium text-gray-900'}`}>
             {issue.name}
           </h4>
           {issue.description && !isHeader && (
