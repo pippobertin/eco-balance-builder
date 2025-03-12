@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { MaterialityProvider } from './context/MaterialityContext';
+import React from 'react';
+import { MaterialityProvider } from './context/MaterialityProvider';
 import MaterialityContent from './components/MaterialityContent';
 import { getStakeholderPriorityColor, getSurveyStatusColor, getSurveyStatusText } from './utils/materialityUtils';
 
