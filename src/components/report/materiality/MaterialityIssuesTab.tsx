@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchBar, IssuesList, IssueTabs } from './components/issues-tab';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
@@ -28,20 +28,31 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [activeTab, setActiveTab] = useState<string>('current');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Print all issues with their isMaterial property for debugging
-  console.log("All issues in MaterialityIssuesTab:", issues.map(i => ({
-    id: i.id,
-    name: i.name,
-    isMaterial: i.isMaterial,
-    typeOfIsMaterial: typeof i.isMaterial
-  })));
+  // Track the last set of material issues to prevent unwanted updates
+  const [lastMaterialIssueIds, setLastMaterialIssueIds] = useState<Set<string>>(new Set());
 
   // Use strict comparison to filter only issues with isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Log for debugging
   console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues from ${issues.length} total issues`);
-  console.log("Material issues:", materialIssues.map(issue => ({ id: issue.id, name: issue.name })));
+  
+  // Check if the material issues have changed
+  useEffect(() => {
+    const currentMaterialIds = new Set(materialIssues.map(issue => issue.id));
+    const hasChanges = 
+      currentMaterialIds.size !== lastMaterialIssueIds.size || 
+      materialIssues.some(issue => !lastMaterialIssueIds.has(issue.id)) ||
+      Array.from(lastMaterialIssueIds).some(id => !currentMaterialIds.has(id));
+    
+    if (hasChanges) {
+      console.log("Material issues changed:", 
+        Array.from(currentMaterialIds), 
+        "previous:", 
+        Array.from(lastMaterialIssueIds));
+      setLastMaterialIssueIds(currentMaterialIds);
+    }
+  }, [materialIssues]);
   
   // Filter issues based on search query
   const filteredIssues = searchQuery 

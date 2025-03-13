@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -28,6 +29,8 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   
   // Flag to prevent re-processing issues while updates are pending
   const updatingRef = useRef<boolean>(false);
+  // Flag to track whether the component has mounted
+  const hasMountedRef = useRef<boolean>(false);
 
   // Initialize issues when component mounts or issues/selectedIssueIds change
   useEffect(() => {
@@ -52,7 +55,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       prevSelectedIdsArray.some(id => !selectedIssueIds.has(id));
     
     // Only process issues if the selection has changed or it's the initial load
-    if (idsChanged || availableIssues.length === 0 || selectedIssues.length === 0) {
+    if (idsChanged || !hasMountedRef.current || availableIssues.length === 0 || selectedIssues.length === 0) {
       // Process issues for this specific tab
       issues.forEach(issue => {
         // Create a deep copy of the issue to prevent reference issues
@@ -81,6 +84,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       
       // Update the previous selected IDs ref
       prevSelectedIdsRef.current = new Set(selectedIssueIds);
+      hasMountedRef.current = true;
     }
   }, [issues, selectedIssueIds, tabId]);
 
@@ -93,30 +97,43 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     
     console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
     
+    // Create a deep copy to prevent reference issues
+    const issueToUpdate = JSON.parse(JSON.stringify(issue));
+    
     // First update local state for immediate UI feedback
-    if (issue.isMaterial) {
+    if (issueToUpdate.isMaterial) {
       // Issue is being selected (moved to selected panel)
-      console.log(`ThemesTabContent [${tabId}]: Moving issue to selected panel:`, issue.id);
-      setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-      setSelectedIssues(prev => [...prev, {...issue, isMaterial: true}]); // Ensure true boolean
+      console.log(`ThemesTabContent [${tabId}]: Moving issue to selected panel:`, issueToUpdate.id);
+      setAvailableIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
+      setSelectedIssues(prev => [...prev, {...issueToUpdate, isMaterial: true}]); // Ensure true boolean
+      
+      // Update the prevSelectedIdsRef to include this issue
+      const newSelectedIds = new Set(prevSelectedIdsRef.current);
+      newSelectedIds.add(issueToUpdate.id);
+      prevSelectedIdsRef.current = newSelectedIds;
     } else {
       // Issue is being deselected (moved to available panel)
-      console.log(`ThemesTabContent [${tabId}]: Moving issue to available panel:`, issue.id);
-      setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
-      setAvailableIssues(prev => [...prev, {...issue, isMaterial: false}]); // Ensure false boolean
+      console.log(`ThemesTabContent [${tabId}]: Moving issue to available panel:`, issueToUpdate.id);
+      setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
+      setAvailableIssues(prev => [...prev, {...issueToUpdate, isMaterial: false}]); // Ensure false boolean
+      
+      // Update the prevSelectedIdsRef to remove this issue
+      const newSelectedIds = new Set(prevSelectedIdsRef.current);
+      newSelectedIds.delete(issueToUpdate.id);
+      prevSelectedIdsRef.current = newSelectedIds;
     }
     
     // Then pass to parent handler for global state update
     // Use a timeout to make sure this happens after the UI update
     setTimeout(() => {
-      console.log(`ThemesTabContent [${tabId}]: Passing issue to parent handler:`, issue.id, "isMaterial:", issue.isMaterial);
-      onIssueSelect(issue);
+      console.log(`ThemesTabContent [${tabId}]: Passing issue to parent handler:`, issueToUpdate.id, "isMaterial:", issueToUpdate.isMaterial);
+      onIssueSelect(issueToUpdate);
       
       // Clear the updating flag after a delay to allow the state to settle
       setTimeout(() => {
         updatingRef.current = false;
-      }, 500);
-    }, 0);
+      }, 1000);
+    }, 50);
   };
 
   return (
