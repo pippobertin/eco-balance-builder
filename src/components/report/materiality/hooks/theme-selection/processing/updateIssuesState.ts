@@ -50,6 +50,9 @@ export const updateIssuesState = ({
     // Update the previous selected IDs ref
     prevSelectedIdsRef.current = new Set([...selectedIssueIds]);
     hasMountedRef.current = true;
+    
+    // Reset updating flag immediately instead of using a timeout
+    updatingRef.current = false;
   } catch (stateError) {
     console.error(`Error updating state:`, stateError);
     toast({
@@ -57,10 +60,6 @@ export const updateIssuesState = ({
       description: "Si è verificato un errore durante l'aggiornamento dei temi. Ricarica la pagina.",
       variant: "destructive"
     });
-  }
-  
-  // Reset updating flag after a delay
-  setTimeout(() => {
     updatingRef.current = false;
-  }, 3000);
+  }
 };

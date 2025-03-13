@@ -65,7 +65,8 @@ export const useThemeSelectionActions = ({
         setSelectedIssues,
         latestProcessedIssuesRef,
         knownMaterialIssuesRef,
-        explicitlyDeselectedRef
+        explicitlyDeselectedRef,
+        prevSelectedIdsRef
       );
       
       // Pass the update to the parent handler for backend synchronization
@@ -96,11 +97,15 @@ export const useThemeSelectionActions = ({
       selected: MaterialityIssue[];
     }>,
     knownMaterialIssuesRef: React.MutableRefObject<Set<string>>,
-    explicitlyDeselectedRef: React.MutableRefObject<Set<string>>
+    explicitlyDeselectedRef: React.MutableRefObject<Set<string>>,
+    prevSelectedIdsRef: React.MutableRefObject<Set<string>>
   ) => {
     if (isCurrentlyMaterial) {
       // Issue was material, now it's not - remove from selected, add to available
       setSelectedIssues(prev => prev.filter(item => item.id !== updatedIssue.id));
+      
+      // Update prevSelectedIdsRef to reflect this change immediately
+      prevSelectedIdsRef.current.delete(updatedIssue.id);
       
       // Add to available without duplicating
       setAvailableIssues(prev => {
@@ -121,9 +126,18 @@ export const useThemeSelectionActions = ({
       // Update tracking state
       knownMaterialIssuesRef.current.delete(updatedIssue.id);
       explicitlyDeselectedRef.current.add(updatedIssue.id);
+      
+      // Update the latest processed issues ref to reflect this change
+      latestProcessedIssuesRef.current = {
+        available: [...latestProcessedIssuesRef.current.available.filter(i => i.id !== updatedIssue.id), updatedIssue],
+        selected: latestProcessedIssuesRef.current.selected.filter(i => i.id !== updatedIssue.id)
+      };
     } else {
       // Issue was not material, now it is - remove from available, add to selected
       setAvailableIssues(prev => prev.filter(item => item.id !== updatedIssue.id));
+      
+      // Update prevSelectedIdsRef to reflect this change immediately
+      prevSelectedIdsRef.current.add(updatedIssue.id);
       
       // Add to selected without duplicating
       setSelectedIssues(prev => {
@@ -144,6 +158,12 @@ export const useThemeSelectionActions = ({
       // Update tracking state
       knownMaterialIssuesRef.current.add(updatedIssue.id);
       explicitlyDeselectedRef.current.delete(updatedIssue.id);
+      
+      // Update the latest processed issues ref to reflect this change
+      latestProcessedIssuesRef.current = {
+        available: latestProcessedIssuesRef.current.available.filter(i => i.id !== updatedIssue.id),
+        selected: [...latestProcessedIssuesRef.current.selected.filter(i => i.id !== updatedIssue.id), updatedIssue]
+      };
     }
   };
   
