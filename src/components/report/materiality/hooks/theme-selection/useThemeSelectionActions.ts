@@ -18,7 +18,7 @@ interface UseThemeSelectionActionsProps {
 }
 
 /**
- * Hook for handling issue selection/deselection actions
+ * Hook for theme selection actions
  */
 export const useThemeSelectionActions = ({
   tabId,
@@ -33,133 +33,119 @@ export const useThemeSelectionActions = ({
 }: UseThemeSelectionActionsProps) => {
   const { toast } = useToast();
   
-  // Function to handle issue selection or deselection
+  /**
+   * Handle issue selection
+   */
   const handleIssueSelect = (issue: MaterialityIssue) => {
     try {
-      if (!onIssueSelect) return;
-      
       // Create a deep copy to prevent reference issues
-      const issueToUpdate = structuredClone(issue);
+      const issueCopy = structuredClone(issue);
+      const isCurrentlyMaterial = !!issue.isMaterial;
       
-      console.log(`useThemeSelectionActions [${tabId}] handling issue select:`, issueToUpdate.id, "isMaterial:", issueToUpdate.isMaterial);
+      console.log(`useThemeSelectionActions [${tabId}]: Handling issue select for:`, issue.id, "current isMaterial:", isCurrentlyMaterial);
       
-      // Determine if we're selecting or deselecting
-      const isSelecting = issueToUpdate.isMaterial === true;
-      
-      // Record the operation to prevent immediate reversion
+      // Record the operation
       lastOpRef.current = {
-        id: issueToUpdate.id,
-        operation: isSelecting ? 'select' : 'deselect',
+        id: issue.id,
+        operation: isCurrentlyMaterial ? 'deselect' : 'select',
         timestamp: Date.now()
       };
       
-      try {
-        // Update knownMaterialIssues and explicitlyDeselected refs
-        if (isSelecting) {
-          knownMaterialIssuesRef.current.add(issueToUpdate.id);
-          explicitlyDeselectedRef.current.delete(issueToUpdate.id);
-        } else {
-          knownMaterialIssuesRef.current.delete(issueToUpdate.id);
-          explicitlyDeselectedRef.current.add(issueToUpdate.id);
-        }
-        
-        // First update local state for immediate UI feedback
-        if (isSelecting) {
-          // Issue is being selected (moved to selected panel)
-          console.log(`useThemeSelectionActions [${tabId}]: Moving issue to selected panel:`, issueToUpdate.id);
-          
-          // Remove from available issues
-          setAvailableIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
-          
-          // Check if issue already exists in selected issues (prevent duplicates)
-          setSelectedIssues(prev => {
-            // If the issue already exists in the selected issues list, don't add it again
-            if (prev.some(i => i.id === issueToUpdate.id)) {
-              return prev;
-            }
-            return [...prev, issueToUpdate];
-          });
-          
-          // Update the prevSelectedIdsRef to include this issue
-          const newSelectedIds = new Set(prevSelectedIdsRef.current);
-          newSelectedIds.add(issueToUpdate.id);
-          prevSelectedIdsRef.current = newSelectedIds;
-        } else {
-          // Issue is being deselected (moved to available panel)
-          console.log(`useThemeSelectionActions [${tabId}]: Moving issue to available panel:`, issueToUpdate.id);
-          
-          // Remove from selected issues
-          setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
-          
-          // Only add to available issues if it belongs to this tab and isn't already there
-          const wasInThisTab = latestProcessedIssuesRef.current.available.some(i => i.id === issueToUpdate.id) ||
-                              latestProcessedIssuesRef.current.selected.some(i => i.id === issueToUpdate.id);
-          
-          if (wasInThisTab) {
-            setAvailableIssues(prev => {
-              // If the issue already exists in available issues, don't add it again
-              if (prev.some(i => i.id === issueToUpdate.id)) {
-                return prev;
-              }
-              return [...prev, issueToUpdate];
-            });
-          } else {
-            console.log(`Issue ${issueToUpdate.id} was not originally in this tab, not adding to available`);
-          }
-          
-          // Update the prevSelectedIdsRef to remove this issue
-          const newSelectedIds = new Set(prevSelectedIdsRef.current);
-          newSelectedIds.delete(issueToUpdate.id);
-          prevSelectedIdsRef.current = newSelectedIds;
-        }
-      } catch (stateError) {
-        console.error(`Error updating state references for issue ${issueToUpdate.id}:`, stateError);
-        toast({
-          title: "Errore nell'aggiornamento",
-          description: "Si è verificato un errore durante l'aggiornamento dello stato. Riprova.",
-          variant: "destructive"
-        });
-      }
+      // Updated issue with toggled material state
+      const updatedIssue = {
+        ...issueCopy,
+        isMaterial: !isCurrentlyMaterial
+      };
       
-      // Ensure isMaterial is a boolean before sending to parent
-      if (typeof issueToUpdate.isMaterial !== 'boolean') {
-        issueToUpdate.isMaterial = Boolean(issueToUpdate.isMaterial);
-      }
+      // Try to apply the change optimistically in the UI first
+      updateLocalState(
+        updatedIssue, 
+        isCurrentlyMaterial,
+        setAvailableIssues,
+        setSelectedIssues,
+        latestProcessedIssuesRef,
+        knownMaterialIssuesRef,
+        explicitlyDeselectedRef
+      );
       
-      // Delay parent update to ensure UI reflects our changes first
-      setTimeout(() => {
-        try {
-          console.log(`useThemeSelectionActions [${tabId}]: Passing issue to parent handler:`, issueToUpdate.id, "isMaterial:", issueToUpdate.isMaterial);
-          onIssueSelect(issueToUpdate);
-        } catch (callbackError) {
-          console.error(`Error in parent callback for issue ${issueToUpdate.id}:`, callbackError);
-          toast({
-            title: "Errore nella selezione",
-            description: "Si è verificato un errore durante la selezione del tema. Riprova.",
-            variant: "destructive"
-          });
-          
-          // Attempt to revert UI state to maintain consistency
-          if (isSelecting) {
-            setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
-            setAvailableIssues(prev => [...prev, {...issueToUpdate, isMaterial: false}]);
-          } else {
-            setAvailableIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
-            setSelectedIssues(prev => [...prev, {...issueToUpdate, isMaterial: true}]);
-          }
-        }
-      }, 100);
+      // Pass the update to the parent handler for backend synchronization
+      if (onIssueSelect) {
+        console.log(`useThemeSelectionActions [${tabId}]: Calling parent onIssueSelect for:`, updatedIssue.id, "new isMaterial:", updatedIssue.isMaterial);
+        onIssueSelect(updatedIssue);
+      }
     } catch (error) {
-      console.error(`useThemeSelectionActions [${tabId}]: General error in handleIssueSelect:`, error);
+      console.error(`useThemeSelectionActions [${tabId}]: Error selecting issue:`, error);
       toast({
-        title: "Errore nella gestione",
-        description: "Si è verificato un errore durante la gestione del tema. Ricarica la pagina.",
+        title: "Errore nella selezione",
+        description: "Si è verificato un errore durante la selezione del tema. Riprova.",
         variant: "destructive"
       });
     }
   };
-
-  return {
-    handleIssueSelect
+  
+  /**
+   * Update local state based on issue selection
+   */
+  const updateLocalState = (
+    updatedIssue: MaterialityIssue,
+    isCurrentlyMaterial: boolean,
+    setAvailableIssues: React.Dispatch<React.SetStateAction<MaterialityIssue[]>>,
+    setSelectedIssues: React.Dispatch<React.SetStateAction<MaterialityIssue[]>>,
+    latestProcessedIssuesRef: React.MutableRefObject<{
+      available: MaterialityIssue[];
+      selected: MaterialityIssue[];
+    }>,
+    knownMaterialIssuesRef: React.MutableRefObject<Set<string>>,
+    explicitlyDeselectedRef: React.MutableRefObject<Set<string>>
+  ) => {
+    if (isCurrentlyMaterial) {
+      // Issue was material, now it's not - remove from selected, add to available
+      setSelectedIssues(prev => prev.filter(item => item.id !== updatedIssue.id));
+      
+      // Add to available without duplicating
+      setAvailableIssues(prev => {
+        // Check if the issue is already in the available list
+        const exists = prev.some(item => item.id === updatedIssue.id);
+        
+        if (exists) {
+          // Just update the existing issue
+          return prev.map(item => 
+            item.id === updatedIssue.id ? updatedIssue : item
+          );
+        } else {
+          // Add the issue to the list
+          return [...prev, updatedIssue];
+        }
+      });
+      
+      // Update tracking state
+      knownMaterialIssuesRef.current.delete(updatedIssue.id);
+      explicitlyDeselectedRef.current.add(updatedIssue.id);
+    } else {
+      // Issue was not material, now it is - remove from available, add to selected
+      setAvailableIssues(prev => prev.filter(item => item.id !== updatedIssue.id));
+      
+      // Add to selected without duplicating
+      setSelectedIssues(prev => {
+        // Check if the issue is already in the selected list
+        const exists = prev.some(item => item.id === updatedIssue.id);
+        
+        if (exists) {
+          // Just update the existing issue
+          return prev.map(item => 
+            item.id === updatedIssue.id ? updatedIssue : item
+          );
+        } else {
+          // Add the issue to the list
+          return [...prev, updatedIssue];
+        }
+      });
+      
+      // Update tracking state
+      knownMaterialIssuesRef.current.add(updatedIssue.id);
+      explicitlyDeselectedRef.current.delete(updatedIssue.id);
+    }
   };
+  
+  return { handleIssueSelect };
 };
