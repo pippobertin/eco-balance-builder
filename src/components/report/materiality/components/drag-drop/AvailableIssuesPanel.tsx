@@ -1,38 +1,29 @@
 
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MaterialityIssue } from '../../types';
 import { isHeaderTheme } from '../../utils/materialityUtils';
 import IssueItem from '../../IssueItem';
-import DraggableIssueItem from '../DraggableIssueItem';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
 interface AvailableIssuesPanelProps {
   availableIssues: MaterialityIssue[];
-  availableItemIds: string[];
-  overContainerId: string | null;
-  activeId: string | null;
-  onIssueChange: (issue: MaterialityIssue) => void;
+  onIssueClick: (issue: MaterialityIssue) => void;
 }
 
 const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
   availableIssues,
-  availableItemIds,
-  overContainerId,
-  activeId,
-  onIssueChange
+  onIssueClick
 }) => {
   return (
-    <div 
-      id="available-container"
-      className={`border rounded-lg p-2 ${overContainerId === 'available-container' && activeId ? 'bg-blue-50 border-blue-300' : ''}`}
-    >
+    <div id="available-container" className="border rounded-lg p-2">
       <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Disponibili</h3>
       <ScrollArea className="h-[400px] pr-4">
-        <SortableContext items={availableItemIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
-            {availableIssues.map((issue) => (
-              isHeaderTheme(issue.id, issue.name) ? (
+        <div className="space-y-2">
+          {availableIssues.map((issue) => (
+            <div key={issue.id} className={`${isHeaderTheme(issue.id, issue.name) ? '' : 'cursor-pointer hover:bg-blue-50'}`}>
+              {isHeaderTheme(issue.id, issue.name) ? (
                 <IssueItem
                   key={issue.id}
                   issue={issue}
@@ -40,22 +31,39 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
                   isPredefined={!issue.id.startsWith('custom-')}
                 />
               ) : (
-                <DraggableIssueItem
-                  key={issue.id}
-                  issue={issue}
-                  onIssueChange={() => onIssueChange(issue)}
-                  isPredefined={!issue.id.startsWith('custom-')}
-                />
-              )
-            ))}
-            
-            {availableIssues.length === 0 && (
-              <div className="p-4 text-center text-gray-500 italic">
-                Tutti i temi sono stati selezionati.
-              </div>
-            )}
-          </div>
-        </SortableContext>
+                <div 
+                  className="p-4 rounded-lg border mb-2 bg-white border-gray-100 flex justify-between items-center"
+                  onClick={() => onIssueClick(issue)}
+                >
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900">{issue.name}</h4>
+                    {issue.description && (
+                      <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onIssueClick(issue);
+                    }}
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    <span className="sr-only">Aggiungi tema</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {availableIssues.length === 0 && (
+            <div className="p-4 text-center text-gray-500 italic">
+              Tutti i temi sono stati selezionati.
+            </div>
+          )}
+        </div>
       </ScrollArea>
     </div>
   );

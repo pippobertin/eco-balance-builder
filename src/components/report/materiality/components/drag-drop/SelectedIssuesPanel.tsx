@@ -1,51 +1,57 @@
 
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MaterialityIssue } from '../../types';
-import DraggableIssueItem from '../DraggableIssueItem';
+import { Button } from '@/components/ui/button';
+import { MinusCircle } from 'lucide-react';
 
 interface SelectedIssuesPanelProps {
   selectedIssues: MaterialityIssue[];
-  selectedItemIds: string[];
-  overContainerId: string | null;
-  activeId: string | null;
-  onIssueChange: (issue: MaterialityIssue) => void;
+  onIssueClick: (issue: MaterialityIssue) => void;
 }
 
 const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   selectedIssues,
-  selectedItemIds,
-  overContainerId,
-  activeId,
-  onIssueChange
+  onIssueClick
 }) => {
   return (
-    <div 
-      id="selected-container" 
-      className={`border rounded-lg p-2 ${overContainerId === 'selected-container' && activeId ? 'bg-green-50 border-green-300' : ''}`}
-    >
+    <div id="selected-container" className="border rounded-lg p-2">
       <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Selezionati</h3>
       <ScrollArea className="h-[400px] pr-4">
-        <SortableContext items={selectedItemIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
-            {selectedIssues.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 italic">
-                Nessun tema selezionato. Trascina i temi dalla colonna di sinistra o clicca sul + per aggiungerli.
+        <div className="space-y-2">
+          {selectedIssues.length === 0 ? (
+            <div className="p-4 text-center text-gray-500 italic">
+              Nessun tema selezionato. Clicca sui temi dalla colonna di sinistra per aggiungerli.
+            </div>
+          ) : (
+            selectedIssues.map((issue) => (
+              <div 
+                key={issue.id}
+                className="p-4 rounded-lg border mb-2 bg-white border-gray-100 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
+                onClick={() => onIssueClick(issue)}
+              >
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900">{issue.name}</h4>
+                  {issue.description && (
+                    <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onIssueClick(issue);
+                  }}
+                >
+                  <MinusCircle className="h-4 w-4" />
+                  <span className="sr-only">Rimuovi tema</span>
+                </Button>
               </div>
-            ) : (
-              selectedIssues.map((issue) => (
-                <DraggableIssueItem
-                  key={issue.id}
-                  issue={issue}
-                  onIssueChange={() => onIssueChange(issue)}
-                  onRemoveIssue={() => onIssueChange(issue)}
-                  isPredefined={!issue.id.startsWith('custom-')}
-                />
-              ))
-            )}
-          </div>
-        </SortableContext>
+            ))
+          )}
+        </div>
       </ScrollArea>
     </div>
   );
