@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { SearchBar, IssuesList, IssueTabs } from './components/issues-tab';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
@@ -27,6 +28,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>('current');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { toast } = useToast();
 
   // Track the last set of material issues to prevent unwanted updates
   const [lastMaterialIssueIds, setLastMaterialIssueIds] = useState<Set<string>>(new Set());
@@ -39,20 +41,29 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   
   // Check if the material issues have changed
   useEffect(() => {
-    const currentMaterialIds = new Set(materialIssues.map(issue => issue.id));
-    const hasChanges = 
-      currentMaterialIds.size !== lastMaterialIssueIds.size || 
-      materialIssues.some(issue => !lastMaterialIssueIds.has(issue.id)) ||
-      Array.from(lastMaterialIssueIds).some(id => !currentMaterialIds.has(id));
-    
-    if (hasChanges) {
-      console.log("Material issues changed:", 
-        Array.from(currentMaterialIds), 
-        "previous:", 
-        Array.from(lastMaterialIssueIds));
-      setLastMaterialIssueIds(currentMaterialIds);
+    try {
+      const currentMaterialIds = new Set(materialIssues.map(issue => issue.id));
+      const hasChanges = 
+        currentMaterialIds.size !== lastMaterialIssueIds.size || 
+        materialIssues.some(issue => !lastMaterialIssueIds.has(issue.id)) ||
+        Array.from(lastMaterialIssueIds).some(id => !currentMaterialIds.has(id));
+      
+      if (hasChanges) {
+        console.log("Material issues changed:", 
+          Array.from(currentMaterialIds), 
+          "previous:", 
+          Array.from(lastMaterialIssueIds));
+        setLastMaterialIssueIds(currentMaterialIds);
+      }
+    } catch (error) {
+      console.error("Error checking material issues changes:", error);
+      toast({
+        title: "Errore di aggiornamento",
+        description: "Si è verificato un errore durante l'aggiornamento dei temi. Ricarica la pagina se i dati non sono aggiornati.",
+        variant: "destructive"
+      });
     }
-  }, [materialIssues]);
+  }, [materialIssues, lastMaterialIssueIds, toast]);
   
   // Filter issues based on search query
   const filteredIssues = searchQuery 

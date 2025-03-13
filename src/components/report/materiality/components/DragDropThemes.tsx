@@ -30,53 +30,80 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   
   // Update selectedIssueIds when selectedIssues changes
   useEffect(() => {
-    const newSelectedIds = new Set(selectedIssues.map(issue => issue.id));
-    console.log("DragDropThemes: Updating selected issue IDs:", Array.from(newSelectedIds));
-    setSelectedIssueIds(newSelectedIds);
-  }, [selectedIssues]);
+    try {
+      const newSelectedIds = new Set(selectedIssues.map(issue => issue.id));
+      console.log("DragDropThemes: Updating selected issue IDs:", Array.from(newSelectedIds));
+      setSelectedIssueIds(newSelectedIds);
+    } catch (error) {
+      console.error("Error updating selected issue IDs:", error);
+      toast({
+        title: "Errore di aggiornamento",
+        description: "Si è verificato un errore durante l'aggiornamento dei temi selezionati.",
+        variant: "destructive"
+      });
+    }
+  }, [selectedIssues, toast]);
   
   // Handle issue selection
   const handleIssueSelect = (issue: any) => {
-    console.log("Selected issue:", issue.id, issue.name);
-    
-    // Check if this issue is already selected
-    if (selectedIssueIds.has(issue.id)) {
+    try {
+      console.log("Selected issue:", issue.id, issue.name);
+      
+      // Check if this issue is already selected
+      if (selectedIssueIds.has(issue.id)) {
+        toast({
+          title: "Tema già selezionato",
+          description: "Questo tema è già stato aggiunto all'analisi",
+          variant: "default"
+        });
+        return;
+      }
+      
+      // Add default values for impact and financial relevance
+      const issueWithValues = {
+        ...issue,
+        impactRelevance: issue.impactRelevance || 50, // Use existing or default
+        financialRelevance: issue.financialRelevance || 50, // Use existing or default
+        isMaterial: true  // CRITICAL: Ensure this is a boolean true, not a string or truthy value
+      };
+      
+      console.log("Adding issue with values:", issueWithValues);
+      
+      // Call the parent component's handler
+      onIssueSelect(issueWithValues);
+      
       toast({
-        title: "Tema già selezionato",
-        description: "Questo tema è già stato aggiunto all'analisi",
+        title: "Tema aggiunto",
+        description: `"${issue.name}" è stato aggiunto all'analisi`,
         variant: "default"
       });
-      return;
+    } catch (error) {
+      console.error("Error selecting issue:", error);
+      toast({
+        title: "Errore nella selezione",
+        description: "Si è verificato un errore durante l'aggiunta del tema. Riprova.",
+        variant: "destructive"
+      });
     }
-    
-    // Add default values for impact and financial relevance
-    const issueWithValues = {
-      ...issue,
-      impactRelevance: issue.impactRelevance || 50, // Use existing or default
-      financialRelevance: issue.financialRelevance || 50, // Use existing or default
-      isMaterial: true  // CRITICAL: Ensure this is a boolean true, not a string or truthy value
-    };
-    
-    console.log("Adding issue with values:", issueWithValues);
-    
-    // Call the parent component's handler
-    onIssueSelect(issueWithValues);
-    
-    toast({
-      title: "Tema aggiunto",
-      description: `"${issue.name}" è stato aggiunto all'analisi`,
-      variant: "default"
-    });
   };
   
   // Adapter function to match the expected signature for SelectedIssuesPanel
   const handleIssueClick = (issue: any) => {
-    console.log("DragDropThemes: handleIssueClick called for issue:", issue.id, "isMaterial:", issue.isMaterial);
-    
-    // Only process remove if isMaterial is explicitly false
-    if (issue.isMaterial === false) {
-      console.log("Removing issue:", issue.id);
-      onIssueRemove(issue.id);
+    try {
+      console.log("DragDropThemes: handleIssueClick called for issue:", issue.id, "isMaterial:", issue.isMaterial);
+      
+      // Only process remove if isMaterial is explicitly false
+      if (issue.isMaterial === false) {
+        console.log("Removing issue:", issue.id);
+        onIssueRemove(issue.id);
+      }
+    } catch (error) {
+      console.error("Error handling issue click:", error);
+      toast({
+        title: "Errore nella rimozione",
+        description: "Si è verificato un errore durante la rimozione del tema. Riprova.",
+        variant: "destructive"
+      });
     }
   };
   

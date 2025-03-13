@@ -1,6 +1,7 @@
 
 import { useEffect } from 'react';
 import { MaterialityIssue } from '../../types';
+import { useToast } from '@/hooks/use-toast';
 
 interface UseThemeProcessingProps {
   issues: MaterialityIssue[];
@@ -41,105 +42,130 @@ export const useThemeProcessing = ({
   hasMountedRef,
   latestProcessedIssuesRef
 }: UseThemeProcessingProps) => {
+  const { toast } = useToast();
   
   // Process issues into available and selected categories
   useEffect(() => {
-    // Skip processing if a recent operation is in progress
-    if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 5000) {
-      console.log(`useThemeProcessing [${tabId}]: Skipping update due to recent operation for: ${lastOpRef.current.id}`);
-      return;
-    }
-    
-    // Prevent concurrent updates while one is in progress
-    if (updatingRef.current) {
-      console.log(`useThemeProcessing [${tabId}]: Skipping update due to another update in progress`);
-      return;
-    }
-    
-    // Log for debugging
-    console.log(`useThemeProcessing [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
-    
-    // Check if selectedIssueIds has changed
-    const selectedIdsArray = Array.from(selectedIssueIds);
-    const prevSelectedIdsArray = Array.from(prevSelectedIdsRef.current);
-    
-    const idsChanged = 
-      selectedIdsArray.length !== prevSelectedIdsArray.length ||
-      selectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id)) ||
-      prevSelectedIdsArray.some(id => !selectedIssueIds.has(id));
-    
-    // Only process issues if the selection has changed or it's the initial load
-    if (idsChanged || !hasMountedRef.current || availableIssues.length === 0 || selectedIssues.length === 0) {
-      updatingRef.current = true;
+    try {
+      // Skip processing if a recent operation is in progress
+      if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 5000) {
+        console.log(`useThemeProcessing [${tabId}]: Skipping update due to recent operation for: ${lastOpRef.current.id}`);
+        return;
+      }
       
-      const available: MaterialityIssue[] = [];
-      const selected: MaterialityIssue[] = [];
+      // Prevent concurrent updates while one is in progress
+      if (updatingRef.current) {
+        console.log(`useThemeProcessing [${tabId}]: Skipping update due to another update in progress`);
+        return;
+      }
       
-      // Process issues for this specific tab
-      issues.forEach(issue => {
-        // Create a deep copy of the issue to prevent reference issues
-        const issueCopy = structuredClone(issue);
+      // Log for debugging
+      console.log(`useThemeProcessing [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
+      
+      // Check if selectedIssueIds has changed
+      const selectedIdsArray = Array.from(selectedIssueIds);
+      const prevSelectedIdsArray = Array.from(prevSelectedIdsRef.current);
+      
+      const idsChanged = 
+        selectedIdsArray.length !== prevSelectedIdsArray.length ||
+        selectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id)) ||
+        prevSelectedIdsArray.some(id => !selectedIssueIds.has(id));
+      
+      // Only process issues if the selection has changed or it's the initial load
+      if (idsChanged || !hasMountedRef.current || availableIssues.length === 0 || selectedIssues.length === 0) {
+        updatingRef.current = true;
         
-        // If a recent operation was performed on this issue, preserve that state
-        if (lastOpRef.current && lastOpRef.current.id === issueCopy.id && Date.now() - lastOpRef.current.timestamp < 5000) {
-          if (lastOpRef.current.operation === 'select') {
-            issueCopy.isMaterial = true;
-            knownMaterialIssuesRef.current.add(issueCopy.id);
-            selected.push(issueCopy);
-            return;
-          } else if (lastOpRef.current.operation === 'deselect') {
-            issueCopy.isMaterial = false;
-            knownMaterialIssuesRef.current.delete(issueCopy.id);
-            explicitlyDeselectedRef.current.add(issueCopy.id);
-            available.push(issueCopy);
-            return;
+        const available: MaterialityIssue[] = [];
+        const selected: MaterialityIssue[] = [];
+        
+        // Process issues for this specific tab
+        issues.forEach(issue => {
+          try {
+            // Create a deep copy of the issue to prevent reference issues
+            const issueCopy = structuredClone(issue);
+            
+            // If a recent operation was performed on this issue, preserve that state
+            if (lastOpRef.current && lastOpRef.current.id === issueCopy.id && Date.now() - lastOpRef.current.timestamp < 5000) {
+              if (lastOpRef.current.operation === 'select') {
+                issueCopy.isMaterial = true;
+                knownMaterialIssuesRef.current.add(issueCopy.id);
+                selected.push(issueCopy);
+                return;
+              } else if (lastOpRef.current.operation === 'deselect') {
+                issueCopy.isMaterial = false;
+                knownMaterialIssuesRef.current.delete(issueCopy.id);
+                explicitlyDeselectedRef.current.add(issueCopy.id);
+                available.push(issueCopy);
+                return;
+              }
+            }
+            
+            // Check if this issue has been explicitly deselected
+            if (explicitlyDeselectedRef.current.has(issueCopy.id)) {
+              console.log(`useThemeProcessing [${tabId}]: Issue was explicitly deselected:`, issueCopy.id);
+              issueCopy.isMaterial = false;
+              available.push(issueCopy);
+              return;
+            }
+            
+            // Check if this issue is in the selectedIssueIds set
+            if (selectedIssueIds.has(issueCopy.id) || knownMaterialIssuesRef.current.has(issueCopy.id)) {
+              console.log(`useThemeProcessing [${tabId}]: Issue is selected by ID:`, issueCopy.id);
+              // Ensure isMaterial is explicitly true (BOOLEAN)
+              issueCopy.isMaterial = true;
+              knownMaterialIssuesRef.current.add(issueCopy.id);
+              selected.push(issueCopy);
+            } else {
+              console.log(`useThemeProcessing [${tabId}]: Issue is not material:`, issueCopy.id);
+              // Ensure isMaterial is explicitly false for available issues (BOOLEAN)
+              issueCopy.isMaterial = false;
+              available.push(issueCopy);
+            }
+          } catch (issueError) {
+            console.error(`Error processing issue:`, issue.id, issueError);
+            // Continue with next issue rather than breaking the whole process
           }
+        });
+        
+        console.log(`useThemeProcessing [${tabId}]: Setting available issues:`, available.length);
+        console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
+        
+        try {
+          // Store the latest processed issues
+          latestProcessedIssuesRef.current = {
+            available: available.map(issue => structuredClone(issue)),
+            selected: selected.map(issue => structuredClone(issue))
+          };
+          
+          // Set both states in a batch to prevent partial updates
+          setAvailableIssues(available);
+          setSelectedIssues(selected);
+          
+          // Update the previous selected IDs ref
+          prevSelectedIdsRef.current = new Set([...selectedIssueIds]);
+          hasMountedRef.current = true;
+        } catch (stateError) {
+          console.error(`Error updating state:`, stateError);
+          toast({
+            title: "Errore nell'aggiornamento",
+            description: "Si è verificato un errore durante l'aggiornamento dei temi. Ricarica la pagina.",
+            variant: "destructive"
+          });
         }
         
-        // Check if this issue has been explicitly deselected
-        if (explicitlyDeselectedRef.current.has(issueCopy.id)) {
-          console.log(`useThemeProcessing [${tabId}]: Issue was explicitly deselected:`, issueCopy.id);
-          issueCopy.isMaterial = false;
-          available.push(issueCopy);
-          return;
-        }
-        
-        // Check if this issue is in the selectedIssueIds set
-        if (selectedIssueIds.has(issueCopy.id) || knownMaterialIssuesRef.current.has(issueCopy.id)) {
-          console.log(`useThemeProcessing [${tabId}]: Issue is selected by ID:`, issueCopy.id);
-          // Ensure isMaterial is explicitly true (BOOLEAN)
-          issueCopy.isMaterial = true;
-          knownMaterialIssuesRef.current.add(issueCopy.id);
-          selected.push(issueCopy);
-        } else {
-          console.log(`useThemeProcessing [${tabId}]: Issue is not material:`, issueCopy.id);
-          // Ensure isMaterial is explicitly false for available issues (BOOLEAN)
-          issueCopy.isMaterial = false;
-          available.push(issueCopy);
-        }
+        // Reset updating flag after a delay
+        setTimeout(() => {
+          updatingRef.current = false;
+        }, 3000);
+      }
+    } catch (error) {
+      console.error(`useThemeProcessing [${tabId}]: Error in theme processing:`, error);
+      updatingRef.current = false;
+      toast({
+        title: "Errore nell'elaborazione",
+        description: "Si è verificato un errore durante l'elaborazione dei temi. Riprova o ricarica la pagina.",
+        variant: "destructive"
       });
-      
-      console.log(`useThemeProcessing [${tabId}]: Setting available issues:`, available.length);
-      console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
-      
-      // Store the latest processed issues
-      latestProcessedIssuesRef.current = {
-        available: available.map(issue => structuredClone(issue)),
-        selected: selected.map(issue => structuredClone(issue))
-      };
-      
-      // Set both states in a batch to prevent partial updates
-      setAvailableIssues(available);
-      setSelectedIssues(selected);
-      
-      // Update the previous selected IDs ref
-      prevSelectedIdsRef.current = new Set([...selectedIssueIds]);
-      hasMountedRef.current = true;
-      
-      // Reset updating flag after a delay
-      setTimeout(() => {
-        updatingRef.current = false;
-      }, 3000);
     }
   }, [
     issues, 
@@ -148,6 +174,7 @@ export const useThemeProcessing = ({
     availableIssues.length, 
     selectedIssues.length, 
     setAvailableIssues, 
-    setSelectedIssues
+    setSelectedIssues,
+    toast
   ]);
 };

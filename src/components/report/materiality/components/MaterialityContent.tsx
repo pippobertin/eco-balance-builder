@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import MaterialityTabs from '../MaterialityTabs';
 import MaterialityHeader from './MaterialityHeader';
 import TabContent from './TabContent';
@@ -11,6 +12,7 @@ import { MaterialityIssue } from '../types';
 
 const MaterialityContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('issues');
+  const { toast } = useToast();
   const { 
     issues, 
     handleIssueChange: originalHandleIssueChange, 
@@ -42,63 +44,94 @@ const MaterialityContent: React.FC = () => {
   const [materialIssueIds, setMaterialIssueIds] = useState(new Set<string>());
   
   useEffect(() => {
-    // Print all issues with their isMaterial values for debugging
-    console.log("All issues in MaterialityContent:", issues.map(i => ({
-      id: i.id,
-      name: i.name,
-      isMaterial: i.isMaterial,
-      typeOfIsMaterial: typeof i.isMaterial
-    })));
-    
-    // Log for debugging
-    console.log("MaterialContent: materialIssues updated, count:", materialIssues.length);
-    
-    if (materialIssues.length > 0) {
-      console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
+    try {
+      // Print all issues with their isMaterial values for debugging
+      console.log("All issues in MaterialityContent:", issues.map(i => ({
+        id: i.id,
+        name: i.name,
+        isMaterial: i.isMaterial,
+        typeOfIsMaterial: typeof i.isMaterial
+      })));
+      
+      // Log for debugging
+      console.log("MaterialContent: materialIssues updated, count:", materialIssues.length);
+      
+      if (materialIssues.length > 0) {
+        console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
+      }
+      
+      const materialIds = new Set(materialIssues.map(issue => issue.id));
+      setMaterialIssueIds(materialIds);
+      console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
+    } catch (error) {
+      console.error("Error updating material issue IDs:", error);
+      toast({
+        title: "Errore di aggiornamento",
+        description: "Si è verificato un errore durante l'aggiornamento dei temi di materialità. Ricarica la pagina.",
+        variant: "destructive"
+      });
     }
-    
-    const materialIds = new Set(materialIssues.map(issue => issue.id));
-    setMaterialIssueIds(materialIds);
-    console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
-  }, [materialIssues, issues]);
+  }, [materialIssues, issues, toast]);
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
-    
-    // This is the top-level handler that receives an issue object with toggled isMaterial
-    // The issue object's isMaterial has already been toggled by DragDropContainer
-    const newIsMaterial = issue.isMaterial;
-    console.log("MaterialityContent: Using toggled isMaterial:", newIsMaterial);
-    
-    // Pass to the original handler with the already toggled boolean value
-    originalHandleIssueChange(issue.id, 'isMaterial', newIsMaterial);
-    
-    // For debugging - check all material issues after update
-    setTimeout(() => {
-      const materialCount = issues.filter(i => i.isMaterial === true).length;
-      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+    try {
+      console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
       
-      if (materialCount > 0) {
-        console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-      }
-    }, 1200);
+      // This is the top-level handler that receives an issue object with toggled isMaterial
+      // The issue object's isMaterial has already been toggled by DragDropContainer
+      const newIsMaterial = issue.isMaterial;
+      console.log("MaterialityContent: Using toggled isMaterial:", newIsMaterial);
+      
+      // Pass to the original handler with the already toggled boolean value
+      originalHandleIssueChange(issue.id, 'isMaterial', newIsMaterial);
+      
+      // For debugging - check all material issues after update
+      setTimeout(() => {
+        try {
+          const materialCount = issues.filter(i => i.isMaterial === true).length;
+          console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+          
+          if (materialCount > 0) {
+            console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
+          }
+        } catch (error) {
+          console.error("Error in post-selection debugging:", error);
+        }
+      }, 1200);
+    } catch (error) {
+      console.error("Error handling issue selection:", error);
+      toast({
+        title: "Errore nella selezione",
+        description: "Si è verificato un errore durante la selezione del tema. Riprova.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Adapter function to match the expected signature for TabContent
   const handleIssueChange = (id: string, updatedIssue: Partial<MaterialityIssue>) => {
-    console.log("MaterialityContent handleIssueChange for ID:", id, "with updates:", updatedIssue);
-    
-    Object.entries(updatedIssue).forEach(([field, value]) => {
-      // Special handling for isMaterial to ensure it's boolean
-      if (field === 'isMaterial') {
-        const boolValue = value === true;
-        console.log(`Setting ${id} isMaterial to boolean ${boolValue}`);
-        originalHandleIssueChange(id, field as keyof MaterialityIssue, boolValue);
-      } else {
-        originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
-      }
-    });
+    try {
+      console.log("MaterialityContent handleIssueChange for ID:", id, "with updates:", updatedIssue);
+      
+      Object.entries(updatedIssue).forEach(([field, value]) => {
+        // Special handling for isMaterial to ensure it's boolean
+        if (field === 'isMaterial') {
+          const boolValue = value === true;
+          console.log(`Setting ${id} isMaterial to boolean ${boolValue}`);
+          originalHandleIssueChange(id, field as keyof MaterialityIssue, boolValue);
+        } else {
+          originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
+        }
+      });
+    } catch (error) {
+      console.error("Error in handleIssueChange:", error);
+      toast({
+        title: "Errore nell'aggiornamento",
+        description: "Si è verificato un errore durante l'aggiornamento del tema. Riprova.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
