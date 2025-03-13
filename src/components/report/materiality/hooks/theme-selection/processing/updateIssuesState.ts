@@ -33,28 +33,36 @@ export const updateIssuesState = ({
   updatingRef: React.MutableRefObject<boolean>;
   toast: ReturnType<typeof useToast>['toast'];
 }) => {
-  console.log(`useThemeProcessing [${tabId}]: Setting available issues:`, available.length);
-  console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
-  
   try {
-    // Filter out any issues with isMaterial explicitly set to false from the selected list
-    const filteredSelected = selected.filter(issue => issue.isMaterial !== false);
+    console.log(`useThemeProcessing [${tabId}]: Setting available issues:`, available.length);
+    console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
+    
+    // Ensure we only include issues that are explicitly material in selected
+    const filteredSelected = selected.filter(issue => {
+      const shouldInclude = issue.isMaterial === true;
+      if (!shouldInclude) {
+        console.log(`Filtering out non-material issue from selected:`, issue.id);
+      }
+      return shouldInclude;
+    });
+    
+    // Ensure deselected issues are in available
+    const additionalAvailable = selected.filter(issue => issue.isMaterial === false);
+    const combinedAvailable = [...available, ...additionalAvailable];
     
     // Store the latest processed issues
     latestProcessedIssuesRef.current = {
-      available: available.map(issue => structuredClone(issue)),
+      available: combinedAvailable.map(issue => structuredClone(issue)),
       selected: filteredSelected.map(issue => structuredClone(issue))
     };
     
-    // Set both states in a batch to prevent partial updates
-    setAvailableIssues(available);
+    // Set both states
+    setAvailableIssues(combinedAvailable);
     setSelectedIssues(filteredSelected);
     
-    // Update the previous selected IDs ref
+    // Update refs
     prevSelectedIdsRef.current = new Set([...selectedIssueIds]);
     hasMountedRef.current = true;
-    
-    // Reset updating flag immediately instead of using a timeout
     updatingRef.current = false;
   } catch (stateError) {
     console.error(`Error updating state:`, stateError);

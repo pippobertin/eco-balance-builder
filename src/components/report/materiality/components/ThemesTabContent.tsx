@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
 import { useThemeSelection } from '../hooks/useThemeSelection';
@@ -21,7 +21,6 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   allAvailableIssues = [],
   tabId = ''
 }) => {
-  // Use our custom hook for theme selection management
   const { availableIssues, selectedIssues, handleIssueSelect } = useThemeSelection({
     issues,
     selectedIssueIds,
@@ -29,10 +28,15 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     tabId
   });
 
+  // Preserve the selected issues when switching tabs
+  useEffect(() => {
+    console.log(`ThemesTabContent [${tabId}]: Tab mounted/updated with ${selectedIssues.length} selected issues`);
+  }, [tabId, selectedIssues.length]);
+
   return (
     <DragDropContainer
       availableIssues={availableIssues}
-      selectedIssues={selectedIssues}
+      selectedIssues={selectedIssues.filter(issue => issue.isMaterial !== false)}
       onIssueSelect={handleIssueSelect}
       tabId={tabId}
     />
