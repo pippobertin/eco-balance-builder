@@ -37,15 +37,18 @@ export const updateIssuesState = ({
   console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
   
   try {
+    // Filter out any issues with isMaterial explicitly set to false from the selected list
+    const filteredSelected = selected.filter(issue => issue.isMaterial !== false);
+    
     // Store the latest processed issues
     latestProcessedIssuesRef.current = {
       available: available.map(issue => structuredClone(issue)),
-      selected: selected.map(issue => structuredClone(issue))
+      selected: filteredSelected.map(issue => structuredClone(issue))
     };
     
     // Set both states in a batch to prevent partial updates
     setAvailableIssues(available);
-    setSelectedIssues(selected);
+    setSelectedIssues(filteredSelected);
     
     // Update the previous selected IDs ref
     prevSelectedIdsRef.current = new Set([...selectedIssueIds]);

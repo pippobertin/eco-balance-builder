@@ -57,6 +57,11 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   const uniqueSelectedIssues = React.useMemo(() => {
     const seenIds = new Set<string>();
     return selectedIssues.filter(issue => {
+      // Skip the issue if isMaterial is explicitly false
+      if (issue.isMaterial === false) {
+        return false;
+      }
+      
       if (seenIds.has(issue.id)) {
         return false;
       }

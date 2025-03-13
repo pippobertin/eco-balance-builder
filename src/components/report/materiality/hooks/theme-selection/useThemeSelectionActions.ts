@@ -57,7 +57,7 @@ export const useThemeSelectionActions = ({
         isMaterial: !isCurrentlyMaterial
       };
       
-      // Try to apply the change optimistically in the UI first
+      // Apply the change immediately in the UI
       updateLocalState(
         updatedIssue, 
         isCurrentlyMaterial,
@@ -132,6 +132,8 @@ export const useThemeSelectionActions = ({
         available: [...latestProcessedIssuesRef.current.available.filter(i => i.id !== updatedIssue.id), updatedIssue],
         selected: latestProcessedIssuesRef.current.selected.filter(i => i.id !== updatedIssue.id)
       };
+      
+      console.log(`updateLocalState [${updatedIssue.id}]: Moved from selected to available`);
     } else {
       // Issue was not material, now it is - remove from available, add to selected
       setAvailableIssues(prev => prev.filter(item => item.id !== updatedIssue.id));
@@ -164,6 +166,8 @@ export const useThemeSelectionActions = ({
         available: latestProcessedIssuesRef.current.available.filter(i => i.id !== updatedIssue.id),
         selected: [...latestProcessedIssuesRef.current.selected.filter(i => i.id !== updatedIssue.id), updatedIssue]
       };
+      
+      console.log(`updateLocalState [${updatedIssue.id}]: Moved from available to selected`);
     }
   };
   

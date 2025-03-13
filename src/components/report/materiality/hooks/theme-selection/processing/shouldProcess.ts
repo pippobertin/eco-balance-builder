@@ -14,8 +14,8 @@ export const shouldSkipUpdate = (
     return true;
   }
   
-  // If there was a recent user operation (less than 500ms ago), skip
-  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 500) {
+  // If there was a recent user operation (less than 200ms ago), skip
+  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 200) {
     console.log(`useThemeProcessing: Skipping update due to recent operation on ${lastOpRef.current.id}`);
     return true;
   }
@@ -66,6 +66,20 @@ export const shouldProcessIssues = (
   // Check if we have no issues yet
   if (availableIssues.length === 0 && selectedIssues.length === 0) {
     console.log("useThemeProcessing: No issues in state yet, processing");
+    return true;
+  }
+  
+  // Check if any selected issues have isMaterial=false (need to be removed)
+  const hasDeselectedIssues = selectedIssues.some(issue => issue.isMaterial === false);
+  if (hasDeselectedIssues) {
+    console.log("useThemeProcessing: Found deselected issues in selected list, processing");
+    return true;
+  }
+  
+  // Check if any available issues have isMaterial=true (need to be moved to selected)
+  const hasSelectedIssues = availableIssues.some(issue => issue.isMaterial === true);
+  if (hasSelectedIssues) {
+    console.log("useThemeProcessing: Found selected issues in available list, processing");
     return true;
   }
   
