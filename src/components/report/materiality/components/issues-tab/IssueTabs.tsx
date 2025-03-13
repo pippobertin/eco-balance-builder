@@ -20,6 +20,9 @@ const IssueTabs: React.FC<IssueTabsProps> = ({
   issues,
   refreshKey = 0
 }) => {
+  // Extract only material issues for the chart
+  const materialIssues = issues.filter(issue => issue.isMaterial === true);
+  
   return (
     <Tabs defaultValue="current" value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="mb-4">
@@ -38,7 +41,7 @@ const IssueTabs: React.FC<IssueTabsProps> = ({
       </TabsContent>
       
       <TabsContent value="matrix" key={`matrix-${refreshKey}`}>
-        <MaterialityMatrixChart issues={issues.filter(issue => issue.isMaterial === true)} />
+        <MaterialityMatrixChart issues={materialIssues} />
       </TabsContent>
     </Tabs>
   );

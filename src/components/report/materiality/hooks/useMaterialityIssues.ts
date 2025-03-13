@@ -24,8 +24,9 @@ export const useMaterialityIssues = (
         console.log("Updating issues from initialIssues:", initialIssues);
         const processedIssues = initialIssues.map(issue => ({
           ...issue,
-          impactRelevance: Number(issue.impactRelevance),
-          financialRelevance: Number(issue.financialRelevance)
+          impactRelevance: Number(issue.impactRelevance) || 50,
+          financialRelevance: Number(issue.financialRelevance) || 50,
+          isMaterial: issue.isMaterial === true // Ensure isMaterial is a boolean
         }));
         setIssues(processedIssues);
       }

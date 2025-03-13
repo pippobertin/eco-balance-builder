@@ -19,6 +19,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
     return <NoIssuesFound />;
   }
 
+  console.log("Rendering IssuesList with issues:", issues.length);
+
   return (
     <div className="space-y-2">
       {issues.map((issue) => (
