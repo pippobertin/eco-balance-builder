@@ -77,11 +77,7 @@ export const useMaterialityIssues = (
       });
       
       console.log("Updated issues after change:", updatedIssues);
-      
-      setTimeout(() => {
-        onUpdate(updatedIssues);
-      }, 50);
-      
+      onUpdate(updatedIssues);
       return updatedIssues;
     });
   };
@@ -113,7 +109,7 @@ export const useMaterialityIssues = (
           }
         ];
         
-        setTimeout(() => onUpdate(updatedIssues), 0);
+        onUpdate(updatedIssues);
         return updatedIssues;
       } else {
         const id = `custom-${Date.now()}`;
@@ -130,7 +126,7 @@ export const useMaterialityIssues = (
           }
         ];
         
-        setTimeout(() => onUpdate(updatedIssues), 0);
+        onUpdate(updatedIssues);
         return updatedIssues;
       }
     });
@@ -152,8 +148,7 @@ export const useMaterialityIssues = (
         issue.id === id ? { ...issue, isMaterial: false } : issue
       );
       
-      setTimeout(() => onUpdate(updatedIssues), 0);
-      
+      onUpdate(updatedIssues);
       return updatedIssues;
     });
   };
@@ -169,8 +164,7 @@ export const useMaterialityIssues = (
         stakeholderRelevance: relevanceMap.get(issue.id)
       }));
       
-      setTimeout(() => onUpdate(newIssues), 0);
-      
+      onUpdate(newIssues);
       return newIssues;
     });
   };
