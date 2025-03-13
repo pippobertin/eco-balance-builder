@@ -42,6 +42,14 @@ const MaterialityContent: React.FC = () => {
   const [materialIssueIds, setMaterialIssueIds] = useState(new Set<string>());
   
   useEffect(() => {
+    // Print all issues with their isMaterial values for debugging
+    console.log("All issues in MaterialityContent:", issues.map(i => ({
+      id: i.id,
+      name: i.name,
+      isMaterial: i.isMaterial,
+      typeOfIsMaterial: typeof i.isMaterial
+    })));
+    
     // Log for debugging
     console.log("MaterialContent: materialIssues updated, count:", materialIssues.length);
     console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
@@ -49,7 +57,7 @@ const MaterialityContent: React.FC = () => {
     const materialIds = new Set(materialIssues.map(issue => issue.id));
     setMaterialIssueIds(materialIds);
     console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
-  }, [materialIssues]);
+  }, [materialIssues, issues]);
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {

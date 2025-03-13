@@ -31,6 +31,14 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
 
+  // Print all issues with their isMaterial property for debugging
+  console.log("All issues in MaterialityIssuesTab:", issues.map(i => ({
+    id: i.id,
+    name: i.name,
+    isMaterial: i.isMaterial,
+    typeOfIsMaterial: typeof i.isMaterial
+  })));
+
   // Use strict comparison to filter only issues with isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   

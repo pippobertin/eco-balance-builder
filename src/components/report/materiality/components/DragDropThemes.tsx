@@ -47,8 +47,10 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
       ...issue,
       impactRelevance: 50, // Default value
       financialRelevance: 50, // Default value
-      isMaterial: false
+      isMaterial: true  // CRITICAL: Ensure this is a boolean true, not a string or truthy value
     };
+    
+    console.log("Adding issue with values:", issueWithValues);
     
     // Call the parent component's handler
     onIssueSelect(issueWithValues);

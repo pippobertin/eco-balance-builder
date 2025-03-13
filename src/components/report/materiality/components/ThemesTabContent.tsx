@@ -32,12 +32,12 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     setOriginalIssueOrder([...issues]);
     
     issues.forEach(issue => {
-      // Ensure strict boolean comparison for isMaterial
+      // Using === true for strict boolean comparison
       if (issue.isMaterial === true) {
-        console.log("ThemesTabContent: Issue is material:", issue.id, issue.name);
+        console.log("ThemesTabContent: Issue is material:", issue.id, issue.name, typeof issue.isMaterial, issue.isMaterial);
         selected.push(issue);
       } else {
-        console.log("ThemesTabContent: Issue is not material:", issue.id, issue.name);
+        console.log("ThemesTabContent: Issue is not material:", issue.id, issue.name, typeof issue.isMaterial, issue.isMaterial);
         available.push(issue);
       }
     });

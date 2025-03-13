@@ -31,7 +31,7 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    console.log("DragDropContainer: Clicking issue", issue.id, "current isMaterial:", issue.isMaterial);
+    console.log("DragDropContainer: Clicking issue", issue.id, "current isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
     // Important: Create a deep clone to avoid reference issues
     const clonedIssue = { ...issue };
@@ -45,7 +45,7 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       clonedIssue.isMaterial = false; // Being moved to available - force false
     }
     
-    console.log("DragDropContainer: Passing issue with isMaterial =", clonedIssue.isMaterial);
+    console.log("DragDropContainer: Passing issue with isMaterial =", clonedIssue.isMaterial, "type:", typeof clonedIssue.isMaterial);
     onIssueSelect(clonedIssue);
   };
 
