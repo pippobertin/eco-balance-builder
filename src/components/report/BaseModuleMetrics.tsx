@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
@@ -7,8 +8,8 @@ import EnvironmentalMetrics from './EnvironmentalMetrics';
 import SocialMetrics from './SocialMetrics';
 import ConductMetrics from './ConductMetrics';
 import NarrativePATMetrics from './NarrativePATMetrics';
-import MaterialityAnalysis from './MaterialityAnalysis';
 import BusinessPartnersMetrics from './BusinessPartnersMetrics';
+
 interface BaseModuleMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
@@ -18,6 +19,7 @@ interface BaseModuleMetricsProps {
   initialSection?: string;
   initialField?: string;
 }
+
 const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   formValues,
   setFormValues,
@@ -30,19 +32,18 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   const {
     toast
   } = useToast();
-  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'materiality' | 'business-partners'>('environmental');
+  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners'>('environmental');
 
   // Determina quali moduli devono essere mostrati in base all'opzione selezionata
   const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
   const showBusinessPartnersModule = selectedOption === 'C' || selectedOption === 'D';
-  const showMaterialityAnalysis = showNarrativeModule; // La materialità è necessaria per il modulo narrativo
 
   // Al cambio di opzione, se la sezione attiva non è disponibile, resetta alla sezione ambientale
   React.useEffect(() => {
-    if (activeSection === 'narrative' && !showNarrativeModule || activeSection === 'materiality' && !showMaterialityAnalysis || activeSection === 'business-partners' && !showBusinessPartnersModule) {
+    if (activeSection === 'narrative' && !showNarrativeModule || activeSection === 'business-partners' && !showBusinessPartnersModule) {
       setActiveSection('environmental');
     }
-  }, [selectedOption, activeSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
+  }, [selectedOption, activeSection, showNarrativeModule, showBusinessPartnersModule]);
 
   // Set the initial active section based on the initialSection prop
   useEffect(() => {
@@ -62,11 +63,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
             setActiveSection('narrative');
           }
           break;
-        case 'materiality':
-          if (showMaterialityAnalysis) {
-            setActiveSection('materiality');
-          }
-          break;
         case 'business-partners':
           if (showBusinessPartnersModule) {
             setActiveSection('business-partners');
@@ -76,7 +72,8 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           break;
       }
     }
-  }, [initialSection, showNarrativeModule, showMaterialityAnalysis, showBusinessPartnersModule]);
+  }, [initialSection, showNarrativeModule, showBusinessPartnersModule]);
+
   const handleSave = () => {
     toast({
       title: "Metriche salvate",
@@ -84,6 +81,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     });
     onSave();
   };
+
   const containerAnimation = {
     hidden: {
       opacity: 0
@@ -111,6 +109,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
         return 'Seleziona un\'opzione per la tua relazione sulla sostenibilità';
     }
   };
+
   return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
       <div className="p-4 rounded-md mb-6 bg-gray-500">
         <div className="flex items-start">
@@ -137,10 +136,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           <Building2 className="mr-2 h-4 w-4" />
           Condotta
         </Button>
-        {showMaterialityAnalysis && <Button variant={activeSection === 'materiality' ? 'default' : 'outline'} onClick={() => setActiveSection('materiality')} className="flex items-center">
-            <Target className="mr-2 h-4 w-4" />
-            Materialità
-          </Button>}
         {showNarrativeModule && <Button variant={activeSection === 'narrative' ? 'default' : 'outline'} onClick={() => setActiveSection('narrative')} className="flex items-center">
             <FileText className="mr-2 h-4 w-4" />
             Narrativo-PAT
@@ -156,8 +151,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       {activeSection === 'social' && <SocialMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'social' ? initialField : undefined} />}
       
       {activeSection === 'conduct' && <ConductMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'conduct' ? initialField : undefined} />}
-      
-      {activeSection === 'materiality' && showMaterialityAnalysis && <MaterialityAnalysis formValues={formValues} setFormValues={setFormValues} />}
       
       {activeSection === 'narrative' && showNarrativeModule && <NarrativePATMetrics formValues={formValues} setFormValues={setFormValues} />}
       
@@ -175,4 +168,5 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       </div>
     </motion.div>;
 };
+
 export default BaseModuleMetrics;
