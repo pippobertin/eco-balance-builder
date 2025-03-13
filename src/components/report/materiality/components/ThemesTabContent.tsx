@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -44,7 +43,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Process issues for this specific tab
     issues.forEach(issue => {
       // Create a deep copy of the issue to prevent reference issues
-      const issueCopy = JSON.parse(JSON.stringify(issue));
+      const issueCopy = { ...issue };
       
       // Check if this issue is in the selectedIssueIds set
       if (selectedIssueIds.has(issueCopy.id)) {
@@ -74,27 +73,26 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (!onIssueSelect) return;
     
-    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
+    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // Create a NEW deep copy to avoid reference issues
-    const issueCopy = JSON.parse(JSON.stringify(issue));
-    
-    // Ensure the isMaterial value is a proper boolean
-    issueCopy.isMaterial = (issueCopy.isMaterial === true);
-    
-    // Pass along to parent component
-    onIssueSelect(issueCopy);
+    // Pass along to parent component - the parent will create a clean copy with toggled isMaterial
+    onIssueSelect(issue);
     
     // CRITICAL FIX: Update local state immediately for UI feedback
-    // This ensures changes are visible even before the parent state updates
-    if (issueCopy.isMaterial === true) {
+    // Check if issue is being selected (toggled to true) or deselected (toggled to false)
+    // Since we are toggling in DragDropContainer, we need to do the opposite of current state
+    const willBeSelected = !issue.isMaterial;
+    
+    if (willBeSelected) {
       // Issue is being selected (moved to selected panel)
-      setAvailableIssues(prev => prev.filter(i => i.id !== issueCopy.id));
-      setSelectedIssues(prev => [...prev, issueCopy]);
+      setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
+      const issueWithMaterial = { ...issue, isMaterial: true };
+      setSelectedIssues(prev => [...prev, issueWithMaterial]);
     } else {
       // Issue is being deselected (moved to available panel)
-      setSelectedIssues(prev => prev.filter(i => i.id !== issueCopy.id));
-      setAvailableIssues(prev => [...prev, issueCopy]);
+      setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
+      const issueWithoutMaterial = { ...issue, isMaterial: false };
+      setAvailableIssues(prev => [...prev, issueWithoutMaterial]);
     }
   };
 

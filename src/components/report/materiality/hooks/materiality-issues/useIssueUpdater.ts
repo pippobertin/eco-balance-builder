@@ -26,7 +26,7 @@ export const useIssueUpdater = (
       console.log("Issues changed, scheduling update");
       const timeoutId = setTimeout(() => {
         triggerUpdate();
-      }, 200); // CRITICAL FIX: Increased timeout to ensure state settles
+      }, 500); // CRITICAL FIX: Increased timeout to ensure state settles
       
       return () => clearTimeout(timeoutId);
     }
@@ -44,39 +44,42 @@ export const useIssueUpdater = (
     }
     
     setIssues(prevIssues => {
-      // Make a NEW deep copy of prevIssues to avoid reference issues
-      // CRITICAL FIX: Use deep clone for ALL issues to ensure no reference issues
-      const updatedIssues = JSON.parse(JSON.stringify(prevIssues));
-      
-      // Find and update the specific issue
-      const issueIndex = updatedIssues.findIndex((issue: MaterialityIssue) => issue.id === id);
-      if (issueIndex >= 0) {
+      // CRITICAL FIX: Create completely new array with new objects to avoid any reference issues
+      const updatedIssues = prevIssues.map(issue => {
+        if (issue.id !== id) {
+          return { ...issue };
+        }
+        
+        // Create a new copy of the issue to update
+        const updatedIssue = { ...issue };
+        
         if (field === 'impactRelevance' || field === 'financialRelevance') {
           const numericValue = typeof value === 'string' ? Number(value) : value;
-          updatedIssues[issueIndex][field] = numericValue;
+          updatedIssue[field] = numericValue;
         } else if (field === 'isMaterial') {
-          // CRITICAL FIX: Force boolean type for isMaterial - double check with strict equality
-          updatedIssues[issueIndex].isMaterial = value === true;
-          console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssues[issueIndex].isMaterial, typeof updatedIssues[issueIndex].isMaterial);
+          // CRITICAL FIX: Force boolean type for isMaterial - double check with === true
+          updatedIssue.isMaterial = value === true;
+          console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssue.isMaterial, typeof updatedIssue.isMaterial);
         } else {
           // Use type assertion for dynamic field assignment
-          (updatedIssues[issueIndex] as any)[field] = value;
+          (updatedIssue as any)[field] = value;
         }
-      }
+        
+        return updatedIssue;
+      });
       
       // Count material issues for debugging
-      const materialCount = updatedIssues.filter((issue: MaterialityIssue) => issue.isMaterial === true).length;
+      const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
       console.log(`Updated issues after change: ${updatedIssues.length} total, ${materialCount} material`);
-      console.log("Material issue IDs:", updatedIssues.filter((i: MaterialityIssue) => i.isMaterial === true).map((i: MaterialityIssue) => i.id));
+      console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
       
       return updatedIssues;
     });
     
-    // CRITICAL FIX: Always trigger update with a short delay to ensure state is settled
-    // This is especially important for isMaterial changes
+    // CRITICAL FIX: Always trigger update with a longer delay to ensure state is settled
     setTimeout(() => {
       triggerUpdate();
-    }, 300);
+    }, 800);
   };
 
   return {

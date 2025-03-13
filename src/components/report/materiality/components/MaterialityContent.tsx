@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MaterialityTabs from '../MaterialityTabs';
 import MaterialityHeader from './MaterialityHeader';
@@ -63,23 +62,20 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // CRITICAL FIX: Create deep copy to avoid references
-    const issueCopy = JSON.parse(JSON.stringify(issue));
+    // CRITICAL FIX: Toggle isMaterial here, since this is the top-level handler
+    // This ensures consistency in how issues are toggled
+    const newIsMaterial = !issue.isMaterial;
+    console.log("MaterialityContent: Setting isMaterial to:", newIsMaterial);
     
-    // Make sure isMaterial is explicitly a boolean using strict comparison
-    const isMaterialValue = issueCopy.isMaterial === true;
-    
-    console.log("MaterialityContent: Processing issue with explicit boolean isMaterial:", isMaterialValue);
-    
-    // Pass to the original handler with guaranteed boolean value
-    originalHandleIssueChange(issueCopy.id, 'isMaterial', isMaterialValue);
+    // Pass to the original handler with new boolean value
+    originalHandleIssueChange(issue.id, 'isMaterial', newIsMaterial);
     
     // For debugging - check all material issues after update
     setTimeout(() => {
       const materialCount = issues.filter(i => i.isMaterial === true).length;
-      console.log(`After updating issue ${issueCopy.id}, material issues count: ${materialCount}`);
+      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
       console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-    }, 500);
+    }, 800);
   };
 
   // Adapter function to match the expected signature for TabContent

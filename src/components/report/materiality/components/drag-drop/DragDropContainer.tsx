@@ -35,11 +35,21 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
 
     console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // Important: Make a DEEP COPY to avoid reference issues
-    const issueCopy = JSON.parse(JSON.stringify(issue));
+    // CRITICAL FIX: Create a completely new object to avoid any reference issues
+    const newIssue = {
+      id: issue.id,
+      name: issue.name,
+      description: issue.description || "",
+      impactRelevance: issue.impactRelevance || 50,
+      financialRelevance: issue.financialRelevance || 50,
+      // Toggle isMaterial based on current state, ensure it's a boolean type
+      isMaterial: !issue.isMaterial
+    };
     
-    // Pass the issue directly to the parent handler
-    onIssueSelect(issueCopy);
+    console.log(`DragDropContainer [${tabId}]: Created new issue with isMaterial:`, newIssue.isMaterial, "type:", typeof newIssue.isMaterial);
+    
+    // Pass the new issue directly to the parent handler
+    onIssueSelect(newIssue);
   };
 
   return (

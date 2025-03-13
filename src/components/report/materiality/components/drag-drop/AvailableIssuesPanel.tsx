@@ -18,24 +18,16 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
   onIssueClick,
   tabId = ''
 }) => {
-  // When clicking on an issue, make a deep copy to avoid reference issues
+  // When clicking on an issue from the available panel, we want to select it (set isMaterial to true)
   const handleIssueClick = (issue: MaterialityIssue) => {
     // Don't allow clicking on header themes
     if (isHeaderTheme(issue.id, issue.name)) return;
     
     console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, issue.id);
     
-    // Create a deep copy to avoid reference issues
-    const issueCopy = JSON.parse(JSON.stringify(issue));
-    
-    // Explicitly set isMaterial to true as a boolean
-    // CRITICAL FIX: Use strict boolean true value
-    issueCopy.isMaterial = true;
-    
-    console.log(`AvailableIssuesPanel [${tabId}]: Setting isMaterial to:`, issueCopy.isMaterial, "type:", typeof issueCopy.isMaterial);
-    
-    // Pass the issue to the parent component
-    onIssueClick(issueCopy);
+    // Pass the issue directly to the parent component
+    // The parent (DragDropContainer) is responsible for creating a clean copy and toggling isMaterial
+    onIssueClick(issue);
   };
 
   return (

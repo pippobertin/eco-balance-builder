@@ -20,16 +20,8 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   const handleIssueClick = (issue: MaterialityIssue) => {
     console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id);
     
-    // Create a deep copy to avoid reference issues
-    const issueCopy = JSON.parse(JSON.stringify(issue));
-    
-    // CRITICAL FIX: Explicitly set isMaterial to false as a boolean (not just falsy)
-    issueCopy.isMaterial = false;
-    
-    console.log(`SelectedIssuesPanel [${tabId}]: Setting isMaterial to:`, issueCopy.isMaterial, "type:", typeof issueCopy.isMaterial);
-    
-    // Pass to parent handler
-    onIssueClick(issueCopy);
+    // Pass to parent handler which will handle toggling isMaterial and creating a clean copy
+    onIssueClick(issue);
   };
 
   return (
