@@ -14,8 +14,8 @@ export const shouldSkipUpdate = (
     return true;
   }
   
-  // Check if this is due to a very recent operation (within 100ms)
-  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 100) {
+  // Check if this is due to a very recent operation (within 50ms)
+  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 50) {
     console.log(`shouldSkipUpdate: Recent operation detected, skipping immediate processing`);
     return true;
   }
@@ -72,6 +72,13 @@ export const shouldProcessIssues = (
   const recentlyDeselected = selectedIssues.filter(issue => issue.isMaterial === false);
   if (recentlyDeselected.length > 0) {
     console.log(`shouldProcessIssues: Found ${recentlyDeselected.length} recently deselected issues, processing`);
+    return true;
+  }
+  
+  // Force process for any explicitly false isMaterial values to ensure they are properly removed
+  const explicitlyFalseIssues = selectedIssues.filter(issue => issue.isMaterial === false);
+  if (explicitlyFalseIssues.length > 0) {
+    console.log(`shouldProcessIssues: Found ${explicitlyFalseIssues.length} explicitly false issues in selected, processing`);
     return true;
   }
   

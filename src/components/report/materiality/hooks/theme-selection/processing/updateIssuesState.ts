@@ -34,14 +34,14 @@ export const updateIssuesState = ({
   toast: ReturnType<typeof useToast>['toast'];
 }) => {
   try {
-    console.log(`useThemeProcessing [${tabId}]: Setting available issues:`, available.length);
-    console.log(`useThemeProcessing [${tabId}]: Setting selected issues:`, selected.length);
+    console.log(`updateIssuesState [${tabId}]: Setting available issues:`, available.length);
+    console.log(`updateIssuesState [${tabId}]: Setting selected issues:`, selected.length);
     
     // Ensure we only include issues that are explicitly material in selected
     const filteredSelected = selected.filter(issue => {
       const shouldInclude = issue.isMaterial === true;
       if (!shouldInclude) {
-        console.log(`Filtering out non-material issue from selected:`, issue.id);
+        console.log(`Filtering out non-material issue from selected:`, issue.id, issue.name);
       }
       return shouldInclude;
     });
@@ -52,7 +52,8 @@ export const updateIssuesState = ({
     const deselectedIssues = selected.filter(issue => issue.isMaterial === false);
     
     if (deselectedIssues.length > 0) {
-      console.log(`Found ${deselectedIssues.length} deselected issues to move to available`);
+      console.log(`Found ${deselectedIssues.length} deselected issues to move to available:`, 
+        deselectedIssues.map(i => i.name).join(', '));
     }
     
     // Ensure deselected issues are in available with isMaterial explicitly set to false
@@ -92,6 +93,8 @@ export const updateIssuesState = ({
     // Update refs
     prevSelectedIdsRef.current = new Set([...selectedIssueIds]);
     hasMountedRef.current = true;
+    
+    // Reset updating flag - this is critical
     updatingRef.current = false;
   } catch (stateError) {
     console.error(`Error updating state:`, stateError);

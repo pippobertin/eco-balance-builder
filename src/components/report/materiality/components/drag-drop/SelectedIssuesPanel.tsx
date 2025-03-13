@@ -51,23 +51,22 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     }
   };
 
+  // Force filtering of explicitly deselected issues
+  const filteredSelectedIssues = React.useMemo(() => {
+    return selectedIssues.filter(issue => issue.isMaterial === true);
+  }, [selectedIssues]);
+
   // Deduplicate the selected issues to prevent showing duplicates in the UI
-  // Also filter out any issues with isMaterial === false
   const uniqueSelectedIssues = React.useMemo(() => {
     const seenIds = new Set<string>();
-    return selectedIssues.filter(issue => {
-      // Skip issues that are explicitly not material
-      if (issue.isMaterial === false) {
-        return false;
-      }
-      
+    return filteredSelectedIssues.filter(issue => {
       if (seenIds.has(issue.id)) {
         return false;
       }
       seenIds.add(issue.id);
       return true;
     });
-  }, [selectedIssues]);
+  }, [filteredSelectedIssues]);
 
   return (
     <div id="selected-container" className="border rounded-lg p-2">

@@ -28,16 +28,20 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     tabId
   });
 
+  // Filter out any deselected issues in the selected list
+  const filteredSelectedIssues = React.useMemo(() => {
+    return selectedIssues.filter(issue => issue.isMaterial === true);
+  }, [selectedIssues]);
+
   // Preserve the selected issues when switching tabs
   useEffect(() => {
-    console.log(`ThemesTabContent [${tabId}]: Tab mounted/updated with ${selectedIssues.length} selected issues`);
-  }, [tabId, selectedIssues.length]);
+    console.log(`ThemesTabContent [${tabId}]: Tab mounted/updated with ${filteredSelectedIssues.length} selected issues`);
+  }, [tabId, filteredSelectedIssues.length]);
 
   return (
     <DragDropContainer
       availableIssues={availableIssues}
-      // Filter out deselected issues from the selected issues list
-      selectedIssues={selectedIssues.filter(issue => issue.isMaterial === true)}
+      selectedIssues={filteredSelectedIssues}
       onIssueSelect={handleIssueSelect}
       tabId={tabId}
     />

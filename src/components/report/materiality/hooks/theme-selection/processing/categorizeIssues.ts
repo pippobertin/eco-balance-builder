@@ -31,7 +31,7 @@ export const categorizeIssues = ({
   // Process each issue
   issues.forEach(issue => {
     // Make a copy to avoid reference issues
-    const issueCopy = { ...issue };
+    const issueCopy = structuredClone(issue);
     
     // Check if there's a recent operation on this issue to respect
     const recentOp = lastOpRef.current && lastOpRef.current.id === issue.id;
