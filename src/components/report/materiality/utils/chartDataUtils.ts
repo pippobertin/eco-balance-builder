@@ -19,7 +19,10 @@ export interface ChartDataPoint {
  * @returns Processed chart data ready for visualization
  */
 export const processChartData = (issues: MaterialityIssue[]): ChartDataPoint[] => {
-  return issues.map(issue => {
+  // Ensure we only process material issues
+  const materialIssues = issues.filter(issue => issue.isMaterial === true);
+  
+  return materialIssues.map(issue => {
     const category = getESGCategory(issue.id);
     const importanceScore = calculateImportanceScore(issue);
     

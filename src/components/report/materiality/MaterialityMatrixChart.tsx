@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts';
 import { MaterialityIssue } from './types';
 import { categoryColors } from './utils/esgCategoryUtils';
@@ -13,9 +13,12 @@ interface MaterialityMatrixChartProps {
 }
 
 const MaterialityMatrixChart: React.FC<MaterialityMatrixChartProps> = ({ issues }) => {
-  const chartData = processChartData(issues);
+  // Use useMemo to optimize the chart data processing
+  const chartData = useMemo(() => processChartData(issues), [issues]);
+  const { environmentalIssues, socialIssues, governanceIssues } = useMemo(() => 
+    groupDataByCategory(chartData), [chartData]);
 
-  const { environmentalIssues, socialIssues, governanceIssues } = groupDataByCategory(chartData);
+  console.log("Rendering MaterialityMatrixChart with issues:", issues.length);
 
   return (
     <div className="w-full h-[600px] p-4 bg-white rounded-lg shadow-sm mb-12">

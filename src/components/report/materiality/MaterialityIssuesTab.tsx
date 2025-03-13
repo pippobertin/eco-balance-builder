@@ -44,6 +44,11 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
     
   console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues`);
 
+  // Update refresh key when issues change
+  useEffect(() => {
+    setRefreshKey(prev => prev + 1);
+  }, [issues]);
+
   // Handle refresh
   const handleRefresh = () => {
     console.log("Refreshing materiality issues view");
@@ -69,6 +74,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
         issues={issues}
+        refreshKey={refreshKey}
       >
         <SearchBar 
           searchQuery={searchQuery} 

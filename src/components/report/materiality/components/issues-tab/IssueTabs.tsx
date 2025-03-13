@@ -10,13 +10,15 @@ interface IssueTabsProps {
   setActiveTab: (tab: string) => void;
   children: React.ReactNode;
   issues: MaterialityIssue[];
+  refreshKey?: number;
 }
 
 const IssueTabs: React.FC<IssueTabsProps> = ({ 
   activeTab, 
   setActiveTab, 
   children,
-  issues
+  issues,
+  refreshKey = 0
 }) => {
   return (
     <Tabs defaultValue="current" value={activeTab} onValueChange={setActiveTab}>
@@ -35,8 +37,8 @@ const IssueTabs: React.FC<IssueTabsProps> = ({
         {children}
       </TabsContent>
       
-      <TabsContent value="matrix">
-        <MaterialityMatrixChart issues={issues} />
+      <TabsContent value="matrix" key={`matrix-${refreshKey}`}>
+        <MaterialityMatrixChart issues={issues.filter(issue => issue.isMaterial === true)} />
       </TabsContent>
     </Tabs>
   );
