@@ -95,8 +95,8 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     if (isHeaderTheme(draggedIssue.id, draggedIssue.name)) {
       console.log("Cannot drag header theme:", draggedIssue.name);
       toast({
-        title: "Operazione non consentita",
-        description: "I temi header non possono essere selezionati",
+        title: "Azione non consentita",
+        description: `"${draggedIssue.name}" è una categoria principale e non può essere selezionata. Si prega di selezionare solo i temi specifici all'interno delle categorie.`,
         variant: "destructive"
       });
       return;
