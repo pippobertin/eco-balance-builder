@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import IssueItem from '../IssueItem';
 import { MaterialityIssue } from '../types';
@@ -23,12 +23,14 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   onAddIssue
 }) => {
   // Track which issues are currently available and which are selected
-  const [availableIssues, setAvailableIssues] = useState<MaterialityIssue[]>(
-    issues.filter(issue => !issue.isMaterial)
-  );
-  const [selectedIssues, setSelectedIssues] = useState<MaterialityIssue[]>(
-    issues.filter(issue => issue.isMaterial)
-  );
+  const [availableIssues, setAvailableIssues] = useState<MaterialityIssue[]>([]);
+  const [selectedIssues, setSelectedIssues] = useState<MaterialityIssue[]>([]);
+
+  // Initialize issues when component mounts or issues prop changes
+  useEffect(() => {
+    setAvailableIssues(issues.filter(issue => !issue.isMaterial));
+    setSelectedIssues(issues.filter(issue => issue.isMaterial));
+  }, [issues]);
 
   // Configure DnD sensors
   const sensors = useSensors(
@@ -105,14 +107,10 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     }
   };
 
-  React.useEffect(() => {
-    // Update our state whenever the issues prop changes
-    setAvailableIssues(issues.filter(issue => !issue.isMaterial));
-    setSelectedIssues(issues.filter(issue => issue.isMaterial));
-  }, [issues]);
-
   // Get sortable item IDs for DnD context
-  const availableItemIds = availableIssues.map(issue => issue.id);
+  const availableItemIds = availableIssues
+    .filter(issue => !isHeaderTheme(issue.id, issue.name))
+    .map(issue => issue.id);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
