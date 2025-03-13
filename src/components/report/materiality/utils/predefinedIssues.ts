@@ -140,4 +140,3 @@ export const predefinedIssues: MaterialityIssue[] = [
   createBasicIssue('corruption-prevention', 'Prevenzione e individuazione della corruzione', 'Misure per la prevenzione e l\'individuazione della corruzione, compresa la formazione'),
   createBasicIssue('corruption-incidents', 'Incidenti di corruzione', 'Gestione degli incidenti di corruzione')
 ];
-
