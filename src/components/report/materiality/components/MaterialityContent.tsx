@@ -53,12 +53,24 @@ const MaterialityContent: React.FC = () => {
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
+    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
     
     // Always set isMaterial directly from the provided value - don't toggle
     // This ensures proper behavior regardless of current state
     console.log("MaterialityContent: Directly setting isMaterial to", issue.isMaterial, "for issue", issue.id);
-    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
+    
+    // Debug: log the type of isMaterial to ensure it's boolean
+    console.log("isMaterial type:", typeof issue.isMaterial);
+    
+    // Use the exact boolean value
+    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial === true);
+    
+    // For debugging - check all material issues 
+    setTimeout(() => {
+      const materialCount = issues.filter(i => i.isMaterial === true).length;
+      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+      console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
+    }, 100);
   };
 
   // Adapter function to match the expected signature for TabContent
@@ -66,7 +78,14 @@ const MaterialityContent: React.FC = () => {
     console.log("MaterialityContent handleIssueChange for ID:", id, "with updates:", updatedIssue);
     
     Object.entries(updatedIssue).forEach(([field, value]) => {
-      originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
+      // Special handling for isMaterial to ensure it's boolean
+      if (field === 'isMaterial') {
+        const boolValue = value === true;
+        console.log(`Setting ${id} isMaterial to boolean ${boolValue}`);
+        originalHandleIssueChange(id, field as keyof MaterialityIssue, boolValue);
+      } else {
+        originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
+      }
     });
   };
 

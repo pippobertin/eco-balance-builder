@@ -35,7 +35,7 @@ export const useIssueOperations = (
             description: predefinedIssue.description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Set as material by default
+            isMaterial: true // Set as material by default (CRITICAL: must be true, not truthy)
           }
         ];
         
@@ -56,7 +56,7 @@ export const useIssueOperations = (
             description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Set as material by default
+            isMaterial: true // Set as material by default (CRITICAL: must be true, not truthy)
           }
         ];
         

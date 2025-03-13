@@ -30,7 +30,7 @@ export const useIssuesState = (
           ...issue,
           impactRelevance: Number(issue.impactRelevance) || 50,
           financialRelevance: Number(issue.financialRelevance) || 50,
-          // Ensure isMaterial is explicitly a boolean value
+          // Ensure isMaterial is explicitly a boolean value (critical fix)
           isMaterial: issue.isMaterial === true
         }));
         

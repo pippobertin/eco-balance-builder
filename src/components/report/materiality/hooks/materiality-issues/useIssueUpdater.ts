@@ -73,25 +73,14 @@ export const useIssueUpdater = (
     
     // Always update immediately on isMaterial changes to ensure proper UI state
     if (field === 'isMaterial') {
-      setIssues(prevIssues => {
-        const updatedIssues = prevIssues.map(issue => {
-          if (issue.id === id) {
-            const boolValue = value === true || value === 'true';
-            console.log(`Immediately updating isMaterial for ${id} to strict boolean:`, boolValue);
-            return { ...issue, isMaterial: boolValue };
-          }
-          return issue;
-        });
+      setTimeout(() => {
+        const updatedMaterialIssues = issues.filter(issue => issue.isMaterial === true);
+        console.log("After timeout, material issues:", updatedMaterialIssues.map(i => i.id));
+        console.log(`Material issue count: ${updatedMaterialIssues.length}`);
         
-        // Count material issues for debugging
-        const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
-        console.log(`Immediately updating after setting isMaterial for issue ${id}. Material issues: ${materialCount}`);
-        console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
-        
-        // Call onUpdate immediately for this change
-        onUpdate(updatedIssues);
-        return updatedIssues;
-      });
+        // Force an immediate update for isMaterial changes
+        triggerUpdate();
+      }, 50);
     }
   };
 

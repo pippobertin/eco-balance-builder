@@ -33,8 +33,7 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
 
     console.log("DragDropContainer: Clicking issue", issue.id, "current isMaterial:", issue.isMaterial);
     
-    // Important: For themes in available issues, set isMaterial to true
-    // For themes in selected issues, set isMaterial to false
+    // Important: Create a deep clone to avoid reference issues
     const clonedIssue = { ...issue };
     
     // If the issue is in the available issues list, it's being selected
