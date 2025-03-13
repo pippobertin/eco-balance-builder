@@ -60,9 +60,9 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
       
       console.log("Setting issue as material:", issueCopy.id, issueCopy.isMaterial, typeof issueCopy.isMaterial);
       
-      // Deep clone any objects like IRO to prevent reference issues
-      if (issueCopy.iro) {
-        issueCopy.iro = JSON.parse(JSON.stringify(issueCopy.iro));
+      // Deep clone any objects like iroSelections to prevent reference issues
+      if (issueCopy.iroSelections) {
+        issueCopy.iroSelections = JSON.parse(JSON.stringify(issueCopy.iroSelections));
       }
       
       onIssueSelect(issueCopy);

@@ -58,7 +58,8 @@ export const useIssueUpdater = (
             console.log(`Setting isMaterial for ${id} to strict boolean:`, boolValue, typeof boolValue);
             updatedIssue.isMaterial = boolValue;
           } else {
-            updatedIssue[field] = value;
+            // Fix for type error - use type assertion to handle dynamic field assignment
+            (updatedIssue as any)[field] = value;
           }
           
           return updatedIssue;
