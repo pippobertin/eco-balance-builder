@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../../types';
 import { isHeaderTheme } from '../../utils/materialityUtils';
@@ -12,24 +11,40 @@ export const useIssueUpdater = (
   onUpdate: (issues: MaterialityIssue[]) => void
 ) => {
   // Track the last changed issue to prevent unwanted reverts
-  const lastChangedIssueRef = useRef<{id: string, field: string, value: any, timestamp: number} | null>(null);
+  const lastChangedIssueRef = useRef<{id: string, field: string, value: any, timestamp: number}[]>([]);
+  // Flag to track active updates and prevent concurrent operations
+  const isUpdatingRef = useRef<boolean>(false);
   
-  // Trigger update when issues change
+  // Trigger update when issues change, with debounce
   const triggerUpdate = useCallback(() => {
+    if (isUpdatingRef.current) {
+      console.log("useIssueUpdater: Skipping update because another update is in progress");
+      return;
+    }
+    
     console.log("useIssueUpdater: Triggering update with issues:", issues.length);
     // Count and log material issues for debugging
     const materialCount = issues.filter(issue => issue.isMaterial === true).length;
     console.log(`Sending update with ${issues.length} issues, ${materialCount} are material`);
-    console.log("Material issues:", issues.filter(issue => issue.isMaterial === true).map(i => i.id));
+    console.log("Material issues:", issues.filter(issue => issue.isMaterial === true).map(i => ({id: i.id, name: i.name})));
+    
+    isUpdatingRef.current = true;
+    
+    // Actually send the update
     onUpdate(issues);
+    
+    // Reset the updating flag after some delay
+    setTimeout(() => {
+      isUpdatingRef.current = false;
+    }, 5000);
   }, [issues, onUpdate]);
 
   useEffect(() => {
-    if (issues && issues.length > 0) {
+    if (issues && issues.length > 0 && !isUpdatingRef.current) {
       console.log("Issues changed, scheduling update");
       const timeoutId = setTimeout(() => {
         triggerUpdate();
-      }, 3000); // Increased timeout to ensure state settles completely
+      }, 4000); // Increased timeout to ensure state settles completely
       
       return () => clearTimeout(timeoutId);
     }
@@ -47,12 +62,22 @@ export const useIssueUpdater = (
     }
     
     // Record this change to prevent future unwanted reverts
-    lastChangedIssueRef.current = {
+    const newChange = {
       id,
       field: String(field),
       value,
       timestamp: Date.now()
     };
+    
+    lastChangedIssueRef.current = [
+      newChange,
+      ...lastChangedIssueRef.current.filter(change => 
+        // Keep recent changes for other issues, or older changes for other fields of the same issue
+        (change.id !== id || change.field !== String(field)) &&
+        // But only keep changes from the last 30 seconds
+        Date.now() - change.timestamp < 30000
+      )
+    ];
     
     setIssues(prevIssues => {
       // CRITICAL FIX: Create completely new array with new objects to avoid any reference issues
@@ -62,7 +87,7 @@ export const useIssueUpdater = (
         }
         
         // Create a new copy of the issue to update
-        const updatedIssue = { ...issue };
+        const updatedIssue = structuredClone(issue);
         
         if (field === 'impactRelevance' || field === 'financialRelevance') {
           const numericValue = typeof value === 'string' ? Number(value) : value;
@@ -80,24 +105,16 @@ export const useIssueUpdater = (
       });
       
       // Preserve the selection state of recently changed issues
-      if (lastChangedIssueRef.current && 
-          Date.now() - lastChangedIssueRef.current.timestamp < 5000 && 
-          lastChangedIssueRef.current.field === 'isMaterial') {
-        
-        console.log("Preserving selection state for recent changes:", lastChangedIssueRef.current);
-        
-        // Check if we need to override a conflicting update
-        const recentChange = lastChangedIssueRef.current;
-        const recentIssueInUpdated = updatedIssues.find(issue => issue.id === recentChange.id);
-        
-        if (recentIssueInUpdated && recentIssueInUpdated.isMaterial !== recentChange.value) {
-          console.log("Detected conflicting update for issue:", recentChange.id);
-          console.log("Current state:", recentIssueInUpdated.isMaterial, "Recent change:", recentChange.value);
+      lastChangedIssueRef.current.forEach(change => {
+        if (Date.now() - change.timestamp < 20000 && change.field === 'isMaterial') {
+          const recentIssueInUpdated = updatedIssues.find(issue => issue.id === change.id);
           
-          // Override with recent change to prevent flipping back
-          recentIssueInUpdated.isMaterial = recentChange.value === true;
+          if (recentIssueInUpdated && recentIssueInUpdated.isMaterial !== change.value) {
+            console.log("Preserving recent change for issue:", change.id, "setting isMaterial to", change.value);
+            recentIssueInUpdated.isMaterial = change.value === true;
+          }
         }
-      }
+      });
       
       // Count material issues for debugging
       const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
@@ -106,12 +123,6 @@ export const useIssueUpdater = (
       
       return updatedIssues;
     });
-    
-    // CRITICAL FIX: Always trigger update with a longer delay to ensure state is settled
-    setTimeout(() => {
-      console.log(`Scheduling delayed update after changing ${field} for issue ${id}`);
-      triggerUpdate();
-    }, 3500);
   };
 
   return {

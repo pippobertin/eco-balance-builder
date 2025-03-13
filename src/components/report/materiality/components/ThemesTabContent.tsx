@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -27,6 +26,9 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Keep track of the previous selected IDs to detect changes
   const prevSelectedIdsRef = useRef<Set<string>>(new Set());
   
+  // Track last operation to prevent immediate reversions
+  const lastOpRef = useRef<{id: string; operation: 'select'|'deselect'; timestamp: number}>();
+  
   // Flag to prevent re-processing issues while updates are pending
   const updatingRef = useRef<boolean>(false);
   // Flag to track whether the component has mounted
@@ -34,8 +36,15 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
 
   // Initialize issues when component mounts or issues/selectedIssueIds change
   useEffect(() => {
+    // Skip processing if a recent operation is in progress
+    if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 5000) {
+      console.log(`ThemesTabContent [${tabId}]: Skipping update due to recent operation for: ${lastOpRef.current.id}`);
+      return;
+    }
+    
     // Prevent concurrent updates while one is in progress
     if (updatingRef.current) {
+      console.log(`ThemesTabContent [${tabId}]: Skipping update due to another update in progress`);
       return;
     }
     
@@ -56,10 +65,25 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     
     // Only process issues if the selection has changed or it's the initial load
     if (idsChanged || !hasMountedRef.current || availableIssues.length === 0 || selectedIssues.length === 0) {
+      updatingRef.current = true;
+      
       // Process issues for this specific tab
       issues.forEach(issue => {
         // Create a deep copy of the issue to prevent reference issues
-        const issueCopy = JSON.parse(JSON.stringify(issue));
+        const issueCopy = structuredClone(issue);
+        
+        // If a recent operation was performed on this issue, preserve that state
+        if (lastOpRef.current && lastOpRef.current.id === issueCopy.id && Date.now() - lastOpRef.current.timestamp < 5000) {
+          if (lastOpRef.current.operation === 'select') {
+            issueCopy.isMaterial = true;
+            selected.push(issueCopy);
+            return;
+          } else if (lastOpRef.current.operation === 'deselect') {
+            issueCopy.isMaterial = false;
+            available.push(issueCopy);
+            return;
+          }
+        }
         
         // Check if this issue is in the selectedIssueIds set
         if (selectedIssueIds.has(issueCopy.id)) {
@@ -85,25 +109,35 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       // Update the previous selected IDs ref
       prevSelectedIdsRef.current = new Set(selectedIssueIds);
       hasMountedRef.current = true;
+      
+      // Reset updating flag after a delay
+      setTimeout(() => {
+        updatingRef.current = false;
+      }, 3000);
     }
-  }, [issues, selectedIssueIds, tabId]);
+  }, [issues, selectedIssueIds, tabId, availableIssues.length, selectedIssues.length]);
 
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (!onIssueSelect) return;
     
-    // Set updating flag to prevent concurrent updates
-    updatingRef.current = true;
-    
-    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
-    
     // Create a deep copy to prevent reference issues
-    const issueToUpdate = JSON.parse(JSON.stringify(issue));
+    const issueToUpdate = structuredClone(issue);
+    
+    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issueToUpdate.id, "isMaterial:", issueToUpdate.isMaterial);
+    
+    // Record the operation to prevent immediate reversion
+    lastOpRef.current = {
+      id: issueToUpdate.id,
+      operation: issueToUpdate.isMaterial ? 'select' : 'deselect',
+      timestamp: Date.now()
+    };
     
     // First update local state for immediate UI feedback
     if (issueToUpdate.isMaterial) {
       // Issue is being selected (moved to selected panel)
       console.log(`ThemesTabContent [${tabId}]: Moving issue to selected panel:`, issueToUpdate.id);
+      
       setAvailableIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
       setSelectedIssues(prev => [...prev, {...issueToUpdate, isMaterial: true}]); // Ensure true boolean
       
@@ -114,6 +148,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     } else {
       // Issue is being deselected (moved to available panel)
       console.log(`ThemesTabContent [${tabId}]: Moving issue to available panel:`, issueToUpdate.id);
+      
       setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
       setAvailableIssues(prev => [...prev, {...issueToUpdate, isMaterial: false}]); // Ensure false boolean
       
@@ -123,17 +158,11 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       prevSelectedIdsRef.current = newSelectedIds;
     }
     
-    // Then pass to parent handler for global state update
-    // Use a timeout to make sure this happens after the UI update
+    // Delay parent update to ensure UI reflects our changes first
     setTimeout(() => {
       console.log(`ThemesTabContent [${tabId}]: Passing issue to parent handler:`, issueToUpdate.id, "isMaterial:", issueToUpdate.isMaterial);
       onIssueSelect(issueToUpdate);
-      
-      // Clear the updating flag after a delay to allow the state to settle
-      setTimeout(() => {
-        updatingRef.current = false;
-      }, 1000);
-    }, 50);
+    }, 100);
   };
 
   return (

@@ -23,7 +23,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     console.log(`SelectedIssuesPanel [${tabId}]: Removing issue`, issue.id, issue.name);
     
     // Create a deep copy of the issue to prevent reference issues
-    const updatedIssue = JSON.parse(JSON.stringify(issue)); 
+    const updatedIssue = structuredClone(issue);
     updatedIssue.isMaterial = false; // Explicitly set to false (boolean)
     
     console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to`, updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);

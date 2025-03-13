@@ -28,10 +28,20 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
   // Track the last operation to prevent conflicting updates
   const lastOperationRef = useRef<{id: string, action: 'select' | 'deselect', timestamp: number} | null>(null);
   
-  // Update local state when props change, but only if the arrays are different
+  // Flag to prevent processing props updates when we just made local changes
+  const skipNextPropsUpdateRef = useRef(false);
+  
+  // Update local state when props change, but only if the arrays are different and we're not skipping
   useEffect(() => {
+    // If we just made a change locally, skip this update
+    if (skipNextPropsUpdateRef.current) {
+      console.log(`DragDropContainer [${tabId}]: Skipping props update due to skip flag`);
+      skipNextPropsUpdateRef.current = false;
+      return;
+    }
+    
     // Skip updates immediately after a local operation to prevent flickering
-    if (lastOperationRef.current && Date.now() - lastOperationRef.current.timestamp < 3000) {
+    if (lastOperationRef.current && Date.now() - lastOperationRef.current.timestamp < 5000) {
       console.log(`DragDropContainer [${tabId}]: Skipping prop update, recent operation:`, lastOperationRef.current);
       return;
     }
@@ -54,14 +64,16 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     
     if (availableChanged) {
       console.log(`DragDropContainer [${tabId}]: Updating available issues from props:`, availableIssues.length);
-      setLocalAvailable(availableIssues.map(issue => ({...issue})));
+      // Deep clone to prevent reference issues
+      setLocalAvailable(availableIssues.map(issue => structuredClone(issue)));
     }
     
     if (selectedChanged) {
       console.log(`DragDropContainer [${tabId}]: Updating selected issues from props:`, selectedIssues.length);
-      setLocalSelected(selectedIssues.map(issue => ({...issue})));
+      // Deep clone to prevent reference issues
+      setLocalSelected(selectedIssues.map(issue => structuredClone(issue)));
     }
-  }, [availableIssues, selectedIssues, tabId]);
+  }, [availableIssues, selectedIssues, tabId, localAvailable, localSelected]);
 
   // Handle issue selection or deselection via click
   const handleIssueClick = (issue: MaterialityIssue) => {
@@ -78,46 +90,39 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "current isMaterial:", issue.isMaterial);
     
     // Create a deep copy of the issue to prevent reference issues
-    const issueCopy = JSON.parse(JSON.stringify(issue));
+    const issueCopy = structuredClone(issue);
+    
+    // Set skipNextPropsUpdate to true to prevent the next useEffect from running
+    skipNextPropsUpdateRef.current = true;
+    
+    // Record the operation
+    lastOperationRef.current = {
+      id: issueCopy.id,
+      action: issueCopy.isMaterial ? 'deselect' : 'select', 
+      timestamp: Date.now()
+    };
     
     // First, update local state for immediate UI feedback
     if (!issueCopy.isMaterial) {
-      // Record the operation
-      lastOperationRef.current = {
-        id: issueCopy.id,
-        action: 'select',
-        timestamp: Date.now()
-      };
-      
       // Moving from available to selected
+      issueCopy.isMaterial = true; // Toggle before updating UI
+      
       setLocalAvailable(prev => prev.filter(i => i.id !== issueCopy.id));
-      
-      // Set isMaterial to true explicitly
-      issueCopy.isMaterial = true;
-      
       setLocalSelected(prev => [...prev, issueCopy]);
-      
-      console.log(`DragDropContainer [${tabId}]: Sending issue to parent with isMaterial:`, issueCopy.isMaterial);
-      onIssueSelect(issueCopy);
     } else {
-      // Record the operation
-      lastOperationRef.current = {
-        id: issueCopy.id,
-        action: 'deselect',
-        timestamp: Date.now()
-      };
-      
       // Moving from selected to available
+      issueCopy.isMaterial = false; // Toggle before updating UI
+      
       setLocalSelected(prev => prev.filter(i => i.id !== issueCopy.id));
-      
-      // Set isMaterial to false explicitly
-      issueCopy.isMaterial = false;
-      
       setLocalAvailable(prev => [...prev, issueCopy]);
-      
+    }
+    
+    // Send the updated issue to the parent component after a small delay
+    // This ensures our local UI updates first
+    setTimeout(() => {
       console.log(`DragDropContainer [${tabId}]: Sending issue to parent with isMaterial:`, issueCopy.isMaterial);
       onIssueSelect(issueCopy);
-    }
+    }, 50);
   };
 
   return (
