@@ -77,6 +77,13 @@ const IssueItem: React.FC<IssueItemProps> = ({
   };
   
   const isHeaderItem = isHeader || isCategoryHeader;
+
+  // Handle the toggle of isMaterial
+  const handleToggleIsMaterial = () => {
+    const newValue = !issue.isMaterial;
+    console.log(`IssueItem: Toggling isMaterial for ${issue.id} from ${issue.isMaterial} to ${newValue}`);
+    onIssueChange(issue.id, 'isMaterial', newValue);
+  };
   
   return (
     <div 
@@ -112,7 +119,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onIssueChange(issue.id, 'isMaterial', !issue.isMaterial)}
+              onClick={handleToggleIsMaterial}
               className={issue.isMaterial ? "text-green-600" : "text-gray-400"}
             >
               <PlusCircle className="h-4 w-4" />

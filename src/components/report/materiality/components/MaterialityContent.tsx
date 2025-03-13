@@ -67,7 +67,9 @@ const MaterialityContent: React.FC = () => {
     const newIssue = JSON.parse(JSON.stringify(issue));
     
     // Always set isMaterial directly as a boolean to avoid type issues
-    newIssue.isMaterial = issue.isMaterial === true;
+    // Using strict comparison to ensure it's a boolean
+    newIssue.isMaterial = newIssue.isMaterial === true;
+    
     console.log("MaterialityContent: Setting isMaterial to", newIssue.isMaterial, "(type:", typeof newIssue.isMaterial, ") for issue", issue.id);
     
     // Call the original handler with the updated issue

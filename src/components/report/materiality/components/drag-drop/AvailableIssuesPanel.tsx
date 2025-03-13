@@ -22,7 +22,9 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
   const handleIssueClick = (issue: MaterialityIssue) => {
     // Deep clone the issue to prevent reference issues
     const clonedIssue = JSON.parse(JSON.stringify(issue));
-    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, clonedIssue.id);
+    // Set isMaterial to true since we're selecting from available
+    clonedIssue.isMaterial = true;
+    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, clonedIssue.id, "setting isMaterial to", clonedIssue.isMaterial);
     onIssueClick(clonedIssue);
   };
 
