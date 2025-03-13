@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import MaterialityAnalysisContainer from './materiality/MaterialityAnalysisContainer';
 import { useAutoSaveMateriality } from './materiality/hooks/useAutoSaveMateriality';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 
 interface MaterialityAnalysisProps {
   formValues: any;
@@ -15,16 +15,25 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
 }) => {
   const { saveCurrentReport } = useReport();
   
-  // Use the auto-save hook
+  // Use the auto-save hook for the materiality data
   useAutoSaveMateriality({
     materialityData: formValues?.materialityAnalysis
   });
 
   // Save on component unmount (tab change)
   useEffect(() => {
+    const saveChanges = () => {
+      try {
+        console.log("MaterialityAnalysis component unmounting, saving changes...");
+        return saveCurrentReport();
+      } catch (error) {
+        console.error("Error saving materiality analysis on unmount:", error);
+        return Promise.reject(error);
+      }
+    };
+
     return () => {
-      console.log("MaterialityAnalysis component unmounting, saving changes...");
-      saveCurrentReport().catch(console.error);
+      saveChanges().catch(console.error);
     };
   }, [saveCurrentReport]);
 

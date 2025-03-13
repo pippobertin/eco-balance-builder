@@ -1,6 +1,6 @@
 
 import { useEffect, useRef } from 'react';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 
 interface UseAutoSaveMaterialityProps {
   materialityData: any;
@@ -9,35 +9,51 @@ interface UseAutoSaveMaterialityProps {
 export const useAutoSaveMateriality = ({ materialityData }: UseAutoSaveMaterialityProps) => {
   const { updateReportData, saveCurrentReport, needsSaving } = useReport();
   const saveTimeoutRef = useRef<number | null>(null);
+  const lastSavedDataRef = useRef<string>('');
 
   // Update report context whenever materiality data changes
   useEffect(() => {
-    if (materialityData) {
-      console.log("Materiality data changed, updating report context...", materialityData);
+    if (!materialityData) return;
+    
+    try {
+      // Stringify data for comparison to avoid unnecessary saves
+      const materialityDataString = JSON.stringify(materialityData);
       
-      // Clear any existing timeout
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+      // Only proceed if data has changed
+      if (materialityDataString !== lastSavedDataRef.current) {
+        console.log("Materiality data changed, updating report context...");
+        
+        // Update the last saved data reference
+        lastSavedDataRef.current = materialityDataString;
+        
+        // Clear any existing timeout
+        if (saveTimeoutRef.current) {
+          window.clearTimeout(saveTimeoutRef.current);
+          saveTimeoutRef.current = null;
+        }
+        
+        // First, update the report data in context
+        updateReportData({ materialityAnalysis: materialityData });
+        
+        // Set a timeout to auto-save after data changes
+        saveTimeoutRef.current = window.setTimeout(() => {
+          console.log("Auto-saving materiality data changes...");
+          saveCurrentReport().then(() => {
+            console.log("Materiality data auto-saved successfully");
+          }).catch(error => {
+            console.error("Error auto-saving materiality data:", error);
+          });
+        }, 3000);
       }
-      
-      // First, update the report data in context
-      updateReportData({ materialityAnalysis: materialityData });
-      
-      // Set a timeout to auto-save after data changes
-      saveTimeoutRef.current = window.setTimeout(() => {
-        console.log("Auto-saving materiality data changes...");
-        saveCurrentReport().then(() => {
-          console.log("Materiality data auto-saved successfully");
-        }).catch(error => {
-          console.error("Error auto-saving materiality data:", error);
-        });
-      }, 3000);
+    } catch (error) {
+      console.error("Error in materiality data processing:", error);
     }
     
     // Cleanup timeout on unmount
     return () => {
       if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+        window.clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
       }
     };
   }, [materialityData, updateReportData, saveCurrentReport]);
@@ -45,15 +61,20 @@ export const useAutoSaveMateriality = ({ materialityData }: UseAutoSaveMateriali
   // Add another effect to save on tab/page change
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (needsSaving) {
-        // Auto-save on page navigation if there are unsaved changes
-        saveCurrentReport().catch(console.error);
-        
-        // Show confirmation dialog if needed
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
+      try {
+        if (needsSaving) {
+          // Auto-save on page navigation if there are unsaved changes
+          saveCurrentReport().catch(console.error);
+          
+          // Show confirmation dialog if needed
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        }
+      } catch (error) {
+        console.error("Error in beforeunload handler:", error);
       }
+      return undefined;
     };
     
     // Save when navigating away

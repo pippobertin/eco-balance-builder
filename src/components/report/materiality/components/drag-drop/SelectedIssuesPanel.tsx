@@ -32,7 +32,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
       
       console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to false, type:`, typeof issueToRemove.isMaterial);
       
-      // Pass to parent handler (DragDropContainer will handle toggling isMaterial)
+      // Pass to parent handler
       onIssueClick(issueToRemove);
       
       // Show feedback toast

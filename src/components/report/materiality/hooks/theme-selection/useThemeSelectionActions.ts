@@ -99,13 +99,13 @@ export const useThemeSelectionActions = ({
         // Check if issue is already in available list
         const alreadyAvailable = prev.some(item => item.id === issueCopy.id);
         if (alreadyAvailable) {
-          // Update existing item
+          // Update existing item ensuring isMaterial is false
           return prev.map(item => 
-            item.id === issueCopy.id ? issueCopy : item
+            item.id === issueCopy.id ? {...item, isMaterial: false} : item
           );
         }
-        // Add to list
-        return [...prev, issueCopy];
+        // Add to list ensuring isMaterial is false
+        return [...prev, {...issueCopy, isMaterial: false}];
       });
       
       // Update tracking state
@@ -117,14 +117,15 @@ export const useThemeSelectionActions = ({
         selected: latestProcessedIssuesRef.current.selected.filter(i => i.id !== issueCopy.id),
         available: [
           ...latestProcessedIssuesRef.current.available.filter(i => i.id !== issueCopy.id),
-          issueCopy
+          {...issueCopy, isMaterial: false}
         ]
       };
     }
     
     // Pass the updated issue to the parent handler
     if (onIssueSelect) {
-      onIssueSelect(issueCopy);
+      // Make sure isMaterial is a proper boolean before passing to parent
+      onIssueSelect({...issueCopy, isMaterial: isSelected});
     }
   };
 

@@ -53,22 +53,22 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     }
   };
 
-  // Deduplicate the selected issues by ID and filter out any issues with isMaterial === false
+  // Explicitly filter out any issues with isMaterial === false
+  const filteredSelectedIssues = React.useMemo(() => {
+    return selectedIssues.filter(issue => issue.isMaterial === true);
+  }, [selectedIssues]);
+
+  // Deduplicate the filtered selected issues
   const uniqueSelectedIssues = React.useMemo(() => {
     const seenIds = new Set<string>();
-    return selectedIssues.filter(issue => {
-      // Skip the issue if isMaterial is explicitly false
-      if (issue.isMaterial === false) {
-        return false;
-      }
-      
+    return filteredSelectedIssues.filter(issue => {
       if (seenIds.has(issue.id)) {
         return false;
       }
       seenIds.add(issue.id);
       return true;
     });
-  }, [selectedIssues]);
+  }, [filteredSelectedIssues]);
 
   return (
     <div className="rounded-lg border bg-card shadow-sm">

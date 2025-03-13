@@ -36,13 +36,34 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Preserve the selected issues when switching tabs
   useEffect(() => {
     console.log(`ThemesTabContent [${tabId}]: Tab mounted/updated with ${filteredSelectedIssues.length} selected issues`);
-  }, [tabId, filteredSelectedIssues.length]);
+    
+    // Log all selected issues for debugging
+    if (filteredSelectedIssues.length > 0) {
+      console.log(`ThemesTabContent [${tabId}]: Selected issues:`, 
+        filteredSelectedIssues.map(i => ({id: i.id, name: i.name, isMaterial: i.isMaterial})));
+    }
+  }, [tabId, filteredSelectedIssues]);
+
+  // Custom handler to ensure proper deselection
+  const handleWrappedIssueSelect = (issue: MaterialityIssue) => {
+    // Ensure the isMaterial property is a proper boolean
+    const updatedIssue = {
+      ...issue,
+      isMaterial: issue.isMaterial === true
+    };
+    
+    console.log(`ThemesTabContent [${tabId}]: Handling issue selection for:`, 
+      updatedIssue.id, "isMaterial:", updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);
+    
+    // Pass to the theme selection handler
+    handleIssueSelect(updatedIssue);
+  };
 
   return (
     <DragDropContainer
       availableIssues={availableIssues}
       selectedIssues={filteredSelectedIssues}
-      onIssueSelect={handleIssueSelect}
+      onIssueSelect={handleWrappedIssueSelect}
       tabId={tabId}
     />
   );
