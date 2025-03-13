@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 interface SelectedIssuesPanelProps {
   selectedIssues: MaterialityIssue[];
@@ -17,6 +18,8 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   onIssueClick,
   tabId = ''
 }) => {
+  const { toast } = useToast();
+
   // Handle issue removal - wrapper for onIssueClick
   const handleIssueRemove = (issue: MaterialityIssue) => {
     // Debug log for tracking
@@ -33,6 +36,13 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     // Use a timeout to ensure the UI updates before sending the data change
     setTimeout(() => {
       onIssueClick(updatedIssue);
+      
+      // Show toast for user feedback
+      toast({
+        title: "Tema rimosso",
+        description: `"${issue.name}" è stato rimosso dai temi selezionati.`,
+        variant: "default"
+      });
     }, 50);
   };
 

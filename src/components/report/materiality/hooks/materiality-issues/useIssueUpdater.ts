@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../../types';
 import { isHeaderTheme } from '../../utils/materialityUtils';
@@ -18,6 +19,8 @@ export const useIssueUpdater = (
   const knownMaterialIssuesRef = useRef<Set<string>>(new Set());
   // Track initial load
   const initialLoadCompleteRef = useRef<boolean>(false);
+  // Track issues that have been explicitly deselected by the user
+  const explicitlyDeselectedRef = useRef<Set<string>>(new Set());
   
   // When issues are loaded initially, record which ones are material
   useEffect(() => {
@@ -78,16 +81,19 @@ export const useIssueUpdater = (
       return;
     }
     
-    // If changing isMaterial to true, add to known material issues
-    if (field === 'isMaterial' && value === true) {
-      knownMaterialIssuesRef.current.add(id);
-      console.log(`Adding ${id} to known material issues`);
-    }
-    
-    // If changing isMaterial to false, remove from known material issues
-    if (field === 'isMaterial' && value === false) {
-      knownMaterialIssuesRef.current.delete(id);
-      console.log(`Removing ${id} from known material issues`);
+    // If changing isMaterial to false, add to explicitlyDeselected set
+    if (field === 'isMaterial') {
+      if (value === true) {
+        // When explicitly selecting, remove from deselected set
+        knownMaterialIssuesRef.current.add(id);
+        explicitlyDeselectedRef.current.delete(id);
+        console.log(`Adding ${id} to known material issues, removing from explicitly deselected`);
+      } else if (value === false) {
+        // When explicitly deselecting, add to deselected set and remove from known material
+        knownMaterialIssuesRef.current.delete(id);
+        explicitlyDeselectedRef.current.add(id);
+        console.log(`Removing ${id} from known material issues, adding to explicitly deselected`);
+      }
     }
     
     // Record this change to prevent future unwanted reverts
@@ -149,13 +155,15 @@ export const useIssueUpdater = (
         }
       });
       
-      // Make sure all known material issues stay material
+      // Make sure all known material issues stay material ONLY if they weren't explicitly deselected
       updatedIssues.forEach(issue => {
         // Only force material state on issues that are in our known set
         // and aren't explicitly being set to false by the current operation
+        // and haven't been explicitly deselected by the user
         const isBeingDeselected = id === issue.id && field === 'isMaterial' && value === false;
+        const wasExplicitlyDeselected = explicitlyDeselectedRef.current.has(issue.id);
         
-        if (knownMaterialIssuesRef.current.has(issue.id) && !isBeingDeselected) {
+        if (knownMaterialIssuesRef.current.has(issue.id) && !isBeingDeselected && !wasExplicitlyDeselected) {
           // If this issue should be material but isn't, fix it
           if (issue.isMaterial !== true) {
             console.log(`Restoring material state for known issue: ${issue.id}`);

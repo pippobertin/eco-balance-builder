@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../../types';
 import { isHeaderTheme } from '../../utils/materialityUtils';
@@ -30,6 +31,9 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
   // Keep track of all known selections to prevent issues from disappearing
   const knownSelectionsRef = useRef<Set<string>>(new Set());
   
+  // Track issues that have been explicitly deselected
+  const explicitlyDeselectedRef = useRef<Set<string>>(new Set());
+  
   // Flag to prevent processing props updates when we just made local changes
   const skipNextPropsUpdateRef = useRef(false);
   
@@ -38,6 +42,9 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     available: [] as MaterialityIssue[],
     selected: [] as MaterialityIssue[]
   });
+  
+  // Track all seen issues by ID to ensure we don't lose them
+  const allSeenIssuesRef = useRef<Map<string, MaterialityIssue>>(new Map());
   
   // Initialize the component with the initial props
   useEffect(() => {
@@ -52,21 +59,33 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       const selectedIds = selectedIssues.map(issue => issue.id);
       knownSelectionsRef.current = new Set(selectedIds);
       
-      // Store the latest props
+      // Store the latest props and update allSeenIssues
       latestPropsRef.current = {
         available: availableIssues.map(issue => structuredClone(issue)),
         selected: selectedIssues.map(issue => structuredClone(issue))
       };
+      
+      // Add all issues to the seen map
+      [...availableIssues, ...selectedIssues].forEach(issue => {
+        allSeenIssuesRef.current.set(issue.id, structuredClone(issue));
+      });
     }
   }, [availableIssues, selectedIssues, localAvailable.length, localSelected.length, tabId]);
   
   // Update local state when props change, but only if the arrays are different and we're not skipping
   useEffect(() => {
-    // Store the latest props
+    // Store the latest props and update allSeenIssues
     latestPropsRef.current = {
       available: availableIssues,
       selected: selectedIssues
     };
+    
+    // Add all new issues to the seen map
+    [...availableIssues, ...selectedIssues].forEach(issue => {
+      if (!allSeenIssuesRef.current.has(issue.id)) {
+        allSeenIssuesRef.current.set(issue.id, structuredClone(issue));
+      }
+    });
     
     // If we just made a change locally, skip this update
     if (skipNextPropsUpdateRef.current) {
@@ -76,7 +95,7 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     }
     
     // Skip updates immediately after a local operation to prevent flickering
-    if (lastOperationRef.current && Date.now() - lastOperationRef.current.timestamp < 5000) {
+    if (lastOperationRef.current && Date.now() - lastOperationRef.current.timestamp < 3000) {
       console.log(`DragDropContainer [${tabId}]: Skipping prop update, recent operation:`, lastOperationRef.current);
       return;
     }
@@ -102,8 +121,28 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     // Update the local state if either array has changed
     if (availableChanged) {
       console.log(`DragDropContainer [${tabId}]: Updating available issues from props:`, availableIssues.length);
-      // Deep clone to prevent reference issues
-      setLocalAvailable(availableIssues.map(issue => structuredClone(issue)));
+      
+      // Check for issues that should be in available but are missing
+      const missingAvailableIssues = [...explicitlyDeselectedRef.current]
+        .filter(id => !availableIds.has(id) && !selectedIds.has(id))
+        .map(id => allSeenIssuesRef.current.get(id))
+        .filter(Boolean) as MaterialityIssue[];
+      
+      if (missingAvailableIssues.length > 0) {
+        console.log(`DragDropContainer [${tabId}]: Adding ${missingAvailableIssues.length} missing deselected issues back to available`);
+      }
+      
+      // Deep clone to prevent reference issues and include missing issues
+      const newAvailableIssues = [
+        ...availableIssues.map(issue => structuredClone(issue)),
+        ...missingAvailableIssues.map(issue => {
+          const clone = structuredClone(issue);
+          clone.isMaterial = false; // Ensure it's not material
+          return clone;
+        })
+      ];
+      
+      setLocalAvailable(newAvailableIssues);
     }
     
     if (selectedChanged) {
@@ -112,6 +151,8 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       selectedIssues.forEach(issue => {
         if (issue.isMaterial === true) {
           knownSelectionsRef.current.add(issue.id);
+          // If an issue is now selected, remove it from explicitly deselected
+          explicitlyDeselectedRef.current.delete(issue.id);
         }
       });
       
@@ -137,6 +178,9 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     // Create a deep copy of the issue to prevent reference issues
     const issueCopy = structuredClone(issue);
     
+    // Always add to allSeenIssues map
+    allSeenIssuesRef.current.set(issueCopy.id, issueCopy);
+    
     // Set skipNextPropsUpdate to true to prevent the next useEffect from running
     skipNextPropsUpdateRef.current = true;
     
@@ -150,11 +194,13 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       timestamp: Date.now()
     };
     
-    // Update known selections
+    // Update tracking sets
     if (isSelecting) {
       knownSelectionsRef.current.add(issueCopy.id);
+      explicitlyDeselectedRef.current.delete(issueCopy.id);
     } else {
       knownSelectionsRef.current.delete(issueCopy.id);
+      explicitlyDeselectedRef.current.add(issueCopy.id);
     }
     
     // First, update local state for immediate UI feedback
@@ -169,14 +215,12 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       issueCopy.isMaterial = false; // Toggle before updating UI
       
       setLocalSelected(prev => prev.filter(i => i.id !== issueCopy.id));
-      // Only add to available if it exists in latestPropsRef.current.available
-      const existsInAvailable = latestPropsRef.current.available.some(i => i.id === issueCopy.id) ||
-                              latestPropsRef.current.selected.some(i => i.id === issueCopy.id);
       
-      if (existsInAvailable) {
+      // Check if it's already in available to avoid duplicates
+      const alreadyInAvailable = localAvailable.some(i => i.id === issueCopy.id);
+      
+      if (!alreadyInAvailable) {
         setLocalAvailable(prev => [...prev, issueCopy]);
-      } else {
-        console.log(`Issue ${issueCopy.id} not found in latest props, not adding to available`);
       }
     }
     

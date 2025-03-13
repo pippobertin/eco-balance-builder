@@ -30,6 +30,9 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Track all known material issues for this tab
   const knownMaterialIssuesRef = useRef<Set<string>>(new Set());
   
+  // Track issues that have been explicitly deselected
+  const explicitlyDeselectedRef = useRef<Set<string>>(new Set());
+  
   // Track last operation to prevent immediate reversions
   const lastOpRef = useRef<{id: string; operation: 'select'|'deselect'; timestamp: number}>();
   
@@ -93,9 +96,18 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
           } else if (lastOpRef.current.operation === 'deselect') {
             issueCopy.isMaterial = false;
             knownMaterialIssuesRef.current.delete(issueCopy.id);
+            explicitlyDeselectedRef.current.add(issueCopy.id);
             available.push(issueCopy);
             return;
           }
+        }
+        
+        // Check if this issue has been explicitly deselected
+        if (explicitlyDeselectedRef.current.has(issueCopy.id)) {
+          console.log(`ThemesTabContent [${tabId}]: Issue was explicitly deselected:`, issueCopy.id);
+          issueCopy.isMaterial = false;
+          available.push(issueCopy);
+          return;
         }
         
         // Check if this issue is in the selectedIssueIds set
@@ -156,11 +168,13 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       timestamp: Date.now()
     };
     
-    // Update knownMaterialIssues
+    // Update knownMaterialIssues and explicitlyDeselected refs
     if (isSelecting) {
       knownMaterialIssuesRef.current.add(issueToUpdate.id);
+      explicitlyDeselectedRef.current.delete(issueToUpdate.id);
     } else {
       knownMaterialIssuesRef.current.delete(issueToUpdate.id);
+      explicitlyDeselectedRef.current.add(issueToUpdate.id);
     }
     
     // First update local state for immediate UI feedback
@@ -181,12 +195,16 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       
       setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
       
-      // Only add back to available if it originally came from this tab
+      // Always add back to available issues when deselected
       const wasInThisTab = latestProcessedIssuesRef.current.available.some(i => i.id === issueToUpdate.id) ||
-                            latestProcessedIssuesRef.current.selected.some(i => i.id === issueToUpdate.id);
+                            latestProcessedIssuesRef.current.selected.some(i => i.id === issueToUpdate.id) ||
+                            issues.some(i => i.id === issueToUpdate.id);
       
       if (wasInThisTab) {
-        setAvailableIssues(prev => [...prev, issueToUpdate]);
+        const availableIssueExists = availableIssues.some(i => i.id === issueToUpdate.id);
+        if (!availableIssueExists) {
+          setAvailableIssues(prev => [...prev, issueToUpdate]);
+        }
       } else {
         console.log(`Issue ${issueToUpdate.id} was not originally in this tab, not adding to available`);
       }
