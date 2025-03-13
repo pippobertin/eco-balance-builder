@@ -47,7 +47,8 @@ export const useIssueUpdater = (
       // Make a deep copy of prevIssues to avoid reference issues
       const updatedIssues = prevIssues.map(issue => {
         if (issue.id === id) {
-          const updatedIssue = { ...issue };
+          // Create a deep copy of the issue to prevent reference issues
+          const updatedIssue = JSON.parse(JSON.stringify(issue));
           
           if (field === 'impactRelevance' || field === 'financialRelevance') {
             const numericValue = typeof value === 'string' ? Number(value) : value;
@@ -64,7 +65,8 @@ export const useIssueUpdater = (
           
           return updatedIssue;
         }
-        return { ...issue };
+        // Deep clone other issues too to avoid reference problems
+        return JSON.parse(JSON.stringify(issue));
       });
       
       // Count material issues for debugging

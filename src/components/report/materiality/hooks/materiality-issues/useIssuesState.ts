@@ -26,13 +26,19 @@ export const useIssuesState = (
         console.log("Updating issues from initialIssues:", initialIssues);
         console.log("Initial material issues:", initialIssues.filter(i => i.isMaterial === true).map(i => i.id));
         
-        const processedIssues = initialIssues.map(issue => ({
-          ...issue,
-          impactRelevance: Number(issue.impactRelevance) || 50,
-          financialRelevance: Number(issue.financialRelevance) || 50,
-          // Ensure isMaterial is explicitly a boolean value (critical fix)
-          isMaterial: issue.isMaterial === true
-        }));
+        const processedIssues = initialIssues.map(issue => {
+          // Create a deep copy to prevent reference issues
+          const processedIssue = JSON.parse(JSON.stringify(issue));
+          
+          // Ensure numeric values
+          processedIssue.impactRelevance = Number(processedIssue.impactRelevance) || 50;
+          processedIssue.financialRelevance = Number(processedIssue.financialRelevance) || 50;
+          
+          // Critical fix: Ensure isMaterial is explicitly a boolean value
+          processedIssue.isMaterial = processedIssue.isMaterial === true;
+          
+          return processedIssue;
+        });
         
         // Count material issues for debugging
         const materialCount = processedIssues.filter(issue => issue.isMaterial === true).length;

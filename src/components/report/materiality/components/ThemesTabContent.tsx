@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -40,7 +41,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       prevSelectedIdsArray.some(id => !selectedIssueIds.has(id)) ||
       currentSelectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id));
     
-    if (needsUpdate || availableIssues.length === 0) {
+    if (needsUpdate || availableIssues.length === 0 || selectedIssues.length === 0) {
       console.log(`ThemesTabContent [${tabId}]: Updating issue lists based on selectedIssueIds:`, 
         Array.from(selectedIssueIds));
       
@@ -52,22 +53,24 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       
       // Process issues for this specific tab
       issues.forEach(issue => {
+        // Create a deep copy of the issue to prevent reference issues
+        const issueCopy = JSON.parse(JSON.stringify(issue));
+        
         // Check if this issue is in the selectedIssueIds set
-        if (selectedIssueIds.has(issue.id)) {
-          console.log(`ThemesTabContent [${tabId}]: Issue is selected by ID:`, issue.id);
-          // Create a copy with isMaterial explicitly true
-          const selectedIssue = { 
-            ...issue, 
-            isMaterial: true 
-          };
-          selected.push(selectedIssue);
-        } else if (issue.isMaterial === true) {
+        if (selectedIssueIds.has(issueCopy.id)) {
+          console.log(`ThemesTabContent [${tabId}]: Issue is selected by ID:`, issueCopy.id);
+          // Ensure isMaterial is explicitly true
+          issueCopy.isMaterial = true;
+          selected.push(issueCopy);
+        } else if (issueCopy.isMaterial === true) {
           // If issue.isMaterial is true but not in selectedIssueIds (shouldn't normally happen)
-          console.log(`ThemesTabContent [${tabId}]: Issue is material by property:`, issue.id);
-          selected.push(issue);
+          console.log(`ThemesTabContent [${tabId}]: Issue is material by property:`, issueCopy.id);
+          selected.push(issueCopy);
         } else {
-          console.log(`ThemesTabContent [${tabId}]: Issue is not material:`, issue.id);
-          available.push(issue);
+          console.log(`ThemesTabContent [${tabId}]: Issue is not material:`, issueCopy.id);
+          // Ensure isMaterial is explicitly false for available issues
+          issueCopy.isMaterial = false;
+          available.push(issueCopy);
         }
       });
       
@@ -80,15 +83,15 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       // Update the previous selected IDs ref
       prevSelectedIdsRef.current = new Set(selectedIssueIds);
     }
-  }, [issues, selectedIssueIds, tabId]);
+  }, [issues, selectedIssueIds, tabId, availableIssues.length, selectedIssues.length]);
 
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
       console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial was:", issue.isMaterial);
       
-      // Important: Create a new instance of the issue to prevent reference issues
-      const updatedIssue = { ...issue };
+      // Create a deep copy of the issue to prevent reference issues
+      const updatedIssue = JSON.parse(JSON.stringify(issue));
       
       // Force isMaterial to be a boolean based on which panel it's in
       if (availableIssues.some(i => i.id === issue.id)) {
