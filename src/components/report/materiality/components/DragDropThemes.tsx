@@ -60,6 +60,12 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
     });
   };
   
+  // Adapter function to match the expected signature for SelectedIssuesPanel
+  const handleIssueClick = (issue: any) => {
+    console.log("Removing issue:", issue.id);
+    onIssueRemove(issue.id);
+  };
+  
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Seleziona i temi da analizzare</h3>
@@ -89,7 +95,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
         
         <SelectedIssuesPanel 
           selectedIssues={selectedIssues}
-          onIssueRemove={onIssueRemove}
+          onIssueClick={handleIssueClick}
         />
       </div>
     </div>
