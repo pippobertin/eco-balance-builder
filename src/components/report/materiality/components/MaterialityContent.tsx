@@ -64,7 +64,7 @@ const MaterialityContent: React.FC = () => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
     
     // Create a new issue object to avoid reference issues
-    const newIssue = { ...issue };
+    const newIssue = JSON.parse(JSON.stringify(issue));
     
     // Always set isMaterial directly as a boolean to avoid type issues
     newIssue.isMaterial = issue.isMaterial === true;

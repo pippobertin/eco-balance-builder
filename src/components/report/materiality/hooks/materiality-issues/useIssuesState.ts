@@ -20,7 +20,12 @@ export const useIssuesState = (
       const needsUpdate = 
         issues.length !== initialIssues.length || 
         initialIssues.some(issue => !currentIds.has(issue.id)) ||
-        issues.some(issue => !initialIds.has(issue.id));
+        issues.some(issue => !initialIds.has(issue.id)) ||
+        // Also compare isMaterial status to catch changes in that property
+        initialIssues.some(issue => {
+          const currentIssue = issues.find(i => i.id === issue.id);
+          return currentIssue && currentIssue.isMaterial !== issue.isMaterial;
+        });
       
       if (needsUpdate) {
         console.log("Updating issues from initialIssues:", initialIssues);
@@ -35,6 +40,7 @@ export const useIssuesState = (
           processedIssue.financialRelevance = Number(processedIssue.financialRelevance) || 50;
           
           // Critical fix: Ensure isMaterial is explicitly a boolean value
+          // Use strict equality to convert to boolean
           processedIssue.isMaterial = processedIssue.isMaterial === true;
           
           return processedIssue;

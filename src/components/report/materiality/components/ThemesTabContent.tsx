@@ -32,6 +32,9 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
 
   // Initialize issues when component mounts or issues/selectedIssueIds change
   useEffect(() => {
+    // Force update when tab changes to ensure proper state
+    console.log(`ThemesTabContent [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
+    
     // Check if we actually need to update
     const prevSelectedIdsArray = Array.from(prevSelectedIdsRef.current);
     const currentSelectedIdsArray = Array.from(selectedIssueIds);
@@ -39,7 +42,8 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     const needsUpdate = 
       prevSelectedIdsArray.length !== currentSelectedIdsArray.length ||
       prevSelectedIdsArray.some(id => !selectedIssueIds.has(id)) ||
-      currentSelectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id));
+      currentSelectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id)) ||
+      issues.length !== availableIssues.length + selectedIssues.length;
     
     if (needsUpdate || availableIssues.length === 0 || selectedIssues.length === 0) {
       console.log(`ThemesTabContent [${tabId}]: Updating issue lists based on selectedIssueIds:`, 
@@ -63,7 +67,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
           issueCopy.isMaterial = true;
           selected.push(issueCopy);
         } else if (issueCopy.isMaterial === true) {
-          // If issue.isMaterial is true but not in selectedIssueIds (shouldn't normally happen)
+          // If issue.isMaterial is true but not in selectedIssueIds 
           console.log(`ThemesTabContent [${tabId}]: Issue is material by property:`, issueCopy.id);
           selected.push(issueCopy);
         } else {

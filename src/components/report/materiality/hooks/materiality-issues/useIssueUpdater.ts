@@ -55,11 +55,12 @@ export const useIssueUpdater = (
             updatedIssue[field] = numericValue;
           } else if (field === 'isMaterial') {
             // Critical fix: Ensure boolean value for isMaterial
+            // Explicitly use equality with true to ensure a boolean result
             const boolValue = value === true;
             console.log(`Setting isMaterial for ${id} to strict boolean:`, boolValue, typeof boolValue);
             updatedIssue.isMaterial = boolValue;
           } else {
-            // Fix for type error - use type assertion to handle dynamic field assignment
+            // Use type assertion for dynamic field assignment
             (updatedIssue as any)[field] = value;
           }
           

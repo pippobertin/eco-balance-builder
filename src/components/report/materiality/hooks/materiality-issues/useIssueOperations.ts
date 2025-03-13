@@ -91,7 +91,11 @@ export const useIssueOperations = (
       const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
       console.log(`After removing issue: ${updatedIssues.length} total, ${materialCount} material`);
       
-      onUpdate(updatedIssues);
+      // Important: Trigger update to ensure UI reflects changes
+      setTimeout(() => {
+        onUpdate(updatedIssues);
+      }, 50);
+      
       return updatedIssues;
     });
   };

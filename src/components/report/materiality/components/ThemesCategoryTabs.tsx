@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Leaf, Users, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ThemesTabContent from './ThemesTabContent';
-import { predefinedIssues } from '../utils/materialityUtils';
 import { getIssuesByCategory } from '../utils/categorizePredefinedIssues';
 import { MaterialityIssue } from '../types';
 
