@@ -28,7 +28,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [activeTab, setActiveTab] = useState<string>('current');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Filter only material issues
+  // Filtriamo esplicitamente solo i temi che hanno isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Filter issues based on search query
@@ -55,11 +55,19 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
 
         <h3 className="text-lg font-semibold mt-6 mb-4 text-gray-800">Rilevanza</h3>
 
-        <IssuesList 
-          issues={filteredIssues}
-          onIssueChange={onIssueChange}
-          onRemoveIssue={onRemoveIssue}
-        />
+        {materialIssues.length > 0 ? (
+          <IssuesList 
+            issues={filteredIssues}
+            onIssueChange={onIssueChange}
+            onRemoveIssue={onRemoveIssue}
+          />
+        ) : (
+          <div className="p-6 text-center bg-gray-50 rounded-lg border border-gray-100">
+            <p className="text-gray-600">
+              Nessun tema selezionato. Seleziona i temi dalla sezione "Temi Disponibili" per aggiungerli qui.
+            </p>
+          </div>
+        )}
       </IssueTabs>
       
       <MaterialityReport 

@@ -33,6 +33,10 @@ export const useMaterialityIssues = (
         }));
         setIssues(processedIssues);
       }
+    } else {
+      // Se non ci sono temi iniziali, assicuriamoci che la lista sia vuota
+      console.log("No initial issues, resetting to empty array");
+      setIssues([]);
     }
   }, [initialIssues]);
 

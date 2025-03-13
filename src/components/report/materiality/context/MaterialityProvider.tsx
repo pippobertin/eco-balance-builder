@@ -21,6 +21,10 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
 }) => {
   const { reportData, updateReportData } = useReport();
   
+  // Verifica che ci siano effettivamente temi nel caricamento iniziale
+  const initialIssues = formValues.materialityAnalysis?.issues || [];
+  console.log("Initial issues in MaterialityProvider:", initialIssues);
+  
   // Use custom hooks for materiality issues
   const { 
     issues, 
@@ -29,7 +33,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     removeIssue,
     updateIssuesWithStakeholderRelevance
   } = useMaterialityIssues(
-    formValues.materialityAnalysis?.issues,
+    initialIssues,
     (updatedIssues) => {
       updateFormWithIssues(
         formValues,
@@ -62,8 +66,9 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     }
   );
   
-  // All issues are now material - no filter needed
-  const materialIssues = issues;
+  // Solo i temi che sono esplicitamente marcati come 'material' sono considerati rilevanti
+  const materialIssues = issues.filter(issue => issue.isMaterial === true);
+  console.log("Material issues in MaterialityProvider:", materialIssues.length);
   
   // Use survey dialog hook
   const { 
