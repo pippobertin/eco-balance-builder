@@ -1,13 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart2, List, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import IssueItem from './IssueItem';
-import MaterialityMatrixChart from './MaterialityMatrixChart';
+import React, { useState } from 'react';
+import { SearchBar, IssuesList, IssueTabs } from './components/issues-tab';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
-import NoIssuesFound from './components/NoIssuesFound';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -48,52 +43,24 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="current" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="current" className="flex items-center">
-            <List className="mr-2 h-4 w-4" />
-            Temi Materialità
-          </TabsTrigger>
-          <TabsTrigger value="matrix" className="flex items-center">
-            <BarChart2 className="mr-2 h-4 w-4" />
-            Matrice di Materialità
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="current" className="space-y-4">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Cerca temi di materialità..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      <IssueTabs 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        issues={issues}
+      >
+        <SearchBar 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+        />
 
-          <h3 className="text-lg font-semibold mt-6 mb-4 text-gray-800">Rilevanza</h3>
+        <h3 className="text-lg font-semibold mt-6 mb-4 text-gray-800">Rilevanza</h3>
 
-          {filteredIssues.length === 0 ? (
-            <NoIssuesFound />
-          ) : (
-            <div className="space-y-2">
-              {filteredIssues.map((issue) => (
-                <IssueItem
-                  key={issue.id}
-                  issue={issue}
-                  onIssueChange={onIssueChange}
-                  onRemoveIssue={onRemoveIssue}
-                  isPredefined={!issue.id.startsWith('custom-')}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="matrix">
-          <MaterialityMatrixChart issues={issues} />
-        </TabsContent>
-      </Tabs>
+        <IssuesList 
+          issues={filteredIssues}
+          onIssueChange={onIssueChange}
+          onRemoveIssue={onRemoveIssue}
+        />
+      </IssueTabs>
       
       <MaterialityReport 
         materialIssues={materialIssues} 
