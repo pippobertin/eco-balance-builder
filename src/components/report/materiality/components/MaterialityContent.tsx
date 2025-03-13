@@ -59,24 +59,27 @@ const MaterialityContent: React.FC = () => {
     console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
   }, [materialIssues, issues]);
 
-  // Handle issue selection from ThemesCategoryTabs
+  // Handle issue selection from ThemesCategoryTabs - CRITICAL for selection to work
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // Make sure isMaterial is explicitly a boolean
-    const isMaterialValue = issue.isMaterial === true;
+    // CRITICAL FIX: Create deep copy to avoid references
+    const issueCopy = JSON.parse(JSON.stringify(issue));
+    
+    // Make sure isMaterial is explicitly a boolean using strict comparison
+    const isMaterialValue = issueCopy.isMaterial === true;
     
     console.log("MaterialityContent: Processing issue with explicit boolean isMaterial:", isMaterialValue);
     
-    // Pass to the original handler
-    originalHandleIssueChange(issue.id, 'isMaterial', isMaterialValue);
+    // Pass to the original handler with guaranteed boolean value
+    originalHandleIssueChange(issueCopy.id, 'isMaterial', isMaterialValue);
     
     // For debugging - check all material issues after update
     setTimeout(() => {
       const materialCount = issues.filter(i => i.isMaterial === true).length;
-      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+      console.log(`After updating issue ${issueCopy.id}, material issues count: ${materialCount}`);
       console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-    }, 100);
+    }, 500);
   };
 
   // Adapter function to match the expected signature for TabContent

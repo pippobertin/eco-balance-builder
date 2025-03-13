@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -48,12 +49,12 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       // Check if this issue is in the selectedIssueIds set
       if (selectedIssueIds.has(issueCopy.id)) {
         console.log(`ThemesTabContent [${tabId}]: Issue is selected by ID:`, issueCopy.id);
-        // Ensure isMaterial is explicitly true
+        // Ensure isMaterial is explicitly true (BOOLEAN)
         issueCopy.isMaterial = true;
         selected.push(issueCopy);
       } else {
         console.log(`ThemesTabContent [${tabId}]: Issue is not material:`, issueCopy.id);
-        // Ensure isMaterial is explicitly false for available issues
+        // Ensure isMaterial is explicitly false for available issues (BOOLEAN)
         issueCopy.isMaterial = false;
         available.push(issueCopy);
       }
@@ -75,19 +76,25 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     
     console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
     
-    // Important: Make sure we're passing the correct boolean value for isMaterial
-    // This is crucial for the downstream components to work correctly
-    onIssueSelect(issue);
+    // Create a NEW deep copy to avoid reference issues
+    const issueCopy = JSON.parse(JSON.stringify(issue));
     
-    // Update local state for immediate UI feedback
-    if (issue.isMaterial === true) {
+    // Ensure the isMaterial value is a proper boolean
+    issueCopy.isMaterial = (issueCopy.isMaterial === true);
+    
+    // Pass along to parent component
+    onIssueSelect(issueCopy);
+    
+    // CRITICAL FIX: Update local state immediately for UI feedback
+    // This ensures changes are visible even before the parent state updates
+    if (issueCopy.isMaterial === true) {
       // Issue is being selected (moved to selected panel)
-      setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-      setSelectedIssues(prev => [...prev, issue]);
+      setAvailableIssues(prev => prev.filter(i => i.id !== issueCopy.id));
+      setSelectedIssues(prev => [...prev, issueCopy]);
     } else {
       // Issue is being deselected (moved to available panel)
-      setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
-      setAvailableIssues(prev => [...prev, issue]);
+      setSelectedIssues(prev => prev.filter(i => i.id !== issueCopy.id));
+      setAvailableIssues(prev => [...prev, issueCopy]);
     }
   };
 

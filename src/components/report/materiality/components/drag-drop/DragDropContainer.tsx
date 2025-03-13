@@ -35,9 +35,11 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
 
     console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // isMaterial is already set correctly in the child components
+    // Important: Make a DEEP COPY to avoid reference issues
+    const issueCopy = JSON.parse(JSON.stringify(issue));
+    
     // Pass the issue directly to the parent handler
-    onIssueSelect(issue);
+    onIssueSelect(issueCopy);
   };
 
   return (

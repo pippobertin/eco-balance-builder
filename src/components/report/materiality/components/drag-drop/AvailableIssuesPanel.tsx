@@ -29,8 +29,12 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
     const issueCopy = JSON.parse(JSON.stringify(issue));
     
     // Explicitly set isMaterial to true as a boolean
+    // CRITICAL FIX: Use strict boolean true value
     issueCopy.isMaterial = true;
     
+    console.log(`AvailableIssuesPanel [${tabId}]: Setting isMaterial to:`, issueCopy.isMaterial, "type:", typeof issueCopy.isMaterial);
+    
+    // Pass the issue to the parent component
     onIssueClick(issueCopy);
   };
 
