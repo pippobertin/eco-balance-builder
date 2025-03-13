@@ -2,21 +2,21 @@
 import { MaterialityIssue } from '../../../types';
 
 /**
- * Check if we should skip this update due to a recent operation
+ * Determines if we should skip the update based on recent operations
  */
 export const shouldSkipUpdate = (
-  lastOpRef: React.MutableRefObject<{id: string; operation: 'select'|'deselect'; timestamp: number} | undefined>, 
+  lastOpRef: React.MutableRefObject<{id: string; operation: 'select'|'deselect'; timestamp: number} | undefined>,
   updatingRef: React.MutableRefObject<boolean>
-) => {
-  // If we're already updating, skip
+): boolean => {
+  // Check if we're already processing an update
   if (updatingRef.current) {
-    console.log("useThemeProcessing: Skipping update because another update is in progress");
+    console.log(`shouldSkipUpdate: Already updating, skipping`);
     return true;
   }
   
-  // If there was a recent user operation (less than 200ms ago), skip
-  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 200) {
-    console.log(`useThemeProcessing: Skipping update due to recent operation on ${lastOpRef.current.id}`);
+  // Check if this is due to a very recent operation (within 100ms)
+  if (lastOpRef.current && Date.now() - lastOpRef.current.timestamp < 100) {
+    console.log(`shouldSkipUpdate: Recent operation detected, skipping immediate processing`);
     return true;
   }
   
@@ -24,65 +24,50 @@ export const shouldSkipUpdate = (
 };
 
 /**
- * Check if we should process issues based on various conditions
+ * Determines if we should process the issues based on changes
  */
 export const shouldProcessIssues = (
-  selectedIssueIds: Set<string>,
+  selectedIssueIds: Set<string>, 
   prevSelectedIdsRef: React.MutableRefObject<Set<string>>,
   hasMountedRef: React.MutableRefObject<boolean>,
   availableIssues: MaterialityIssue[],
   selectedIssues: MaterialityIssue[]
-) => {
+): boolean => {
   // Always process on first mount
   if (!hasMountedRef.current) {
-    console.log("useThemeProcessing: Processing on first mount");
+    console.log(`shouldProcessIssues: First mount, processing`);
+    hasMountedRef.current = true;
     return true;
   }
   
-  // Check if selected IDs have changed
-  const prevSelectedArray = Array.from(prevSelectedIdsRef.current);
-  const currentSelectedArray = Array.from(selectedIssueIds);
+  // Check if the selected issue IDs have changed
+  const prevIds = Array.from(prevSelectedIdsRef.current).sort().join(',');
+  const currentIds = Array.from(selectedIssueIds).sort().join(',');
   
-  if (prevSelectedArray.length !== currentSelectedArray.length) {
-    console.log("useThemeProcessing: Selected IDs count changed, processing");
+  if (prevIds !== currentIds) {
+    console.log(`shouldProcessIssues: Selected IDs changed, processing`);
+    console.log(`  - Previous: ${prevIds}`);
+    console.log(`  - Current: ${currentIds}`);
     return true;
   }
   
-  // Check if any IDs are different
-  for (const id of currentSelectedArray) {
-    if (!prevSelectedIdsRef.current.has(id)) {
-      console.log(`useThemeProcessing: New selected ID: ${id}, processing`);
-      return true;
-    }
-  }
-  
-  for (const id of prevSelectedArray) {
-    if (!selectedIssueIds.has(id)) {
-      console.log(`useThemeProcessing: ID removed from selection: ${id}, processing`);
-      return true;
-    }
-  }
-  
-  // Check if we have no issues yet
-  if (availableIssues.length === 0 && selectedIssues.length === 0) {
-    console.log("useThemeProcessing: No issues in state yet, processing");
+  // Check if we need to initialize empty arrays
+  if ((availableIssues.length === 0 && selectedIssues.length === 0) && selectedIssueIds.size > 0) {
+    console.log(`shouldProcessIssues: Empty arrays with selected IDs, processing`);
     return true;
   }
   
-  // Check if any selected issues have isMaterial=false (need to be removed)
-  const hasDeselectedIssues = selectedIssues.some(issue => issue.isMaterial === false);
-  if (hasDeselectedIssues) {
-    console.log("useThemeProcessing: Found deselected issues in selected list, processing");
+  // Check for issues with mismatched material states
+  const mismatchedIssues = [
+    ...availableIssues.filter(issue => issue.isMaterial === true),
+    ...selectedIssues.filter(issue => issue.isMaterial === false)
+  ];
+  
+  if (mismatchedIssues.length > 0) {
+    console.log(`shouldProcessIssues: Found ${mismatchedIssues.length} mismatched issues, processing`);
     return true;
   }
   
-  // Check if any available issues have isMaterial=true (need to be moved to selected)
-  const hasSelectedIssues = availableIssues.some(issue => issue.isMaterial === true);
-  if (hasSelectedIssues) {
-    console.log("useThemeProcessing: Found selected issues in available list, processing");
-    return true;
-  }
-  
-  console.log("useThemeProcessing: No changes detected, skipping processing");
+  console.log(`useThemeProcessing: No changes detected, skipping processing`);
   return false;
 };

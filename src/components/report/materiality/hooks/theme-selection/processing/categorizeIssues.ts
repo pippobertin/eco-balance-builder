@@ -1,10 +1,20 @@
 
 import { MaterialityIssue } from '../../../types';
-import { useToast } from '@/hooks/use-toast';
 
-/**
- * Categorize issues into available and selected arrays
- */
+interface CategorizeIssuesParams {
+  issues: MaterialityIssue[];
+  selectedIssueIds: Set<string>;
+  tabId: string;
+  knownMaterialIssuesRef: React.MutableRefObject<Set<string>>;
+  explicitlyDeselectedRef: React.MutableRefObject<Set<string>>;
+  lastOpRef: React.MutableRefObject<{id: string; operation: 'select'|'deselect'; timestamp: number} | undefined>;
+}
+
+interface CategorizedIssues {
+  available: MaterialityIssue[];
+  selected: MaterialityIssue[];
+}
+
 export const categorizeIssues = ({
   issues,
   selectedIssueIds,
@@ -12,61 +22,57 @@ export const categorizeIssues = ({
   knownMaterialIssuesRef,
   explicitlyDeselectedRef,
   lastOpRef
-}: {
-  issues: MaterialityIssue[];
-  selectedIssueIds: Set<string>;
-  tabId: string;
-  knownMaterialIssuesRef: React.MutableRefObject<Set<string>>;
-  explicitlyDeselectedRef: React.MutableRefObject<Set<string>>;
-  lastOpRef: React.MutableRefObject<{id: string; operation: 'select'|'deselect'; timestamp: number} | undefined>;
-}) => {
+}: CategorizeIssuesParams): CategorizedIssues => {
+  console.log(`categorizeIssues [${tabId}]: Processing ${issues.length} issues, ${selectedIssueIds.size} selected`);
+  
   const available: MaterialityIssue[] = [];
   const selected: MaterialityIssue[] = [];
   
-  // Process issues for this specific tab
+  // Process each issue
   issues.forEach(issue => {
-    try {
-      // Create a deep copy of the issue to prevent reference issues
-      const issueCopy = structuredClone(issue);
-      
-      // If this issue has been explicitly deselected
-      if (explicitlyDeselectedRef.current.has(issueCopy.id) || issueCopy.isMaterial === false) {
-        console.log(`useThemeProcessing [${tabId}]: Issue ${issueCopy.id} is deselected, adding to available`);
-        issueCopy.isMaterial = false;
-        available.push(issueCopy);
-        return;
-      }
-      
-      // Handle recent operations
-      if (lastOpRef.current && lastOpRef.current.id === issueCopy.id && Date.now() - lastOpRef.current.timestamp < 5000) {
-        if (lastOpRef.current.operation === 'select') {
-          issueCopy.isMaterial = true;
-          knownMaterialIssuesRef.current.add(issueCopy.id);
-          selected.push(issueCopy);
-          return;
-        } else if (lastOpRef.current.operation === 'deselect') {
-          issueCopy.isMaterial = false;
-          knownMaterialIssuesRef.current.delete(issueCopy.id);
-          available.push(issueCopy);
-          return;
-        }
-      }
-      
-      // Check if this issue should be selected
-      if (selectedIssueIds.has(issueCopy.id) && !explicitlyDeselectedRef.current.has(issueCopy.id)) {
-        console.log(`useThemeProcessing [${tabId}]: Issue is selected by ID:`, issueCopy.id);
-        issueCopy.isMaterial = true;
-        knownMaterialIssuesRef.current.add(issueCopy.id);
-        selected.push(issueCopy);
-      } else {
-        console.log(`useThemeProcessing [${tabId}]: Issue is not material:`, issueCopy.id);
-        issueCopy.isMaterial = false;
-        available.push(issueCopy);
-      }
-    } catch (issueError) {
-      console.error(`Error processing issue:`, issue.id, issueError);
+    // Make a copy to avoid reference issues
+    const issueCopy = { ...issue };
+    
+    // Check if there's a recent operation on this issue to respect
+    const recentOp = lastOpRef.current && lastOpRef.current.id === issue.id;
+    
+    // Determine the most accurate material status
+    let isMaterial = false;
+    
+    // First priority: recent user operation
+    if (recentOp) {
+      isMaterial = lastOpRef.current!.operation === 'select';
+    } 
+    // Second priority: explicit material flag in the issue
+    else if (typeof issue.isMaterial === 'boolean') {
+      isMaterial = issue.isMaterial;
+    } 
+    // Third priority: selected IDs set from parent
+    else if (selectedIssueIds.has(issue.id)) {
+      isMaterial = true;
+    }
+    // Fourth priority: known material issues tracking
+    else if (knownMaterialIssuesRef.current.has(issue.id)) {
+      isMaterial = true;
+    }
+    
+    // Override if explicitly deselected (unless there's a more recent operation)
+    if (!recentOp && explicitlyDeselectedRef.current.has(issue.id)) {
+      isMaterial = false;
+    }
+    
+    // Set the material flag explicitly
+    issueCopy.isMaterial = isMaterial;
+    
+    // Add to the appropriate category
+    if (isMaterial) {
+      selected.push(issueCopy);
+    } else {
+      available.push(issueCopy);
     }
   });
+  
+  console.log(`categorizeIssues [${tabId}]: Categorized ${available.length} available, ${selected.length} selected`);
   
   return { available, selected };
 };
