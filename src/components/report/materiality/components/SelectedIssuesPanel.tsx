@@ -22,19 +22,19 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
 
   // Handle issue removal - wrapper for onIssueClick
   const handleIssueRemove = (issue: MaterialityIssue) => {
-    // Debug log for tracking
-    console.log(`SelectedIssuesPanel [${tabId}]: Removing issue`, issue.id, issue.name);
-    
-    // Create a deep copy of the issue to prevent reference issues
-    const updatedIssue = structuredClone(issue);
-    
-    // Set isMaterial to a strict boolean false
-    updatedIssue.isMaterial = false;
-    
-    console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to`, updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);
-    
-    // Use a timeout to ensure the UI updates before sending the data change
-    setTimeout(() => {
+    try {
+      // Debug log for tracking
+      console.log(`SelectedIssuesPanel [${tabId}]: Removing issue`, issue.id, issue.name);
+      
+      // Create a deep copy of the issue to prevent reference issues
+      const updatedIssue = structuredClone(issue);
+      
+      // Set isMaterial to a strict boolean false - This is crucial
+      updatedIssue.isMaterial = false;
+      
+      console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to`, updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);
+      
+      // Immediately call onIssueClick with the updated issue
       onIssueClick(updatedIssue);
       
       // Show toast for user feedback
@@ -43,18 +43,37 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
         description: `"${issue.name}" è stato rimosso dai temi selezionati.`,
         variant: "default"
       });
-    }, 50);
+    } catch (error) {
+      console.error(`SelectedIssuesPanel [${tabId}]: Error removing issue:`, error);
+      toast({
+        title: "Errore nella rimozione",
+        description: "Si è verificato un errore durante la rimozione del tema. Riprova.",
+        variant: "destructive"
+      });
+    }
   };
+
+  // Deduplicate the selected issues by ID
+  const uniqueSelectedIssues = React.useMemo(() => {
+    const seenIds = new Set<string>();
+    return selectedIssues.filter(issue => {
+      if (seenIds.has(issue.id)) {
+        return false;
+      }
+      seenIds.add(issue.id);
+      return true;
+    });
+  }, [selectedIssues]);
 
   return (
     <div className="rounded-lg border bg-card shadow-sm">
       <div className="p-4 font-semibold bg-muted/50 rounded-t-lg">
-        Temi selezionati ({selectedIssues.length})
+        Temi selezionati ({uniqueSelectedIssues.length})
       </div>
       <ScrollArea className="h-[350px] p-4">
-        {selectedIssues.length > 0 ? (
+        {uniqueSelectedIssues.length > 0 ? (
           <div className="space-y-2">
-            {selectedIssues.map(issue => (
+            {uniqueSelectedIssues.map(issue => (
               <div 
                 key={issue.id}
                 className="p-3 rounded-md bg-background flex justify-between items-center group hover:bg-muted/50"

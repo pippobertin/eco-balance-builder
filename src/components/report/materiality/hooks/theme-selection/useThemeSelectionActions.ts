@@ -68,8 +68,17 @@ export const useThemeSelectionActions = ({
           // Issue is being selected (moved to selected panel)
           console.log(`useThemeSelectionActions [${tabId}]: Moving issue to selected panel:`, issueToUpdate.id);
           
+          // Remove from available issues
           setAvailableIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
-          setSelectedIssues(prev => [...prev, issueToUpdate]);
+          
+          // Check if issue already exists in selected issues (prevent duplicates)
+          setSelectedIssues(prev => {
+            // If the issue already exists in the selected issues list, don't add it again
+            if (prev.some(i => i.id === issueToUpdate.id)) {
+              return prev;
+            }
+            return [...prev, issueToUpdate];
+          });
           
           // Update the prevSelectedIdsRef to include this issue
           const newSelectedIds = new Set(prevSelectedIdsRef.current);
@@ -79,17 +88,21 @@ export const useThemeSelectionActions = ({
           // Issue is being deselected (moved to available panel)
           console.log(`useThemeSelectionActions [${tabId}]: Moving issue to available panel:`, issueToUpdate.id);
           
+          // Remove from selected issues
           setSelectedIssues(prev => prev.filter(i => i.id !== issueToUpdate.id));
           
-          // Always add back to available issues when deselected
+          // Only add to available issues if it belongs to this tab and isn't already there
           const wasInThisTab = latestProcessedIssuesRef.current.available.some(i => i.id === issueToUpdate.id) ||
                               latestProcessedIssuesRef.current.selected.some(i => i.id === issueToUpdate.id);
           
           if (wasInThisTab) {
-            const availableIssueExists = latestProcessedIssuesRef.current.available.some(i => i.id === issueToUpdate.id);
-            if (!availableIssueExists) {
-              setAvailableIssues(prev => [...prev, issueToUpdate]);
-            }
+            setAvailableIssues(prev => {
+              // If the issue already exists in available issues, don't add it again
+              if (prev.some(i => i.id === issueToUpdate.id)) {
+                return prev;
+              }
+              return [...prev, issueToUpdate];
+            });
           } else {
             console.log(`Issue ${issueToUpdate.id} was not originally in this tab, not adding to available`);
           }

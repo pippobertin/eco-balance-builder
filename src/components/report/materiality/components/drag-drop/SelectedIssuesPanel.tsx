@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MaterialityIssue } from '../../types';
 import { Button } from '@/components/ui/button';
 import { MinusCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SelectedIssuesPanelProps {
   selectedIssues: MaterialityIssue[];
@@ -16,25 +17,54 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   onIssueClick,
   tabId = ''
 }) => {
+  const { toast } = useToast();
+
   // Handle removing an issue from selected panel
   const handleIssueClick = (issue: MaterialityIssue) => {
-    console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id, "current isMaterial:", issue.isMaterial);
-    
-    // Pass to parent handler (DragDropContainer will handle toggling isMaterial)
-    onIssueClick(issue);
+    try {
+      console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id, "current isMaterial:", issue.isMaterial);
+      
+      // Create a deep copy to prevent reference issues
+      const issueToRemove = structuredClone(issue);
+      
+      // Explicitly set isMaterial to false
+      issueToRemove.isMaterial = false;
+      
+      // Pass to parent handler (DragDropContainer will handle toggling isMaterial)
+      onIssueClick(issueToRemove);
+    } catch (error) {
+      console.error(`SelectedIssuesPanel [${tabId}]: Error handling issue click:`, error);
+      toast({
+        title: "Errore nella rimozione",
+        description: "Si è verificato un errore durante la rimozione del tema. Riprova.",
+        variant: "destructive"
+      });
+    }
   };
+
+  // Deduplicate the selected issues to prevent showing duplicates in the UI
+  const uniqueSelectedIssues = React.useMemo(() => {
+    const seenIds = new Set<string>();
+    return selectedIssues.filter(issue => {
+      if (seenIds.has(issue.id)) {
+        return false;
+      }
+      seenIds.add(issue.id);
+      return true;
+    });
+  }, [selectedIssues]);
 
   return (
     <div id="selected-container" className="border rounded-lg p-2">
       <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Selezionati</h3>
       <ScrollArea className="h-[400px] pr-4">
         <div className="space-y-2">
-          {selectedIssues.length === 0 ? (
+          {uniqueSelectedIssues.length === 0 ? (
             <div className="p-4 text-center text-gray-500 italic">
               Nessun tema selezionato. Clicca sui temi dalla colonna di sinistra per aggiungerli.
             </div>
           ) : (
-            selectedIssues.map((issue) => (
+            uniqueSelectedIssues.map((issue) => (
               <div 
                 key={issue.id}
                 className="p-4 rounded-lg border mb-2 bg-white border-gray-100 hover:bg-red-50 flex justify-between items-center"
