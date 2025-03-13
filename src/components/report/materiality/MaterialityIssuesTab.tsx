@@ -34,6 +34,10 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   // Filtra esplicitamente solo i temi che hanno isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
+  // Log for debugging
+  console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues from ${issues.length} total issues`);
+  console.log("Material issues:", materialIssues.map(issue => ({ id: issue.id, name: issue.name })));
+  
   // Filter issues based on search query
   const filteredIssues = searchQuery 
     ? materialIssues.filter(issue => 
@@ -41,8 +45,6 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         (issue.description && issue.description.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : materialIssues;
-    
-  console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues`);
 
   // Update refresh key when issues change
   useEffect(() => {

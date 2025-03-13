@@ -26,8 +26,14 @@ export const useMaterialityIssues = (
           ...issue,
           impactRelevance: Number(issue.impactRelevance) || 50,
           financialRelevance: Number(issue.financialRelevance) || 50,
-          isMaterial: issue.isMaterial === true // Ensure isMaterial is a boolean
+          // Ensure isMaterial is explicitly a boolean value
+          isMaterial: issue.isMaterial === true
         }));
+        
+        // Count material issues for debugging
+        const materialCount = processedIssues.filter(issue => issue.isMaterial === true).length;
+        console.log(`Processed ${processedIssues.length} issues, ${materialCount} are material`);
+        
         setIssues(processedIssues);
       }
     } else {
@@ -39,6 +45,9 @@ export const useMaterialityIssues = (
 
   const triggerUpdate = useCallback(() => {
     console.log("Triggering update with issues:", issues.length);
+    // Count and log material issues for debugging
+    const materialCount = issues.filter(issue => issue.isMaterial === true).length;
+    console.log(`Sending update with ${issues.length} issues, ${materialCount} are material`);
     onUpdate(issues);
   }, [issues, onUpdate]);
 
@@ -70,12 +79,21 @@ export const useMaterialityIssues = (
             const numericValue = typeof value === 'string' ? Number(value) : value;
             return { ...issue, [field]: numericValue };
           }
+          
+          // Ensure boolean value for isMaterial
+          if (field === 'isMaterial') {
+            return { ...issue, isMaterial: value === true };
+          }
+          
           return { ...issue, [field]: value };
         }
         return issue;
       });
       
-      console.log("Updated issues after change:", updatedIssues.length);
+      // Count material issues for debugging
+      const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
+      console.log(`Updated issues after change: ${updatedIssues.length} total, ${materialCount} material`);
+      
       return updatedIssues;
     });
     
@@ -83,9 +101,13 @@ export const useMaterialityIssues = (
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
         const updatedIssues = prevIssues.map(issue => 
-          issue.id === id ? { ...issue, isMaterial: value } : issue
+          issue.id === id ? { ...issue, isMaterial: value === true } : issue
         );
-        console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}`);
+        
+        // Count material issues for debugging
+        const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
+        console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}. Material issues: ${materialCount}`);
+        
         onUpdate(updatedIssues);
         return updatedIssues;
       });
@@ -119,6 +141,10 @@ export const useMaterialityIssues = (
           }
         ];
         
+        // Count material issues for debugging
+        const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
+        console.log(`After adding predefined issue: ${updatedIssues.length} total, ${materialCount} material`);
+        
         onUpdate(updatedIssues);
         return updatedIssues;
       } else {
@@ -135,6 +161,10 @@ export const useMaterialityIssues = (
             isMaterial: true // Set as material by default
           }
         ];
+        
+        // Count material issues for debugging
+        const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
+        console.log(`After adding custom issue: ${updatedIssues.length} total, ${materialCount} material`);
         
         onUpdate(updatedIssues);
         return updatedIssues;
@@ -157,6 +187,10 @@ export const useMaterialityIssues = (
       const updatedIssues = prevIssues.map(issue => 
         issue.id === id ? { ...issue, isMaterial: false } : issue
       );
+      
+      // Count material issues for debugging
+      const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
+      console.log(`After removing issue: ${updatedIssues.length} total, ${materialCount} material`);
       
       onUpdate(updatedIssues);
       return updatedIssues;

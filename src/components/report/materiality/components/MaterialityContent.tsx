@@ -42,20 +42,27 @@ const MaterialityContent: React.FC = () => {
   const [materialIssueIds, setMaterialIssueIds] = useState(new Set<string>());
   
   useEffect(() => {
+    // Log for debugging
+    console.log("MaterialContent: materialIssues updated, count:", materialIssues.length);
+    console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
+    
     const materialIds = new Set(materialIssues.map(issue => issue.id));
     setMaterialIssueIds(materialIds);
+    console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
   }, [materialIssues]);
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, issue.isMaterial);
+    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
     
-    // Find the field that's changing (isMaterial) and update it
-    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
+    // Always set isMaterial to true when an issue is selected through this path
+    originalHandleIssueChange(issue.id, 'isMaterial', true);
   };
 
   // Adapter function to match the expected signature for TabContent
   const handleIssueChange = (id: string, updatedIssue: Partial<MaterialityIssue>) => {
+    console.log("MaterialityContent handleIssueChange for ID:", id, "with updates:", updatedIssue);
+    
     Object.entries(updatedIssue).forEach(([field, value]) => {
       originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
     });
