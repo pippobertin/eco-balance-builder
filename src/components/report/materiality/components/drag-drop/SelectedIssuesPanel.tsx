@@ -18,9 +18,9 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
 }) => {
   // Handle removing an issue from selected panel
   const handleIssueClick = (issue: MaterialityIssue) => {
-    console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id);
+    console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id, "current isMaterial:", issue.isMaterial);
     
-    // Pass to parent handler which will handle toggling isMaterial and creating a clean copy
+    // Pass to parent handler (DragDropContainer will handle toggling isMaterial)
     onIssueClick(issue);
   };
 
@@ -37,7 +37,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
             selectedIssues.map((issue) => (
               <div 
                 key={issue.id}
-                className="p-4 rounded-lg border mb-2 bg-white border-gray-100 hover:bg-red-50 cursor-pointer flex justify-between items-center"
+                className="p-4 rounded-lg border mb-2 bg-white border-gray-100 hover:bg-red-50 flex justify-between items-center"
               >
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">{issue.name}</h4>

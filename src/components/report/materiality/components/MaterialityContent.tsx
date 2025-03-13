@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MaterialityTabs from '../MaterialityTabs';
 import MaterialityHeader from './MaterialityHeader';
@@ -51,31 +52,37 @@ const MaterialityContent: React.FC = () => {
     
     // Log for debugging
     console.log("MaterialContent: materialIssues updated, count:", materialIssues.length);
-    console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
+    
+    if (materialIssues.length > 0) {
+      console.log("MaterialContent: materialIssues IDs:", materialIssues.map(issue => issue.id));
+    }
     
     const materialIds = new Set(materialIssues.map(issue => issue.id));
     setMaterialIssueIds(materialIds);
     console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
   }, [materialIssues, issues]);
 
-  // Handle issue selection from ThemesCategoryTabs - CRITICAL for selection to work
+  // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
+    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
     
-    // CRITICAL FIX: Toggle isMaterial here, since this is the top-level handler
-    // This ensures consistency in how issues are toggled
-    const newIsMaterial = !issue.isMaterial;
-    console.log("MaterialityContent: Setting isMaterial to:", newIsMaterial);
+    // This is the top-level handler that receives an issue object with toggled isMaterial
+    // The issue object's isMaterial has already been toggled by DragDropContainer
+    const newIsMaterial = issue.isMaterial;
+    console.log("MaterialityContent: Using toggled isMaterial:", newIsMaterial);
     
-    // Pass to the original handler with new boolean value
+    // Pass to the original handler with the already toggled boolean value
     originalHandleIssueChange(issue.id, 'isMaterial', newIsMaterial);
     
     // For debugging - check all material issues after update
     setTimeout(() => {
       const materialCount = issues.filter(i => i.isMaterial === true).length;
       console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
-      console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-    }, 800);
+      
+      if (materialCount > 0) {
+        console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
+      }
+    }, 1200);
   };
 
   // Adapter function to match the expected signature for TabContent

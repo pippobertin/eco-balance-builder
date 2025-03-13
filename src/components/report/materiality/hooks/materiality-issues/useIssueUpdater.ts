@@ -26,7 +26,7 @@ export const useIssueUpdater = (
       console.log("Issues changed, scheduling update");
       const timeoutId = setTimeout(() => {
         triggerUpdate();
-      }, 500); // CRITICAL FIX: Increased timeout to ensure state settles
+      }, 1000); // CRITICAL FIX: Increased timeout to ensure state settles
       
       return () => clearTimeout(timeoutId);
     }
@@ -57,7 +57,7 @@ export const useIssueUpdater = (
           const numericValue = typeof value === 'string' ? Number(value) : value;
           updatedIssue[field] = numericValue;
         } else if (field === 'isMaterial') {
-          // CRITICAL FIX: Force boolean type for isMaterial - double check with === true
+          // CRITICAL FIX: Force boolean type for isMaterial
           updatedIssue.isMaterial = value === true;
           console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssue.isMaterial, typeof updatedIssue.isMaterial);
         } else {
@@ -79,7 +79,7 @@ export const useIssueUpdater = (
     // CRITICAL FIX: Always trigger update with a longer delay to ensure state is settled
     setTimeout(() => {
       triggerUpdate();
-    }, 800);
+    }, 1200);
   };
 
   return {

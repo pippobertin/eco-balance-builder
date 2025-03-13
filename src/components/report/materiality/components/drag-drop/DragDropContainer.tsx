@@ -33,22 +33,19 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
+    console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "current isMaterial:", issue.isMaterial);
     
-    // CRITICAL FIX: Create a completely new object to avoid any reference issues
+    // Create a completely new object to avoid any reference issues
+    // CRUCIAL FIX: We're creating a new object with the opposite isMaterial value
     const newIssue = {
-      id: issue.id,
-      name: issue.name,
-      description: issue.description || "",
-      impactRelevance: issue.impactRelevance || 50,
-      financialRelevance: issue.financialRelevance || 50,
+      ...issue,
       // Toggle isMaterial based on current state, ensure it's a boolean type
       isMaterial: !issue.isMaterial
     };
     
-    console.log(`DragDropContainer [${tabId}]: Created new issue with isMaterial:`, newIssue.isMaterial, "type:", typeof newIssue.isMaterial);
+    console.log(`DragDropContainer [${tabId}]: Created new issue with toggled isMaterial:`, newIssue.isMaterial);
     
-    // Pass the new issue directly to the parent handler
+    // Pass the new issue object to the parent handler
     onIssueSelect(newIssue);
   };
 

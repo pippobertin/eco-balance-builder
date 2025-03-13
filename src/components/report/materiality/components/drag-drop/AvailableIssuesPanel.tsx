@@ -18,15 +18,14 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
   onIssueClick,
   tabId = ''
 }) => {
-  // When clicking on an issue from the available panel, we want to select it (set isMaterial to true)
+  // When clicking on an issue from the available panel, we want to select it
   const handleIssueClick = (issue: MaterialityIssue) => {
     // Don't allow clicking on header themes
     if (isHeaderTheme(issue.id, issue.name)) return;
     
-    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, issue.id);
+    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, issue.id, "current isMaterial:", issue.isMaterial);
     
-    // Pass the issue directly to the parent component
-    // The parent (DragDropContainer) is responsible for creating a clean copy and toggling isMaterial
+    // Pass the issue to parent component for processing (DragDropContainer will toggle isMaterial)
     onIssueClick(issue);
   };
 

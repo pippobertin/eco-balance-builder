@@ -43,7 +43,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Process issues for this specific tab
     issues.forEach(issue => {
       // Create a deep copy of the issue to prevent reference issues
-      const issueCopy = { ...issue };
+      const issueCopy = JSON.parse(JSON.stringify(issue));
       
       // Check if this issue is in the selectedIssueIds set
       if (selectedIssueIds.has(issueCopy.id)) {
@@ -73,27 +73,23 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (!onIssueSelect) return;
     
-    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
+    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
     
-    // Pass along to parent component - the parent will create a clean copy with toggled isMaterial
-    onIssueSelect(issue);
-    
-    // CRITICAL FIX: Update local state immediately for UI feedback
-    // Check if issue is being selected (toggled to true) or deselected (toggled to false)
-    // Since we are toggling in DragDropContainer, we need to do the opposite of current state
-    const willBeSelected = !issue.isMaterial;
-    
-    if (willBeSelected) {
+    // CRITICAL FIX: First update local state for immediate UI feedback
+    if (issue.isMaterial) {
       // Issue is being selected (moved to selected panel)
+      console.log(`ThemesTabContent [${tabId}]: Moving issue to selected panel:`, issue.id);
       setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-      const issueWithMaterial = { ...issue, isMaterial: true };
-      setSelectedIssues(prev => [...prev, issueWithMaterial]);
+      setSelectedIssues(prev => [...prev, issue]);
     } else {
       // Issue is being deselected (moved to available panel)
+      console.log(`ThemesTabContent [${tabId}]: Moving issue to available panel:`, issue.id);
       setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
-      const issueWithoutMaterial = { ...issue, isMaterial: false };
-      setAvailableIssues(prev => [...prev, issueWithoutMaterial]);
+      setAvailableIssues(prev => [...prev, issue]);
     }
+    
+    // Then pass to parent handler for global state update
+    onIssueSelect(issue);
   };
 
   return (
