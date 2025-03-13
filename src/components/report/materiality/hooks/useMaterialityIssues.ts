@@ -38,7 +38,7 @@ export const useMaterialityIssues = (
   }, [initialIssues]);
 
   const triggerUpdate = useCallback(() => {
-    console.log("Triggering update with issues:", issues);
+    console.log("Triggering update with issues:", issues.length);
     onUpdate(issues);
   }, [issues, onUpdate]);
 
@@ -75,7 +75,7 @@ export const useMaterialityIssues = (
         return issue;
       });
       
-      console.log("Updated issues after change:", updatedIssues);
+      console.log("Updated issues after change:", updatedIssues.length);
       return updatedIssues;
     });
     
@@ -85,6 +85,7 @@ export const useMaterialityIssues = (
         const updatedIssues = prevIssues.map(issue => 
           issue.id === id ? { ...issue, isMaterial: value } : issue
         );
+        console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}`);
         onUpdate(updatedIssues);
         return updatedIssues;
       });

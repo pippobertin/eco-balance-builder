@@ -31,14 +31,14 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
 
-  // Filtriamo esplicitamente solo i temi che hanno isMaterial === true
+  // Filtra esplicitamente solo i temi che hanno isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Filter issues based on search query
   const filteredIssues = searchQuery 
     ? materialIssues.filter(issue => 
         issue.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        issue.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (issue.description && issue.description.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : materialIssues;
     

@@ -35,6 +35,8 @@ const MaterialityReport: React.FC<MaterialityReportProps> = ({
     }
   });
 
+  console.log("MaterialityReport rendering with issues:", materialIssues.length);
+
   return (
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
