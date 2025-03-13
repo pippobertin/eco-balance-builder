@@ -31,7 +31,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
 
-  // Filtriamo esplicitamente solo i temi che hanno isMaterial === true
+  // Filtra esplicitamente solo i temi che hanno isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Filter issues based on search query
@@ -42,8 +42,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
       )
     : materialIssues;
     
-  console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues from ${issues.length} total issues`);
-  console.log("Material issues:", materialIssues);
+  console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues`);
 
   // Update refresh key when issues change
   useEffect(() => {

@@ -70,17 +70,6 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   console.log("Material issues in MaterialityProvider:", materialIssues.length);
   
-  // Log details about each material issue to help debug
-  useEffect(() => {
-    if (materialIssues.length > 0) {
-      console.log("Material issues details:", materialIssues.map(issue => ({
-        id: issue.id,
-        name: issue.name,
-        isMaterial: issue.isMaterial
-      })));
-    }
-  }, [materialIssues]);
-  
   // Use survey dialog hook
   const { 
     surveyTemplate, 

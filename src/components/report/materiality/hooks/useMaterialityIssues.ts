@@ -83,7 +83,7 @@ export const useMaterialityIssues = (
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
         const updatedIssues = prevIssues.map(issue => 
-          issue.id === id ? { ...issue, isMaterial: value === true } : issue
+          issue.id === id ? { ...issue, isMaterial: value } : issue
         );
         console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}`);
         onUpdate(updatedIssues);
