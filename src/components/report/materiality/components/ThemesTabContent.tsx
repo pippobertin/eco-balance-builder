@@ -32,7 +32,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     setOriginalIssueOrder([...issues]);
     
     issues.forEach(issue => {
-      if (issue.isMaterial) {
+      if (issue.isMaterial === true) {
         selected.push(issue);
       } else {
         available.push(issue);
@@ -49,14 +49,22 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      console.log("ThemesTabContent handling issue select:", issue.id, issue.isMaterial);
-      onIssueSelect(issue);
+      console.log("ThemesTabContent handling issue select:", issue.id, "Current isMaterial:", issue.isMaterial);
+      
+      // Creiamo una nuova versione del tema con isMaterial esplicitamente impostato a true (o false se già selezionato)
+      const updatedIssue = {
+        ...issue,
+        isMaterial: !issue.isMaterial
+      };
+      
+      onIssueSelect(updatedIssue);
+      console.log("Sending updated issue with isMaterial:", updatedIssue.isMaterial);
       
       // Update local state for immediate UI feedback
-      if (issue.isMaterial) {
+      if (!issue.isMaterial) {
         // Issue is being selected
         setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-        setSelectedIssues(prev => [...prev, issue]);
+        setSelectedIssues(prev => [...prev, {...issue, isMaterial: true}]);
       } else {
         // Issue is being deselected - preserve original order when returning to available issues
         setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));

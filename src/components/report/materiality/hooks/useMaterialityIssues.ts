@@ -28,6 +28,11 @@ export const useMaterialityIssues = (
           financialRelevance: Number(issue.financialRelevance) || 50,
           isMaterial: issue.isMaterial === true // Ensure isMaterial is a boolean
         }));
+        
+        // Log material issues after processing
+        const materialCount = processedIssues.filter(i => i.isMaterial === true).length;
+        console.log(`After processing initialIssues: found ${materialCount} material issues`);
+        
         setIssues(processedIssues);
       }
     } else {
@@ -39,12 +44,18 @@ export const useMaterialityIssues = (
 
   const triggerUpdate = useCallback(() => {
     console.log("Triggering update with issues:", issues.length);
+    const materialCount = issues.filter(i => i.isMaterial === true).length;
+    console.log(`About to trigger update: ${materialCount} material issues`);
     onUpdate(issues);
   }, [issues, onUpdate]);
 
   useEffect(() => {
     if (issues && issues.length > 0) {
       console.log("Issues changed, scheduling update");
+      // Count material issues for debugging
+      const materialCount = issues.filter(i => i.isMaterial === true).length;
+      console.log(`Issues changed, material count: ${materialCount}`);
+      
       const timeoutId = setTimeout(() => {
         triggerUpdate();
       }, 300);
@@ -63,30 +74,40 @@ export const useMaterialityIssues = (
       return;
     }
     
-    setIssues(prevIssues => {
-      const updatedIssues = prevIssues.map(issue => {
-        if (issue.id === id) {
-          if (field === 'impactRelevance' || field === 'financialRelevance') {
-            const numericValue = typeof value === 'string' ? Number(value) : value;
-            return { ...issue, [field]: numericValue };
-          }
-          return { ...issue, [field]: value };
-        }
-        return issue;
-      });
-      
-      console.log("Updated issues after change:", updatedIssues.length);
-      return updatedIssues;
-    });
-    
-    // Call onUpdate immediately for this type of change
+    // Call onUpdate immediately for isMaterial changes
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
+        // Ensure isMaterial is always a boolean
+        const boolValue = value === true;
+        console.log(`Setting isMaterial=${boolValue} for issue ${id}`);
+        
         const updatedIssues = prevIssues.map(issue => 
-          issue.id === id ? { ...issue, isMaterial: value === true } : issue
+          issue.id === id ? { ...issue, isMaterial: boolValue } : issue
         );
-        console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}`);
+        
+        // Log all material issues for debugging
+        const materialIssues = updatedIssues.filter(i => i.isMaterial === true);
+        console.log(`After update, material issues (${materialIssues.length}):`, 
+          materialIssues.map(i => i.name));
+        
+        // Immediately update with the new state
         onUpdate(updatedIssues);
+        return updatedIssues;
+      });
+    } else {
+      setIssues(prevIssues => {
+        const updatedIssues = prevIssues.map(issue => {
+          if (issue.id === id) {
+            if (field === 'impactRelevance' || field === 'financialRelevance') {
+              const numericValue = typeof value === 'string' ? Number(value) : value;
+              return { ...issue, [field]: numericValue };
+            }
+            return { ...issue, [field]: value };
+          }
+          return issue;
+        });
+        
+        console.log("Updated issues after change:", updatedIssues.length);
         return updatedIssues;
       });
     }
@@ -157,6 +178,11 @@ export const useMaterialityIssues = (
       const updatedIssues = prevIssues.map(issue => 
         issue.id === id ? { ...issue, isMaterial: false } : issue
       );
+      
+      // Log all material issues after removal
+      const materialIssues = updatedIssues.filter(i => i.isMaterial === true);
+      console.log(`After removal, material issues (${materialIssues.length}):`, 
+        materialIssues.map(i => i.name));
       
       onUpdate(updatedIssues);
       return updatedIssues;

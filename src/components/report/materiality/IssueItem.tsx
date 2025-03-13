@@ -78,6 +78,19 @@ const IssueItem: React.FC<IssueItemProps> = ({
   
   const isHeaderItem = isHeader || isCategoryHeader;
   
+  // Log della resa del componente per debugging
+  React.useEffect(() => {
+    if (issue.isMaterial === true) {
+      console.log(`Rendering IssueItem for material issue: ${issue.name}`);
+    }
+  }, [issue]);
+  
+  // Handle toggle
+  const handleToggleMaterial = () => {
+    console.log(`Toggling material state for ${issue.id} from ${issue.isMaterial} to ${!issue.isMaterial}`);
+    onIssueChange(issue.id, 'isMaterial', !issue.isMaterial);
+  };
+  
   return (
     <div 
       className={`p-4 rounded-lg border mb-2 ${
@@ -112,7 +125,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onIssueChange(issue.id, 'isMaterial', !issue.isMaterial)}
+              onClick={handleToggleMaterial}
               className={issue.isMaterial ? "text-green-600" : "text-gray-400"}
             >
               <PlusCircle className="h-4 w-4" />
