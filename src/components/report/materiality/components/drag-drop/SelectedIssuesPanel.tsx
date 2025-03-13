@@ -30,8 +30,17 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
       // Explicitly set isMaterial to false
       issueToRemove.isMaterial = false;
       
+      console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to false, type:`, typeof issueToRemove.isMaterial);
+      
       // Pass to parent handler (DragDropContainer will handle toggling isMaterial)
       onIssueClick(issueToRemove);
+      
+      // Show feedback toast
+      toast({
+        title: "Tema rimosso",
+        description: `"${issue.name}" è stato rimosso dai temi selezionati.`,
+        variant: "default"
+      });
     } catch (error) {
       console.error(`SelectedIssuesPanel [${tabId}]: Error handling issue click:`, error);
       toast({
@@ -43,9 +52,15 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   };
 
   // Deduplicate the selected issues to prevent showing duplicates in the UI
+  // Also filter out any issues with isMaterial === false
   const uniqueSelectedIssues = React.useMemo(() => {
     const seenIds = new Set<string>();
     return selectedIssues.filter(issue => {
+      // Skip issues that are explicitly not material
+      if (issue.isMaterial === false) {
+        return false;
+      }
+      
       if (seenIds.has(issue.id)) {
         return false;
       }

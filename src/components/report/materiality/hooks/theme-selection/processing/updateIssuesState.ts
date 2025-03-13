@@ -46,18 +46,47 @@ export const updateIssuesState = ({
       return shouldInclude;
     });
     
-    // Ensure deselected issues are in available
-    const additionalAvailable = selected.filter(issue => issue.isMaterial === false);
-    const combinedAvailable = [...available, ...additionalAvailable];
+    console.log(`After filtering, selected issues count:`, filteredSelected.length);
+    
+    // Move deselected issues to available
+    const deselectedIssues = selected.filter(issue => issue.isMaterial === false);
+    
+    if (deselectedIssues.length > 0) {
+      console.log(`Found ${deselectedIssues.length} deselected issues to move to available`);
+    }
+    
+    // Ensure deselected issues are in available with isMaterial explicitly set to false
+    const additionalAvailable = deselectedIssues.map(issue => ({
+      ...issue,
+      isMaterial: false // Ensure it's a boolean false
+    }));
+    
+    // Filter available to remove duplicates (preferring the ones with explicitly set isMaterial)
+    const seenIds = new Set<string>();
+    const uniqueAvailable = available.filter(issue => {
+      if (seenIds.has(issue.id)) {
+        return false;
+      }
+      seenIds.add(issue.id);
+      return true;
+    });
+    
+    // Add the deselected issues to available (they already have isMaterial set to false)
+    additionalAvailable.forEach(issue => {
+      if (!seenIds.has(issue.id)) {
+        uniqueAvailable.push(issue);
+        seenIds.add(issue.id);
+      }
+    });
     
     // Store the latest processed issues
     latestProcessedIssuesRef.current = {
-      available: combinedAvailable.map(issue => structuredClone(issue)),
+      available: uniqueAvailable.map(issue => structuredClone(issue)),
       selected: filteredSelected.map(issue => structuredClone(issue))
     };
     
     // Set both states
-    setAvailableIssues(combinedAvailable);
+    setAvailableIssues(uniqueAvailable);
     setSelectedIssues(filteredSelected);
     
     // Update refs

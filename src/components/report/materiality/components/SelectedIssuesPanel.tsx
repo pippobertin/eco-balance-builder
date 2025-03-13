@@ -53,7 +53,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     }
   };
 
-  // Deduplicate the selected issues by ID
+  // Deduplicate the selected issues by ID and filter out any issues with isMaterial === false
   const uniqueSelectedIssues = React.useMemo(() => {
     const seenIds = new Set<string>();
     return selectedIssues.filter(issue => {

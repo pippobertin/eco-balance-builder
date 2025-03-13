@@ -68,6 +68,13 @@ export const shouldProcessIssues = (
     return true;
   }
   
+  // Special case: check for recently deselected issues that are still in the selected list
+  const recentlyDeselected = selectedIssues.filter(issue => issue.isMaterial === false);
+  if (recentlyDeselected.length > 0) {
+    console.log(`shouldProcessIssues: Found ${recentlyDeselected.length} recently deselected issues, processing`);
+    return true;
+  }
+  
   console.log(`useThemeProcessing: No changes detected, skipping processing`);
   return false;
 };
