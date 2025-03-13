@@ -37,8 +37,6 @@ export const predefinedIssues: MaterialityIssue[] = [
 
   // AMBIENTE - Acque e risorse marine
   createHeaderTheme('environmental-water-header', 'Acque e risorse marine'),
-  createBasicIssue('water-management', 'Acque', 'Gestione sostenibile delle risorse idriche'),
-  createBasicIssue('marine-resources', 'Risorse marine', 'Gestione sostenibile delle risorse marine'),
   createBasicIssue('water-consumption', 'Consumo idrico', 'Riduzione e ottimizzazione del consumo di acqua'),
   createBasicIssue('water-withdrawal', 'Prelievi idrici', 'Gestione sostenibile dei prelievi d\'acqua'),
   createBasicIssue('water-discharge', 'Scarichi di acque', 'Gestione degli scarichi idrici'),
@@ -47,21 +45,17 @@ export const predefinedIssues: MaterialityIssue[] = [
 
   // AMBIENTE - Biodiversità ed ecosistemi
   createHeaderTheme('environmental-biodiversity-header', 'Biodiversità ed ecosistemi'),
-  // Fattori di impatto diretto sulla perdita di biodiversità
   createBasicIssue('biodiversity-climate', 'Cambiamenti climatici', 'Impatto dei cambiamenti climatici sulla biodiversità'),
   createBasicIssue('biodiversity-land-use', 'Cambiamento di uso del suolo, dell\'acqua dolce e del mare', 'Impatto dei cambiamenti di uso del territorio sulla biodiversità'),
   createBasicIssue('biodiversity-exploitation', 'Sfruttamento diretto', 'Impatto dello sfruttamento diretto sulla biodiversità'),
   createBasicIssue('biodiversity-species', 'Specie esotiche invasive', 'Gestione delle specie esotiche invasive'),
   createBasicIssue('biodiversity-pollution', 'Inquinamento', 'Impatto dell\'inquinamento sulla biodiversità'),
-  createBasicIssue('biodiversity-other', 'Altro', 'Altri fattori di impatto sulla biodiversità'),
-  // Impatti sullo stato delle specie
-  createBasicIssue('species-population', 'Dimensioni della popolazione di una specie', 'Impatto sulle dimensioni della popolazione di una specie'),
   createBasicIssue('species-extinction', 'Rischio di estinzione globale di una specie', 'Contributo al rischio di estinzione di una specie'),
-  // Impatti sull'estensione e sulla condizione degli ecosistemi
   createBasicIssue('ecosystem-soil', 'Degrado del suolo', 'Impatti sul degrado del suolo'),
   createBasicIssue('ecosystem-desertification', 'Desertificazione', 'Contributo alla desertificazione'),
   createBasicIssue('ecosystem-impermeability', 'Impermeabilizzazione del suolo', 'Impatti legati all\'impermeabilizzazione del suolo'),
   createBasicIssue('ecosystem-services', 'Impatti e dipendenze in termini di servizi ecosistemici', 'Gestione degli impatti e delle dipendenze dai servizi ecosistemici'),
+  createBasicIssue('biodiversity-other', 'Altro', 'Altri fattori di impatto sulla biodiversità'),
 
   // AMBIENTE - Economia circolare
   createHeaderTheme('environmental-circular-header', 'Economia circolare'),
@@ -111,7 +105,7 @@ export const predefinedIssues: MaterialityIssue[] = [
   createBasicIssue('labor-privacy', 'Riservatezza', 'Tutela della riservatezza nella catena del valore'),
 
   // SOCIALE - Comunità interessate
-  createHeaderTheme('social-communities-header', 'Comunità interessate'),
+  createHeaderTheme('social-communities-header', 'Diritti economici, sociali e culturali delle comunità interessate'),
   createBasicIssue('community-housing', 'Alloggi adeguati', 'Rispetto del diritto ad alloggi adeguati per le comunità interessate'),
   createBasicIssue('community-food', 'Alimentazione adeguata', 'Rispetto del diritto all\'alimentazione adeguata per le comunità interessate'),
   createBasicIssue('community-water', 'Acqua e servizi igienico-sanitari', 'Rispetto del diritto all\'acqua e ai servizi igienico-sanitari per le comunità interessate'),

@@ -1,6 +1,6 @@
 
 import { predefinedIssues } from './materialityUtils';
-import { determineESGCategory, environmentalPatterns, socialPatterns, governancePatterns } from './categoryPatterns';
+import { determineESGCategory } from './categoryPatterns';
 import { MaterialityIssue } from '../types';
 
 // Categorize predefined issues by ESG category
@@ -11,110 +11,70 @@ export const categorizePredefinedIssues = () => {
   }));
 };
 
-// Improved categorization using both pattern matching and manual categorization
+// Migliorata categorizzazione utilizzando sia pattern matching che pre-categorizzazione
 export const getIssuesByCategory = () => {
   const categorizedIssues = categorizePredefinedIssues();
   
-  // Explicitly check category patterns for accurate theme grouping
   return {
-    // Environmental themes
+    // Temi Ambientali - solo header e temi correlati all'ambiente
     environmental: categorizedIssues.filter(issue => {
-      // Category is already set to environmental
-      if (issue.category === 'environmental') return true;
-      
-      // Explicit pattern matching for environmental themes
       const id = issue.id.toLowerCase();
-      const name = issue.name.toLowerCase();
       
-      // Make sure all biodiversity themes are categorized as environmental
-      if (id.includes('biodiversity') || id.includes('species') || 
-          id.includes('ecosystem') || name.includes('biodiversità')) return true;
+      // Include solo header ambientali
+      if (id.includes('header') && !id.startsWith('environmental-')) {
+        return false;
+      }
       
-      // Climate change themes
-      if (id.includes('climate') || id.includes('energy') || 
-          name.includes('cambiamenti climatici')) return true;
-      
-      // Pollution themes
-      if (id.includes('pollution') || id.includes('substances') ||
-          name.includes('inquinamento')) return true;
-      
-      // Water and marine resources
-      if (id.includes('water') || id.includes('marine') || id.includes('ocean') ||
-          name.includes('acque') || name.includes('risorse marine')) return true;
-      
-      // Biodiversity and ecosystems
-      if (id.includes('biodiversity') || id.includes('ecosystem') || 
-          id.includes('species') || id.includes('soil') || id.includes('land') ||
-          name.includes('biodiversità') || name.includes('ecosistemi')) return true;
-      
-      // Circular economy
-      if (id.includes('circular') || id.includes('resource') || id.includes('waste') || 
-          name.includes('economia circolare')) return true;
-      
-      return false;
+      // Header e temi ambientali specifici
+      return id.startsWith('environmental-') || 
+             id.startsWith('climate-') ||
+             id.startsWith('energy-') ||
+             id.startsWith('pollution-') ||
+             id.startsWith('substances-') ||
+             id.startsWith('water-') ||
+             id.startsWith('marine-') ||
+             id.startsWith('ocean-') ||
+             id.startsWith('biodiversity-') ||
+             id.startsWith('ecosystem-') ||
+             id.startsWith('species-') ||
+             id.startsWith('circular-');
     }),
     
-    // Social themes
+    // Temi Sociali - solo header e temi correlati al sociale
     social: categorizedIssues.filter(issue => {
-      // Category is already set to social
-      if (issue.category === 'social') return true;
-      
-      // Explicit pattern matching for social themes
       const id = issue.id.toLowerCase();
-      const name = issue.name.toLowerCase();
       
-      // Specifically exclude biodiversity-related items which should be environmental
-      if (id.includes('biodiversity') || id.includes('species') || 
-          id.includes('ecosystem') || name.includes('biodiversità') || 
-          name.includes('ecosistemi')) return false;
+      // Include solo header sociali
+      if (id.includes('header') && !id.startsWith('social-')) {
+        return false;
+      }
       
-      // Exclude other environmental themes
-      if (name.includes('cambiamenti climatici') || 
-          name.includes('inquinamento') ||
-          name.includes('acque') ||
-          name.includes('risorse marine') ||
-          name.includes('economia circolare')) return false;
-      
-      // Workforce themes
-      if (id.includes('workforce') || id.includes('labor') || id.includes('employee')) return true;
-      
-      // Community themes
-      if (id.includes('community') || id.includes('indigenous')) return true;
-      
-      // Consumer themes
-      if (id.includes('consumer') || id.includes('customer')) return true;
-      
-      // Rights and equality
-      if (id.includes('equality') || id.includes('diversity') || 
-          id.includes('human-rights') || id.includes('privacy')) return true;
-      
-      // Health and safety
-      if (id.includes('health') || id.includes('safety')) return true;
-      
-      return false;
+      // Header e temi sociali specifici
+      return id.startsWith('social-') ||
+             id.startsWith('workforce-') ||
+             id.startsWith('labor-') ||
+             id.startsWith('community-') ||
+             id.startsWith('indigenous-') ||
+             id.startsWith('consumer-');
     }),
     
-    // Governance themes
+    // Temi di Governance - solo header e temi correlati alla governance
     governance: categorizedIssues.filter(issue => {
-      // Category is already set to governance
-      if (issue.category === 'governance') return true;
-      
-      // Explicit pattern matching for governance themes
       const id = issue.id.toLowerCase();
-      const name = issue.name.toLowerCase();
       
-      // Business conduct
-      if (id.includes('business') || id.includes('ethics')) return true;
+      // Include solo header di governance
+      if (id.includes('header') && !id.startsWith('governance-')) {
+        return false;
+      }
       
-      // Corruption
-      if (id.includes('corruption') || id.includes('bribery')) return true;
-      
-      // Other governance themes
-      if (id.includes('whistleblower') || id.includes('animal') || 
-          id.includes('political') || id.includes('supplier') || 
-          id.includes('gov') || id.includes('compliance')) return true;
-      
-      return false;
+      // Header e temi di governance specifici
+      return id.startsWith('governance-') ||
+             id.startsWith('business-') ||
+             id.startsWith('whistleblower-') ||
+             id.startsWith('animal-') ||
+             id.startsWith('political-') ||
+             id.startsWith('supplier-') ||
+             id.startsWith('corruption-');
     })
   };
 };
