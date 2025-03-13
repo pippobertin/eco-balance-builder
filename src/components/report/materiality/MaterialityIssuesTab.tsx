@@ -31,7 +31,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
 
-  // Filtra esplicitamente solo i temi che hanno isMaterial === true
+  // Use strict comparison to filter only issues with isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Log for debugging

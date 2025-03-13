@@ -66,7 +66,6 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     }
   );
   
-  // Solo i temi che sono esplicitamente marcati come 'material' sono considerati rilevanti
   // Use strict equality to ensure only true values are included
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   console.log("Material issues in MaterialityProvider:", materialIssues.length);
