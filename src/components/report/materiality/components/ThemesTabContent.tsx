@@ -36,7 +36,8 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   return (
     <DragDropContainer
       availableIssues={availableIssues}
-      selectedIssues={selectedIssues.filter(issue => issue.isMaterial !== false)}
+      // Filter out deselected issues from the selected issues list
+      selectedIssues={selectedIssues.filter(issue => issue.isMaterial === true)}
       onIssueSelect={handleIssueSelect}
       tabId={tabId}
     />

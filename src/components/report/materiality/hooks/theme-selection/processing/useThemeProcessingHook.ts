@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { MaterialityIssue } from '../../../types';
 import { useToast } from '@/hooks/use-toast';
 import { shouldSkipUpdate, shouldProcessIssues } from './shouldProcess';
-import { processIssues } from './categorizeIssues';
+import { categorizeIssues } from './categorizeIssues';
+import { updateIssuesState } from './updateIssuesState';
 import { handleProcessingError } from './errorHandling';
 
 interface UseThemeProcessingProps {
@@ -58,19 +59,31 @@ export const useThemeProcessing = ({
       console.log(`useThemeProcessing [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
       
       if (shouldProcessIssues(selectedIssueIds, prevSelectedIdsRef, hasMountedRef, availableIssues, selectedIssues)) {
-        processIssues({
+        // Set updating flag to prevent unnecessary re-renders
+        updatingRef.current = true;
+        
+        // Categorize issues
+        const { available, selected } = categorizeIssues({
           issues,
           selectedIssueIds,
           tabId,
-          updatingRef,
           knownMaterialIssuesRef,
           explicitlyDeselectedRef,
-          lastOpRef,
+          lastOpRef
+        });
+        
+        // Update the state
+        updateIssuesState({
+          available,
+          selected,
+          tabId,
           latestProcessedIssuesRef,
           setAvailableIssues,
           setSelectedIssues,
           prevSelectedIdsRef,
+          selectedIssueIds,
           hasMountedRef,
+          updatingRef,
           toast
         });
       }
