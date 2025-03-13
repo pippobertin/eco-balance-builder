@@ -54,7 +54,7 @@ export const useIssueUpdater = (
             const numericValue = typeof value === 'string' ? Number(value) : value;
             updatedIssue[field] = numericValue;
           } else if (field === 'isMaterial') {
-            // Critical fix: Force boolean type for isMaterial - use strict comparison to ensure boolean
+            // Critical fix: Force boolean type for isMaterial - use strict boolean
             updatedIssue.isMaterial = value === true;
             console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssue.isMaterial, typeof updatedIssue.isMaterial);
           } else {

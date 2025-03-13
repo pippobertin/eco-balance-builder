@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Leaf, Users, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -51,19 +50,9 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
     if (onIssueSelect) {
       console.log("ThemesCategoryTabs handling issue selection:", issue.id, "isMaterial:", issue.isMaterial);
       
-      // Fix: Ensure the isMaterial property is correctly set based on the action
-      // If the issue is not in selectedIssueIds, we're adding it, otherwise removing
-      const isAdding = !selectedIssueIds.has(issue.id);
-      
-      // Create a deep clone to avoid reference issues
-      const clonedIssue = JSON.parse(JSON.stringify(issue));
-      
-      // Explicitly set isMaterial based on the action
-      clonedIssue.isMaterial = isAdding;
-      
-      console.log(`ThemesCategoryTabs: ${isAdding ? 'Adding' : 'Removing'} issue ${issue.id}, setting isMaterial to ${clonedIssue.isMaterial}`);
-      
-      onIssueSelect(clonedIssue);
+      // We pass the issue as-is, since the isMaterial property is already set correctly
+      // in the DragDropContainer component
+      onIssueSelect(issue);
     }
   };
 

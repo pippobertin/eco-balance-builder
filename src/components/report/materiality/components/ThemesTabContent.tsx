@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -32,7 +31,7 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
 
   // Initialize issues when component mounts or issues/selectedIssueIds change
   useEffect(() => {
-    // Force update when tab changes to ensure proper state
+    // Log for debugging
     console.log(`ThemesTabContent [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
     
     // Always update when the tab or issues change
@@ -76,32 +75,23 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
 
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    if (onIssueSelect) {
-      console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial was:", issue.isMaterial);
-      
-      // Critical fix: Explicitly set isMaterial based on source
-      // If coming from available panel, it should be true; if from selected panel, it should be false
-      if (availableIssues.some(i => i.id === issue.id)) {
-        issue.isMaterial = true;
-        console.log(`Setting issue ${issue.id} to material TRUE because it's from available issues`);
-      } else if (selectedIssues.some(i => i.id === issue.id)) {
-        issue.isMaterial = false;
-        console.log(`Setting issue ${issue.id} to material FALSE because it's from selected issues`);
-      }
-      
-      // Pass the issue to the parent handler
-      onIssueSelect(issue);
-      
-      // Here we update local state for immediate UI feedback
-      if (issue.isMaterial === true) {
-        // Issue is being selected (moved to selected panel)
-        setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-        setSelectedIssues(prev => [...prev, issue]);
-      } else {
-        // Issue is being deselected (moved to available panel)
-        setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
-        setAvailableIssues(prev => [...prev, issue]);
-      }
+    if (!onIssueSelect) return;
+    
+    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial was:", issue.isMaterial);
+    
+    // Pass the issue to the parent handler
+    onIssueSelect(issue);
+    
+    // Here we update local state for immediate UI feedback
+    // This gives a more responsive feel while we wait for the parent component to update
+    if (issue.isMaterial === true) {
+      // Issue is being selected (moved to selected panel)
+      setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
+      setSelectedIssues(prev => [...prev, issue]);
+    } else {
+      // Issue is being deselected (moved to available panel)
+      setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
+      setAvailableIssues(prev => [...prev, issue]);
     }
   };
 

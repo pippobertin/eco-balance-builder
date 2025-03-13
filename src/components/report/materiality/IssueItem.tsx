@@ -80,7 +80,10 @@ const IssueItem: React.FC<IssueItemProps> = ({
 
   // Handle the toggle of isMaterial
   const handleToggleIsMaterial = () => {
-    const newValue = !issue.isMaterial;
+    if (isHeaderItem) return; // Don't allow toggling for header items
+    
+    // Toggle with guaranteed boolean value
+    const newValue = issue.isMaterial !== true;
     console.log(`IssueItem: Toggling isMaterial for ${issue.id} from ${issue.isMaterial} to ${newValue}`);
     onIssueChange(issue.id, 'isMaterial', newValue);
   };

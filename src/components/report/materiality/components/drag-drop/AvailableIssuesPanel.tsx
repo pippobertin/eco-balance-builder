@@ -20,12 +20,11 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
 }) => {
   // When clicking on an issue, make a deep copy to avoid reference issues
   const handleIssueClick = (issue: MaterialityIssue) => {
-    // Deep clone the issue to prevent reference issues
-    const clonedIssue = JSON.parse(JSON.stringify(issue));
-    // ALWAYS set isMaterial to true when selecting from available
-    clonedIssue.isMaterial = true;
-    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, clonedIssue.id, "setting isMaterial to", clonedIssue.isMaterial);
-    onIssueClick(clonedIssue);
+    // Don't allow clicking on header themes
+    if (isHeaderTheme(issue.id, issue.name)) return;
+    
+    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, issue.id);
+    onIssueClick(issue);
   };
 
   return (
@@ -44,7 +43,7 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
                 />
               ) : (
                 <div 
-                  className="p-4 rounded-lg border mb-2 bg-white border-gray-100 flex justify-between items-center"
+                  className="p-4 rounded-lg border mb-2 bg-white border-gray-100 flex justify-between items-center hover:bg-blue-50"
                   onClick={() => handleIssueClick(issue)}
                 >
                   <div>

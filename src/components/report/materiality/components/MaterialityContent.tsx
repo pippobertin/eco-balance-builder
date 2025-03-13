@@ -61,18 +61,15 @@ const MaterialityContent: React.FC = () => {
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
-    
-    // Create a deep clone to avoid reference issues
-    const clonedIssue = JSON.parse(JSON.stringify(issue));
+    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
     // Make sure isMaterial is explicitly a boolean
-    clonedIssue.isMaterial = clonedIssue.isMaterial === true;
+    const isMaterialValue = issue.isMaterial === true;
     
-    console.log("MaterialityContent: Processing issue with explicit boolean isMaterial:", clonedIssue.isMaterial);
+    console.log("MaterialityContent: Processing issue with explicit boolean isMaterial:", isMaterialValue);
     
     // Pass to the original handler
-    originalHandleIssueChange(clonedIssue.id, 'isMaterial', clonedIssue.isMaterial);
+    originalHandleIssueChange(issue.id, 'isMaterial', isMaterialValue);
     
     // For debugging - check all material issues after update
     setTimeout(() => {
