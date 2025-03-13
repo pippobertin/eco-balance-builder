@@ -63,9 +63,16 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
     
-    // The isMaterial value should already be set correctly by child components
-    // Just pass it directly to the original handler
-    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
+    // Create a deep clone to avoid reference issues
+    const clonedIssue = JSON.parse(JSON.stringify(issue));
+    
+    // Make sure isMaterial is explicitly a boolean
+    clonedIssue.isMaterial = clonedIssue.isMaterial === true;
+    
+    console.log("MaterialityContent: Processing issue with explicit boolean isMaterial:", clonedIssue.isMaterial);
+    
+    // Pass to the original handler
+    originalHandleIssueChange(clonedIssue.id, 'isMaterial', clonedIssue.isMaterial);
     
     // For debugging - check all material issues after update
     setTimeout(() => {

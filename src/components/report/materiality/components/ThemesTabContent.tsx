@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../types';
 import DragDropContainer from './drag-drop';
@@ -78,7 +79,17 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     if (onIssueSelect) {
       console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial was:", issue.isMaterial);
       
-      // Simply pass the issue to the parent handler, as isMaterial should already be set correctly
+      // Critical fix: Explicitly set isMaterial based on source
+      // If coming from available panel, it should be true; if from selected panel, it should be false
+      if (availableIssues.some(i => i.id === issue.id)) {
+        issue.isMaterial = true;
+        console.log(`Setting issue ${issue.id} to material TRUE because it's from available issues`);
+      } else if (selectedIssues.some(i => i.id === issue.id)) {
+        issue.isMaterial = false;
+        console.log(`Setting issue ${issue.id} to material FALSE because it's from selected issues`);
+      }
+      
+      // Pass the issue to the parent handler
       onIssueSelect(issue);
       
       // Here we update local state for immediate UI feedback
