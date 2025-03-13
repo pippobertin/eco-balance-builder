@@ -31,11 +31,18 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Save the original order of all issues
     setOriginalIssueOrder([...issues]);
     
+    // Log the issues we received for debugging
+    console.log("ThemesTabContent received issues:", issues.map(i => ({id: i.id, name: i.name, isMaterial: i.isMaterial})));
+    
     issues.forEach(issue => {
-      if (issue.isMaterial === true) {
-        selected.push(issue);
+      // Ensure isMaterial is always a boolean
+      const isMat = issue.isMaterial === true;
+      if (isMat) {
+        console.log("Adding to selected:", issue.id, issue.name);
+        selected.push({...issue, isMaterial: true});
       } else {
-        available.push(issue);
+        console.log("Adding to available:", issue.id, issue.name);
+        available.push({...issue, isMaterial: false});
       }
     });
     
@@ -51,14 +58,19 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     if (onIssueSelect) {
       console.log("ThemesTabContent handling issue select:", issue.id, "Current isMaterial:", issue.isMaterial);
       
-      // Creiamo una nuova versione del tema con isMaterial esplicitamente impostato a true (o false se già selezionato)
+      // Make sure we're using a boolean value for isMaterial
+      const newIsMaterial = issue.isMaterial !== true;
+      console.log("Setting isMaterial to:", newIsMaterial);
+      
+      // Create updated issue with explicit isMaterial boolean
       const updatedIssue = {
         ...issue,
-        isMaterial: !issue.isMaterial
+        isMaterial: newIsMaterial
       };
       
+      // Call parent handler with the updated issue
       onIssueSelect(updatedIssue);
-      console.log("Sending updated issue with isMaterial:", updatedIssue.isMaterial);
+      console.log("Sent updated issue with isMaterial:", updatedIssue.isMaterial);
       
       // Update local state for immediate UI feedback
       if (!issue.isMaterial) {

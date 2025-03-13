@@ -56,11 +56,14 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial value:", issue.isMaterial);
     
+    // Ensure we pass a boolean value
+    const isMaterialValue = issue.isMaterial === true;
+    
     // Pass the updated isMaterial value to handleIssueChange
-    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
+    originalHandleIssueChange(issue.id, 'isMaterial', isMaterialValue);
     
     // Log after calling the handler to verify
-    console.log("MaterialityContent sent update for issue:", issue.id, "with isMaterial =", issue.isMaterial);
+    console.log("MaterialityContent sent update for issue:", issue.id, "with isMaterial =", isMaterialValue);
   };
 
   // Adapter function to match the expected signature for TabContent

@@ -74,7 +74,7 @@ export const useMaterialityIssues = (
       return;
     }
     
-    // Call onUpdate immediately for isMaterial changes
+    // Special handling for isMaterial field to ensure it's always a boolean
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
         // Ensure isMaterial is always a boolean
