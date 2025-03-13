@@ -18,15 +18,9 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   onIssueSelect,
   onAddIssue
 }) => {
-  // Filter out header themes
-  const nonHeaderIssues = issues.filter(issue => !isHeaderTheme(issue.id, issue.name));
-  
-  // Separate issues into available and selected
-  const availableIssues = nonHeaderIssues.filter(issue => !issue.isMaterial);
-  const selectedIssues = nonHeaderIssues.filter(issue => issue.isMaterial);
-  
-  // Also get header themes for display purposes only
-  const headerIssues = issues.filter(issue => isHeaderTheme(issue.id, issue.name));
+  // Separa gli issues in disponibili e selezionati
+  const availableIssues = issues.filter(issue => !issue.isMaterial);
+  const selectedIssues = issues.filter(issue => issue.isMaterial);
 
   // Function to handle issue selection or deselection
   const handleIssueChange = (issue: MaterialityIssue, field: keyof MaterialityIssue, value: any) => {
@@ -35,46 +29,26 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     }
   };
 
-  // Group headers with their respective issues in the available column
-  const organizeAvailableIssues = () => {
-    // First, render all headers
-    return (
-      <>
-        {headerIssues.map((issue) => (
-          <IssueItem
-            key={issue.id}
-            issue={issue}
-            onIssueChange={() => {}} // Headers cannot be selected
-            isPredefined={true}
-          />
-        ))}
-        
-        {/* Then render all available non-header issues */}
-        {availableIssues.map((issue) => (
-          <IssueItem
-            key={issue.id}
-            issue={issue}
-            onIssueChange={(id, field, value) => handleIssueChange(issue, field, value)}
-            isPredefined={!issue.id.startsWith('custom-')}
-          />
-        ))}
-      </>
-    );
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Left column: available themes */}
+      {/* Colonna sinistra: temi disponibili */}
       <div>
         <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Disponibili</h3>
         <ScrollArea className="h-[400px] pr-4">
           <div className="space-y-2">
-            {organizeAvailableIssues()}
+            {availableIssues.map((issue) => (
+              <IssueItem
+                key={issue.id}
+                issue={issue}
+                onIssueChange={(id, field, value) => handleIssueChange(issue, field, value)}
+                isPredefined={!issue.id.startsWith('custom-')}
+              />
+            ))}
           </div>
         </ScrollArea>
       </div>
 
-      {/* Right column: selected themes */}
+      {/* Colonna destra: temi selezionati */}
       <div>
         <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Selezionati</h3>
         <ScrollArea className="h-[400px] pr-4">

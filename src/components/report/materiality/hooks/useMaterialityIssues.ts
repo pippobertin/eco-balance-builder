@@ -57,7 +57,7 @@ export const useMaterialityIssues = (
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     console.log(`Changing issue ${id} field ${String(field)} to`, value);
     
-    // Do not allow changes if this is a header theme
+    // Non permettere modifiche se è un tema header
     const issueToUpdate = issues.find(issue => issue.id === id);
     if (issueToUpdate && isHeaderTheme(issueToUpdate.id, issueToUpdate.name)) {
       console.log("Cannot modify header theme:", issueToUpdate.name);
@@ -139,7 +139,7 @@ export const useMaterialityIssues = (
   const removeIssue = (id: string) => {
     console.log("Removing issue:", id);
     
-    // Verify if the theme is a header before removing it
+    // Verifica se il tema è un header prima di rimuoverlo
     const issueToRemove = issues.find(issue => issue.id === id);
     if (issueToRemove && isHeaderTheme(issueToRemove.id, issueToRemove.name)) {
       console.log("Cannot remove header theme:", issueToRemove.name);
@@ -147,7 +147,7 @@ export const useMaterialityIssues = (
     }
     
     setIssues(prevIssues => {
-      // Instead of completely removing, set isMaterial to false
+      // Invece di rimuovere completamente, impostiamo isMaterial a false
       const updatedIssues = prevIssues.map(issue => 
         issue.id === id ? { ...issue, isMaterial: false } : issue
       );
