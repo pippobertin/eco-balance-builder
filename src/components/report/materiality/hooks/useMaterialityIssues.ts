@@ -80,8 +80,9 @@ export const useMaterialityIssues = (
             return { ...issue, [field]: numericValue };
           }
           
-          // Ensure boolean value for isMaterial
+          // Critical fix: Ensure boolean value for isMaterial
           if (field === 'isMaterial') {
+            // Explicitly convert to boolean
             return { ...issue, isMaterial: value === true };
           }
           
@@ -97,7 +98,7 @@ export const useMaterialityIssues = (
       return updatedIssues;
     });
     
-    // Call onUpdate immediately for this type of change
+    // Always update immediately on isMaterial changes to ensure proper UI state
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
         const updatedIssues = prevIssues.map(issue => 
@@ -108,6 +109,7 @@ export const useMaterialityIssues = (
         const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
         console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}. Material issues: ${materialCount}`);
         
+        // Call onUpdate immediately for this change
         onUpdate(updatedIssues);
         return updatedIssues;
       });

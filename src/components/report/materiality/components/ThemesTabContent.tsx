@@ -51,27 +51,23 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     if (onIssueSelect) {
       console.log("ThemesTabContent handling issue select:", issue.id, issue.isMaterial);
       
-      // Create an explicit copy with isMaterial property toggled
-      const updatedIssue = {
-        ...issue,
-        isMaterial: !issue.isMaterial
-      };
+      // Don't modify the issue locally, just pass it up
+      // The parent component will handle the actual toggling
+      onIssueSelect(issue);
       
-      console.log("Sending updated issue with isMaterial:", updatedIssue.isMaterial);
-      onIssueSelect(updatedIssue);
-      
-      // Update local state for immediate UI feedback
-      if (updatedIssue.isMaterial) {
-        // Issue is being selected
+      // Here we update local state for immediate UI feedback
+      // This should reflect what the parent will eventually do with the data
+      if (issue.isMaterial === true) {
+        // Issue is being selected (moved to selected panel)
         setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-        setSelectedIssues(prev => [...prev, updatedIssue]);
+        setSelectedIssues(prev => [...prev, issue]);
       } else {
-        // Issue is being deselected - preserve original order when returning to available issues
+        // Issue is being deselected (moved to available panel)
         setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
         
         // Find the correct position to reinsert the deselected issue
         const updatedAvailable = [...availableIssues];
-        const deselectedIssue = {...issue, isMaterial: false};
+        const deselectedIssue = {...issue};
         
         // Find the original index of this issue
         const originalIndex = originalIssueOrder.findIndex(i => i.id === issue.id);

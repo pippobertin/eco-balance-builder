@@ -46,14 +46,8 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
 
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      // CRITICAL CHANGE: Make sure isMaterial is set to true explicitly when selecting an issue
-      // This ensures the issue will be recognized as a material issue
-      const updatedIssue = {
-        ...issue,
-        isMaterial: true // Force this to be true when selecting
-      };
-      console.log("ThemesCategoryTabs explicitly setting isMaterial to true for issue:", updatedIssue.id);
-      onIssueSelect(updatedIssue);
+      console.log("ThemesCategoryTabs handling issue:", issue.id);
+      onIssueSelect(issue);
     }
   };
 

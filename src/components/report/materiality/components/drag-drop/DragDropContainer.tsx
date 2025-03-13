@@ -31,17 +31,26 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    // When selecting an issue, explicitly set isMaterial to the opposite of its current state
-    // This is critical to ensure the isMaterial flag is toggled correctly
     console.log("DragDropContainer: Clicking issue", issue.id, "current isMaterial:", issue.isMaterial);
     
-    // Toggle the issue's material status - use explicit boolean value
+    // Important: For themes in available issues, set isMaterial to true
+    // For themes in selected issues, set isMaterial to false
+    // This ensures proper toggling without relying on current state
+    let newIsMaterial: boolean;
+    
+    // If the issue is in the available issues list, it's being selected
+    if (availableIssues.some(i => i.id === issue.id)) {
+      newIsMaterial = true; // Being moved to selected
+    } else {
+      newIsMaterial = false; // Being moved to available
+    }
+    
     const updatedIssue = { 
       ...issue, 
-      isMaterial: issue.isMaterial === true ? false : true 
+      isMaterial: newIsMaterial
     };
     
-    console.log("DragDropContainer: Toggling isMaterial to:", updatedIssue.isMaterial);
+    console.log("DragDropContainer: Setting isMaterial to:", updatedIssue.isMaterial);
     onIssueSelect(updatedIssue);
   };
 
