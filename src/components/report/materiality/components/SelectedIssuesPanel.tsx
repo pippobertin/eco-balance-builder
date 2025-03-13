@@ -1,16 +1,28 @@
 
 import React from 'react';
+import { MaterialityIssue } from '../types';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SelectedIssuesPanelProps {
-  selectedIssues: any[];
-  onIssueRemove: (id: string) => void;
+  selectedIssues: MaterialityIssue[];
+  onIssueClick: (issue: MaterialityIssue) => void;
 }
 
-const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({ selectedIssues, onIssueRemove }) => {
+const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({ 
+  selectedIssues, 
+  onIssueClick 
+}) => {
+  // Handle issue removal - wrapper for onIssueClick
+  const handleIssueRemove = (issue: MaterialityIssue) => {
+    console.log("SelectedIssuesPanel: Removing issue", issue.id, issue.name);
+    // Clone issue and force isMaterial to false (should be handled by DragDropContainer as well)
+    const updatedIssue = { ...issue, isMaterial: false };
+    onIssueClick(updatedIssue);
+  };
+
   return (
     <div className="rounded-lg border bg-card shadow-sm">
       <div className="p-4 font-semibold bg-muted/50 rounded-t-lg">
@@ -39,7 +51,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({ selectedIssue
                         variant="ghost"
                         size="icon"
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => onIssueRemove(issue.id)}
+                        onClick={() => handleIssueRemove(issue)}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                         <span className="sr-only">Rimuovi tema</span>

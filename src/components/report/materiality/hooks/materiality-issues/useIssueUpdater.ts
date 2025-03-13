@@ -74,11 +74,6 @@ export const useIssueUpdater = (
     // Always update immediately on isMaterial changes to ensure proper UI state
     if (field === 'isMaterial') {
       setTimeout(() => {
-        const updatedMaterialIssues = issues.filter(issue => issue.isMaterial === true);
-        console.log("After timeout, material issues:", updatedMaterialIssues.map(i => i.id));
-        console.log(`Material issue count: ${updatedMaterialIssues.length}`);
-        
-        // Force an immediate update for isMaterial changes
         triggerUpdate();
       }, 50);
     }

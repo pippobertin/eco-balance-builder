@@ -32,9 +32,12 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     setOriginalIssueOrder([...issues]);
     
     issues.forEach(issue => {
+      // Ensure strict boolean comparison for isMaterial
       if (issue.isMaterial === true) {
+        console.log("ThemesTabContent: Issue is material:", issue.id, issue.name);
         selected.push(issue);
       } else {
+        console.log("ThemesTabContent: Issue is not material:", issue.id, issue.name);
         available.push(issue);
       }
     });
@@ -51,23 +54,34 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     if (onIssueSelect) {
       console.log("ThemesTabContent handling issue select:", issue.id, issue.isMaterial);
       
-      // Don't modify the issue locally, just pass it up
-      // The parent component will handle the actual toggling
-      onIssueSelect(issue);
+      // Important: Create a new instance of the issue to prevent reference issues
+      const updatedIssue = { ...issue };
+      
+      // Force isMaterial to be a boolean based on which panel it's in
+      if (availableIssues.some(i => i.id === issue.id)) {
+        // Issue is being moved from available to selected
+        updatedIssue.isMaterial = true;
+        console.log("Setting issue to material (true):", issue.id);
+      } else {
+        // Issue is being moved from selected to available
+        updatedIssue.isMaterial = false;
+        console.log("Setting issue to non-material (false):", issue.id);
+      }
+      
+      // Pass the updated issue to the parent component
+      onIssueSelect(updatedIssue);
       
       // Here we update local state for immediate UI feedback
-      // This should reflect what the parent will eventually do with the data
-      if (issue.isMaterial === true) {
+      if (updatedIssue.isMaterial === true) {
         // Issue is being selected (moved to selected panel)
         setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-        setSelectedIssues(prev => [...prev, issue]);
+        setSelectedIssues(prev => [...prev, updatedIssue]);
       } else {
         // Issue is being deselected (moved to available panel)
         setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
         
         // Find the correct position to reinsert the deselected issue
         const updatedAvailable = [...availableIssues];
-        const deselectedIssue = {...issue};
         
         // Find the original index of this issue
         const originalIndex = originalIssueOrder.findIndex(i => i.id === issue.id);
@@ -104,10 +118,10 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
           }
           
           // Insert at the calculated position
-          updatedAvailable.splice(insertIndex, 0, deselectedIssue);
+          updatedAvailable.splice(insertIndex, 0, updatedIssue);
         } else {
           // Fallback - just add to the end if original position unknown
-          updatedAvailable.push(deselectedIssue);
+          updatedAvailable.push(updatedIssue);
         }
         
         setAvailableIssues(updatedAvailable);

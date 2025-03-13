@@ -82,7 +82,7 @@ export const useIssueOperations = (
     }
     
     setIssues(prevIssues => {
-      // Instead of completely removing, set isMaterial to false
+      // Instead of completely removing, explicitly set isMaterial to false
       const updatedIssues = prevIssues.map(issue => 
         issue.id === id ? { ...issue, isMaterial: false } : issue
       );

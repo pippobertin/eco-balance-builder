@@ -55,22 +55,21 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
     
-    // Always set isMaterial directly from the provided value - don't toggle
-    // This ensures proper behavior regardless of current state
-    console.log("MaterialityContent: Directly setting isMaterial to", issue.isMaterial, "for issue", issue.id);
+    // Always set isMaterial directly as a boolean to avoid type issues
+    const isMaterialBoolean = issue.isMaterial === true;
+    console.log("MaterialityContent: Directly setting isMaterial to", isMaterialBoolean, "for issue", issue.id);
     
-    // Debug: log the type of isMaterial to ensure it's boolean
-    console.log("isMaterial type:", typeof issue.isMaterial);
-    
-    // Use the exact boolean value
-    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial === true);
-    
-    // For debugging - check all material issues 
+    // Use a timeout to ensure the update is processed completely
     setTimeout(() => {
-      const materialCount = issues.filter(i => i.isMaterial === true).length;
-      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
-      console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-    }, 100);
+      originalHandleIssueChange(issue.id, 'isMaterial', isMaterialBoolean);
+      
+      // For debugging - check all material issues after update
+      setTimeout(() => {
+        const materialCount = issues.filter(i => i.isMaterial === true).length;
+        console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+        console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
+      }, 100);
+    }, 0);
   };
 
   // Adapter function to match the expected signature for TabContent
