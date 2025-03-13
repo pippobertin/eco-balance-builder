@@ -34,7 +34,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Filter only material issues
-  const materialIssues = issues.filter(issue => issue.isMaterial);
+  const materialIssues = issues.filter(issue => issue.isMaterial === true);
   
   // Filter issues based on search query
   const filteredIssues = searchQuery 
@@ -43,6 +43,8 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
         issue.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : materialIssues;
+    
+  console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues`);
 
   return (
     <div className="space-y-6">

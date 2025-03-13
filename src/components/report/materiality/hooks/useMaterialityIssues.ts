@@ -77,9 +77,19 @@ export const useMaterialityIssues = (
       });
       
       console.log("Updated issues after change:", updatedIssues);
-      onUpdate(updatedIssues);
       return updatedIssues;
     });
+    
+    // Call onUpdate immediately for this type of change
+    if (field === 'isMaterial') {
+      setIssues(prevIssues => {
+        const updatedIssues = prevIssues.map(issue => 
+          issue.id === id ? { ...issue, isMaterial: value } : issue
+        );
+        onUpdate(updatedIssues);
+        return updatedIssues;
+      });
+    }
   };
 
   const addCustomIssue = (name: string, description: string) => {

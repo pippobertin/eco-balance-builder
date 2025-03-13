@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MaterialityTabs from '../MaterialityTabs';
 import MaterialityHeader from './MaterialityHeader';
 import TabContent from './TabContent';
@@ -38,7 +38,23 @@ const MaterialityContent: React.FC = () => {
     getSurveyStatusText
   } = useMaterialityContext();
 
-  // Adapter function to match the expected signature
+  // Create a set of material issue IDs for quick lookup
+  const [materialIssueIds, setMaterialIssueIds] = useState(new Set<string>());
+  
+  useEffect(() => {
+    const materialIds = new Set(materialIssues.map(issue => issue.id));
+    setMaterialIssueIds(materialIds);
+  }, [materialIssues]);
+
+  // Handle issue selection from ThemesCategoryTabs
+  const handleIssueSelect = (issue: MaterialityIssue) => {
+    console.log("MaterialityContent handling issue select:", issue.id, issue.isMaterial);
+    
+    // Find the field that's changing (isMaterial) and update it
+    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
+  };
+
+  // Adapter function to match the expected signature for TabContent
   const handleIssueChange = (id: string, updatedIssue: Partial<MaterialityIssue>) => {
     Object.entries(updatedIssue).forEach(([field, value]) => {
       originalHandleIssueChange(id, field as keyof MaterialityIssue, value);
@@ -53,7 +69,11 @@ const MaterialityContent: React.FC = () => {
       
       {/* Add ThemesCategoryTabs component for E, S, G theme selection */}
       {activeTab === 'issues' && (
-        <ThemesCategoryTabs onAddIssue={addCustomIssue} />
+        <ThemesCategoryTabs 
+          onAddIssue={addCustomIssue} 
+          onIssueSelect={handleIssueSelect}
+          selectedIssueIds={materialIssueIds}
+        />
       )}
       
       <TabContent 

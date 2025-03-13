@@ -5,16 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ThemesTabContent from './ThemesTabContent';
 import { predefinedIssues } from '../utils/materialityUtils';
 import { getIssuesByCategory } from '../utils/categorizePredefinedIssues';
+import { MaterialityIssue } from '../types';
 
 interface ThemesCategoryTabsProps {
   activeTab?: string;
   setActiveTab?: (tab: string) => void;
-  environmentalIssues?: any[];
-  socialIssues?: any[];
-  governanceIssues?: any[];
+  environmentalIssues?: MaterialityIssue[];
+  socialIssues?: MaterialityIssue[];
+  governanceIssues?: MaterialityIssue[];
   selectedIssueIds?: Set<string>;
-  onIssueSelect?: (issue: any) => void;
-  // Add the onAddIssue prop to match usage in MaterialityContent
+  onIssueSelect?: (issue: MaterialityIssue) => void;
   onAddIssue?: (name: string, description: string) => void;
 }
 
@@ -44,6 +44,13 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
   const socIssues = socialIssues || social;
   const govIssues = governanceIssues || governance;
 
+  const handleIssueSelect = (issue: MaterialityIssue) => {
+    if (onIssueSelect) {
+      console.log("ThemesCategoryTabs handling issue select:", issue.id, issue.isMaterial);
+      onIssueSelect(issue);
+    }
+  };
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-3">
@@ -65,7 +72,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
         <ThemesTabContent 
           issues={envIssues}
           selectedIssueIds={selectedIssueIds}
-          onIssueSelect={onIssueSelect}
+          onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
         />
       </TabsContent>
@@ -74,7 +81,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
         <ThemesTabContent 
           issues={socIssues}
           selectedIssueIds={selectedIssueIds}
-          onIssueSelect={onIssueSelect}
+          onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
         />
       </TabsContent>
@@ -83,7 +90,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
         <ThemesTabContent 
           issues={govIssues}
           selectedIssueIds={selectedIssueIds}
-          onIssueSelect={onIssueSelect}
+          onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
         />
       </TabsContent>
