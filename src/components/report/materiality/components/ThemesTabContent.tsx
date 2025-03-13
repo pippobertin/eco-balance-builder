@@ -8,13 +8,15 @@ interface ThemesTabContentProps {
   selectedIssueIds?: Set<string>;
   onIssueSelect?: (issue: MaterialityIssue) => void;
   onAddIssue?: (name: string, description: string) => void;
+  allAvailableIssues?: MaterialityIssue[]; // All issues across all tabs
 }
 
 const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   issues,
   selectedIssueIds = new Set(),
   onIssueSelect,
-  onAddIssue
+  onAddIssue,
+  allAvailableIssues = []
 }) => {
   // Track which issues are currently available and which are selected
   const [availableIssues, setAvailableIssues] = useState<MaterialityIssue[]>([]);
@@ -31,13 +33,23 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Save the original order of all issues
     setOriginalIssueOrder([...issues]);
     
+    // Process issues for this specific tab
     issues.forEach(issue => {
-      // Using === true for strict boolean comparison
-      if (issue.isMaterial === true) {
-        console.log("ThemesTabContent: Issue is material:", issue.id, issue.name, typeof issue.isMaterial, issue.isMaterial);
+      // Check if this issue is in the selectedIssueIds set
+      if (selectedIssueIds.has(issue.id)) {
+        console.log("ThemesTabContent: Issue is selected by ID:", issue.id);
+        // Create a copy with isMaterial explicitly true
+        const selectedIssue = { 
+          ...issue, 
+          isMaterial: true 
+        };
+        selected.push(selectedIssue);
+      } else if (issue.isMaterial === true) {
+        // If issue.isMaterial is true but not in selectedIssueIds (shouldn't normally happen)
+        console.log("ThemesTabContent: Issue is material by property:", issue.id);
         selected.push(issue);
       } else {
-        console.log("ThemesTabContent: Issue is not material:", issue.id, issue.name, typeof issue.isMaterial, issue.isMaterial);
+        console.log("ThemesTabContent: Issue is not material:", issue.id);
         available.push(issue);
       }
     });
@@ -47,12 +59,12 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     
     console.log("Available issues:", available.length);
     console.log("Selected issues:", selected.length);
-  }, [issues]);
+  }, [issues, selectedIssueIds]);
 
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      console.log("ThemesTabContent handling issue select:", issue.id, issue.isMaterial);
+      console.log("ThemesTabContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
       
       // Important: Create a new instance of the issue to prevent reference issues
       const updatedIssue = { ...issue };
@@ -61,11 +73,11 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
       if (availableIssues.some(i => i.id === issue.id)) {
         // Issue is being moved from available to selected
         updatedIssue.isMaterial = true;
-        console.log("Setting issue to material (true):", issue.id);
+        console.log("Setting issue to material (true):", issue.id, typeof updatedIssue.isMaterial);
       } else {
         // Issue is being moved from selected to available
         updatedIssue.isMaterial = false;
-        console.log("Setting issue to non-material (false):", issue.id);
+        console.log("Setting issue to non-material (false):", issue.id, typeof updatedIssue.isMaterial);
       }
       
       // Pass the updated issue to the parent component

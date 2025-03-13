@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Leaf, Users, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ThemesTabContent from './ThemesTabContent';
@@ -35,7 +34,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
   const activeTab = externalActiveTab || internalActiveTab;
   const setActiveTab = externalSetActiveTab || setInternalActiveTab;
 
-  // If no specific issues are provided, use predefined issues
+  // Get all issues categorized by ESG type
   const { environmental, social, governance } = React.useMemo(() => 
     getIssuesByCategory(), []);
 
@@ -44,12 +43,26 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
   const socIssues = socialIssues || social;
   const govIssues = governanceIssues || governance;
 
+  // Keep track of all available issues across all tabs
+  const allIssues = React.useMemo(() => [...envIssues, ...socIssues, ...govIssues], 
+    [envIssues, socIssues, govIssues]);
+
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      console.log("ThemesCategoryTabs handling issue:", issue.id);
-      onIssueSelect(issue);
+      console.log("ThemesCategoryTabs handling issue selection:", issue.id);
+      // Create a new copy of the issue to avoid reference issues
+      const issueCopy = { ...issue };
+      // Explicitly set isMaterial to true (boolean) when selecting an issue
+      issueCopy.isMaterial = true;
+      console.log("Setting issue as material:", issueCopy.id, issueCopy.isMaterial, typeof issueCopy.isMaterial);
+      onIssueSelect(issueCopy);
     }
   };
+
+  // Log the selected issue IDs whenever they change
+  useEffect(() => {
+    console.log("ThemesCategoryTabs - selected issue IDs:", Array.from(selectedIssueIds));
+  }, [selectedIssueIds]);
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -74,6 +87,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
           selectedIssueIds={selectedIssueIds}
           onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
+          allAvailableIssues={allIssues}
         />
       </TabsContent>
       
@@ -83,6 +97,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
           selectedIssueIds={selectedIssueIds}
           onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
+          allAvailableIssues={allIssues}
         />
       </TabsContent>
       
@@ -92,6 +107,7 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
           selectedIssueIds={selectedIssueIds}
           onIssueSelect={handleIssueSelect}
           onAddIssue={onAddIssue}
+          allAvailableIssues={allIssues}
         />
       </TabsContent>
     </Tabs>

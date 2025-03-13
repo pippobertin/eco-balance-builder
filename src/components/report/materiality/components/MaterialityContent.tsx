@@ -63,21 +63,22 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial was:", issue.isMaterial);
     
-    // Always set isMaterial directly as a boolean to avoid type issues
-    const isMaterialBoolean = issue.isMaterial === true;
-    console.log("MaterialityContent: Directly setting isMaterial to", isMaterialBoolean, "for issue", issue.id);
+    // Create a new issue object to avoid reference issues
+    const newIssue = { ...issue };
     
-    // Use a timeout to ensure the update is processed completely
+    // Always set isMaterial directly as a boolean to avoid type issues
+    newIssue.isMaterial = issue.isMaterial === true;
+    console.log("MaterialityContent: Setting isMaterial to", newIssue.isMaterial, "(type:", typeof newIssue.isMaterial, ") for issue", issue.id);
+    
+    // Call the original handler with the updated issue
+    originalHandleIssueChange(issue.id, 'isMaterial', newIssue.isMaterial);
+    
+    // For debugging - check all material issues after update
     setTimeout(() => {
-      originalHandleIssueChange(issue.id, 'isMaterial', isMaterialBoolean);
-      
-      // For debugging - check all material issues after update
-      setTimeout(() => {
-        const materialCount = issues.filter(i => i.isMaterial === true).length;
-        console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
-        console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
-      }, 100);
-    }, 0);
+      const materialCount = issues.filter(i => i.isMaterial === true).length;
+      console.log(`After updating issue ${issue.id}, material issues count: ${materialCount}`);
+      console.log("Material issues:", issues.filter(i => i.isMaterial === true).map(i => i.id));
+    }, 100);
   };
 
   // Adapter function to match the expected signature for TabContent
@@ -102,7 +103,7 @@ const MaterialityContent: React.FC = () => {
       
       <MaterialityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      {/* Add ThemesCategoryTabs component for E, S, G theme selection */}
+      {/* Use ThemesCategoryTabs for Environmental, Social and Governance theme selection */}
       {activeTab === 'issues' && (
         <ThemesCategoryTabs 
           onAddIssue={addCustomIssue} 
@@ -145,7 +146,7 @@ const MaterialityContent: React.FC = () => {
         onSendSurveys={handleSendSurveys}
       />
 
-      {/* IRO Summary per visualizzare le selezioni IRO in una vista aggregata */}
+      {/* IRO Summary for displaying IRO selections in an aggregated view */}
       {materialIssues.length > 0 && activeTab === 'issues' && (
         <IROSummary materialIssues={materialIssues} />
       )}

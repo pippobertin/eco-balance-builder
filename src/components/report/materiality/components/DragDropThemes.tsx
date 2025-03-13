@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import ESRSThemeFilter from './ESRSThemeFilter';
 import { useToast } from '@/hooks/use-toast';
@@ -25,8 +25,15 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   // Get issues categorized by ESG
   const { environmental: environmentalIssues, social: socialIssues, governance: governanceIssues } = getIssuesByCategory();
   
-  // Get the selected issue IDs for quick lookup
-  const selectedIssueIds = new Set(selectedIssues.map(issue => issue.id));
+  // Get the selected issue IDs for quick lookup - use a state to ensure it persists across renders
+  const [selectedIssueIds, setSelectedIssueIds] = useState<Set<string>>(new Set());
+  
+  // Update selectedIssueIds when selectedIssues changes
+  useEffect(() => {
+    const newSelectedIds = new Set(selectedIssues.map(issue => issue.id));
+    console.log("DragDropThemes: Updating selected issue IDs:", Array.from(newSelectedIds));
+    setSelectedIssueIds(newSelectedIds);
+  }, [selectedIssues]);
   
   // Handle issue selection
   const handleIssueSelect = (issue: any) => {
