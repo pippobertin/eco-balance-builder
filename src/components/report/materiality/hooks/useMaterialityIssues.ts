@@ -8,11 +8,7 @@ export const useMaterialityIssues = (
   initialIssues: MaterialityIssue[] | undefined, 
   onUpdate: (issues: MaterialityIssue[]) => void
 ) => {
-  const [issues, setIssues] = useState<MaterialityIssue[]>(
-    initialIssues && initialIssues.length > 0 
-      ? initialIssues
-      : []
-  );
+  const [issues, setIssues] = useState<MaterialityIssue[]>([]);
 
   useEffect(() => {
     if (initialIssues && initialIssues.length > 0) {
@@ -41,10 +37,8 @@ export const useMaterialityIssues = (
   }, [initialIssues]);
 
   const triggerUpdate = useCallback(() => {
-    if (issues && issues.length > 0) {
-      console.log("Triggering update with issues:", issues);
-      onUpdate(issues);
-    }
+    console.log("Triggering update with issues:", issues);
+    onUpdate(issues);
   }, [issues, onUpdate]);
 
   useEffect(() => {

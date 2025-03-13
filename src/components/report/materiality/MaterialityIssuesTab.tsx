@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchBar, IssuesList, IssueTabs } from './components/issues-tab';
 import MaterialityReport from './MaterialityReport';
 import { MaterialityIssue } from './types';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 interface MaterialityIssuesTabProps {
   issues: MaterialityIssue[];
@@ -27,6 +29,7 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>('current');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   // Filtriamo esplicitamente solo i temi che hanno isMaterial === true
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
@@ -41,8 +44,27 @@ const MaterialityIssuesTab: React.FC<MaterialityIssuesTabProps> = ({
     
   console.log(`MaterialityIssuesTab: Found ${materialIssues.length} material issues`);
 
+  // Handle refresh
+  const handleRefresh = () => {
+    console.log("Refreshing materiality issues view");
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" key={refreshKey}>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold mb-2 text-gray-800">Temi di Materialità</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          className="flex items-center gap-1"
+        >
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Aggiorna
+        </Button>
+      </div>
+
       <IssueTabs 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
