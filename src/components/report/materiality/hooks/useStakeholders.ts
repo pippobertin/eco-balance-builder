@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Stakeholder, SurveyResponse, MaterialityIssue } from '../types';
-import { calculatePriority } from '../utils/materialityUtils';
+import { calculatePriority } from '../utils/stakeholderUtils';
 
 export const useStakeholders = (
   initialStakeholders: Stakeholder[] | undefined,

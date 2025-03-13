@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { esrsThemes } from '../utils/materialityUtils';
+import { esrsThemes } from '../utils/esgCategoryUtils';
 import { translateESGCategory } from '../utils/esgCategoryUtils';
 
 interface ESRSThemeFilterProps {

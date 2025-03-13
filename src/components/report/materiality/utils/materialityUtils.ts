@@ -2,6 +2,12 @@
 import { MaterialityIssue } from '../types';
 import { predefinedIssues } from './predefinedIssues';
 
+// Re-export functions from other utility files
+export { calculatePriority } from './stakeholderUtils';
+export { getStakeholderPriorityColor } from './stakeholderUtils';
+export { getSurveyStatusColor, getSurveyStatusText } from './surveyUtils';
+export { esrsThemes } from './esgCategoryUtils';
+
 // Export predefined issues for use in other modules
 export { predefinedIssues };
 
