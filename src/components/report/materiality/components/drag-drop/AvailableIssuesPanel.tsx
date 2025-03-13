@@ -24,7 +24,14 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
     if (isHeaderTheme(issue.id, issue.name)) return;
     
     console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, issue.id);
-    onIssueClick(issue);
+    
+    // Create a deep copy to avoid reference issues
+    const issueCopy = JSON.parse(JSON.stringify(issue));
+    
+    // Explicitly set isMaterial to true as a boolean
+    issueCopy.isMaterial = true;
+    
+    onIssueClick(issueCopy);
   };
 
   return (

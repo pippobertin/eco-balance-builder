@@ -33,22 +33,11 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "current isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
+    console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // Make a deep copy of the issue to avoid reference issues
-    const deepCopy = JSON.parse(JSON.stringify(issue));
-    
-    // Critical fix: Explicitly toggle isMaterial based on context
-    // If from available panel, set to true; if from selected panel, set to false
-    if (availableIssues.some(i => i.id === issue.id)) {
-      deepCopy.isMaterial = true;
-      console.log(`Setting issue ${issue.id} to material TRUE because it's from available issues`);
-    } else if (selectedIssues.some(i => i.id === issue.id)) {
-      deepCopy.isMaterial = false;
-      console.log(`Setting issue ${issue.id} to material FALSE because it's from selected issues`);
-    }
-    
-    onIssueSelect(deepCopy);
+    // isMaterial is already set correctly in the child components
+    // Pass the issue directly to the parent handler
+    onIssueSelect(issue);
   };
 
   return (

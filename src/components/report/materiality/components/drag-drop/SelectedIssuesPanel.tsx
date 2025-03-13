@@ -19,7 +19,14 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   // Handle removing an issue from selected panel
   const handleIssueClick = (issue: MaterialityIssue) => {
     console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, issue.id);
-    onIssueClick(issue);
+    
+    // Create a deep copy to avoid reference issues
+    const issueCopy = JSON.parse(JSON.stringify(issue));
+    
+    // Explicitly set isMaterial to false as a boolean
+    issueCopy.isMaterial = false;
+    
+    onIssueClick(issueCopy);
   };
 
   return (

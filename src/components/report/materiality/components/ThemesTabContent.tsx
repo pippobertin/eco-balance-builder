@@ -34,10 +34,6 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Log for debugging
     console.log(`ThemesTabContent [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
     
-    // Always update when the tab or issues change
-    console.log(`ThemesTabContent [${tabId}]: Updating issue lists based on selectedIssueIds:`, 
-      Array.from(selectedIssueIds));
-    
     const available: MaterialityIssue[] = [];
     const selected: MaterialityIssue[] = [];
     
@@ -77,13 +73,13 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (!onIssueSelect) return;
     
-    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial was:", issue.isMaterial);
+    console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
     
-    // Pass the issue to the parent handler
+    // Important: Make sure we're passing the correct boolean value for isMaterial
+    // This is crucial for the downstream components to work correctly
     onIssueSelect(issue);
     
-    // Here we update local state for immediate UI feedback
-    // This gives a more responsive feel while we wait for the parent component to update
+    // Update local state for immediate UI feedback
     if (issue.isMaterial === true) {
       // Issue is being selected (moved to selected panel)
       setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));

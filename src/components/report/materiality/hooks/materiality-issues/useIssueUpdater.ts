@@ -34,7 +34,7 @@ export const useIssueUpdater = (
 
   // Handle changes to a specific issue field
   const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
-    console.log(`Changing issue ${id} field ${String(field)} to`, value);
+    console.log(`Changing issue ${id} field ${String(field)} to`, value, typeof value);
     
     // Don't allow modifications if it's a header theme
     const issueToUpdate = issues.find(issue => issue.id === id);
@@ -54,7 +54,7 @@ export const useIssueUpdater = (
             const numericValue = typeof value === 'string' ? Number(value) : value;
             updatedIssue[field] = numericValue;
           } else if (field === 'isMaterial') {
-            // Critical fix: Force boolean type for isMaterial - use strict boolean
+            // Critical fix: Force boolean type for isMaterial
             updatedIssue.isMaterial = value === true;
             console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssue.isMaterial, typeof updatedIssue.isMaterial);
           } else {
