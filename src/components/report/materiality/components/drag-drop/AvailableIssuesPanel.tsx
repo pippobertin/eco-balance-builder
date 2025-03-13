@@ -10,12 +10,22 @@ import { PlusCircle } from 'lucide-react';
 interface AvailableIssuesPanelProps {
   availableIssues: MaterialityIssue[];
   onIssueClick: (issue: MaterialityIssue) => void;
+  tabId?: string;
 }
 
 const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
   availableIssues,
-  onIssueClick
+  onIssueClick,
+  tabId = ''
 }) => {
+  // When clicking on an issue, make a deep copy to avoid reference issues
+  const handleIssueClick = (issue: MaterialityIssue) => {
+    // Deep clone the issue to prevent reference issues
+    const clonedIssue = JSON.parse(JSON.stringify(issue));
+    console.log(`AvailableIssuesPanel [${tabId}]: Clicking to select issue:`, clonedIssue.id);
+    onIssueClick(clonedIssue);
+  };
+
   return (
     <div id="available-container" className="border rounded-lg p-2">
       <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Disponibili</h3>
@@ -33,7 +43,7 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
               ) : (
                 <div 
                   className="p-4 rounded-lg border mb-2 bg-white border-gray-100 flex justify-between items-center"
-                  onClick={() => onIssueClick(issue)}
+                  onClick={() => handleIssueClick(issue)}
                 >
                   <div>
                     <h4 className="text-sm font-medium text-gray-900">{issue.name}</h4>
@@ -47,7 +57,7 @@ const AvailableIssuesPanel: React.FC<AvailableIssuesPanelProps> = ({
                     className="text-blue-600 hover:text-blue-700"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onIssueClick(issue);
+                      handleIssueClick(issue);
                     }}
                   >
                     <PlusCircle className="h-4 w-4" />

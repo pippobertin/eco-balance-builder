@@ -37,7 +37,7 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   
   // Handle issue selection
   const handleIssueSelect = (issue: any) => {
-    console.log("Selected issue:", issue);
+    console.log("Selected issue:", issue.id, issue.name);
     
     // Check if this issue is already selected
     if (selectedIssueIds.has(issue.id)) {
@@ -52,8 +52,8 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
     // Add default values for impact and financial relevance
     const issueWithValues = {
       ...issue,
-      impactRelevance: 50, // Default value
-      financialRelevance: 50, // Default value
+      impactRelevance: issue.impactRelevance || 50, // Use existing or default
+      financialRelevance: issue.financialRelevance || 50, // Use existing or default
       isMaterial: true  // CRITICAL: Ensure this is a boolean true, not a string or truthy value
     };
     
@@ -71,8 +71,13 @@ const DragDropThemes: React.FC<DragDropThemesProps> = ({
   
   // Adapter function to match the expected signature for SelectedIssuesPanel
   const handleIssueClick = (issue: any) => {
-    console.log("Removing issue:", issue.id);
-    onIssueRemove(issue.id);
+    console.log("DragDropThemes: handleIssueClick called for issue:", issue.id, "isMaterial:", issue.isMaterial);
+    
+    // Only process remove if isMaterial is explicitly false
+    if (issue.isMaterial === false) {
+      console.log("Removing issue:", issue.id);
+      onIssueRemove(issue.id);
+    }
   };
   
   return (

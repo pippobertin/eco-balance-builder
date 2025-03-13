@@ -17,12 +17,15 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
 }) => {
   // Handle issue removal - wrapper for onIssueClick
   const handleIssueRemove = (issue: MaterialityIssue) => {
+    // Debug log for tracking
     console.log("SelectedIssuesPanel: Removing issue", issue.id, issue.name);
+    
     // Create a deep copy of the issue to prevent reference issues
     const updatedIssue = { 
       ...issue, 
       isMaterial: false // Explicitly set to false (boolean)
     };
+    
     console.log("SelectedIssuesPanel: Set isMaterial to", updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);
     onIssueClick(updatedIssue);
   };

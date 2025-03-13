@@ -13,7 +13,7 @@ export const useIssueUpdater = (
 ) => {
   // Trigger update when issues change
   const triggerUpdate = useCallback(() => {
-    console.log("Triggering update with issues:", issues.length);
+    console.log("useIssueUpdater: Triggering update with issues:", issues.length);
     // Count and log material issues for debugging
     const materialCount = issues.filter(issue => issue.isMaterial === true).length;
     console.log(`Sending update with ${issues.length} issues, ${materialCount} are material`);
@@ -44,23 +44,26 @@ export const useIssueUpdater = (
     }
     
     setIssues(prevIssues => {
+      // Make a deep copy of prevIssues to avoid reference issues
       const updatedIssues = prevIssues.map(issue => {
         if (issue.id === id) {
+          const updatedIssue = { ...issue };
+          
           if (field === 'impactRelevance' || field === 'financialRelevance') {
             const numericValue = typeof value === 'string' ? Number(value) : value;
-            return { ...issue, [field]: numericValue };
+            updatedIssue[field] = numericValue;
+          } else if (field === 'isMaterial') {
+            // Critical fix: Ensure boolean value for isMaterial
+            const boolValue = value === true;
+            console.log(`Setting isMaterial for ${id} to strict boolean:`, boolValue, typeof boolValue);
+            updatedIssue.isMaterial = boolValue;
+          } else {
+            updatedIssue[field] = value;
           }
           
-          // Critical fix: Ensure boolean value for isMaterial
-          if (field === 'isMaterial') {
-            const boolValue = value === true || value === 'true';
-            console.log(`Setting isMaterial for ${id} to strict boolean:`, boolValue);
-            return { ...issue, isMaterial: boolValue };
-          }
-          
-          return { ...issue, [field]: value };
+          return updatedIssue;
         }
-        return issue;
+        return { ...issue };
       });
       
       // Count material issues for debugging

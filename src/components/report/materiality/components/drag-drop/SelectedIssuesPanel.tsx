@@ -8,12 +8,24 @@ import { MinusCircle } from 'lucide-react';
 interface SelectedIssuesPanelProps {
   selectedIssues: MaterialityIssue[];
   onIssueClick: (issue: MaterialityIssue) => void;
+  tabId?: string;
 }
 
 const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   selectedIssues,
-  onIssueClick
+  onIssueClick,
+  tabId = ''
 }) => {
+  // When clicking on an issue, make a deep copy to avoid reference issues
+  const handleIssueClick = (issue: MaterialityIssue) => {
+    // Deep clone the issue to prevent reference issues
+    const clonedIssue = JSON.parse(JSON.stringify(issue));
+    // Explicitly set isMaterial to false since we're removing from selected
+    clonedIssue.isMaterial = false;
+    console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, clonedIssue.id, "setting isMaterial to", clonedIssue.isMaterial);
+    onIssueClick(clonedIssue);
+  };
+
   return (
     <div id="selected-container" className="border rounded-lg p-2">
       <h3 className="text-base font-semibold mb-2 text-gray-700">Temi Selezionati</h3>
@@ -28,7 +40,6 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
               <div 
                 key={issue.id}
                 className="p-4 rounded-lg border mb-2 bg-white border-gray-100 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
-                onClick={() => onIssueClick(issue)}
               >
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">{issue.name}</h4>
@@ -42,7 +53,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
                   className="text-red-600 hover:text-red-700"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onIssueClick(issue);
+                    handleIssueClick(issue);
                   }}
                 >
                   <MinusCircle className="h-4 w-4" />

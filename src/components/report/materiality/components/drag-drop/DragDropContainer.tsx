@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MaterialityIssue } from '../../types';
 import { isHeaderTheme } from '../../utils/materialityUtils';
 import AvailableIssuesPanel from './AvailableIssuesPanel';
@@ -10,12 +10,14 @@ interface DragDropContainerProps {
   availableIssues: MaterialityIssue[];
   selectedIssues: MaterialityIssue[];
   onIssueSelect: (issue: MaterialityIssue) => void;
+  tabId?: string;
 }
 
 const DragDropContainer: React.FC<DragDropContainerProps> = ({
   availableIssues,
   selectedIssues,
-  onIssueSelect
+  onIssueSelect,
+  tabId = ''
 }) => {
   const { toast } = useToast();
 
@@ -31,21 +33,21 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    console.log("DragDropContainer: Clicking issue", issue.id, "current isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
+    console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "current isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
     // Important: Create a deep clone to avoid reference issues
-    const clonedIssue = { ...issue };
+    const clonedIssue = JSON.parse(JSON.stringify(issue));
     
     // If the issue is in the available issues list, it's being selected
     if (availableIssues.some(i => i.id === issue.id)) {
-      console.log("DragDropContainer: Setting issue to material (true):", issue.id);
+      console.log(`DragDropContainer [${tabId}]: Setting issue to material (true):`, issue.id);
       clonedIssue.isMaterial = true; // Being moved to selected - force true
     } else {
-      console.log("DragDropContainer: Setting issue to non-material (false):", issue.id);
+      console.log(`DragDropContainer [${tabId}]: Setting issue to non-material (false):`, issue.id);
       clonedIssue.isMaterial = false; // Being moved to available - force false
     }
     
-    console.log("DragDropContainer: Passing issue with isMaterial =", clonedIssue.isMaterial, "type:", typeof clonedIssue.isMaterial);
+    console.log(`DragDropContainer [${tabId}]: Passing issue with isMaterial =`, clonedIssue.isMaterial, "type:", typeof clonedIssue.isMaterial);
     onIssueSelect(clonedIssue);
   };
 
@@ -54,11 +56,13 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       <AvailableIssuesPanel 
         availableIssues={availableIssues}
         onIssueClick={handleIssueClick}
+        tabId={tabId}
       />
 
       <SelectedIssuesPanel 
         selectedIssues={selectedIssues}
         onIssueClick={handleIssueClick}
+        tabId={tabId}
       />
     </div>
   );
