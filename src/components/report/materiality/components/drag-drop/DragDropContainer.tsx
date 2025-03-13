@@ -31,16 +31,8 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
       return;
     }
 
-    console.log("DragDropContainer handling click for issue:", issue.id, "Current isMaterial:", issue.isMaterial);
-    
-    // Create a new issue object with the isMaterial property toggled
-    // Ensure we're setting a boolean value for isMaterial
-    const updatedIssue = { 
-      ...issue, 
-      isMaterial: issue.isMaterial === true ? false : true 
-    };
-    
-    console.log("Sending to parent with isMaterial:", updatedIssue.isMaterial);
+    // Toggle the issue's material status
+    const updatedIssue = { ...issue, isMaterial: !issue.isMaterial };
     onIssueSelect(updatedIssue);
   };
 

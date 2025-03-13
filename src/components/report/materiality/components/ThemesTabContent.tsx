@@ -31,18 +31,11 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
     // Save the original order of all issues
     setOriginalIssueOrder([...issues]);
     
-    // Log the issues we received for debugging
-    console.log("ThemesTabContent received issues:", issues.map(i => ({id: i.id, name: i.name, isMaterial: i.isMaterial})));
-    
     issues.forEach(issue => {
-      // Ensure isMaterial is always a boolean
-      const isMat = issue.isMaterial === true;
-      if (isMat) {
-        console.log("Adding to selected:", issue.id, issue.name);
-        selected.push({...issue, isMaterial: true});
+      if (issue.isMaterial) {
+        selected.push(issue);
       } else {
-        console.log("Adding to available:", issue.id, issue.name);
-        available.push({...issue, isMaterial: false});
+        available.push(issue);
       }
     });
     
@@ -56,27 +49,14 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      console.log("ThemesTabContent handling issue select:", issue.id, "Current isMaterial:", issue.isMaterial);
-      
-      // Make sure we're using a boolean value for isMaterial
-      const newIsMaterial = issue.isMaterial !== true;
-      console.log("Setting isMaterial to:", newIsMaterial);
-      
-      // Create updated issue with explicit isMaterial boolean
-      const updatedIssue = {
-        ...issue,
-        isMaterial: newIsMaterial
-      };
-      
-      // Call parent handler with the updated issue
-      onIssueSelect(updatedIssue);
-      console.log("Sent updated issue with isMaterial:", updatedIssue.isMaterial);
+      console.log("ThemesTabContent handling issue select:", issue.id, issue.isMaterial);
+      onIssueSelect(issue);
       
       // Update local state for immediate UI feedback
-      if (!issue.isMaterial) {
+      if (issue.isMaterial) {
         // Issue is being selected
         setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-        setSelectedIssues(prev => [...prev, {...issue, isMaterial: true}]);
+        setSelectedIssues(prev => [...prev, issue]);
       } else {
         // Issue is being deselected - preserve original order when returning to available issues
         setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));

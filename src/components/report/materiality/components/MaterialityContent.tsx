@@ -45,25 +45,14 @@ const MaterialityContent: React.FC = () => {
     const materialIds = new Set(materialIssues.map(issue => issue.id));
     setMaterialIssueIds(materialIds);
     console.log("MaterialityContent: Updated material issue IDs set with", materialIds.size, "items");
-    
-    // Debug log to show all material issues
-    if (materialIssues.length > 0) {
-      console.log("MaterialityContent: Material issues:", materialIssues.map(i => i.name));
-    }
   }, [materialIssues]);
 
   // Handle issue selection from ThemesCategoryTabs
   const handleIssueSelect = (issue: MaterialityIssue) => {
-    console.log("MaterialityContent handling issue select:", issue.id, "isMaterial value:", issue.isMaterial);
+    console.log("MaterialityContent handling issue select:", issue.id, issue.isMaterial);
     
-    // Ensure we pass a boolean value
-    const isMaterialValue = issue.isMaterial === true;
-    
-    // Pass the updated isMaterial value to handleIssueChange
-    originalHandleIssueChange(issue.id, 'isMaterial', isMaterialValue);
-    
-    // Log after calling the handler to verify
-    console.log("MaterialityContent sent update for issue:", issue.id, "with isMaterial =", isMaterialValue);
+    // Always set to true when selecting from ThemesCategoryTabs
+    originalHandleIssueChange(issue.id, 'isMaterial', true);
   };
 
   // Adapter function to match the expected signature for TabContent
