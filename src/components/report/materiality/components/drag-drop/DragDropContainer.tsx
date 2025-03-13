@@ -35,20 +35,9 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
 
     console.log(`DragDropContainer [${tabId}]: Clicking issue`, issue.id, "current isMaterial:", issue.isMaterial, "type:", typeof issue.isMaterial);
     
-    // Create a deep clone to avoid reference issues
-    const clonedIssue = JSON.parse(JSON.stringify(issue));
-    
-    // If the issue is in the available issues list, it's being selected
-    if (availableIssues.some(i => i.id === issue.id)) {
-      console.log(`DragDropContainer [${tabId}]: Setting issue to material (true):`, issue.id);
-      clonedIssue.isMaterial = true; // Being moved to selected - force true
-    } else {
-      console.log(`DragDropContainer [${tabId}]: Setting issue to non-material (false):`, issue.id);
-      clonedIssue.isMaterial = false; // Being moved to available - force false
-    }
-    
-    console.log(`DragDropContainer [${tabId}]: Passing issue with isMaterial =`, clonedIssue.isMaterial, "type:", typeof clonedIssue.isMaterial);
-    onIssueSelect(clonedIssue);
+    // The isMaterial value should already be correctly set by the child components
+    // Just pass it to the parent handler without further modification
+    onIssueSelect(issue);
   };
 
   return (

@@ -26,7 +26,7 @@ export const useIssueUpdater = (
       console.log("Issues changed, scheduling update");
       const timeoutId = setTimeout(() => {
         triggerUpdate();
-      }, 300);
+      }, 100);
       
       return () => clearTimeout(timeoutId);
     }

@@ -20,7 +20,7 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
   const handleIssueClick = (issue: MaterialityIssue) => {
     // Deep clone the issue to prevent reference issues
     const clonedIssue = JSON.parse(JSON.stringify(issue));
-    // Explicitly set isMaterial to false since we're removing from selected
+    // ALWAYS set isMaterial to false when removing from selected
     clonedIssue.isMaterial = false;
     console.log(`SelectedIssuesPanel [${tabId}]: Clicking to remove issue:`, clonedIssue.id, "setting isMaterial to", clonedIssue.isMaterial);
     onIssueClick(clonedIssue);

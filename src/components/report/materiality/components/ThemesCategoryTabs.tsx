@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Leaf, Users, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -49,18 +48,11 @@ const ThemesCategoryTabs: React.FC<ThemesCategoryTabsProps> = ({
 
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (onIssueSelect) {
-      console.log("ThemesCategoryTabs handling issue selection:", issue.id);
+      console.log("ThemesCategoryTabs handling issue selection:", issue.id, "isMaterial:", issue.isMaterial);
       
-      // Create a DEEP copy of the issue to avoid reference issues
-      const issueCopy = JSON.parse(JSON.stringify(issue));
-      
-      // Explicitly set isMaterial to true (boolean) when selecting an issue
-      issueCopy.isMaterial = true;
-      
-      console.log("Setting issue as material:", issueCopy.id, issueCopy.isMaterial, typeof issueCopy.isMaterial);
-      
-      // Deep clone already done above with JSON.parse/stringify
-      onIssueSelect(issueCopy);
+      // The child components should already have set isMaterial appropriately
+      // Just pass it to the parent handler
+      onIssueSelect(issue);
     }
   };
 
