@@ -26,70 +26,97 @@ const ThemesTabContent: React.FC<ThemesTabContentProps> = ({
   // Keep track of the previous selected IDs to detect changes
   const prevSelectedIdsRef = useRef<Set<string>>(new Set());
   
-  // Maintain the original order of all issues for proper repositioning
-  const [originalIssueOrder, setOriginalIssueOrder] = useState<MaterialityIssue[]>([]);
+  // Flag to prevent re-processing issues while updates are pending
+  const updatingRef = useRef<boolean>(false);
 
   // Initialize issues when component mounts or issues/selectedIssueIds change
   useEffect(() => {
+    // Prevent concurrent updates while one is in progress
+    if (updatingRef.current) {
+      return;
+    }
+    
     // Log for debugging
     console.log(`ThemesTabContent [${tabId}]: Effect running, issues length=${issues.length}, selectedIds=${Array.from(selectedIssueIds).join(',')}`);
     
     const available: MaterialityIssue[] = [];
     const selected: MaterialityIssue[] = [];
     
-    // Save the original order of all issues
-    setOriginalIssueOrder([...issues]);
+    // Check if selectedIssueIds has changed
+    const selectedIdsArray = Array.from(selectedIssueIds);
+    const prevSelectedIdsArray = Array.from(prevSelectedIdsRef.current);
     
-    // Process issues for this specific tab
-    issues.forEach(issue => {
-      // Create a deep copy of the issue to prevent reference issues
-      const issueCopy = JSON.parse(JSON.stringify(issue));
+    const idsChanged = 
+      selectedIdsArray.length !== prevSelectedIdsArray.length ||
+      selectedIdsArray.some(id => !prevSelectedIdsRef.current.has(id)) ||
+      prevSelectedIdsArray.some(id => !selectedIssueIds.has(id));
+    
+    // Only process issues if the selection has changed or it's the initial load
+    if (idsChanged || availableIssues.length === 0 || selectedIssues.length === 0) {
+      // Process issues for this specific tab
+      issues.forEach(issue => {
+        // Create a deep copy of the issue to prevent reference issues
+        const issueCopy = JSON.parse(JSON.stringify(issue));
+        
+        // Check if this issue is in the selectedIssueIds set
+        if (selectedIssueIds.has(issueCopy.id)) {
+          console.log(`ThemesTabContent [${tabId}]: Issue is selected by ID:`, issueCopy.id);
+          // Ensure isMaterial is explicitly true (BOOLEAN)
+          issueCopy.isMaterial = true;
+          selected.push(issueCopy);
+        } else {
+          console.log(`ThemesTabContent [${tabId}]: Issue is not material:`, issueCopy.id);
+          // Ensure isMaterial is explicitly false for available issues (BOOLEAN)
+          issueCopy.isMaterial = false;
+          available.push(issueCopy);
+        }
+      });
       
-      // Check if this issue is in the selectedIssueIds set
-      if (selectedIssueIds.has(issueCopy.id)) {
-        console.log(`ThemesTabContent [${tabId}]: Issue is selected by ID:`, issueCopy.id);
-        // Ensure isMaterial is explicitly true (BOOLEAN)
-        issueCopy.isMaterial = true;
-        selected.push(issueCopy);
-      } else {
-        console.log(`ThemesTabContent [${tabId}]: Issue is not material:`, issueCopy.id);
-        // Ensure isMaterial is explicitly false for available issues (BOOLEAN)
-        issueCopy.isMaterial = false;
-        available.push(issueCopy);
-      }
-    });
-    
-    setAvailableIssues(available);
-    setSelectedIssues(selected);
-    
-    console.log(`ThemesTabContent [${tabId}]: Available issues:`, available.length);
-    console.log(`ThemesTabContent [${tabId}]: Selected issues:`, selected.length);
-    
-    // Update the previous selected IDs ref
-    prevSelectedIdsRef.current = new Set(selectedIssueIds);
+      console.log(`ThemesTabContent [${tabId}]: Setting available issues:`, available.length);
+      console.log(`ThemesTabContent [${tabId}]: Setting selected issues:`, selected.length);
+      
+      // Set both states in a batch to prevent partial updates
+      setAvailableIssues(available);
+      setSelectedIssues(selected);
+      
+      // Update the previous selected IDs ref
+      prevSelectedIdsRef.current = new Set(selectedIssueIds);
+    }
   }, [issues, selectedIssueIds, tabId]);
 
   // Function to handle issue selection or deselection
   const handleIssueSelect = (issue: MaterialityIssue) => {
     if (!onIssueSelect) return;
     
+    // Set updating flag to prevent concurrent updates
+    updatingRef.current = true;
+    
     console.log(`ThemesTabContent [${tabId}] handling issue select:`, issue.id, "isMaterial:", issue.isMaterial);
     
-    // CRITICAL FIX: First update local state for immediate UI feedback
+    // First update local state for immediate UI feedback
     if (issue.isMaterial) {
       // Issue is being selected (moved to selected panel)
       console.log(`ThemesTabContent [${tabId}]: Moving issue to selected panel:`, issue.id);
       setAvailableIssues(prev => prev.filter(i => i.id !== issue.id));
-      setSelectedIssues(prev => [...prev, issue]);
+      setSelectedIssues(prev => [...prev, {...issue, isMaterial: true}]); // Ensure true boolean
     } else {
       // Issue is being deselected (moved to available panel)
       console.log(`ThemesTabContent [${tabId}]: Moving issue to available panel:`, issue.id);
       setSelectedIssues(prev => prev.filter(i => i.id !== issue.id));
-      setAvailableIssues(prev => [...prev, issue]);
+      setAvailableIssues(prev => [...prev, {...issue, isMaterial: false}]); // Ensure false boolean
     }
     
     // Then pass to parent handler for global state update
-    onIssueSelect(issue);
+    // Use a timeout to make sure this happens after the UI update
+    setTimeout(() => {
+      console.log(`ThemesTabContent [${tabId}]: Passing issue to parent handler:`, issue.id, "isMaterial:", issue.isMaterial);
+      onIssueSelect(issue);
+      
+      // Clear the updating flag after a delay to allow the state to settle
+      setTimeout(() => {
+        updatingRef.current = false;
+      }, 500);
+    }, 0);
   };
 
   return (

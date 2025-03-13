@@ -26,7 +26,7 @@ export const useIssueUpdater = (
       console.log("Issues changed, scheduling update");
       const timeoutId = setTimeout(() => {
         triggerUpdate();
-      }, 1000); // CRITICAL FIX: Increased timeout to ensure state settles
+      }, 2000); // Increased timeout to ensure state settles completely
       
       return () => clearTimeout(timeoutId);
     }
@@ -78,8 +78,9 @@ export const useIssueUpdater = (
     
     // CRITICAL FIX: Always trigger update with a longer delay to ensure state is settled
     setTimeout(() => {
+      console.log(`Scheduling delayed update after changing ${field} for issue ${id}`);
       triggerUpdate();
-    }, 1200);
+    }, 2500);
   };
 
   return {
