@@ -99,7 +99,7 @@ const IssueItem: React.FC<IssueItemProps> = ({
         {/* Only show action buttons for non-header items */}
         {!isHeaderItem && (
           <div className="flex items-center gap-2">
-            {!isPredefined && onRemoveIssue && issue.isMaterial && (
+            {onRemoveIssue && issue.isMaterial && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -109,14 +109,16 @@ const IssueItem: React.FC<IssueItemProps> = ({
                 <MinusCircle className="h-4 w-4" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onIssueChange(issue.id, 'isMaterial', !issue.isMaterial)}
-              className={issue.isMaterial ? "text-green-600" : "text-gray-400"}
-            >
-              <PlusCircle className="h-4 w-4" />
-            </Button>
+            {!issue.isMaterial && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onIssueChange(issue.id, 'isMaterial', true)}
+                className="text-green-600"
+              >
+                <PlusCircle className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         )}
       </div>
