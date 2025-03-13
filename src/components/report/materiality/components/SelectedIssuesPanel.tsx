@@ -24,10 +24,16 @@ const SelectedIssuesPanel: React.FC<SelectedIssuesPanelProps> = ({
     
     // Create a deep copy of the issue to prevent reference issues
     const updatedIssue = structuredClone(issue);
-    updatedIssue.isMaterial = false; // Explicitly set to false (boolean)
+    
+    // Set isMaterial to a strict boolean false
+    updatedIssue.isMaterial = false;
     
     console.log(`SelectedIssuesPanel [${tabId}]: Set isMaterial to`, updatedIssue.isMaterial, "type:", typeof updatedIssue.isMaterial);
-    onIssueClick(updatedIssue);
+    
+    // Use a timeout to ensure the UI updates before sending the data change
+    setTimeout(() => {
+      onIssueClick(updatedIssue);
+    }, 50);
   };
 
   return (

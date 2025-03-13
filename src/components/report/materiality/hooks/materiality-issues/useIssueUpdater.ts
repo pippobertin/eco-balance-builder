@@ -14,6 +14,23 @@ export const useIssueUpdater = (
   const lastChangedIssueRef = useRef<{id: string, field: string, value: any, timestamp: number}[]>([]);
   // Flag to track active updates and prevent concurrent operations
   const isUpdatingRef = useRef<boolean>(false);
+  // Store known material issues to prevent them from being lost
+  const knownMaterialIssuesRef = useRef<Set<string>>(new Set());
+  // Track initial load
+  const initialLoadCompleteRef = useRef<boolean>(false);
+  
+  // When issues are loaded initially, record which ones are material
+  useEffect(() => {
+    if (!initialLoadCompleteRef.current && issues.length > 0) {
+      const materialIssueIds = issues
+        .filter(issue => issue.isMaterial === true)
+        .map(issue => issue.id);
+      
+      console.log("useIssueUpdater: Initial material issues:", materialIssueIds);
+      knownMaterialIssuesRef.current = new Set(materialIssueIds);
+      initialLoadCompleteRef.current = true;
+    }
+  }, [issues]);
   
   // Trigger update when issues change, with debounce
   const triggerUpdate = useCallback(() => {
@@ -61,6 +78,18 @@ export const useIssueUpdater = (
       return;
     }
     
+    // If changing isMaterial to true, add to known material issues
+    if (field === 'isMaterial' && value === true) {
+      knownMaterialIssuesRef.current.add(id);
+      console.log(`Adding ${id} to known material issues`);
+    }
+    
+    // If changing isMaterial to false, remove from known material issues
+    if (field === 'isMaterial' && value === false) {
+      knownMaterialIssuesRef.current.delete(id);
+      console.log(`Removing ${id} from known material issues`);
+    }
+    
     // Record this change to prevent future unwanted reverts
     const newChange = {
       id,
@@ -74,44 +103,63 @@ export const useIssueUpdater = (
       ...lastChangedIssueRef.current.filter(change => 
         // Keep recent changes for other issues, or older changes for other fields of the same issue
         (change.id !== id || change.field !== String(field)) &&
-        // But only keep changes from the last 30 seconds
-        Date.now() - change.timestamp < 30000
+        // But only keep changes from the last 60 seconds
+        Date.now() - change.timestamp < 60000
       )
     ];
     
     setIssues(prevIssues => {
       // CRITICAL FIX: Create completely new array with new objects to avoid any reference issues
       const updatedIssues = prevIssues.map(issue => {
-        if (issue.id !== id) {
-          return { ...issue };
+        // First create a deep copy of the issue
+        const issueCopy = structuredClone(issue);
+        
+        // If this is the issue we're updating
+        if (issueCopy.id === id) {
+          if (field === 'impactRelevance' || field === 'financialRelevance') {
+            const numericValue = typeof value === 'string' ? Number(value) : value;
+            issueCopy[field] = numericValue;
+          } else if (field === 'isMaterial') {
+            // CRITICAL FIX: Force boolean type for isMaterial
+            issueCopy.isMaterial = value === true;
+            console.log(`Setting isMaterial for ${id} to strict boolean:`, issueCopy.isMaterial, typeof issueCopy.isMaterial);
+          } else {
+            // Use type assertion for dynamic field assignment
+            (issueCopy as any)[field] = value;
+          }
         }
         
-        // Create a new copy of the issue to update
-        const updatedIssue = structuredClone(issue);
-        
-        if (field === 'impactRelevance' || field === 'financialRelevance') {
-          const numericValue = typeof value === 'string' ? Number(value) : value;
-          updatedIssue[field] = numericValue;
-        } else if (field === 'isMaterial') {
-          // CRITICAL FIX: Force boolean type for isMaterial
-          updatedIssue.isMaterial = value === true;
-          console.log(`Setting isMaterial for ${id} to strict boolean:`, updatedIssue.isMaterial, typeof updatedIssue.isMaterial);
-        } else {
-          // Use type assertion for dynamic field assignment
-          (updatedIssue as any)[field] = value;
-        }
-        
-        return updatedIssue;
+        return issueCopy;
       });
       
       // Preserve the selection state of recently changed issues
       lastChangedIssueRef.current.forEach(change => {
-        if (Date.now() - change.timestamp < 20000 && change.field === 'isMaterial') {
+        if (Date.now() - change.timestamp < 30000 && change.field === 'isMaterial') {
           const recentIssueInUpdated = updatedIssues.find(issue => issue.id === change.id);
           
-          if (recentIssueInUpdated && recentIssueInUpdated.isMaterial !== change.value) {
-            console.log("Preserving recent change for issue:", change.id, "setting isMaterial to", change.value);
-            recentIssueInUpdated.isMaterial = change.value === true;
+          if (recentIssueInUpdated) {
+            const oldValue = recentIssueInUpdated.isMaterial;
+            const newValue = change.value === true;
+            
+            if (oldValue !== newValue) {
+              console.log(`Preserving recent change for issue ${change.id}: isMaterial from ${oldValue} to ${newValue}`);
+              recentIssueInUpdated.isMaterial = newValue;
+            }
+          }
+        }
+      });
+      
+      // Make sure all known material issues stay material
+      updatedIssues.forEach(issue => {
+        // Only force material state on issues that are in our known set
+        // and aren't explicitly being set to false by the current operation
+        const isBeingDeselected = id === issue.id && field === 'isMaterial' && value === false;
+        
+        if (knownMaterialIssuesRef.current.has(issue.id) && !isBeingDeselected) {
+          // If this issue should be material but isn't, fix it
+          if (issue.isMaterial !== true) {
+            console.log(`Restoring material state for known issue: ${issue.id}`);
+            issue.isMaterial = true;
           }
         }
       });
@@ -119,7 +167,10 @@ export const useIssueUpdater = (
       // Count material issues for debugging
       const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
       console.log(`Updated issues after change: ${updatedIssues.length} total, ${materialCount} material`);
-      console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
+      
+      if (materialCount > 0) {
+        console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
+      }
       
       return updatedIssues;
     });
