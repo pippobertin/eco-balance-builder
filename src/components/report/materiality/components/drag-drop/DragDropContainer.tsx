@@ -35,23 +35,19 @@ const DragDropContainer: React.FC<DragDropContainerProps> = ({
     
     // Important: For themes in available issues, set isMaterial to true
     // For themes in selected issues, set isMaterial to false
-    // This ensures proper toggling without relying on current state
-    let newIsMaterial: boolean;
+    const clonedIssue = { ...issue };
     
     // If the issue is in the available issues list, it's being selected
     if (availableIssues.some(i => i.id === issue.id)) {
-      newIsMaterial = true; // Being moved to selected
+      console.log("DragDropContainer: Setting issue to material (true):", issue.id);
+      clonedIssue.isMaterial = true; // Being moved to selected - force true
     } else {
-      newIsMaterial = false; // Being moved to available
+      console.log("DragDropContainer: Setting issue to non-material (false):", issue.id);
+      clonedIssue.isMaterial = false; // Being moved to available - force false
     }
     
-    const updatedIssue = { 
-      ...issue, 
-      isMaterial: newIsMaterial
-    };
-    
-    console.log("DragDropContainer: Setting isMaterial to:", updatedIssue.isMaterial);
-    onIssueSelect(updatedIssue);
+    console.log("DragDropContainer: Passing issue with isMaterial =", clonedIssue.isMaterial);
+    onIssueSelect(clonedIssue);
   };
 
   return (

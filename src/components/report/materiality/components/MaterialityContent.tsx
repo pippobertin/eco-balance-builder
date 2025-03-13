@@ -55,12 +55,10 @@ const MaterialityContent: React.FC = () => {
   const handleIssueSelect = (issue: MaterialityIssue) => {
     console.log("MaterialityContent handling issue select:", issue.id, "isMaterial:", issue.isMaterial);
     
-    // Critical: Always set isMaterial based on where the issue is currently located
-    // If it's in available issues, set to true; if in selected issues, set to false
-    const newIsMaterial = !issue.isMaterial;
-    
-    console.log("MaterialityContent: Setting isMaterial to", newIsMaterial, "for issue", issue.id);
-    originalHandleIssueChange(issue.id, 'isMaterial', newIsMaterial);
+    // Always set isMaterial directly from the provided value - don't toggle
+    // This ensures proper behavior regardless of current state
+    console.log("MaterialityContent: Directly setting isMaterial to", issue.isMaterial, "for issue", issue.id);
+    originalHandleIssueChange(issue.id, 'isMaterial', issue.isMaterial);
   };
 
   // Adapter function to match the expected signature for TabContent

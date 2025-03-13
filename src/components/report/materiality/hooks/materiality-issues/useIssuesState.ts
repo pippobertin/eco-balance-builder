@@ -24,6 +24,8 @@ export const useIssuesState = (
       
       if (needsUpdate) {
         console.log("Updating issues from initialIssues:", initialIssues);
+        console.log("Initial material issues:", initialIssues.filter(i => i.isMaterial === true).map(i => i.id));
+        
         const processedIssues = initialIssues.map(issue => ({
           ...issue,
           impactRelevance: Number(issue.impactRelevance) || 50,
@@ -35,6 +37,7 @@ export const useIssuesState = (
         // Count material issues for debugging
         const materialCount = processedIssues.filter(issue => issue.isMaterial === true).length;
         console.log(`Processed ${processedIssues.length} issues, ${materialCount} are material`);
+        console.log("Processed material issues:", processedIssues.filter(i => i.isMaterial === true).map(i => i.id));
         
         setIssues(processedIssues);
       }

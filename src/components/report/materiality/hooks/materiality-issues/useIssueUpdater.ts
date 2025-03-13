@@ -17,6 +17,7 @@ export const useIssueUpdater = (
     // Count and log material issues for debugging
     const materialCount = issues.filter(issue => issue.isMaterial === true).length;
     console.log(`Sending update with ${issues.length} issues, ${materialCount} are material`);
+    console.log("Material issues:", issues.filter(issue => issue.isMaterial === true).map(i => i.id));
     onUpdate(issues);
   }, [issues, onUpdate]);
 
@@ -52,8 +53,9 @@ export const useIssueUpdater = (
           
           // Critical fix: Ensure boolean value for isMaterial
           if (field === 'isMaterial') {
-            // Explicitly convert to boolean
-            return { ...issue, isMaterial: value === true };
+            const boolValue = value === true || value === 'true';
+            console.log(`Setting isMaterial for ${id} to strict boolean:`, boolValue);
+            return { ...issue, isMaterial: boolValue };
           }
           
           return { ...issue, [field]: value };
@@ -64,6 +66,7 @@ export const useIssueUpdater = (
       // Count material issues for debugging
       const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
       console.log(`Updated issues after change: ${updatedIssues.length} total, ${materialCount} material`);
+      console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
       
       return updatedIssues;
     });
@@ -71,13 +74,19 @@ export const useIssueUpdater = (
     // Always update immediately on isMaterial changes to ensure proper UI state
     if (field === 'isMaterial') {
       setIssues(prevIssues => {
-        const updatedIssues = prevIssues.map(issue => 
-          issue.id === id ? { ...issue, isMaterial: value === true } : issue
-        );
+        const updatedIssues = prevIssues.map(issue => {
+          if (issue.id === id) {
+            const boolValue = value === true || value === 'true';
+            console.log(`Immediately updating isMaterial for ${id} to strict boolean:`, boolValue);
+            return { ...issue, isMaterial: boolValue };
+          }
+          return issue;
+        });
         
         // Count material issues for debugging
         const materialCount = updatedIssues.filter(issue => issue.isMaterial === true).length;
-        console.log(`Immediately updating after setting isMaterial=${value} for issue ${id}. Material issues: ${materialCount}`);
+        console.log(`Immediately updating after setting isMaterial for issue ${id}. Material issues: ${materialCount}`);
+        console.log("Material issue IDs:", updatedIssues.filter(i => i.isMaterial === true).map(i => i.id));
         
         // Call onUpdate immediately for this change
         onUpdate(updatedIssues);

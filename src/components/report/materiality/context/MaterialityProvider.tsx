@@ -24,6 +24,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   // Verifica che ci siano effettivamente temi nel caricamento iniziale
   const initialIssues = formValues.materialityAnalysis?.issues || [];
   console.log("Initial issues in MaterialityProvider:", initialIssues);
+  console.log("Initial material issues:", initialIssues.filter(i => i.isMaterial === true).map(i => i.name));
   
   // Use custom hooks for materiality issues
   const { 
@@ -69,6 +70,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
   // Use strict equality to ensure only true values are included
   const materialIssues = issues.filter(issue => issue.isMaterial === true);
   console.log("Material issues in MaterialityProvider:", materialIssues.length);
+  console.log("Material issue names:", materialIssues.map(i => i.name));
   
   // Use survey dialog hook
   const { 
@@ -122,9 +124,9 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({
     const materialCount = issues.filter(issue => issue.isMaterial === true).length;
     console.log(`MaterialityProvider: Total issues: ${issues.length}, Material issues: ${materialCount}`);
     if (materialCount > 0) {
-      console.log("Material issue IDs:", materialIssues.map(issue => issue.id));
+      console.log("Material issue names:", issues.filter(i => i.isMaterial === true).map(i => i.name));
     }
-  }, [issues, materialIssues]);
+  }, [issues]);
 
   const value = {
     // Issues
