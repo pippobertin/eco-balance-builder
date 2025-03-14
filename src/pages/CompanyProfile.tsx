@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -11,6 +12,7 @@ import CompanyProfileInfo from '@/components/report/company-information/CompanyP
 import { useCompanyInfo } from '@/components/report/company-information/useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
 import { AddressData } from '@/components/report/company-information/components/address/types';
+import { ensureLocationDataLoaded } from '@/components/report/company-information/utils/locationUtils';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
@@ -40,6 +42,11 @@ const CompanyProfile = () => {
       description: 'Le informazioni aziendali sono state salvate con successo',
     });
   });
+
+  // Ensure location data is loaded when the component mounts
+  useEffect(() => {
+    ensureLocationDataLoaded();
+  }, []);
 
   useEffect(() => {
     if (!currentCompany) {
