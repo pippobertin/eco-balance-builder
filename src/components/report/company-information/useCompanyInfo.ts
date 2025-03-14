@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/context/types';
@@ -60,14 +59,40 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     address_province: ''
   });
 
+  const ensureLocationDataLoaded = async () => {
+    try {
+      const { count, error: countError } = await supabase
+        .from('provinces')
+        .select('*', { count: 'exact', head: true });
+      
+      if (countError) {
+        console.error('Error checking provinces count:', countError);
+        return;
+      }
+
+      if (!count || count === 0) {
+        console.log('No provinces found, calling populate-italian-locations function');
+        const { data, error } = await supabase.functions.invoke('populate-italian-locations');
+        
+        if (error) {
+          console.error('Error calling populate-italian-locations function:', error);
+        } else {
+          console.log('Location data population result:', data);
+        }
+      } else {
+        console.log(`Provinces already loaded (${count} provinces)`);
+      }
+    } catch (error) {
+      console.error('Error ensuring location data is loaded:', error);
+    }
+  };
+
   useEffect(() => {
-    // Reset loading state when component mounts or currentCompany changes
     if (!currentCompany || !currentCompany.id) {
       setIsLoading(false);
       return;
     }
     
-    // Prevent duplicate loading
     if (loadingAttemptedRef.current && companyData.name) {
       return;
     }
@@ -75,75 +100,77 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     setIsLoading(true);
     loadingAttemptedRef.current = true;
     
-    // Load the company data
-    const loadCompanyDetails = async () => {
-      try {
-        console.log("Loading company details for:", currentCompany.id);
-        
-        const { data, error } = await withRetry(() => 
-          supabase
-            .from('companies')
-            .select('*')
-            .eq('id', currentCompany.id)
-            .single()
-        );
-
-        if (error) {
-          console.error("Error loading company data:", error);
-          throw error;
-        }
-
-        if (data) {
-          console.log("Company data loaded successfully:", data);
-          setCompanyData({
-            name: data.name || '',
-            vat_number: data.vat_number || '',
-            ateco_code: data.ateco_code || '',
-            nace_code: data.nace_code || '',
-            legal_form: data.legal_form || '',
-            collective_agreement: data.collective_agreement || '',
-            profile_about: data.profile_about || '',
-            profile_values: data.profile_values || '',
-            profile_mission: data.profile_mission || '',
-            profile_vision: data.profile_vision || '',
-            profile_value_chain: data.profile_value_chain || '',
-            profile_value_creation_factors: data.profile_value_creation_factors || '',
-            is_part_of_group: data.is_part_of_group || false,
-            has_multiple_locations: data.has_multiple_locations || false,
-            address_street_type: data.address_street_type || '',
-            address_street: data.address_street || '',
-            address_number: data.address_number || '',
-            address_postal_code: data.address_postal_code || '',
-            address_city: data.address_city || '',
-            address_province: data.address_province || ''
-          });
-
-          // Load group companies if is_part_of_group is true
-          if (data.is_part_of_group) {
-            loadGroupCompanies(currentCompany.id);
-          }
-          
-          // Load company locations if has_multiple_locations is true
-          if (data.has_multiple_locations) {
-            loadCompanyLocations(currentCompany.id);
-          }
-        } else {
-          console.error("No company data found for ID:", currentCompany.id);
-        }
-      } catch (error) {
-        console.error('Error loading company details:', error);
-        toast({
-          title: 'Errore',
-          description: 'Impossibile caricare i dettagli aziendali',
-          variant: 'destructive'
-        });
-      } finally {
-        setIsLoading(false);
-      }
+    const loadData = async () => {
+      await ensureLocationDataLoaded();
+      loadCompanyDetails();
     };
 
-    loadCompanyDetails();
+    loadData();
   }, [currentCompany?.id]);
+
+  const loadCompanyDetails = async () => {
+    try {
+      console.log("Loading company details for:", currentCompany.id);
+      
+      const { data, error } = await withRetry(() => 
+        supabase
+          .from('companies')
+          .select('*')
+          .eq('id', currentCompany.id)
+          .single()
+      );
+
+      if (error) {
+        console.error("Error loading company data:", error);
+        throw error;
+      }
+
+      if (data) {
+        console.log("Company data loaded successfully:", data);
+        setCompanyData({
+          name: data.name || '',
+          vat_number: data.vat_number || '',
+          ateco_code: data.ateco_code || '',
+          nace_code: data.nace_code || '',
+          legal_form: data.legal_form || '',
+          collective_agreement: data.collective_agreement || '',
+          profile_about: data.profile_about || '',
+          profile_values: data.profile_values || '',
+          profile_mission: data.profile_mission || '',
+          profile_vision: data.profile_vision || '',
+          profile_value_chain: data.profile_value_chain || '',
+          profile_value_creation_factors: data.profile_value_creation_factors || '',
+          is_part_of_group: data.is_part_of_group || false,
+          has_multiple_locations: data.has_multiple_locations || false,
+          address_street_type: data.address_street_type || '',
+          address_street: data.address_street || '',
+          address_number: data.address_number || '',
+          address_postal_code: data.address_postal_code || '',
+          address_city: data.address_city || '',
+          address_province: data.address_province || ''
+        });
+
+        if (data.is_part_of_group) {
+          loadGroupCompanies(currentCompany.id);
+        }
+        
+        if (data.has_multiple_locations) {
+          loadCompanyLocations(currentCompany.id);
+        }
+      } else {
+        console.error("No company data found for ID:", currentCompany.id);
+      }
+    } catch (error) {
+      console.error('Error loading company details:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile caricare i dettagli aziendali',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadGroupCompanies = async (companyId: string) => {
     try {
@@ -236,7 +263,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }));
   };
 
-  // Group companies handlers
   const handleAddGroupCompany = async (company: GroupCompany) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -332,7 +358,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedCompany = groupCompanies[index];
     if (!removedCompany || !removedCompany.id) {
-      // If the company doesn't have an ID, it was added locally but not saved to the database
       setGroupCompanies(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -366,7 +391,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }
   };
 
-  // Company locations handlers
   const handleAddLocation = async (location: CompanyLocation) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -460,7 +484,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedLocation = companyLocations[index];
     if (!removedLocation || !removedLocation.id) {
-      // If the location doesn't have an ID, it was added locally but not saved to the database
       setCompanyLocations(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -509,7 +532,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     try {
       console.log("Saving company info for:", currentCompany.id);
       
-      // Update company data
       const updateData = {
         name: companyData.name,
         vat_number: companyData.vat_number,
@@ -551,7 +573,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         description: 'Le informazioni aziendali sono state salvate con successo',
       });
       
-      // Only proceed to next step if callback provided
       if (onNext) {
         onNext();
       }
