@@ -34,7 +34,11 @@ const ProvinceField: React.FC<ProvinceFieldProps> = ({
               <span>Caricamento...</span>
             </div>
           ) : (
-            <SelectValue placeholder="Seleziona provincia..." />
+            <SelectValue placeholder={
+              provinces.length === 0 
+                ? "Nessuna provincia disponibile" 
+                : "Seleziona provincia..."
+            } />
           )}
         </SelectTrigger>
         <SelectContent>

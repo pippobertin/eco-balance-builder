@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Province, Municipality } from './types';
-import { ensureLocationDataLoaded } from '../../utils/locationUtils';
+import { ensureLocationDataLoaded, populateMunicipalitiesForProvince } from '../../utils/locationUtils';
 
 export const useAddressFields = (
   province: string,
@@ -94,31 +94,38 @@ export const useAddressFields = (
         return;
       }
 
-      setMunicipalities(data || []);
       console.log(`Loaded ${data?.length} municipalities for province ${provinceCode}`);
       
       // If no municipalities found after selecting a province, might need to run the population function
       if (data?.length === 0) {
         console.log(`No municipalities found for province ${provinceCode}, attempting to populate data`);
-        await ensureLocationDataLoaded(true);
+        const success = await populateMunicipalitiesForProvince(provinceCode);
         
-        // Try to load municipalities again
-        const { data: retryData, error: retryError } = await supabase
-          .from('municipalities')
-          .select('*')
-          .eq('province_code', provinceCode)
-          .order('name');
+        if (success) {
+          // Try to load municipalities again
+          const { data: retryData, error: retryError } = await supabase
+            .from('municipalities')
+            .select('*')
+            .eq('province_code', provinceCode)
+            .order('name');
+            
+          if (retryError) {
+            console.error('Error reloading municipalities:', retryError);
+            setMunicipalities([]);
+            return;
+          }
           
-        if (retryError) {
-          console.error('Error reloading municipalities:', retryError);
-          return;
+          setMunicipalities(retryData || []);
+          console.log(`Reloaded ${retryData?.length} municipalities for province ${provinceCode}`);
+        } else {
+          setMunicipalities([]);
         }
-        
-        setMunicipalities(retryData || []);
-        console.log(`Reloaded ${retryData?.length} municipalities for province ${provinceCode}`);
+      } else {
+        setMunicipalities(data || []);
       }
     } catch (error) {
       console.error('Failed to load municipalities:', error);
+      setMunicipalities([]);
     } finally {
       setIsLoading(prev => ({ ...prev, municipalities: false }));
     }

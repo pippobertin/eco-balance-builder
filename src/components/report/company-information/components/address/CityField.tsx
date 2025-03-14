@@ -35,7 +35,13 @@ const CityField: React.FC<CityFieldProps> = ({
               <span>Caricamento...</span>
             </div>
           ) : (
-            <SelectValue placeholder={provinceSelected ? "Seleziona comune..." : "Seleziona prima una provincia"} />
+            <SelectValue placeholder={
+              !provinceSelected 
+                ? "Seleziona prima una provincia" 
+                : municipalities.length === 0 
+                  ? "Nessun comune disponibile" 
+                  : "Seleziona comune..."
+            } />
           )}
         </SelectTrigger>
         <SelectContent>
