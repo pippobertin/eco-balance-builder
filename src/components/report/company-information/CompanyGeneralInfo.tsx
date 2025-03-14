@@ -46,7 +46,6 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         <CompanyBasicInfo 
           name={companyData.name}
           vatNumber={companyData.vat_number}
-          sector={companyData.sector}
           handleInputChange={handleInputChange}
           handleVatNumberChange={handleVatNumberChange}
         />
