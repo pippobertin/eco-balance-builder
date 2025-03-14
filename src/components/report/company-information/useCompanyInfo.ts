@@ -8,6 +8,7 @@ interface CompanyDataState {
   name: string;
   vat_number: string;
   ateco_code: string;
+  nace_code: string;
   legal_form: string;
   collective_agreement: string;
   profile_about: string;
@@ -28,6 +29,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
     name: '',
     vat_number: '',
     ateco_code: '',
+    nace_code: '',
     legal_form: '',
     collective_agreement: '',
     profile_about: '',
@@ -77,6 +79,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
             name: data.name || '',
             vat_number: data.vat_number || '',
             ateco_code: data.ateco_code || '',
+            nace_code: data.nace_code || '',
             legal_form: data.legal_form || '',
             collective_agreement: data.collective_agreement || '',
             profile_about: data.profile_about || '',
@@ -141,6 +144,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
             name: companyData.name,
             vat_number: companyData.vat_number,
             ateco_code: companyData.ateco_code,
+            nace_code: companyData.nace_code,
             legal_form: companyData.legal_form,
             collective_agreement: companyData.collective_agreement,
             profile_about: companyData.profile_about,
