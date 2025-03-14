@@ -50,22 +50,6 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
           handleVatNumberChange={handleVatNumberChange}
         />
         
-        {/* Comment out these components for now until we have database fields for them */}
-        {/* 
-        <ActivityCodes 
-          atecoCode={companyData.ateco_code}
-          naceCode={companyData.nace_code}
-          handleSelectChange={handleSelectChange}
-        />
-        
-        <LegalDetails 
-          legalForm={companyData.legal_form}
-          collectiveAgreement={companyData.collective_agreement}
-          handleSelectChange={handleSelectChange}
-        />
-        */}
-        
-        {/* Add simple text field for sector instead */}
         <div className="space-y-2">
           <label htmlFor="sector" className="block text-sm font-medium text-gray-700">
             Settore
@@ -80,6 +64,18 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
             placeholder="Settore di attività"
           />
         </div>
+        
+        <ActivityCodes 
+          atecoCode={companyData.ateco_code}
+          naceCode={companyData.nace_code}
+          handleSelectChange={handleSelectChange}
+        />
+        
+        <LegalDetails 
+          legalForm={companyData.legal_form}
+          collectiveAgreement={companyData.collective_agreement}
+          handleSelectChange={handleSelectChange}
+        />
       </div>
     </GlassmorphicCard>
   );
