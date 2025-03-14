@@ -12,6 +12,7 @@ import Dashboard from '@/pages/Dashboard';
 import Report from '@/pages/Report';
 import ReportForm from '@/pages/ReportForm';
 import Companies from '@/pages/Companies';
+import CompanyProfile from '@/pages/CompanyProfile';
 import Auth from '@/pages/Auth';
 import UserManagement from '@/pages/UserManagement';
 import NotFound from '@/pages/NotFound';
@@ -47,6 +48,11 @@ function App() {
                 <Route path="/companies" element={
                   <ProtectedRoute>
                     <Companies />
+                  </ProtectedRoute>
+                } />
+                <Route path="/company-profile" element={
+                  <ProtectedRoute>
+                    <CompanyProfile />
                   </ProtectedRoute>
                 } />
                 <Route path="/user-management" element={

@@ -22,7 +22,7 @@ export const useReportForm = () => {
   
   const subsidiariesState = useSubsidiaries();
   
-  const initialTab = location.state?.activeTab || 'company-info';
+  const initialTab = location.state?.activeTab || 'basic-info';
   const initialSection = location.state?.section;
   const initialField = location.state?.field;
   

@@ -20,7 +20,7 @@ interface CompanyDataState {
   profile_value_creation_factors: string;
 }
 
-export const useCompanyInfo = (currentCompany: Company | null, onNext: () => void) => {
+export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => void) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -172,7 +172,10 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
         description: 'Le informazioni aziendali sono state salvate con successo',
       });
       
-      onNext();
+      // Only proceed to next step if callback provided
+      if (onNext) {
+        onNext();
+      }
     } catch (error) {
       console.error('Error saving company information:', error);
       toast({

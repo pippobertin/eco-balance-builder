@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import CompanyInformation from '../company-information';
 import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
 import { Report } from '@/context/types';
@@ -73,18 +72,10 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-8">
-        <TabsTrigger value="company-info">Informazioni Azienda</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 mb-8">
         <TabsTrigger value="basic-info">Informazioni Base</TabsTrigger>
         <TabsTrigger value="metrics">Metriche Base</TabsTrigger>
       </TabsList>
-
-      <TabsContent value="company-info">
-        <CompanyInformation 
-          currentCompany={currentReport?.company || null}
-          onNext={() => onTabChange('basic-info')}
-        />
-      </TabsContent>
 
       <TabsContent value="basic-info">
         <BasicInfoSection 

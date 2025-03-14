@@ -2,6 +2,7 @@
 import React, { useCallback, memo } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Company } from '@/context/types';
+import { useNavigate } from 'react-router-dom';
 
 interface CompanyListProps {
   companies: Company[];
@@ -11,13 +12,18 @@ interface CompanyListProps {
 }
 
 const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: CompanyListProps) => {
+  const navigate = useNavigate();
+  
   // Create a memoized selection handler
   const handleSelectCompany = useCallback((company: Company) => {
     // Only trigger the callback if this is a new selection
     if (!selectedCompany || selectedCompany.id !== company.id) {
       onSelectCompany(company);
+      
+      // Navigate to company profile page
+      navigate('/company-profile');
     }
-  }, [onSelectCompany, selectedCompany]);
+  }, [onSelectCompany, selectedCompany, navigate]);
   
   if (companies.length === 0) {
     return (
