@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/context/types';
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { GroupCompany, CompanyLocation } from './CompanyGeneralInfo';
+import { AddressData } from './components/AddressFields';
 
 interface CompanyDataState {
   name: string;
@@ -20,6 +21,12 @@ interface CompanyDataState {
   profile_value_creation_factors: string;
   is_part_of_group: boolean;
   has_multiple_locations: boolean;
+  address_street_type: string;
+  address_street: string;
+  address_number: string;
+  address_postal_code: string;
+  address_city: string;
+  address_province: string;
 }
 
 export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => void) => {
@@ -44,7 +51,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     profile_value_chain: '',
     profile_value_creation_factors: '',
     is_part_of_group: false,
-    has_multiple_locations: false
+    has_multiple_locations: false,
+    address_street_type: '',
+    address_street: '',
+    address_number: '',
+    address_postal_code: '',
+    address_city: '',
+    address_province: ''
   });
 
   useEffect(() => {
@@ -96,7 +109,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
             profile_value_chain: data.profile_value_chain || '',
             profile_value_creation_factors: data.profile_value_creation_factors || '',
             is_part_of_group: data.is_part_of_group || false,
-            has_multiple_locations: data.has_multiple_locations || false
+            has_multiple_locations: data.has_multiple_locations || false,
+            address_street_type: data.address_street_type || '',
+            address_street: data.address_street || '',
+            address_number: data.address_number || '',
+            address_postal_code: data.address_postal_code || '',
+            address_city: data.address_city || '',
+            address_province: data.address_province || ''
           });
 
           // Load group companies if is_part_of_group is true
@@ -203,6 +222,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }));
   };
 
+  const handleAddressChange = (data: Partial<AddressData>) => {
+    setCompanyData(prev => ({
+      ...prev,
+      ...data
+    }));
+  };
+
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setCompanyData(prev => ({
       ...prev,
@@ -221,8 +247,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
           .insert({
             company_id: currentCompany.id,
             name: company.name,
-            address: company.address,
-            relationship_type: company.relationship_type
+            relationship_type: company.relationship_type,
+            address_street_type: company.address_street_type,
+            address_street: company.address_street,
+            address_number: company.address_number,
+            address_postal_code: company.address_postal_code,
+            address_city: company.address_city,
+            address_province: company.address_province
           })
           .select('*')
           .single()
@@ -262,8 +293,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
           .from('group_companies')
           .update({
             name: company.name,
-            address: company.address,
-            relationship_type: company.relationship_type
+            relationship_type: company.relationship_type,
+            address_street_type: company.address_street_type,
+            address_street: company.address_street,
+            address_number: company.address_number,
+            address_postal_code: company.address_postal_code,
+            address_city: company.address_city,
+            address_province: company.address_province
           })
           .eq('id', updatedCompany.id)
       );
@@ -340,8 +376,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
           .from('company_locations')
           .insert({
             company_id: currentCompany.id,
-            address: location.address,
-            location_type: location.location_type
+            location_type: location.location_type,
+            address_street_type: location.address_street_type,
+            address_street: location.address_street,
+            address_number: location.address_number,
+            address_postal_code: location.address_postal_code,
+            address_city: location.address_city,
+            address_province: location.address_province
           })
           .select('*')
           .single()
@@ -380,8 +421,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         supabase
           .from('company_locations')
           .update({
-            address: location.address,
-            location_type: location.location_type
+            location_type: location.location_type,
+            address_street_type: location.address_street_type,
+            address_street: location.address_street,
+            address_number: location.address_number,
+            address_postal_code: location.address_postal_code,
+            address_city: location.address_city,
+            address_province: location.address_province
           })
           .eq('id', updatedLocation.id)
       );
@@ -478,7 +524,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         profile_value_chain: companyData.profile_value_chain,
         profile_value_creation_factors: companyData.profile_value_creation_factors,
         is_part_of_group: companyData.is_part_of_group,
-        has_multiple_locations: companyData.has_multiple_locations
+        has_multiple_locations: companyData.has_multiple_locations,
+        address_street_type: companyData.address_street_type,
+        address_street: companyData.address_street,
+        address_number: companyData.address_number,
+        address_postal_code: companyData.address_postal_code,
+        address_city: companyData.address_city,
+        address_province: companyData.address_province
       };
 
       const { error } = await withRetry(() => 
@@ -520,6 +572,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
+    handleAddressChange,
     saveCompanyInfo,
     isSaving,
     isLoading,

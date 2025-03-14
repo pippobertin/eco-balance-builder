@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import AddressFields, { AddressData } from './AddressFields';
 
 interface GroupCompaniesSectionProps {
   groupCompanies: GroupCompany[];
@@ -25,8 +26,13 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState<GroupCompany>({
     name: '',
-    address: '',
-    relationship_type: ''
+    relationship_type: '',
+    address_street_type: '',
+    address_street: '',
+    address_number: '',
+    address_postal_code: '',
+    address_city: '',
+    address_province: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,11 +44,20 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
     setFormData(prev => ({ ...prev, relationship_type: value }));
   };
 
+  const handleAddressChange = (data: Partial<AddressData>) => {
+    setFormData(prev => ({ ...prev, ...data }));
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
-      address: '',
-      relationship_type: ''
+      relationship_type: '',
+      address_street_type: '',
+      address_street: '',
+      address_number: '',
+      address_postal_code: '',
+      address_city: '',
+      address_province: ''
     });
     setIsAdding(false);
     setEditingIndex(null);
@@ -64,6 +79,42 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
     setFormData(groupCompanies[index]);
   };
 
+  const formatAddress = (company: GroupCompany): string => {
+    const parts = [];
+    
+    if (company.address_street_type) {
+      parts.push(company.address_street_type.charAt(0).toUpperCase() + company.address_street_type.slice(1));
+    }
+    
+    if (company.address_street) {
+      parts.push(company.address_street);
+    }
+    
+    if (company.address_number) {
+      parts.push(company.address_number);
+    }
+    
+    const firstLine = parts.join(' ');
+    
+    const secondLineParts = [];
+    
+    if (company.address_postal_code) {
+      secondLineParts.push(company.address_postal_code);
+    }
+    
+    if (company.address_city) {
+      secondLineParts.push(company.address_city);
+    }
+    
+    if (company.address_province) {
+      secondLineParts.push(`(${company.address_province})`);
+    }
+    
+    const secondLine = secondLineParts.join(' ');
+    
+    return [firstLine, secondLine].filter(Boolean).join(', ');
+  };
+
   return (
     <div className="mt-6 pt-4 border-t">
       <div className="flex items-center mb-4">
@@ -79,7 +130,7 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                 <div className="grid gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor={`edit-name-${index}`}>Denominazione</Label>
+                      <Label htmlFor={`edit-name-${index}`}>Denominazione *</Label>
                       <Input
                         id={`edit-name-${index}`}
                         name="name"
@@ -89,7 +140,7 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                       />
                     </div>
                     <div>
-                      <Label htmlFor={`edit-relationship-${index}`}>Relazione</Label>
+                      <Label htmlFor={`edit-relationship-${index}`}>Relazione *</Label>
                       <Select 
                         value={formData.relationship_type} 
                         onValueChange={handleRelationshipChange}
@@ -106,17 +157,23 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                       </Select>
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor={`edit-address-${index}`}>Indirizzo</Label>
-                    <Input
-                      id={`edit-address-${index}`}
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      placeholder="Indirizzo dell'azienda"
+                  
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2">Indirizzo</h4>
+                    <AddressFields 
+                      addressData={{
+                        address_street_type: formData.address_street_type || '',
+                        address_street: formData.address_street || '',
+                        address_number: formData.address_number || '',
+                        address_postal_code: formData.address_postal_code || '',
+                        address_city: formData.address_city || '',
+                        address_province: formData.address_province || ''
+                      }}
+                      onChange={handleAddressChange}
                     />
                   </div>
-                  <div className="flex justify-end space-x-2">
+                  
+                  <div className="flex justify-end space-x-2 mt-4">
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -128,6 +185,7 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                       variant="default" 
                       size="sm" 
                       onClick={handleSubmit}
+                      disabled={!formData.name || !formData.relationship_type}
                     >
                       <Save className="h-4 w-4 mr-1" /> Salva
                     </Button>
@@ -144,8 +202,8 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                         {company.relationship_type === 'collegata' && 'Collegata'}
                         {company.relationship_type === 'associata' && 'Associata'}
                       </p>
-                      {company.address && (
-                        <p className="text-sm mt-2">{company.address}</p>
+                      {formatAddress(company) && (
+                        <p className="text-sm mt-2">{formatAddress(company)}</p>
                       )}
                     </div>
                     <div className="flex space-x-1">
@@ -206,17 +264,23 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
                 </Select>
               </div>
             </div>
-            <div>
-              <Label htmlFor="new-company-address">Indirizzo</Label>
-              <Input
-                id="new-company-address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Indirizzo dell'azienda"
+            
+            <div className="mt-4">
+              <h4 className="font-medium mb-2">Indirizzo</h4>
+              <AddressFields 
+                addressData={{
+                  address_street_type: formData.address_street_type || '',
+                  address_street: formData.address_street || '',
+                  address_number: formData.address_number || '',
+                  address_postal_code: formData.address_postal_code || '',
+                  address_city: formData.address_city || '',
+                  address_province: formData.address_province || ''
+                }}
+                onChange={handleAddressChange}
               />
             </div>
-            <div className="flex justify-end space-x-2">
+            
+            <div className="flex justify-end space-x-2 mt-4">
               <Button 
                 variant="outline" 
                 onClick={resetForm}

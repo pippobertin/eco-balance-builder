@@ -12,6 +12,12 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          address_city: string | null
+          address_number: string | null
+          address_postal_code: string | null
+          address_province: string | null
+          address_street: string | null
+          address_street_type: string | null
           ateco_code: string | null
           collective_agreement: string | null
           contact_email: string | null
@@ -37,6 +43,12 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           ateco_code?: string | null
           collective_agreement?: string | null
           contact_email?: string | null
@@ -62,6 +74,12 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           ateco_code?: string | null
           collective_agreement?: string | null
           contact_email?: string | null
@@ -89,21 +107,36 @@ export type Database = {
       }
       company_locations: {
         Row: {
-          address: string
+          address_city: string | null
+          address_number: string | null
+          address_postal_code: string | null
+          address_province: string | null
+          address_street: string | null
+          address_street_type: string | null
           company_id: string
           created_at: string
           id: string
           location_type: string | null
         }
         Insert: {
-          address: string
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           company_id: string
           created_at?: string
           id?: string
           location_type?: string | null
         }
         Update: {
-          address?: string
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           company_id?: string
           created_at?: string
           id?: string
@@ -121,7 +154,12 @@ export type Database = {
       }
       group_companies: {
         Row: {
-          address: string | null
+          address_city: string | null
+          address_number: string | null
+          address_postal_code: string | null
+          address_province: string | null
+          address_street: string | null
+          address_street_type: string | null
           company_id: string
           created_at: string
           id: string
@@ -129,7 +167,12 @@ export type Database = {
           relationship_type: string
         }
         Insert: {
-          address?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           company_id: string
           created_at?: string
           id?: string
@@ -137,7 +180,12 @@ export type Database = {
           relationship_type: string
         }
         Update: {
-          address?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
+          address_street_type?: string | null
           company_id?: string
           created_at?: string
           id?: string
@@ -151,6 +199,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      municipalities: {
+        Row: {
+          id: number
+          name: string
+          postal_codes: string[]
+          province_code: string
+        }
+        Insert: {
+          id?: number
+          name: string
+          postal_codes: string[]
+          province_code: string
+        }
+        Update: {
+          id?: number
+          name?: string
+          postal_codes?: string[]
+          province_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipalities_province_code_fkey"
+            columns: ["province_code"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -169,6 +246,21 @@ export type Database = {
           id?: string
           role?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      provinces: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
         }
         Relationships: []
       }

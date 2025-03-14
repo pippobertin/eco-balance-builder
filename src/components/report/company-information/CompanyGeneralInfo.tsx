@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import GroupCompaniesSection from './components/GroupCompaniesSection';
 import CompanyLocationsSection from './components/CompanyLocationsSection';
+import AddressFields, { AddressData } from './components/AddressFields';
 
 interface CompanyGeneralInfoProps {
   companyData: {
@@ -20,10 +21,17 @@ interface CompanyGeneralInfoProps {
     collective_agreement: string;
     is_part_of_group: boolean;
     has_multiple_locations: boolean;
+    address_street_type: string;
+    address_street: string;
+    address_number: string;
+    address_postal_code: string;
+    address_city: string;
+    address_province: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange: (name: string, value: string) => void;
   handleCheckboxChange: (name: string, checked: boolean) => void;
+  handleAddressChange: (data: Partial<AddressData>) => void;
   groupCompanies: GroupCompany[];
   companyLocations: CompanyLocation[];
   handleAddGroupCompany: (company: GroupCompany) => void;
@@ -37,14 +45,24 @@ interface CompanyGeneralInfoProps {
 export interface GroupCompany {
   id?: string;
   name: string;
-  address: string;
   relationship_type: string;
+  address_street_type?: string;
+  address_street?: string;
+  address_number?: string;
+  address_postal_code?: string;
+  address_city?: string;
+  address_province?: string;
 }
 
 export interface CompanyLocation {
   id?: string;
-  address: string;
   location_type: string;
+  address_street_type?: string;
+  address_street?: string;
+  address_number?: string;
+  address_postal_code?: string;
+  address_city?: string;
+  address_province?: string;
 }
 
 const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({ 
@@ -52,6 +70,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
   handleInputChange,
   handleSelectChange,
   handleCheckboxChange,
+  handleAddressChange,
   groupCompanies,
   companyLocations,
   handleAddGroupCompany,
@@ -96,6 +115,21 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
           legalForm={companyData.legal_form}
           collectiveAgreement={companyData.collective_agreement}
           handleSelectChange={handleSelectChange}
+        />
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-3">Indirizzo Sede Principale</h3>
+        <AddressFields 
+          addressData={{
+            address_street_type: companyData.address_street_type,
+            address_street: companyData.address_street,
+            address_number: companyData.address_number,
+            address_postal_code: companyData.address_postal_code,
+            address_city: companyData.address_city,
+            address_province: companyData.address_province
+          }}
+          onChange={handleAddressChange}
         />
       </div>
 

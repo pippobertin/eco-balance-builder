@@ -8,6 +8,7 @@ import CompanyGeneralInfo from './CompanyGeneralInfo';
 import CompanyProfileInfo from './CompanyProfileInfo';
 import { useCompanyInfo } from './useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
+import { AddressData } from './components/AddressFields';
 
 interface CompanyInformationProps {
   currentCompany: Company | null;
@@ -24,6 +25,7 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
+    handleAddressChange,
     saveCompanyInfo,
     isSaving,
     isLoading,
@@ -73,6 +75,7 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
         handleInputChange={handleInputChange} 
         handleSelectChange={handleSelectChange}
         handleCheckboxChange={handleCheckboxChange}
+        handleAddressChange={handleAddressChange}
         groupCompanies={groupCompanies}
         companyLocations={companyLocations}
         handleAddGroupCompany={handleAddGroupCompany}

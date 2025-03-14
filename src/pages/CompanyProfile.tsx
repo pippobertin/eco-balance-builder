@@ -11,6 +11,7 @@ import CompanyGeneralInfo from '@/components/report/company-information/CompanyG
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
 import { useCompanyInfo } from '@/components/report/company-information/useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
+import { AddressData } from '@/components/report/company-information/components/AddressFields';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const CompanyProfile = () => {
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
+    handleAddressChange,
     saveCompanyInfo,
     isSaving,
     isLoading,
@@ -132,6 +134,7 @@ const CompanyProfile = () => {
               handleInputChange={handleInputChange} 
               handleSelectChange={handleSelectChange}
               handleCheckboxChange={handleCheckboxChange}
+              handleAddressChange={handleAddressChange}
               groupCompanies={groupCompanies}
               companyLocations={companyLocations}
               handleAddGroupCompany={handleAddGroupCompany}
