@@ -46,16 +46,27 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
 
   // NACE codes - European classification of economic activities
   const naceOptions = [
-    { value: "A", label: "A - Agricoltura, silvicoltura e pesca" },
-    { value: "C", label: "C - Attività manifatturiere" },
-    { value: "F", label: "F - Costruzioni" },
-    { value: "G", label: "G - Commercio all'ingrosso e al dettaglio" },
-    { value: "I", label: "I - Attività dei servizi di alloggio e di ristorazione" },
-    { value: "J", label: "J - Servizi di informazione e comunicazione" },
-    { value: "K", label: "K - Attività finanziarie e assicurative" },
-    { value: "M", label: "M - Attività professionali, scientifiche e tecniche" },
-    { value: "P", label: "P - Istruzione" },
-    { value: "S", label: "S - Altre attività di servizi" }
+    { value: "A", label: "A - AGRICOLTURA, SILVICOLTURA E PESCA" },
+    { value: "B", label: "B - ESTRAZIONE DI MINERALI DA CAVE E MINIERE" },
+    { value: "C", label: "C - ATTIVITÀ MANIFATTURIERE" },
+    { value: "D", label: "D - FORNITURA DI ENERGIA ELETTRICA, GAS, VAPORE E ARIA CONDIZIONATA" },
+    { value: "E", label: "E - FORNITURA DI ACQUA; RETI FOGNARIE, ATTIVITÀ DI GESTIONE DEI RIFIUTI E RISANAMENTO" },
+    { value: "F", label: "F - COSTRUZIONI" },
+    { value: "G", label: "G - COMMERCIO ALL'INGROSSO E AL DETTAGLIO; RIPARAZIONE DI AUTOVEICOLI E MOTOCICLI" },
+    { value: "H", label: "H - TRASPORTO E MAGAZZINAGGIO" },
+    { value: "I", label: "I - ATTIVITÀ DEI SERVIZI DI ALLOGGIO E DI RISTORAZIONE" },
+    { value: "J", label: "J - SERVIZI DI INFORMAZIONE E COMUNICAZIONE" },
+    { value: "K", label: "K - ATTIVITÀ FINANZIARIE E ASSICURATIVE" },
+    { value: "L", label: "L - ATTIVITÀ IMMOBILIARI" },
+    { value: "M", label: "M - ATTIVITÀ PROFESSIONALI, SCIENTIFICHE E TECNICHE" },
+    { value: "N", label: "N - NOLEGGIO, AGENZIE DI VIAGGIO, SERVIZI DI SUPPORTO ALLE IMPRESE" },
+    { value: "O", label: "O - AMMINISTRAZIONE PUBBLICA E DIFESA; ASSICURAZIONE SOCIALE OBBLIGATORIA" },
+    { value: "P", label: "P - ISTRUZIONE" },
+    { value: "Q", label: "Q - SANITÀ E ASSISTENZA SOCIALE" },
+    { value: "R", label: "R - ATTIVITÀ ARTISTICHE, SPORTIVE, DI INTRATTENIMENTO E DIVERTIMENTO" },
+    { value: "S", label: "S - ALTRE ATTIVITÀ DI SERVIZI" },
+    { value: "T", label: "T - ATTIVITÀ DI FAMIGLIE E CONVIVENZE COME DATORI DI LAVORO PER PERSONALE DOMESTICO; PRODUZIONE DI BENI E SERVIZI INDIFFERENZIATI PER USO PROPRIO DA PARTE DI FAMIGLIE E CONVIVENZE" },
+    { value: "U", label: "U - ORGANIZZAZIONI ED ORGANISMI EXTRATERRITORIALI" }
   ];
 
   // Legal form options
