@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 interface CompanyBasicInfoProps {
   name: string;
   vatNumber: string;
-  sector: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleVatNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -14,7 +13,6 @@ interface CompanyBasicInfoProps {
 const CompanyBasicInfo: React.FC<CompanyBasicInfoProps> = ({
   name,
   vatNumber,
-  sector,
   handleInputChange,
   handleVatNumberChange
 }) => {
@@ -47,17 +45,6 @@ const CompanyBasicInfo: React.FC<CompanyBasicInfoProps> = ({
         {vatNumber && vatNumber.length !== 11 && (
           <p className="text-sm text-red-500 mt-1">La partita IVA deve essere di 11 caratteri</p>
         )}
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="sector">Settore</Label>
-        <Input
-          id="sector"
-          name="sector"
-          value={sector || ''}
-          onChange={handleInputChange}
-          placeholder="Settore di attività"
-        />
       </div>
     </>
   );
