@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, Building, Trash2, Edit, Save, X } from 'lucide-react';
 import { GroupCompany } from '../CompanyGeneralInfo';
@@ -7,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import AddressFields, { AddressData } from './AddressFields';
+import { AddressFields } from './address';
+import { AddressData } from './address/types';
+import { formatAddress } from './address/addressUtils';
 
 interface GroupCompaniesSectionProps {
   groupCompanies: GroupCompany[];
@@ -77,42 +78,6 @@ const GroupCompaniesSection: React.FC<GroupCompaniesSectionProps> = ({
   const startEditing = (index: number) => {
     setEditingIndex(index);
     setFormData(groupCompanies[index]);
-  };
-
-  const formatAddress = (company: GroupCompany): string => {
-    const parts = [];
-    
-    if (company.address_street_type) {
-      parts.push(company.address_street_type.charAt(0).toUpperCase() + company.address_street_type.slice(1));
-    }
-    
-    if (company.address_street) {
-      parts.push(company.address_street);
-    }
-    
-    if (company.address_number) {
-      parts.push(company.address_number);
-    }
-    
-    const firstLine = parts.join(' ');
-    
-    const secondLineParts = [];
-    
-    if (company.address_postal_code) {
-      secondLineParts.push(company.address_postal_code);
-    }
-    
-    if (company.address_city) {
-      secondLineParts.push(company.address_city);
-    }
-    
-    if (company.address_province) {
-      secondLineParts.push(`(${company.address_province})`);
-    }
-    
-    const secondLine = secondLineParts.join(' ');
-    
-    return [firstLine, secondLine].filter(Boolean).join(', ');
   };
 
   return (

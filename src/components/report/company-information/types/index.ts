@@ -1,5 +1,6 @@
 
 import { Company } from '@/context/types';
+export { type AddressData } from '../components/address/types';
 
 export interface CompanyDataState {
   name: string;
@@ -45,13 +46,4 @@ export interface CompanyLocation {
   address_postal_code?: string;
   address_city?: string;
   address_province?: string;
-}
-
-export interface AddressData {
-  address_street_type: string;
-  address_street: string;
-  address_number: string;
-  address_postal_code: string;
-  address_city: string;
-  address_province: string;
 }

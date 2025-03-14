@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, MapPin, Trash2, Edit, Save, X } from 'lucide-react';
 import { CompanyLocation } from '../CompanyGeneralInfo';
@@ -7,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import AddressFields, { AddressData } from './AddressFields';
+import { AddressFields } from './address';
+import { AddressData } from './address/types';
+import { formatAddress } from './address/addressUtils';
 
 interface CompanyLocationsSectionProps {
   locations: CompanyLocation[];
@@ -57,7 +58,6 @@ const CompanyLocationsSection: React.FC<CompanyLocationsSectionProps> = ({
   };
 
   const handleSubmit = () => {
-    // Validate that there's at least one address field filled
     const hasAddress = formData.address_street_type && formData.address_street;
     
     if (!hasAddress) return;
@@ -73,42 +73,6 @@ const CompanyLocationsSection: React.FC<CompanyLocationsSectionProps> = ({
   const startEditing = (index: number) => {
     setEditingIndex(index);
     setFormData(locations[index]);
-  };
-
-  const formatAddress = (location: CompanyLocation): string => {
-    const parts = [];
-    
-    if (location.address_street_type) {
-      parts.push(location.address_street_type.charAt(0).toUpperCase() + location.address_street_type.slice(1));
-    }
-    
-    if (location.address_street) {
-      parts.push(location.address_street);
-    }
-    
-    if (location.address_number) {
-      parts.push(location.address_number);
-    }
-    
-    const firstLine = parts.join(' ');
-    
-    const secondLineParts = [];
-    
-    if (location.address_postal_code) {
-      secondLineParts.push(location.address_postal_code);
-    }
-    
-    if (location.address_city) {
-      secondLineParts.push(location.address_city);
-    }
-    
-    if (location.address_province) {
-      secondLineParts.push(`(${location.address_province})`);
-    }
-    
-    const secondLine = secondLineParts.join(' ');
-    
-    return [firstLine, secondLine].filter(Boolean).join(', ');
   };
 
   return (
