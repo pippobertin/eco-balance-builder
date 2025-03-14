@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, FileType } from 'lucide-react';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Interface for the Italian municipalities JSON format
 interface ItalianMunicipality {
@@ -22,6 +24,7 @@ const DataUploader = () => {
   const [postalCodesFile, setPostalCodesFile] = useState<File | null>(null);
   const [clearExisting, setClearExisting] = useState(true);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [fileType, setFileType] = useState<'json' | 'csv'>('json');
 
   const handleMunicipalitiesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -33,6 +36,42 @@ const DataUploader = () => {
     if (e.target.files && e.target.files[0]) {
       setPostalCodesFile(e.target.files[0]);
     }
+  };
+
+  // Parse CSV to array of objects
+  const parseCSV = (text: string): ItalianMunicipality[] => {
+    // Split by lines
+    const lines = text.split('\n');
+    
+    // If there's a header row, get column names from it
+    const header = lines[0].split(',').map(h => h.trim().replace(/^"(.*)"$/, '$1'));
+    
+    const results: ItalianMunicipality[] = [];
+    
+    // Start from index 1 to skip header
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue; // Skip empty lines
+      
+      const values = lines[i].split(',').map(v => v.trim().replace(/^"(.*)"$/, '$1'));
+      
+      // Create an object mapping headers to values
+      const obj: any = {};
+      header.forEach((key, index) => {
+        obj[key] = values[index];
+      });
+      
+      // Only add if we have the minimum required fields
+      if (obj.denominazione_ita && obj.sigla_provincia) {
+        results.push({
+          denominazione_ita: obj.denominazione_ita,
+          cap: obj.cap || "",
+          sigla_provincia: obj.sigla_provincia,
+          denominazione_provincia: obj.denominazione_provincia || ""
+        });
+      }
+    }
+    
+    return results;
   };
 
   const handleUpload = async () => {
@@ -49,38 +88,52 @@ const DataUploader = () => {
       const municipalitiesText = await municipalitiesFile.text();
       let rawData: ItalianMunicipality[];
       
-      try {
-        // Try to parse the JSON data
-        const textWithBrackets = municipalitiesText.startsWith('[') 
-          ? municipalitiesText 
-          : `[${municipalitiesText}]`;
-        
-        rawData = JSON.parse(textWithBrackets);
-      } catch (parseError) {
-        console.error('Error parsing JSON:', parseError);
-        
-        // Try to fix common JSON formatting issues
-        let fixedText = municipalitiesText;
-        
-        // If the file doesn't start with '[', add it
-        if (!fixedText.trim().startsWith('[')) {
-          fixedText = '[' + fixedText;
-        }
-        
-        // If the file doesn't end with ']', add it
-        if (!fixedText.trim().endsWith(']')) {
-          fixedText = fixedText + ']';
-        }
-        
-        // Replace any trailing commas before closing brackets
-        fixedText = fixedText.replace(/,\s*\]/g, ']');
-        
-        // Try parsing again with the fixed text
+      if (fileType === 'csv') {
         try {
-          rawData = JSON.parse(fixedText);
-        } catch (secondError) {
-          console.error('Error parsing JSON after fixing:', secondError);
-          throw new Error('Il file JSON non è nel formato corretto. Verifica la struttura del file.');
+          // Parse CSV data
+          rawData = parseCSV(municipalitiesText);
+          if (rawData.length === 0) {
+            throw new Error('Nessun dato valido trovato nel file CSV');
+          }
+        } catch (csvError) {
+          console.error('Error parsing CSV:', csvError);
+          throw new Error('Il file CSV non è nel formato corretto. Verifica la struttura del file.');
+        }
+      } else {
+        // JSON handling (existing code)
+        try {
+          // Try to parse the JSON data
+          const textWithBrackets = municipalitiesText.startsWith('[') 
+            ? municipalitiesText 
+            : `[${municipalitiesText}]`;
+          
+          rawData = JSON.parse(textWithBrackets);
+        } catch (parseError) {
+          console.error('Error parsing JSON:', parseError);
+          
+          // Try to fix common JSON formatting issues
+          let fixedText = municipalitiesText;
+          
+          // If the file doesn't start with '[', add it
+          if (!fixedText.trim().startsWith('[')) {
+            fixedText = '[' + fixedText;
+          }
+          
+          // If the file doesn't end with ']', add it
+          if (!fixedText.trim().endsWith(']')) {
+            fixedText = fixedText + ']';
+          }
+          
+          // Replace any trailing commas before closing brackets
+          fixedText = fixedText.replace(/,\s*\]/g, ']');
+          
+          // Try parsing again with the fixed text
+          try {
+            rawData = JSON.parse(fixedText);
+          } catch (secondError) {
+            console.error('Error parsing JSON after fixing:', secondError);
+            throw new Error('Il file JSON non è nel formato corretto. Verifica la struttura del file.');
+          }
         }
       }
       
@@ -118,7 +171,13 @@ const DataUploader = () => {
       let postalCodes = null;
       if (postalCodesFile) {
         const postalCodesText = await postalCodesFile.text();
-        postalCodes = JSON.parse(postalCodesText);
+        
+        if (fileType === 'csv') {
+          // TODO: Add CSV parsing for postal codes if needed
+          toast.warning('Il caricamento di codici postali separati in formato CSV non è ancora supportato');
+        } else {
+          postalCodes = JSON.parse(postalCodesText);
+        }
       }
 
       // Prepare data for upload
@@ -148,7 +207,7 @@ const DataUploader = () => {
       }
     } catch (error) {
       console.error('Error processing files:', error);
-      toast.error('Errore nel processare i file JSON');
+      toast.error(`Errore nel processare i file: ${error.message}`);
       setUploadStatus('error');
     } finally {
       setIsUploading(false);
@@ -160,43 +219,71 @@ const DataUploader = () => {
       <CardHeader>
         <CardTitle>Carica dati geografici</CardTitle>
         <CardDescription>
-          Carica il tuo database JSON di comuni italiani e CAP per popolare il database
+          Carica il tuo database di comuni italiani e CAP per popolare il database
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="municipalities-file">File dei comuni (JSON)</Label>
-          <div className="flex items-center gap-2">
-            <input
-              id="municipalities-file"
-              type="file"
-              accept=".json"
-              onChange={handleMunicipalitiesFileChange}
-              className="max-w-xs"
-            />
-            {municipalitiesFile && <Check className="h-4 w-4 text-green-500" />}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Formato previsto: {"[{denominazione_ita: 'Nome Comune', sigla_provincia: 'XX', cap: '00000'}]"}
-          </p>
-        </div>
+        <Tabs defaultValue="json" onValueChange={(value) => setFileType(value as 'json' | 'csv')}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="json">JSON</TabsTrigger>
+            <TabsTrigger value="csv">CSV</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="json">
+            <div className="space-y-2">
+              <Label htmlFor="municipalities-file-json">File dei comuni (JSON)</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="municipalities-file-json"
+                  type="file"
+                  accept=".json"
+                  onChange={handleMunicipalitiesFileChange}
+                  className="max-w-xs"
+                />
+                {municipalitiesFile && fileType === 'json' && <Check className="h-4 w-4 text-green-500" />}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Formato previsto: {"[{denominazione_ita: 'Nome Comune', sigla_provincia: 'XX', cap: '00000'}]"}
+              </p>
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="postal-codes-file">File dei CAP (opzionale)</Label>
-          <div className="flex items-center gap-2">
-            <input
-              id="postal-codes-file"
-              type="file"
-              accept=".json"
-              onChange={handlePostalCodesFileChange}
-              className="max-w-xs"
-            />
-            {postalCodesFile && <Check className="h-4 w-4 text-green-500" />}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Formato previsto: {"{'Nome Comune': '00000'}"}
-          </p>
-        </div>
+            <div className="space-y-2 mt-4">
+              <Label htmlFor="postal-codes-file-json">File dei CAP (opzionale)</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="postal-codes-file-json"
+                  type="file"
+                  accept=".json"
+                  onChange={handlePostalCodesFileChange}
+                  className="max-w-xs"
+                />
+                {postalCodesFile && fileType === 'json' && <Check className="h-4 w-4 text-green-500" />}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Formato previsto: {"{'Nome Comune': '00000'}"}
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="csv">
+            <div className="space-y-2">
+              <Label htmlFor="municipalities-file-csv">File dei comuni (CSV)</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="municipalities-file-csv"
+                  type="file"
+                  accept=".csv"
+                  onChange={handleMunicipalitiesFileChange}
+                  className="max-w-xs"
+                />
+                {municipalitiesFile && fileType === 'csv' && <Check className="h-4 w-4 text-green-500" />}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                La prima riga deve contenere le intestazioni: denominazione_ita, sigla_provincia, cap, ecc.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="flex items-center space-x-2 pt-2">
           <Checkbox 
