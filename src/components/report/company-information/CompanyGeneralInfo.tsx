@@ -11,13 +11,13 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import AtecoCodeSelector from './AtecoCodeSelector';
 
 interface CompanyGeneralInfoProps {
   companyData: {
     name: string;
     vat_number: string;
     ateco_code: string;
-    nace_code: string;
     legal_form: string;
     collective_agreement: string;
   };
@@ -30,34 +30,6 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
   handleInputChange,
   handleSelectChange
 }) => {
-  // ATECO codes - Common Italian business activity codes
-  const atecoOptions = [
-    { value: "01", label: "01 - Coltivazioni agricole e produzione di prodotti animali" },
-    { value: "10", label: "10 - Industrie alimentari" },
-    { value: "25", label: "25 - Fabbricazione di prodotti in metallo" },
-    { value: "41", label: "41 - Costruzione di edifici" },
-    { value: "47", label: "47 - Commercio al dettaglio" },
-    { value: "56", label: "56 - Attività dei servizi di ristorazione" },
-    { value: "62", label: "62 - Produzione di software e consulenza informatica" },
-    { value: "71", label: "71 - Attività di architettura e ingegneria" },
-    { value: "85", label: "85 - Istruzione" },
-    { value: "96", label: "96 - Altre attività di servizi per la persona" }
-  ];
-
-  // NACE codes - European classification of economic activities
-  const naceOptions = [
-    { value: "A", label: "A - Agricoltura, silvicoltura e pesca" },
-    { value: "C", label: "C - Attività manifatturiere" },
-    { value: "F", label: "F - Costruzioni" },
-    { value: "G", label: "G - Commercio all'ingrosso e al dettaglio" },
-    { value: "I", label: "I - Attività dei servizi di alloggio e di ristorazione" },
-    { value: "J", label: "J - Servizi di informazione e comunicazione" },
-    { value: "K", label: "K - Attività finanziarie e assicurative" },
-    { value: "M", label: "M - Attività professionali, scientifiche e tecniche" },
-    { value: "P", label: "P - Istruzione" },
-    { value: "S", label: "S - Altre attività di servizi" }
-  ];
-
   // Legal form options
   const legalFormOptions = [
     { value: "ditta_individuale", label: "Ditta individuale" },
@@ -141,40 +113,10 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         
         <div className="space-y-2">
           <Label htmlFor="ateco_code">Codice ATECO</Label>
-          <Select 
-            value={companyData.ateco_code || ''} 
-            onValueChange={(value) => handleSelectChange('ateco_code', value)}
-          >
-            <SelectTrigger id="ateco_code">
-              <SelectValue placeholder="Seleziona codice ATECO" />
-            </SelectTrigger>
-            <SelectContent>
-              {atecoOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="nace_code">Codice NACE</Label>
-          <Select 
-            value={companyData.nace_code || ''} 
-            onValueChange={(value) => handleSelectChange('nace_code', value)}
-          >
-            <SelectTrigger id="nace_code">
-              <SelectValue placeholder="Seleziona codice NACE" />
-            </SelectTrigger>
-            <SelectContent>
-              {naceOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <AtecoCodeSelector 
+            value={companyData.ateco_code || ''}
+            onChange={(value) => handleSelectChange('ateco_code', value)}
+          />
         </div>
         
         <div className="space-y-2">
@@ -196,7 +138,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
           </Select>
         </div>
         
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="collective_agreement">Contratto Collettivo Applicato</Label>
           <Select 
             value={companyData.collective_agreement || ''} 
