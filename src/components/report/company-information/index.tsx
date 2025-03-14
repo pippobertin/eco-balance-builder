@@ -22,6 +22,7 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
   const {
     companyData,
     handleInputChange,
+    handleSelectChange,
     saveCompanyInfo,
     isSaving,
     isLoading
@@ -61,6 +62,7 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
       <CompanyGeneralInfo 
         companyData={companyData} 
         handleInputChange={handleInputChange} 
+        handleSelectChange={handleSelectChange}
       />
       
       <CompanyProfileInfo 

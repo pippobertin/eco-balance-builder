@@ -7,7 +7,6 @@ import { supabase, withRetry } from '@/integrations/supabase/client';
 interface CompanyDataState {
   name: string;
   vat_number: string;
-  sector: string;
   ateco_code: string;
   nace_code: string;
   legal_form: string;
@@ -29,7 +28,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
   const [companyData, setCompanyData] = useState<CompanyDataState>({
     name: '',
     vat_number: '',
-    sector: '',
     ateco_code: '',
     nace_code: '',
     legal_form: '',
@@ -80,7 +78,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
           setCompanyData({
             name: data.name || '',
             vat_number: data.vat_number || '',
-            sector: data.sector || '',
             ateco_code: data.ateco_code || '',
             nace_code: data.nace_code || '',
             legal_form: data.legal_form || '',
@@ -118,6 +115,13 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
     }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setCompanyData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const saveCompanyInfo = async () => {
     if (!currentCompany || !currentCompany.id) {
       toast({
@@ -139,7 +143,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
           .update({
             name: companyData.name,
             vat_number: companyData.vat_number,
-            sector: companyData.sector,
             ateco_code: companyData.ateco_code,
             nace_code: companyData.nace_code,
             legal_form: companyData.legal_form,
@@ -181,6 +184,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext: () => voi
   return {
     companyData,
     handleInputChange,
+    handleSelectChange,
     saveCompanyInfo,
     isSaving,
     isLoading
