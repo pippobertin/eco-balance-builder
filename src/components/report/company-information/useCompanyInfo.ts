@@ -140,6 +140,9 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     try {
       console.log("Saving company info for:", currentCompany.id);
       
+      // Only update fields that exist in the database schema
+      // Removing ateco_code, nace_code, legal_form, collective_agreement fields
+      // as they seem to be causing the error
       const { error } = await withRetry(() => 
         supabase
           .from('companies')
@@ -147,10 +150,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
             name: companyData.name,
             vat_number: companyData.vat_number,
             sector: companyData.sector,
-            ateco_code: companyData.ateco_code,
-            nace_code: companyData.nace_code,
-            legal_form: companyData.legal_form,
-            collective_agreement: companyData.collective_agreement,
+            // Store profile fields
             profile_about: companyData.profile_about,
             profile_values: companyData.profile_values,
             profile_mission: companyData.profile_mission,
