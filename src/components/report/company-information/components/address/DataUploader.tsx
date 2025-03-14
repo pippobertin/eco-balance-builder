@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,15 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Interface for the Italian municipalities JSON format
+interface ItalianMunicipality {
+  denominazione_ita: string;
+  cap: string;
+  sigla_provincia: string;
+  denominazione_provincia: string;
+  // Other fields not needed for our implementation
+}
 
 const DataUploader = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -39,7 +47,72 @@ const DataUploader = () => {
     try {
       // Read municipalities file
       const municipalitiesText = await municipalitiesFile.text();
-      const municipalities = JSON.parse(municipalitiesText);
+      let rawData: ItalianMunicipality[];
+      
+      try {
+        // Try to parse the JSON data
+        const textWithBrackets = municipalitiesText.startsWith('[') 
+          ? municipalitiesText 
+          : `[${municipalitiesText}]`;
+        
+        rawData = JSON.parse(textWithBrackets);
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        
+        // Try to fix common JSON formatting issues
+        let fixedText = municipalitiesText;
+        
+        // If the file doesn't start with '[', add it
+        if (!fixedText.trim().startsWith('[')) {
+          fixedText = '[' + fixedText;
+        }
+        
+        // If the file doesn't end with ']', add it
+        if (!fixedText.trim().endsWith(']')) {
+          fixedText = fixedText + ']';
+        }
+        
+        // Replace any trailing commas before closing brackets
+        fixedText = fixedText.replace(/,\s*\]/g, ']');
+        
+        // Try parsing again with the fixed text
+        try {
+          rawData = JSON.parse(fixedText);
+        } catch (secondError) {
+          console.error('Error parsing JSON after fixing:', secondError);
+          throw new Error('Il file JSON non è nel formato corretto. Verifica la struttura del file.');
+        }
+      }
+      
+      if (!Array.isArray(rawData)) {
+        throw new Error('I dati devono essere in formato array');
+      }
+      
+      // Convert the raw data to our expected format
+      const municipalities = rawData.map(item => ({
+        name: item.denominazione_ita,
+        province_code: item.sigla_provincia,
+        postal_codes: [item.cap]
+      }));
+
+      // Group municipalities by name and province code to consolidate postal codes
+      const municipalityMap = new Map();
+      
+      municipalities.forEach(municipality => {
+        const key = `${municipality.name}-${municipality.province_code}`;
+        if (municipalityMap.has(key)) {
+          const existing = municipalityMap.get(key);
+          // Add the postal code if it's not already in the list
+          if (municipality.postal_codes[0] && !existing.postal_codes.includes(municipality.postal_codes[0])) {
+            existing.postal_codes.push(municipality.postal_codes[0]);
+          }
+        } else {
+          municipalityMap.set(key, { ...municipality });
+        }
+      });
+      
+      // Convert the map back to an array
+      const uniqueMunicipalities = Array.from(municipalityMap.values());
 
       // Read postal codes file if provided
       let postalCodes = null;
@@ -50,7 +123,7 @@ const DataUploader = () => {
 
       // Prepare data for upload
       const customData = {
-        municipalities,
+        municipalities: uniqueMunicipalities,
         postalCodes
       };
 
@@ -104,7 +177,7 @@ const DataUploader = () => {
             {municipalitiesFile && <Check className="h-4 w-4 text-green-500" />}
           </div>
           <p className="text-xs text-muted-foreground">
-            Formato previsto: [{"{name: 'Nome Comune', province_code: 'XX', postal_codes: ['00000']}"}]
+            Formato previsto: {"[{denominazione_ita: 'Nome Comune', sigla_provincia: 'XX', cap: '00000'}]"}
           </p>
         </div>
 

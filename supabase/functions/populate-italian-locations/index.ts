@@ -127,7 +127,6 @@ const provinces: Province[] = [
   { code: "VT", name: "Viterbo" }
 ];
 
-// Extended list of municipalities for most common provinces
 const municipalities: Municipality[] = [
   // Roma (RM) municipalities
   { name: "Roma", province_code: "RM", postal_codes: ["00100", "00118", "00121", "00122", "00123", "00124", "00125", "00126", "00127", "00128", "00131", "00133", "00135", "00136", "00137", "00138", "00139", "00141", "00142", "00143", "00144", "00145", "00146", "00147", "00148", "00149", "00151", "00152", "00153", "00154", "00155", "00156", "00159", "00161", "00162", "00164", "00165", "00167", "00168", "00169", "00171", "00172", "00173", "00174", "00175", "00176", "00177", "00178", "00179", "00181", "00182", "00183", "00184", "00185", "00186", "00187", "00188", "00189", "00191", "00192", "00193", "00195", "00196", "00197", "00198", "00199"] },
@@ -172,7 +171,7 @@ const municipalities: Municipality[] = [
   { name: "Campi Bisenzio", province_code: "FI", postal_codes: ["50013"] },
   
   // Bari (BA) municipalities
-  { name: "Bari", province_code: "BA", postal_codes: ["70121", "70122", "70123", "70124", "70125", "70126", "70127", "70128", "70129", "70131", "70132"] },
+  { name: "Bari", province_code: "BA", postal_codes: ["70121", "70122", "70123", "70124", "70125", "70126", "70127", "70128", "70129", "70131"] },
   { name: "Modugno", province_code: "BA", postal_codes: ["70026"] },
   { name: "Altamura", province_code: "BA", postal_codes: ["70022"] },
   { name: "Monopoli", province_code: "BA", postal_codes: ["70043"] },
