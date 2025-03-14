@@ -21,9 +21,18 @@ const CompanyProfile = () => {
     companyData,
     handleInputChange,
     handleSelectChange,
+    handleCheckboxChange,
     saveCompanyInfo,
     isSaving,
-    isLoading
+    isLoading,
+    groupCompanies,
+    companyLocations,
+    handleAddGroupCompany,
+    handleUpdateGroupCompany,
+    handleRemoveGroupCompany,
+    handleAddLocation,
+    handleUpdateLocation,
+    handleRemoveLocation
   } = useCompanyInfo(currentCompany, () => {
     toast({
       title: 'Informazioni salvate',
@@ -122,6 +131,15 @@ const CompanyProfile = () => {
               companyData={companyData} 
               handleInputChange={handleInputChange} 
               handleSelectChange={handleSelectChange}
+              handleCheckboxChange={handleCheckboxChange}
+              groupCompanies={groupCompanies}
+              companyLocations={companyLocations}
+              handleAddGroupCompany={handleAddGroupCompany}
+              handleUpdateGroupCompany={handleUpdateGroupCompany}
+              handleRemoveGroupCompany={handleRemoveGroupCompany}
+              handleAddLocation={handleAddLocation}
+              handleUpdateLocation={handleUpdateLocation}
+              handleRemoveLocation={handleRemoveLocation}
             />
             
             <CompanyProfileInfo 

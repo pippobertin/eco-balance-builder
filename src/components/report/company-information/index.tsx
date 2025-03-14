@@ -23,9 +23,18 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
     companyData,
     handleInputChange,
     handleSelectChange,
+    handleCheckboxChange,
     saveCompanyInfo,
     isSaving,
-    isLoading
+    isLoading,
+    groupCompanies,
+    companyLocations,
+    handleAddGroupCompany,
+    handleUpdateGroupCompany,
+    handleRemoveGroupCompany,
+    handleAddLocation,
+    handleUpdateLocation,
+    handleRemoveLocation
   } = useCompanyInfo(currentCompany, onNext);
 
   const containerAnimation = {
@@ -63,6 +72,15 @@ const CompanyInformation: React.FC<CompanyInformationProps> = ({
         companyData={companyData} 
         handleInputChange={handleInputChange} 
         handleSelectChange={handleSelectChange}
+        handleCheckboxChange={handleCheckboxChange}
+        groupCompanies={groupCompanies}
+        companyLocations={companyLocations}
+        handleAddGroupCompany={handleAddGroupCompany}
+        handleUpdateGroupCompany={handleUpdateGroupCompany}
+        handleRemoveGroupCompany={handleRemoveGroupCompany}
+        handleAddLocation={handleAddLocation}
+        handleUpdateLocation={handleUpdateLocation}
+        handleRemoveLocation={handleRemoveLocation}
       />
       
       <CompanyProfileInfo 

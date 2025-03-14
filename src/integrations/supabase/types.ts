@@ -19,7 +19,9 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          has_multiple_locations: boolean | null
           id: string
+          is_part_of_group: boolean | null
           legal_form: string | null
           nace_code: string | null
           name: string
@@ -42,7 +44,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          has_multiple_locations?: boolean | null
           id?: string
+          is_part_of_group?: boolean | null
           legal_form?: string | null
           nace_code?: string | null
           name: string
@@ -65,7 +69,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          has_multiple_locations?: boolean | null
           id?: string
+          is_part_of_group?: boolean | null
           legal_form?: string | null
           nace_code?: string | null
           name?: string
@@ -80,6 +86,73 @@ export type Database = {
           vat_number?: string | null
         }
         Relationships: []
+      }
+      company_locations: {
+        Row: {
+          address: string
+          company_id: string
+          created_at: string
+          id: string
+          location_type: string | null
+        }
+        Insert: {
+          address: string
+          company_id: string
+          created_at?: string
+          id?: string
+          location_type?: string | null
+        }
+        Update: {
+          address?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          location_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_locations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_companies: {
+        Row: {
+          address: string | null
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          relationship_type: string
+        }
+        Insert: {
+          address?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+          relationship_type: string
+        }
+        Update: {
+          address?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_companies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
