@@ -1,23 +1,25 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Building, CheckCircle2, Database, Loader2, Upload } from 'lucide-react';
 import { useReport } from '@/context/ReportContext';
 import CompanyGeneralInfo from '@/components/report/company-information/CompanyGeneralInfo';
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
 import { useCompanyInfo } from '@/components/report/company-information/useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
-import { AddressData } from '@/components/report/company-information/components/address/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DataUploader } from '@/components/report/company-information/components/address';
 import { ensureLocationDataLoaded } from '@/components/report/company-information/utils/locationUtils';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { currentCompany } = useReport();
+  const [showDataUploader, setShowDataUploader] = useState(false);
   
   const {
     companyData,
@@ -114,17 +116,34 @@ const CompanyProfile = () => {
             transition={{ duration: 0.5 }} 
             className="mb-8"
           >
-            <div className="flex items-center mb-4">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="mr-2"
-                onClick={() => navigate('/companies')}
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Indietro
-              </Button>
-              <h1 className="text-3xl font-bold">Anagrafica Azienda</h1>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="mr-2"
+                  onClick={() => navigate('/companies')}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Indietro
+                </Button>
+                <h1 className="text-3xl font-bold">Anagrafica Azienda</h1>
+              </div>
+              
+              <Dialog open={showDataUploader} onOpenChange={setShowDataUploader}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Database className="h-4 w-4 mr-1" />
+                    Gestione Dati Geografici
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Gestione Dati Geografici</DialogTitle>
+                  </DialogHeader>
+                  <DataUploader />
+                </DialogContent>
+              </Dialog>
             </div>
             <div className="flex items-center">
               <Building className="h-5 w-5 text-blue-500 mr-2" />

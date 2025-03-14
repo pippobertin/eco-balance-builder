@@ -240,11 +240,66 @@ serve(async (req) => {
       }
     );
 
+    // Parse request body
+    let requestData = {};
+    if (req.method === 'POST') {
+      try {
+        requestData = await req.json();
+        console.log("Received request data:", JSON.stringify(requestData).substring(0, 200) + "...");
+      } catch (error) {
+        console.error("Error parsing request JSON:", error);
+      }
+    }
+
+    // Check if we're uploading custom municipality data
+    if (requestData && 'customData' in requestData && requestData.customData) {
+      const { municipalities, postalCodes } = requestData.customData;
+      
+      if (municipalities && Array.isArray(municipalities) && municipalities.length > 0) {
+        console.log(`Received ${municipalities.length} custom municipalities`);
+        
+        // Clear existing municipalities if requested
+        if (requestData.clearExisting) {
+          console.log("Clearing existing municipalities as requested");
+          await supabaseClient.from('municipalities').delete().neq('id', 0);
+        }
+        
+        // Format municipalities for database insertion
+        const formattedMunicipalities = municipalities.map(m => ({
+          name: m.name,
+          province_code: m.province_code,
+          postal_codes: m.postal_codes || (postalCodes ? [postalCodes[m.name] || "00000"] : ["00000"])
+        }));
+        
+        // Insert in batches of 1000 to avoid request size limits
+        const batchSize = 1000;
+        for (let i = 0; i < formattedMunicipalities.length; i += batchSize) {
+          const batch = formattedMunicipalities.slice(i, i + batchSize);
+          const { error } = await supabaseClient.from('municipalities').insert(batch);
+          
+          if (error) {
+            console.error(`Error inserting batch ${i / batchSize + 1}:`, error);
+            return new Response(
+              JSON.stringify({ error: `Failed to insert municipalities batch ${i / batchSize + 1}: ${error.message}` }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            message: "Custom municipalities uploaded successfully", 
+            count: formattedMunicipalities.length 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Get the specific province code from the request, if any
     let provinceCode = null;
-    const url = new URL(req.url);
-    if (url.searchParams.has('province')) {
-      provinceCode = url.searchParams.get('province');
+    if (requestData && 'province' in requestData) {
+      provinceCode = requestData.province;
       console.log(`Received request to populate municipalities for province: ${provinceCode}`);
     }
 
