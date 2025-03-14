@@ -10,7 +10,6 @@ interface CompanyGeneralInfoProps {
   companyData: {
     name: string;
     vat_number: string;
-    sector: string;
     ateco_code: string;
     nace_code: string;
     legal_form: string;
@@ -49,21 +48,6 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
           handleInputChange={handleInputChange}
           handleVatNumberChange={handleVatNumberChange}
         />
-        
-        <div className="space-y-2">
-          <label htmlFor="sector" className="block text-sm font-medium text-gray-700">
-            Settore
-          </label>
-          <input
-            id="sector"
-            name="sector"
-            type="text"
-            value={companyData.sector || ''}
-            onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            placeholder="Settore di attività"
-          />
-        </div>
         
         <ActivityCodes 
           atecoCode={companyData.ateco_code}

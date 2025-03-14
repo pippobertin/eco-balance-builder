@@ -12,37 +12,70 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          ateco_code: string | null
+          collective_agreement: string | null
           contact_email: string | null
           contact_phone: string | null
           country: string | null
           created_at: string
           created_by: string | null
           id: string
+          legal_form: string | null
+          nace_code: string | null
           name: string
+          profile_about: string | null
+          profile_mission: string | null
+          profile_value_chain: string | null
+          profile_value_creation_factors: string | null
+          profile_values: string | null
+          profile_vision: string | null
+          sector: string | null
           updated_at: string
           vat_number: string | null
         }
         Insert: {
           address?: string | null
+          ateco_code?: string | null
+          collective_agreement?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          legal_form?: string | null
+          nace_code?: string | null
           name: string
+          profile_about?: string | null
+          profile_mission?: string | null
+          profile_value_chain?: string | null
+          profile_value_creation_factors?: string | null
+          profile_values?: string | null
+          profile_vision?: string | null
+          sector?: string | null
           updated_at?: string
           vat_number?: string | null
         }
         Update: {
           address?: string | null
+          ateco_code?: string | null
+          collective_agreement?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          legal_form?: string | null
+          nace_code?: string | null
           name?: string
+          profile_about?: string | null
+          profile_mission?: string | null
+          profile_value_chain?: string | null
+          profile_value_creation_factors?: string | null
+          profile_values?: string | null
+          profile_vision?: string | null
+          sector?: string | null
           updated_at?: string
           vat_number?: string | null
         }
