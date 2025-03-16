@@ -14,7 +14,7 @@ interface Province {
 interface Municipality {
   name: string;
   province_code: string;
-  postal_codes: string[];
+  postal_codes: string[] | string;
 }
 
 const provinces: Province[] = [
@@ -129,96 +129,96 @@ const provinces: Province[] = [
 
 const municipalities: Municipality[] = [
   // Roma (RM) municipalities
-  { name: "Roma", province_code: "RM", postal_codes: ["00100", "00118", "00121", "00122", "00123", "00124", "00125", "00126", "00127", "00128", "00131", "00133", "00135", "00136", "00137", "00138", "00139", "00141", "00142", "00143", "00144", "00145", "00146", "00147", "00148", "00149", "00151", "00152", "00153", "00154", "00155", "00156", "00159", "00161", "00162", "00164", "00165", "00167", "00168", "00169", "00171", "00172", "00173", "00174", "00175", "00176", "00177", "00178", "00179", "00181", "00182", "00183", "00184", "00185", "00186", "00187", "00188", "00189", "00191", "00192", "00193", "00195", "00196", "00197", "00198", "00199"] },
-  { name: "Fiumicino", province_code: "RM", postal_codes: ["00054", "00050", "00057"] },
-  { name: "Ciampino", province_code: "RM", postal_codes: ["00043"] },
-  { name: "Tivoli", province_code: "RM", postal_codes: ["00019"] },
-  { name: "Guidonia Montecelio", province_code: "RM", postal_codes: ["00012"] },
+  { name: "Roma", province_code: "RM", postal_codes: "00100,00118,00121,00122,00123,00124,00125,00126,00127,00128,00131,00133,00135,00136,00137,00138,00139,00141,00142,00143,00144,00145,00146,00147,00148,00149,00151,00152,00153,00154,00155,00156,00159,00161,00162,00164,00165,00167,00168,00169,00171,00172,00173,00174,00175,00176,00177,00178,00179,00181,00182,00183,00184,00185,00186,00187,00188,00189,00191,00192,00193,00195,00196,00197,00198,00199" },
+  { name: "Fiumicino", province_code: "RM", postal_codes: "00054,00050,00057" },
+  { name: "Ciampino", province_code: "RM", postal_codes: "00043" },
+  { name: "Tivoli", province_code: "RM", postal_codes: "00019" },
+  { name: "Guidonia Montecelio", province_code: "RM", postal_codes: "00012" },
   
   // Milano (MI) municipalities
-  { name: "Milano", province_code: "MI", postal_codes: ["20121", "20122", "20123", "20124", "20125", "20126", "20127", "20128", "20129", "20131", "20132", "20133", "20134", "20135", "20136", "20137", "20138", "20139", "20141", "20142", "20143", "20144", "20145", "20146", "20147", "20148", "20149", "20151", "20152", "20153", "20154", "20155", "20156", "20157", "20158", "20159", "20161", "20162"] },
-  { name: "Segrate", province_code: "MI", postal_codes: ["20090"] },
-  { name: "Corsico", province_code: "MI", postal_codes: ["20094"] },
-  { name: "Sesto San Giovanni", province_code: "MI", postal_codes: ["20099"] },
-  { name: "Cinisello Balsamo", province_code: "MI", postal_codes: ["20092"] },
+  { name: "Milano", province_code: "MI", postal_codes: "20121,20122,20123,20124,20125,20126,20127,20128,20129,20131,20132,20133,20134,20135,20136,20137,20138,20139,20141,20142,20143,20144,20145,20146,20147,20148,20149,20151,20152,20153,20154,20155,20156,20157,20158,20159,20161,20162" },
+  { name: "Segrate", province_code: "MI", postal_codes: "20090" },
+  { name: "Corsico", province_code: "MI", postal_codes: "20094" },
+  { name: "Sesto San Giovanni", province_code: "MI", postal_codes: "20099" },
+  { name: "Cinisello Balsamo", province_code: "MI", postal_codes: "20092" },
   
   // Napoli (NA) municipalities
-  { name: "Napoli", province_code: "NA", postal_codes: ["80100", "80121", "80122", "80123", "80124", "80125", "80126", "80127", "80128", "80129", "80131", "80132", "80133", "80134", "80135", "80136", "80137", "80138", "80139", "80141", "80142", "80143", "80144", "80145", "80146", "80147"] },
-  { name: "Pozzuoli", province_code: "NA", postal_codes: ["80078"] },
-  { name: "Portici", province_code: "NA", postal_codes: ["80055"] },
-  { name: "Casoria", province_code: "NA", postal_codes: ["80026"] },
-  { name: "Torre del Greco", province_code: "NA", postal_codes: ["80059"] },
+  { name: "Napoli", province_code: "NA", postal_codes: "80100,80121,80122,80123,80124,80125,80126,80127,80128,80129,80131,80132,80133,80134,80135,80136,80137,80138,80139,80141,80142,80143,80144,80145,80146,80147" },
+  { name: "Pozzuoli", province_code: "NA", postal_codes: "80078" },
+  { name: "Portici", province_code: "NA", postal_codes: "80055" },
+  { name: "Casoria", province_code: "NA", postal_codes: "80026" },
+  { name: "Torre del Greco", province_code: "NA", postal_codes: "80059" },
   
   // Torino (TO) municipalities
-  { name: "Torino", province_code: "TO", postal_codes: ["10121", "10122", "10123", "10124", "10125", "10126", "10127", "10128", "10129", "10131", "10132", "10133", "10134", "10135", "10136", "10137", "10138", "10139", "10141", "10142", "10143", "10144", "10145", "10146", "10147", "10148", "10149", "10151", "10152", "10153", "10154", "10155", "10156"] },
-  { name: "Moncalieri", province_code: "TO", postal_codes: ["10024"] },
-  { name: "Rivoli", province_code: "TO", postal_codes: ["10098"] },
-  { name: "Collegno", province_code: "TO", postal_codes: ["10093"] },
-  { name: "Nichelino", province_code: "TO", postal_codes: ["10042"] },
+  { name: "Torino", province_code: "TO", postal_codes: "10121,10122,10123,10124,10125,10126,10127,10128,10129,10131,10132,10133,10134,10135,10136,10137,10138,10139,10141,10142,10143,10144,10145,10146,10147,10148,10149,10151,10152,10153,10154,10155,10156" },
+  { name: "Moncalieri", province_code: "TO", postal_codes: "10024" },
+  { name: "Rivoli", province_code: "TO", postal_codes: "10098" },
+  { name: "Collegno", province_code: "TO", postal_codes: "10093" },
+  { name: "Nichelino", province_code: "TO", postal_codes: "10042" },
   
   // Bologna (BO) municipalities
-  { name: "Bologna", province_code: "BO", postal_codes: ["40121", "40122", "40123", "40124", "40125", "40126", "40127", "40128", "40129", "40131", "40132", "40133", "40134", "40135", "40136", "40137", "40138", "40139"] },
-  { name: "Casalecchio di Reno", province_code: "BO", postal_codes: ["40033"] },
-  { name: "San Lazzaro di Savena", province_code: "BO", postal_codes: ["40068"] },
-  { name: "Imola", province_code: "BO", postal_codes: ["40026"] },
-  { name: "Castel Maggiore", province_code: "BO", postal_codes: ["40013"] },
+  { name: "Bologna", province_code: "BO", postal_codes: "40121,40122,40123,40124,40125,40126,40127,40128,40129,40131,40132,40133,40134,40135,40136,40137,40138,40139" },
+  { name: "Casalecchio di Reno", province_code: "BO", postal_codes: "40033" },
+  { name: "San Lazzaro di Savena", province_code: "BO", postal_codes: "40068" },
+  { name: "Imola", province_code: "BO", postal_codes: "40026" },
+  { name: "Castel Maggiore", province_code: "BO", postal_codes: "40013" },
   
   // Firenze (FI) municipalities
-  { name: "Firenze", province_code: "FI", postal_codes: ["50121", "50122", "50123", "50124", "50125", "50126", "50127", "50128", "50129", "50131", "50132", "50133", "50134", "50135", "50136", "50137", "50138", "50139", "50141", "50142", "50143", "50144", "50145"] },
-  { name: "Sesto Fiorentino", province_code: "FI", postal_codes: ["50019"] },
-  { name: "Scandicci", province_code: "FI", postal_codes: ["50018"] },
-  { name: "Empoli", province_code: "FI", postal_codes: ["50053"] },
-  { name: "Campi Bisenzio", province_code: "FI", postal_codes: ["50013"] },
+  { name: "Firenze", province_code: "FI", postal_codes: "50121,50122,50123,50124,50125,50126,50127,50128,50129,50131,50132,50133,50134,50135,50136,50137,50138,50139,50141,50142,50143,50144,50145" },
+  { name: "Sesto Fiorentino", province_code: "FI", postal_codes: "50019" },
+  { name: "Scandicci", province_code: "FI", postal_codes: "50018" },
+  { name: "Empoli", province_code: "FI", postal_codes: "50053" },
+  { name: "Campi Bisenzio", province_code: "FI", postal_codes: "50013" },
   
   // Bari (BA) municipalities
-  { name: "Bari", province_code: "BA", postal_codes: ["70121", "70122", "70123", "70124", "70125", "70126", "70127", "70128", "70129", "70131"] },
-  { name: "Modugno", province_code: "BA", postal_codes: ["70026"] },
-  { name: "Altamura", province_code: "BA", postal_codes: ["70022"] },
-  { name: "Monopoli", province_code: "BA", postal_codes: ["70043"] },
-  { name: "Bitonto", province_code: "BA", postal_codes: ["70032"] },
+  { name: "Bari", province_code: "BA", postal_codes: "70121,70122,70123,70124,70125,70126,70127,70128,70129,70131" },
+  { name: "Modugno", province_code: "BA", postal_codes: "70026" },
+  { name: "Altamura", province_code: "BA", postal_codes: "70022" },
+  { name: "Monopoli", province_code: "BA", postal_codes: "70043" },
+  { name: "Bitonto", province_code: "BA", postal_codes: "70032" },
   
   // Verona (VR) municipalities
-  { name: "Verona", province_code: "VR", postal_codes: ["37121", "37122", "37123", "37124", "37125", "37126", "37127", "37128", "37129", "37131", "37132", "37133", "37134", "37135", "37136", "37137", "37138", "37139", "37141", "37142"] },
-  { name: "Villafranca di Verona", province_code: "VR", postal_codes: ["37069"] },
-  { name: "San Giovanni Lupatoto", province_code: "VR", postal_codes: ["37057"] },
-  { name: "Legnago", province_code: "VR", postal_codes: ["37045"] },
-  { name: "Bussolengo", province_code: "VR", postal_codes: ["37012"] },
+  { name: "Verona", province_code: "VR", postal_codes: "37121,37122,37123,37124,37125,37126,37127,37128,37129,37131,37132,37133,37134,37135,37136,37137,37138,37139,37141,37142" },
+  { name: "Villafranca di Verona", province_code: "VR", postal_codes: "37069" },
+  { name: "San Giovanni Lupatoto", province_code: "VR", postal_codes: "37057" },
+  { name: "Legnago", province_code: "VR", postal_codes: "37045" },
+  { name: "Bussolengo", province_code: "VR", postal_codes: "37012" },
   
   // Venezia (VE) municipalities
-  { name: "Venezia", province_code: "VE", postal_codes: ["30121", "30122", "30123", "30124", "30125", "30126", "30127", "30128", "30129", "30131", "30132", "30133", "30134", "30135", "30136", "30137", "30138", "30139", "30141", "30142"] },
-  { name: "Mestre", province_code: "VE", postal_codes: ["30171", "30172", "30173", "30174", "30175"] },
-  { name: "Chioggia", province_code: "VE", postal_codes: ["30015"] },
-  { name: "San Donà di Piave", province_code: "VE", postal_codes: ["30027"] },
-  { name: "Portogruaro", province_code: "VE", postal_codes: ["30026"] },
+  { name: "Venezia", province_code: "VE", postal_codes: "30121,30122,30123,30124,30125,30126,30127,30128,30129,30131,30132,30133,30134,30135,30136,30137,30138,30139,30141,30142" },
+  { name: "Mestre", province_code: "VE", postal_codes: "30171,30172,30173,30174,30175" },
+  { name: "Chioggia", province_code: "VE", postal_codes: "30015" },
+  { name: "San Donà di Piave", province_code: "VE", postal_codes: "30027" },
+  { name: "Portogruaro", province_code: "VE", postal_codes: "30026" },
   
   // Genova (GE) municipalities
-  { name: "Genova", province_code: "GE", postal_codes: ["16121", "16122", "16123", "16124", "16125", "16126", "16127", "16128", "16129", "16131", "16132", "16133", "16134", "16135", "16136", "16137", "16138", "16139", "16141", "16142", "16143", "16144", "16145", "16146", "16147", "16148", "16149"] },
-  { name: "Rapallo", province_code: "GE", postal_codes: ["16035"] },
-  { name: "Chiavari", province_code: "GE", postal_codes: ["16043"] },
-  { name: "Sestri Levante", province_code: "GE", postal_codes: ["16039"] },
-  { name: "Lavagna", province_code: "GE", postal_codes: ["16033"] },
+  { name: "Genova", province_code: "GE", postal_codes: "16121,16122,16123,16124,16125,16126,16127,16128,16129,16131,16132,16133,16134,16135,16136,16137,16138,16139,16141,16142,16143,16144,16145,16146,16147,16148,16149" },
+  { name: "Rapallo", province_code: "GE", postal_codes: "16035" },
+  { name: "Chiavari", province_code: "GE", postal_codes: "16043" },
+  { name: "Sestri Levante", province_code: "GE", postal_codes: "16039" },
+  { name: "Lavagna", province_code: "GE", postal_codes: "16033" },
   
   // Palermo (PA) municipalities
-  { name: "Palermo", province_code: "PA", postal_codes: ["90121", "90122", "90123", "90124", "90125", "90126", "90127", "90128", "90129", "90131", "90132", "90133", "90134", "90135", "90136", "90137", "90138", "90139", "90141", "90142", "90143", "90144", "90145", "90146", "90147"] },
-  { name: "Bagheria", province_code: "PA", postal_codes: ["90011"] },
-  { name: "Monreale", province_code: "PA", postal_codes: ["90046"] },
-  { name: "Carini", province_code: "PA", postal_codes: ["90044"] },
-  { name: "Termini Imerese", province_code: "PA", postal_codes: ["90018"] },
+  { name: "Palermo", province_code: "PA", postal_codes: "90121,90122,90123,90124,90125,90126,90127,90128,90129,90131,90132,90133,90134,90135,90136,90137,90138,90139,90141,90142,90143,90144,90145,90146,90147" },
+  { name: "Bagheria", province_code: "PA", postal_codes: "90011" },
+  { name: "Monreale", province_code: "PA", postal_codes: "90046" },
+  { name: "Carini", province_code: "PA", postal_codes: "90044" },
+  { name: "Termini Imerese", province_code: "PA", postal_codes: "90018" },
   
   // Ancona (AN) municipalities
-  { name: "Ancona", province_code: "AN", postal_codes: ["60121", "60122", "60123", "60124", "60125", "60126", "60127", "60128", "60129", "60131"] },
-  { name: "Senigallia", province_code: "AN", postal_codes: ["60019"] },
-  { name: "Jesi", province_code: "AN", postal_codes: ["60035"] },
-  { name: "Fabriano", province_code: "AN", postal_codes: ["60044"] },
-  { name: "Osimo", province_code: "AN", postal_codes: ["60027"] },
-  { name: "Montemarciano", province_code: "AN", postal_codes: ["60018"] },
+  { name: "Ancona", province_code: "AN", postal_codes: "60121,60122,60123,60124,60125,60126,60127,60128,60129,60131" },
+  { name: "Senigallia", province_code: "AN", postal_codes: "60019" },
+  { name: "Jesi", province_code: "AN", postal_codes: "60035" },
+  { name: "Fabriano", province_code: "AN", postal_codes: "60044" },
+  { name: "Osimo", province_code: "AN", postal_codes: "60027" },
+  { name: "Montemarciano", province_code: "AN", postal_codes: "60018" },
   
   // Aosta (AO) municipalities
-  { name: "Aosta", province_code: "AO", postal_codes: ["11100"] },
-  { name: "Saint-Vincent", province_code: "AO", postal_codes: ["11027"] },
-  { name: "Courmayeur", province_code: "AO", postal_codes: ["11013"] },
-  { name: "Châtillon", province_code: "AO", postal_codes: ["11024"] },
-  { name: "Gressoney-Saint-Jean", province_code: "AO", postal_codes: ["11025"] }
+  { name: "Aosta", province_code: "AO", postal_codes: "11100" },
+  { name: "Saint-Vincent", province_code: "AO", postal_codes: "11027" },
+  { name: "Courmayeur", province_code: "AO", postal_codes: "11013" },
+  { name: "Châtillon", province_code: "AO", postal_codes: "11024" },
+  { name: "Gressoney-Saint-Jean", province_code: "AO", postal_codes: "11025" }
 ];
 
 serve(async (req) => {
@@ -250,6 +250,10 @@ serve(async (req) => {
       }
     }
 
+    // Determine target table - default to 'mun'
+    const targetTable = requestData && 'targetTable' in requestData ? requestData.targetTable : 'mun';
+    console.log(`Using target table: ${targetTable}`);
+
     // Check if we're uploading custom municipality data
     if (requestData && 'customData' in requestData && requestData.customData) {
       const { municipalities, postalCodes } = requestData.customData;
@@ -259,25 +263,35 @@ serve(async (req) => {
         
         // Clear existing municipalities if requested
         if (requestData.clearExisting) {
-          console.log("Clearing existing municipalities as requested");
-          await supabaseClient.from('municipalities').delete().neq('id', 0);
+          console.log(`Clearing existing municipalities from ${targetTable} as requested`);
+          await supabaseClient.from(targetTable).delete().neq('id', 0);
         }
         
-        // Format municipalities for database insertion
-        const formattedMunicipalities = municipalities.map(m => ({
-          name: m.name,
-          province_code: m.province_code,
-          postal_codes: m.postal_codes || (postalCodes ? [postalCodes[m.name] || "00000"] : ["00000"])
-        }));
+        // Format municipalities for database insertion based on target table
+        let formattedMunicipalities;
+        if (targetTable === 'mun') {
+          formattedMunicipalities = municipalities.map(m => ({
+            name: m.name,
+            province_code: m.province_code,
+            postal_codes: m.postal_codes // Should already be a string for 'mun' table
+          }));
+        } else {
+          // For 'municipalities' table, postal_codes should be an array
+          formattedMunicipalities = municipalities.map(m => ({
+            name: m.name,
+            province_code: m.province_code,
+            postal_codes: Array.isArray(m.postal_codes) ? m.postal_codes : m.postal_codes.split(',')
+          }));
+        }
         
         // Insert in batches of 1000 to avoid request size limits
         const batchSize = 1000;
         for (let i = 0; i < formattedMunicipalities.length; i += batchSize) {
           const batch = formattedMunicipalities.slice(i, i + batchSize);
-          const { error } = await supabaseClient.from('municipalities').insert(batch);
+          const { error } = await supabaseClient.from(targetTable).insert(batch);
           
           if (error) {
-            console.error(`Error inserting batch ${i / batchSize + 1}:`, error);
+            console.error(`Error inserting batch ${i / batchSize + 1} into ${targetTable}:`, error);
             return new Response(
               JSON.stringify({ error: `Failed to insert municipalities batch ${i / batchSize + 1}: ${error.message}` }),
               { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -287,7 +301,7 @@ serve(async (req) => {
         
         return new Response(
           JSON.stringify({ 
-            message: "Custom municipalities uploaded successfully", 
+            message: `Custom municipalities uploaded successfully to ${targetTable}`, 
             count: formattedMunicipalities.length 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -306,7 +320,7 @@ serve(async (req) => {
     if (provinceCode) {
       // Check if municipalities for this province already exist
       const { count, error: countError } = await supabaseClient
-        .from('municipalities')
+        .from(targetTable)
         .select('*', { count: 'exact', head: true })
         .eq('province_code', provinceCode);
       
@@ -317,7 +331,7 @@ serve(async (req) => {
       if (count && count > 0) {
         return new Response(
           JSON.stringify({ 
-            message: `Municipalities for province ${provinceCode} already populated`, 
+            message: `Municipalities for province ${provinceCode} already populated in ${targetTable}`, 
             count 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -331,22 +345,38 @@ serve(async (req) => {
         console.log(`No predefined municipalities found for province ${provinceCode}`);
         
         // If we don't have predefined municipalities for this province, add some default entries
-        const defaultMunicipalities = [
-          { 
-            name: `Capoluogo di ${provinceCode}`, 
-            province_code: provinceCode, 
-            postal_codes: ["00000"] 
-          },
-          { 
-            name: `Comune di ${provinceCode}`, 
-            province_code: provinceCode, 
-            postal_codes: ["00001"] 
-          }
-        ];
+        let defaultMunicipalities;
+        if (targetTable === 'mun') {
+          defaultMunicipalities = [
+            { 
+              name: `Capoluogo di ${provinceCode}`, 
+              province_code: provinceCode, 
+              postal_codes: "00000" 
+            },
+            { 
+              name: `Comune di ${provinceCode}`, 
+              province_code: provinceCode, 
+              postal_codes: "00001" 
+            }
+          ];
+        } else {
+          defaultMunicipalities = [
+            { 
+              name: `Capoluogo di ${provinceCode}`, 
+              province_code: provinceCode, 
+              postal_codes: ["00000"] 
+            },
+            { 
+              name: `Comune di ${provinceCode}`, 
+              province_code: provinceCode, 
+              postal_codes: ["00001"] 
+            }
+          ];
+        }
         
         // Insert default municipalities
         const { error: municipalitiesError } = await supabaseClient
-          .from('municipalities')
+          .from(targetTable)
           .insert(defaultMunicipalities);
 
         if (municipalitiesError) {
@@ -355,17 +385,30 @@ serve(async (req) => {
 
         return new Response(
           JSON.stringify({ 
-            message: `Added default municipalities for province ${provinceCode}`, 
+            message: `Added default municipalities for province ${provinceCode} to ${targetTable}`, 
             count: defaultMunicipalities.length 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
+      // Format municipalities for the target table
+      let formattedMunicipalities;
+      if (targetTable === 'mun') {
+        formattedMunicipalities = provinceMunicipalities;
+      } else {
+        // Convert string postal_codes to arrays for 'municipalities' table
+        formattedMunicipalities = provinceMunicipalities.map(m => ({
+          name: m.name,
+          province_code: m.province_code,
+          postal_codes: typeof m.postal_codes === 'string' ? m.postal_codes.split(',') : m.postal_codes
+        }));
+      }
+
       // Insert province municipalities
       const { error: municipalitiesError } = await supabaseClient
-        .from('municipalities')
-        .insert(provinceMunicipalities);
+        .from(targetTable)
+        .insert(formattedMunicipalities);
 
       if (municipalitiesError) {
         throw municipalitiesError;
@@ -373,8 +416,8 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ 
-          message: `Municipalities for province ${provinceCode} populated successfully`, 
-          count: provinceMunicipalities.length 
+          message: `Municipalities for province ${provinceCode} populated successfully in ${targetTable}`, 
+          count: formattedMunicipalities.length 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -391,7 +434,7 @@ serve(async (req) => {
 
     // Check if we have municipalities data
     const { count: municipalityCount, error: municipalityCountError } = await supabaseClient
-      .from('municipalities')
+      .from(targetTable)
       .select('*', { count: 'exact', head: true });
 
     if (municipalityCountError) {
@@ -400,10 +443,23 @@ serve(async (req) => {
 
     // If provinces exist but municipalities don't, only populate municipalities
     if (provinceCount && provinceCount > 0 && (!municipalityCount || municipalityCount === 0)) {
+      // Format municipalities for the target table
+      let formattedMunicipalities;
+      if (targetTable === 'mun') {
+        formattedMunicipalities = municipalities;
+      } else {
+        // Convert string postal_codes to arrays for 'municipalities' table
+        formattedMunicipalities = municipalities.map(m => ({
+          name: m.name,
+          province_code: m.province_code,
+          postal_codes: typeof m.postal_codes === 'string' ? m.postal_codes.split(',') : m.postal_codes
+        }));
+      }
+      
       // Insert municipalities
       const { error: municipalitiesError } = await supabaseClient
-        .from('municipalities')
-        .insert(municipalities);
+        .from(targetTable)
+        .insert(formattedMunicipalities);
 
       if (municipalitiesError) {
         throw municipalitiesError;
@@ -411,8 +467,8 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ 
-          message: "Municipalities populated successfully", 
-          count: municipalities.length 
+          message: `Municipalities populated successfully in ${targetTable}`, 
+          count: formattedMunicipalities.length 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -422,7 +478,7 @@ serve(async (req) => {
     if (provinceCount && provinceCount > 0 && municipalityCount && municipalityCount > 0) {
       return new Response(
         JSON.stringify({ 
-          message: "Data already populated", 
+          message: `Data already populated in ${targetTable}`, 
           provinceCount, 
           municipalityCount 
         }),
@@ -440,10 +496,23 @@ serve(async (req) => {
       throw provincesError;
     }
 
+    // Format municipalities for the target table
+    let formattedMunicipalities;
+    if (targetTable === 'mun') {
+      formattedMunicipalities = municipalities;
+    } else {
+      // Convert string postal_codes to arrays for 'municipalities' table
+      formattedMunicipalities = municipalities.map(m => ({
+        name: m.name,
+        province_code: m.province_code,
+        postal_codes: typeof m.postal_codes === 'string' ? m.postal_codes.split(',') : m.postal_codes
+      }));
+    }
+
     // Insert municipalities
     const { error: municipalitiesError } = await supabaseClient
-      .from('municipalities')
-      .insert(municipalities);
+      .from(targetTable)
+      .insert(formattedMunicipalities);
 
     if (municipalitiesError) {
       throw municipalitiesError;
@@ -451,14 +520,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        message: "Data populated successfully", 
+        message: `Data populated successfully in ${targetTable}`, 
         provincesCount: provinces.length,
-        municipalitiesCount: municipalities.length
+        municipalitiesCount: formattedMunicipalities.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error("Error in populate-italian-locations function:", error);
+    console.error(`Error in populate-italian-locations function for ${requestData?.targetTable || 'mun'}:`, error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

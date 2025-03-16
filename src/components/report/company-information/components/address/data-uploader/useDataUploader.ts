@@ -59,15 +59,22 @@ export const useDataUploader = () => {
         throw new Error('I dati devono essere in formato array');
       }
       
-      // Convert the raw data to our expected format
+      // Convert the raw data to our expected format for the 'mun' table
       const municipalities = rawData.map(item => ({
         name: item.denominazione_ita,
         province_code: item.sigla_provincia,
-        postal_codes: [item.cap]
+        postal_codes: item.cap  // Store as a string instead of an array for 'mun' table
       }));
 
       // Group municipalities by name and province code to consolidate postal codes
       const uniqueMunicipalities = consolidateMunicipalities(municipalities);
+      
+      // Format postal codes as comma-separated string for each municipality
+      const formattedMunicipalities = uniqueMunicipalities.map(m => ({
+        name: m.name,
+        province_code: m.province_code,
+        postal_codes: Array.isArray(m.postal_codes) ? m.postal_codes.join(',') : m.postal_codes
+      }));
 
       // Read postal codes file if provided
       let postalCodes = null;
@@ -83,7 +90,7 @@ export const useDataUploader = () => {
 
       // Prepare data for upload
       const customData = {
-        municipalities: uniqueMunicipalities,
+        municipalities: formattedMunicipalities,
         postalCodes
       };
 
@@ -93,7 +100,8 @@ export const useDataUploader = () => {
       const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
         body: { 
           customData,
-          clearExisting
+          clearExisting,
+          targetTable: 'mun'  // Specify the target table
         }
       });
 

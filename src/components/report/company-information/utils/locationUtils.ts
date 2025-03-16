@@ -21,13 +21,13 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
       return;
     }
 
-    // Check if municipalities exist
+    // Check if municipalities exist in the 'mun' table
     const { count: municipalityCount, error: municipalityCountError } = await supabase
-      .from('municipalities')
+      .from('mun')
       .select('*', { count: 'exact', head: true });
       
     if (municipalityCountError) {
-      console.error('Error checking municipalities count:', municipalityCountError);
+      console.error('Error checking municipalities count in mun table:', municipalityCountError);
       toast.error('Errore nel verificare i dati dei comuni');
     }
 
@@ -35,26 +35,26 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
 
     // If specifically requesting municipalities for a province
     if (provinceCode) {
-      // Check if municipalities for this province exist
+      // Check if municipalities for this province exist in the 'mun' table
       const { count: provinceMunicipalityCount, error: provinceMunicipalityCountError } = await supabase
-        .from('municipalities')
+        .from('mun')
         .select('*', { count: 'exact', head: true })
         .eq('province_code', provinceCode);
         
       if (provinceMunicipalityCountError) {
-        console.error(`Error checking municipalities count for province ${provinceCode}:`, provinceMunicipalityCountError);
+        console.error(`Error checking municipalities count for province ${provinceCode} in mun table:`, provinceMunicipalityCountError);
       }
 
       // If no municipalities for this province or force populate
       if (forcePopulate || !provinceMunicipalityCount || provinceMunicipalityCount === 0) {
-        console.log(`No municipalities found for province ${provinceCode}, calling populate function`);
+        console.log(`No municipalities found for province ${provinceCode} in mun table, calling populate function`);
         
         // Show loading toast
         const toastId = toast.loading(`Caricamento dei comuni per la provincia ${provinceCode}...`);
         
         // Call the function with province parameter in the body instead of query
         const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
-          body: { province: provinceCode }
+          body: { province: provinceCode, targetTable: 'mun' }
         });
         
         if (error) {
@@ -70,7 +70,7 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
         }
         return;
       } else {
-        console.log(`Province ${provinceCode} already has ${provinceMunicipalityCount} municipalities - No need to populate`);
+        console.log(`Province ${provinceCode} already has ${provinceMunicipalityCount} municipalities in mun table - No need to populate`);
         return;
       }
     }
@@ -82,7 +82,9 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
       // Show loading toast
       const toastId = toast.loading('Caricamento dei dati geografici in corso...');
       
-      const { data, error } = await supabase.functions.invoke('populate-italian-locations');
+      const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
+        body: { targetTable: 'mun' }
+      });
       
       if (error) {
         console.error('Error calling populate-italian-locations function:', error);
@@ -96,7 +98,7 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
         });
       }
     } else {
-      console.log(`Province: ${count}, Municipalities: ${municipalityCount} - No need to populate`);
+      console.log(`Province: ${count}, Municipalities in mun table: ${municipalityCount} - No need to populate`);
     }
   } catch (error) {
     console.error('Error ensuring location data is loaded:', error);
@@ -114,24 +116,27 @@ export const populateMunicipalitiesForProvince = async (provinceCode: string): P
     
     // Pass province as part of the body instead of query
     const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
-      body: { province: provinceCode }
+      body: { 
+        province: provinceCode,
+        targetTable: 'mun'
+      }
     });
     
     if (error) {
-      console.error(`Error populating municipalities for province ${provinceCode}:`, error);
+      console.error(`Error populating municipalities for province ${provinceCode} in mun table:`, error);
       toast.error(`Errore nel caricamento dei comuni per la provincia ${provinceCode}`, {
         id: toastId
       });
       return false;
     }
     
-    console.log(`Municipalities for province ${provinceCode} populated:`, data);
+    console.log(`Municipalities for province ${provinceCode} populated in mun table:`, data);
     toast.success(`Comuni per la provincia ${provinceCode} caricati con successo`, {
       id: toastId
     });
     return true;
   } catch (error) {
-    console.error(`Error populating municipalities for province ${provinceCode}:`, error);
+    console.error(`Error populating municipalities for province ${provinceCode} in mun table:`, error);
     toast.error(`Errore nel caricamento dei comuni per la provincia ${provinceCode}`);
     return false;
   }

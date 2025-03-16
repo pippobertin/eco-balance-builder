@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Province, Municipality } from './types';
+import { Province, Municipality, MunEntity } from './types';
 import { ensureLocationDataLoaded, populateMunicipalitiesForProvince } from '../../utils/locationUtils';
 
 export const useAddressFields = (
@@ -83,28 +83,42 @@ export const useAddressFields = (
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
+      // Query the 'mun' table instead of 'municipalities'
       const { data, error } = await supabase
-        .from('municipalities')
+        .from('mun')
         .select('*')
         .eq('province_code', provinceCode)
         .order('name');
 
       if (error) {
-        console.error('Error loading municipalities:', error);
+        console.error('Error loading municipalities from mun table:', error);
         return;
       }
 
-      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode}`);
+      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode} from mun table`);
+      
+      // Transform the data to match the Municipality interface
+      const transformedData: Municipality[] = data?.map(item => {
+        // Split the postal_codes string into an array
+        const postalCodesArray = item.postal_codes ? item.postal_codes.split(',') : [];
+        
+        return {
+          id: item.id,
+          name: item.name || '',
+          province_code: item.province_code || '',
+          postal_codes: postalCodesArray
+        };
+      }) || [];
       
       // If no municipalities found after selecting a province, might need to run the population function
-      if (data?.length === 0) {
+      if (transformedData.length === 0) {
         console.log(`No municipalities found for province ${provinceCode}, attempting to populate data`);
         const success = await populateMunicipalitiesForProvince(provinceCode);
         
         if (success) {
           // Try to load municipalities again
           const { data: retryData, error: retryError } = await supabase
-            .from('municipalities')
+            .from('mun')
             .select('*')
             .eq('province_code', provinceCode)
             .order('name');
@@ -115,13 +129,24 @@ export const useAddressFields = (
             return;
           }
           
-          setMunicipalities(retryData || []);
-          console.log(`Reloaded ${retryData?.length} municipalities for province ${provinceCode}`);
+          const retryTransformedData: Municipality[] = retryData?.map(item => {
+            const postalCodesArray = item.postal_codes ? item.postal_codes.split(',') : [];
+            
+            return {
+              id: item.id,
+              name: item.name || '',
+              province_code: item.province_code || '',
+              postal_codes: postalCodesArray
+            };
+          }) || [];
+          
+          setMunicipalities(retryTransformedData);
+          console.log(`Reloaded ${retryTransformedData.length} municipalities for province ${provinceCode}`);
         } else {
           setMunicipalities([]);
         }
       } else {
-        setMunicipalities(data || []);
+        setMunicipalities(transformedData);
       }
     } catch (error) {
       console.error('Failed to load municipalities:', error);

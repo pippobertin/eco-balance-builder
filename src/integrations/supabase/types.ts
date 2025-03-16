@@ -202,6 +202,27 @@ export type Database = {
           },
         ]
       }
+      mun: {
+        Row: {
+          id: number
+          name: string | null
+          postal_codes: string | null
+          province_code: string | null
+        }
+        Insert: {
+          id?: number
+          name?: string | null
+          postal_codes?: string | null
+          province_code?: string | null
+        }
+        Update: {
+          id?: number
+          name?: string | null
+          postal_codes?: string | null
+          province_code?: string | null
+        }
+        Relationships: []
+      }
       municipalities: {
         Row: {
           id: number

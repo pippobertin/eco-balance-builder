@@ -11,6 +11,13 @@ export interface Municipality {
   postal_codes: string[];
 }
 
+export interface MunEntity {
+  id: number;
+  name: string;
+  province_code: string;
+  postal_codes: string;
+}
+
 export interface AddressData {
   address_street_type: string;
   address_street: string;
