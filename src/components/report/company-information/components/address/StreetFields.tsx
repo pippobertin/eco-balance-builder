@@ -6,8 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface StreetFieldsProps {
   streetType: string;
-  street: string;
-  onChange: (field: string, value: string) => void;
+  streetName: string;
+  streetNumber: string;
+  onChangeStreetType: (value: string) => void;
+  onChangeStreetName: (value: string) => void;
+  onChangeStreetNumber: (value: string) => void;
+  disabled?: boolean;
 }
 
 const streetTypes = [
@@ -23,8 +27,12 @@ const streetTypes = [
 
 const StreetFields: React.FC<StreetFieldsProps> = ({
   streetType,
-  street,
-  onChange
+  streetName,
+  streetNumber,
+  onChangeStreetType,
+  onChangeStreetName,
+  onChangeStreetNumber,
+  disabled = false
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -32,7 +40,8 @@ const StreetFields: React.FC<StreetFieldsProps> = ({
         <Label htmlFor="address_street_type">Tipo Indirizzo</Label>
         <Select 
           value={streetType || ''}
-          onValueChange={(value) => onChange('address_street_type', value)}
+          onValueChange={onChangeStreetType}
+          disabled={disabled}
         >
           <SelectTrigger id="address_street_type">
             <SelectValue placeholder="Seleziona..." />
@@ -46,14 +55,26 @@ const StreetFields: React.FC<StreetFieldsProps> = ({
           </SelectContent>
         </Select>
       </div>
-      <div className="md:col-span-2">
+      <div>
         <Label htmlFor="address_street">Nome Via/Piazza</Label>
         <Input
           id="address_street"
           name="address_street"
-          value={street || ''}
-          onChange={(e) => onChange('address_street', e.target.value)}
+          value={streetName || ''}
+          onChange={(e) => onChangeStreetName(e.target.value)}
           placeholder="Nome della via/piazza"
+          disabled={disabled}
+        />
+      </div>
+      <div>
+        <Label htmlFor="address_number">Numero Civico</Label>
+        <Input
+          id="address_number"
+          name="address_number"
+          value={streetNumber || ''}
+          onChange={(e) => onChangeStreetNumber(e.target.value)}
+          placeholder="Numero civico"
+          disabled={disabled}
         />
       </div>
     </div>

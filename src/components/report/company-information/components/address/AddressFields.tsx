@@ -3,7 +3,6 @@ import React from 'react';
 import { AddressFieldsProps } from './types';
 import { useAddressFields } from './useAddressFields';
 import StreetFields from './StreetFields';
-import NumberField from './NumberField';
 import ProvinceField from './ProvinceField';
 import CityField from './CityField';
 import PostalCodeField from './PostalCodeField';
