@@ -41,16 +41,16 @@ export const useMunicipalityData = () => {
       
       // Update the toast with success message
       toastInstance.update({
-        title: 'Success',
         description: `Dati geografici ricaricati. ${count} comuni disponibili.`,
+        title: 'Success',
       });
     } catch (error) {
       console.error('Error forcing data load:', error);
       
       // Update the toast with error message
       toastInstance.update({
-        title: 'Error',
         description: 'Errore durante il ricaricamento dei dati',
+        title: 'Error',
         variant: 'destructive',
       });
     }
