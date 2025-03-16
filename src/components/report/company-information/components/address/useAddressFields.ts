@@ -83,19 +83,19 @@ export const useAddressFields = (
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
-      // Query the 'municipalities_duplicate' table
+      // Query the 'municipalities' table
       const { data, error } = await supabase
-        .from('municipalities_duplicate')
+        .from('municipalities')
         .select('*')
         .eq('province_code', provinceCode)
         .order('name');
 
       if (error) {
-        console.error('Error loading municipalities from municipalities_duplicate table:', error);
+        console.error('Error loading municipalities from municipalities table:', error);
         return;
       }
 
-      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode} from municipalities_duplicate table`);
+      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode} from municipalities table`);
       
       // Transform the data to match the Municipality interface
       const transformedData: Municipality[] = data?.map(item => {
@@ -115,7 +115,7 @@ export const useAddressFields = (
         if (success) {
           // Try to load municipalities again
           const { data: retryData, error: retryError } = await supabase
-            .from('municipalities_duplicate')
+            .from('municipalities')
             .select('*')
             .eq('province_code', provinceCode)
             .order('name');

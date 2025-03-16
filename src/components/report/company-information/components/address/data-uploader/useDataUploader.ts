@@ -59,11 +59,11 @@ export const useDataUploader = () => {
         throw new Error('I dati devono essere in formato array');
       }
       
-      // Convert the raw data to our expected format for the 'municipalities_duplicate' table
+      // Convert the raw data to our expected format for the 'municipalities' table
       const municipalities = rawData.map(item => ({
         name: item.denominazione_ita,
         province_code: item.sigla_provincia,
-        postal_codes: item.cap  // Should be an array for 'municipalities_duplicate' table
+        postal_codes: item.cap  // Should be an array for 'municipalities' table
       }));
 
       // Group municipalities by name and province code to consolidate postal codes
@@ -94,7 +94,7 @@ export const useDataUploader = () => {
         body: { 
           customData,
           clearExisting,
-          targetTable: 'municipalities_duplicate'  // Specify the target table
+          targetTable: 'municipalities'  // Specify the target table
         }
       });
 
