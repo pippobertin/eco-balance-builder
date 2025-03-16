@@ -83,6 +83,8 @@ export const useAddressFields = (
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
+      console.log(`Loading municipalities for province ${provinceCode} from 'municipalities' table`);
+      
       // Query the 'municipalities' table
       const { data, error } = await supabase
         .from('municipalities')
@@ -103,7 +105,7 @@ export const useAddressFields = (
           id: item.id,
           name: item.name || '',
           province_code: item.province_code || '',
-          postal_codes: item.postal_codes || []
+          postal_codes: Array.isArray(item.postal_codes) ? item.postal_codes : [item.postal_codes]
         };
       }) || [];
       
@@ -131,7 +133,7 @@ export const useAddressFields = (
               id: item.id,
               name: item.name || '',
               province_code: item.province_code || '',
-              postal_codes: item.postal_codes || []
+              postal_codes: Array.isArray(item.postal_codes) ? item.postal_codes : [item.postal_codes]
             };
           }) || [];
           

@@ -52,9 +52,12 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
         // Show loading toast
         const toastId = toast.loading(`Caricamento dei comuni per la provincia ${provinceCode}...`);
         
-        // Call the function with province parameter in the body instead of query
+        // Call the function with province parameter in the body
         const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
-          body: { province: provinceCode, targetTable: 'municipalities' }
+          body: { 
+            province: provinceCode, 
+            targetTable: 'municipalities'
+          }
         });
         
         if (error) {
@@ -112,9 +115,10 @@ export const ensureLocationDataLoaded = async (forcePopulate = false, provinceCo
  */
 export const populateMunicipalitiesForProvince = async (provinceCode: string): Promise<boolean> => {
   try {
+    console.log(`Attempting to populate municipalities for province ${provinceCode}`);
     const toastId = toast.loading(`Caricamento dei comuni per la provincia ${provinceCode}...`);
     
-    // Pass province as part of the body instead of query
+    // Pass province as part of the body
     const { data, error } = await supabase.functions.invoke('populate-italian-locations', {
       body: { 
         province: provinceCode,

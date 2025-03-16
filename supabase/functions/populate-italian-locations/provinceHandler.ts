@@ -1,7 +1,6 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.8.0";
-import { corsHeaders } from "./constants.ts";
-import { defaultMunicipalities } from "./constants.ts";
+import { corsHeaders, defaultMunicipalities } from "./constants.ts";
 import { Municipality } from "./types.ts";
 
 /**
