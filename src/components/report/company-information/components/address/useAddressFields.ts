@@ -83,7 +83,7 @@ export const useAddressFields = (
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
-      // Query the 'mun' table instead of 'municipalities'
+      // Query the 'mun' table directly
       const { data, error } = await supabase
         .from('mun')
         .select('*')
