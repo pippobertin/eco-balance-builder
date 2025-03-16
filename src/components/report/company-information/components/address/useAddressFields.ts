@@ -83,30 +83,27 @@ export const useAddressFields = (
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
-      // Query the 'mun' table directly
+      // Query the 'municipalities_duplicate' table
       const { data, error } = await supabase
-        .from('mun')
+        .from('municipalities_duplicate')
         .select('*')
         .eq('province_code', provinceCode)
         .order('name');
 
       if (error) {
-        console.error('Error loading municipalities from mun table:', error);
+        console.error('Error loading municipalities from municipalities_duplicate table:', error);
         return;
       }
 
-      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode} from mun table`);
+      console.log(`Loaded ${data?.length} municipalities for province ${provinceCode} from municipalities_duplicate table`);
       
       // Transform the data to match the Municipality interface
       const transformedData: Municipality[] = data?.map(item => {
-        // Split the postal_codes string into an array
-        const postalCodesArray = item.postal_codes ? item.postal_codes.split(',') : [];
-        
         return {
           id: item.id,
           name: item.name || '',
           province_code: item.province_code || '',
-          postal_codes: postalCodesArray
+          postal_codes: item.postal_codes || []
         };
       }) || [];
       
@@ -118,7 +115,7 @@ export const useAddressFields = (
         if (success) {
           // Try to load municipalities again
           const { data: retryData, error: retryError } = await supabase
-            .from('mun')
+            .from('municipalities_duplicate')
             .select('*')
             .eq('province_code', provinceCode)
             .order('name');
@@ -130,13 +127,11 @@ export const useAddressFields = (
           }
           
           const retryTransformedData: Municipality[] = retryData?.map(item => {
-            const postalCodesArray = item.postal_codes ? item.postal_codes.split(',') : [];
-            
             return {
               id: item.id,
               name: item.name || '',
               province_code: item.province_code || '',
-              postal_codes: postalCodesArray
+              postal_codes: item.postal_codes || []
             };
           }) || [];
           

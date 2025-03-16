@@ -15,7 +15,7 @@ export interface MunEntity {
   id: number;
   name: string;
   province_code: string;
-  postal_codes: string;
+  postal_codes: string[];
 }
 
 export interface AddressData {
