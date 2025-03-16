@@ -1,134 +1,84 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.8.0";
-import { corsHeaders, defaultMunicipalities } from "./constants.ts";
-import { Municipality } from "./types.ts";
+import { corsHeaders } from "./constants.ts";
+import { RequestData, Municipality } from "./types.ts";
 
 /**
- * Handles populating municipalities for a specific province
+ * Handle request to populate municipalities for a specific province
  * @param supabaseClient Supabase client instance
- * @param provinceCode Province code to populate municipalities for
- * @param targetTable Target table for storing municipalities
+ * @param requestData Request data containing province code
  * @returns Response with operation result
  */
 export async function handleProvinceData(
-  supabaseClient: ReturnType<typeof createClient>, 
-  provinceCode: string,
-  targetTable: string
+  supabaseClient: ReturnType<typeof createClient>,
+  requestData: RequestData
 ): Promise<Response> {
-  console.log(`Received request to populate municipalities for province: ${provinceCode}`);
-
-  // Check if municipalities for this province already exist
-  const { count, error: countError } = await supabaseClient
-    .from(targetTable)
-    .select('*', { count: 'exact', head: true })
-    .eq('province_code', provinceCode);
-  
-  if (countError) {
-    console.error(`Error checking municipalities for province ${provinceCode}:`, countError);
+  const province = requestData.province;
+  if (!province) {
     return new Response(
-      JSON.stringify({ error: `Failed to check existing municipalities: ${countError.message}` }),
+      JSON.stringify({ error: "Province code is required" }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
-  if (count && count > 0) {
-    return new Response(
-      JSON.stringify({ 
-        message: `Municipalities for province ${provinceCode} already populated in ${targetTable}`, 
-        count 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
-  // Filter municipalities for this province
-  const provinceMunicipalities = defaultMunicipalities.filter(m => m.province_code === provinceCode);
+  console.log(`Processing data for province: ${province}`);
   
-  if (provinceMunicipalities.length === 0) {
-    console.log(`No predefined municipalities found for province ${provinceCode}`);
-    
-    // If we don't have predefined municipalities for this province, add some default entries
-    let defaultMunicipalitiesForProvince;
-    if (targetTable === 'mun') {
-      defaultMunicipalitiesForProvince = [
-        { 
-          name: `Capoluogo di ${provinceCode}`, 
-          province_code: provinceCode, 
-          postal_codes: "00000" 
-        },
-        { 
-          name: `Comune di ${provinceCode}`, 
-          province_code: provinceCode, 
-          postal_codes: "00001" 
-        }
-      ];
-    } else {
-      defaultMunicipalitiesForProvince = [
-        { 
-          name: `Capoluogo di ${provinceCode}`, 
-          province_code: provinceCode, 
-          postal_codes: ["00000"] 
-        },
-        { 
-          name: `Comune di ${provinceCode}`, 
-          province_code: provinceCode, 
-          postal_codes: ["00001"] 
-        }
-      ];
-    }
-    
-    // Insert default municipalities
-    const { error: municipalitiesError } = await supabaseClient
-      .from(targetTable)
-      .insert(defaultMunicipalitiesForProvince);
-
-    if (municipalitiesError) {
-      console.error(`Error inserting default municipalities for province ${provinceCode}:`, municipalitiesError);
-      return new Response(
-        JSON.stringify({ error: `Failed to insert default municipalities: ${municipalitiesError.message}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
+  // Check if the province exists
+  const { data: provinceData, error: provinceError } = await supabaseClient
+    .from('provinces')
+    .select('*')
+    .eq('code', province)
+    .single();
+  
+  if (provinceError) {
+    console.error("Error fetching province:", provinceError);
     return new Response(
-      JSON.stringify({ 
-        message: `Added default municipalities for province ${provinceCode} to ${targetTable}`, 
-        count: defaultMunicipalitiesForProvince.length 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: `Province with code ${province} not found` }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-
-  // Format municipalities for the target table
-  let formattedMunicipalities;
-  if (targetTable === 'mun') {
-    formattedMunicipalities = provinceMunicipalities;
-  } else {
-    // Convert string postal_codes to arrays for 'municipalities' table
-    formattedMunicipalities = provinceMunicipalities.map(m => ({
-      name: m.name,
-      province_code: m.province_code,
-      postal_codes: typeof m.postal_codes === 'string' ? m.postal_codes.split(',') : m.postal_codes
-    }));
-  }
-
-  // Insert province municipalities
-  const { error: municipalitiesError } = await supabaseClient
+  
+  console.log(`Province found: ${provinceData.name}`);
+  
+  // Insert municipalities for the province
+  const targetTable = requestData.targetTable || 'municipalities';
+  
+  // Process municipalities
+  const municipalities: Municipality[] = [
+    // Sample municipalities - these would be replaced by actual data
+    {
+      name: "Sample City",
+      province_code: province,
+      postal_codes: ["12345"]
+    }
+  ];
+  
+  console.log(`Upserting ${municipalities.length} municipalities for province ${province} into ${targetTable}`);
+  
+  const { error: insertError } = await supabaseClient
     .from(targetTable)
-    .insert(formattedMunicipalities);
-
-  if (municipalitiesError) {
-    console.error(`Error inserting municipalities for province ${provinceCode}:`, municipalitiesError);
+    .upsert(
+      municipalities.map(mun => ({
+        name: mun.name,
+        province_code: mun.province_code,
+        postal_codes: Array.isArray(mun.postal_codes) 
+          ? mun.postal_codes.join(',') 
+          : mun.postal_codes
+      }))
+    );
+  
+  if (insertError) {
+    console.error("Error inserting municipalities:", insertError);
     return new Response(
-      JSON.stringify({ error: `Failed to insert municipalities: ${municipalitiesError.message}` }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: `Failed to insert municipalities: ${insertError.message}` }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-
+  
   return new Response(
     JSON.stringify({ 
-      message: `Municipalities for province ${provinceCode} populated successfully in ${targetTable}`, 
-      count: formattedMunicipalities.length 
+      message: `Successfully processed province ${provinceData.name} (${province})`,
+      count: municipalities.length
     }),
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
