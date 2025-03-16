@@ -13,13 +13,14 @@ import { useCompanyInfo } from '@/components/report/company-information/useCompa
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DataUploader } from '@/components/report/company-information/components/address';
-import { ensureLocationDataLoaded } from '@/components/report/company-information/utils/locationUtils';
+import { ensureLocationDataLoaded, countMunicipalities } from '@/components/report/company-information/utils/locationUtils';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { currentCompany } = useReport();
   const [showDataUploader, setShowDataUploader] = useState(false);
+  const [municipalityCount, setMunicipalityCount] = useState<number | null>(null);
   
   const {
     companyData,
@@ -47,8 +48,43 @@ const CompanyProfile = () => {
 
   // Ensure location data is loaded when the component mounts
   useEffect(() => {
-    ensureLocationDataLoaded();
+    const loadLocationData = async () => {
+      await ensureLocationDataLoaded(false);
+      
+      // Count municipalities
+      const count = await countMunicipalities();
+      setMunicipalityCount(count);
+    };
+    
+    loadLocationData();
   }, []);
+
+  // Update municipality count when data uploader dialog is closed
+  useEffect(() => {
+    if (!showDataUploader) {
+      countMunicipalities().then(count => setMunicipalityCount(count));
+    }
+  }, [showDataUploader]);
+
+  // Force reload municipality data
+  const handleForceLoadData = async () => {
+    const toastId = toast.loading('Caricamento forzato dei dati geografici...');
+    
+    try {
+      await ensureLocationDataLoaded(true);
+      const count = await countMunicipalities();
+      setMunicipalityCount(count);
+      
+      toast.success(`Dati geografici ricaricati. ${count} comuni disponibili.`, {
+        id: toastId
+      });
+    } catch (error) {
+      console.error('Error forcing data load:', error);
+      toast.error('Errore durante il ricaricamento dei dati', {
+        id: toastId
+      });
+    }
+  };
 
   useEffect(() => {
     if (!currentCompany) {
@@ -130,20 +166,31 @@ const CompanyProfile = () => {
                 <h1 className="text-3xl font-bold">Anagrafica Azienda</h1>
               </div>
               
-              <Dialog open={showDataUploader} onOpenChange={setShowDataUploader}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Database className="h-4 w-4 mr-1" />
-                    Gestione Dati Geografici
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogHeader>
-                    <DialogTitle>Gestione Dati Geografici</DialogTitle>
-                  </DialogHeader>
-                  <DataUploader />
-                </DialogContent>
-              </Dialog>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleForceLoadData}
+                >
+                  <Upload className="h-4 w-4 mr-1" />
+                  Ricarica Dati ({municipalityCount !== null ? municipalityCount : '...'} comuni)
+                </Button>
+                
+                <Dialog open={showDataUploader} onOpenChange={setShowDataUploader}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Database className="h-4 w-4 mr-1" />
+                      Gestione Dati Geografici
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Gestione Dati Geografici</DialogTitle>
+                    </DialogHeader>
+                    <DataUploader />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
             <div className="flex items-center">
               <Building className="h-5 w-5 text-blue-500 mr-2" />

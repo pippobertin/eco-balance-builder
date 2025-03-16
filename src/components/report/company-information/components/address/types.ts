@@ -17,7 +17,7 @@ export interface AddressFieldsProps {
 export interface ProvinceFieldProps {
   value: string;
   onChange: (value: string) => void;
-  provinces: Array<{code: string; name: string}>;
+  provinces: Province[];
   isLoading?: boolean;
   disabled?: boolean;
 }
@@ -25,7 +25,7 @@ export interface ProvinceFieldProps {
 export interface CityFieldProps {
   value: string;
   onChange: (value: string) => void;
-  cities: Array<{name: string; postal_codes: string | string[];}>;
+  cities: Array<{name: string; postal_codes: string[];}>;
   isLoading?: boolean;
   disabled?: boolean;
 }
@@ -33,6 +33,7 @@ export interface CityFieldProps {
 export interface PostalCodeFieldProps {
   value: string;
   onChange: (value: string) => void;
+  postalCodes?: string[];
   disabled?: boolean;
 }
 
@@ -57,4 +58,24 @@ export interface Municipality {
   name: string;
   province_code: string;
   postal_codes: string[];
+}
+
+export interface UploadDataProps {
+  data?: Municipality[];
+  targetTable?: string;
+  province?: string;
+  clearExisting?: boolean;
+}
+
+export type FileType = 'json' | 'csv';
+export type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+
+export interface ItalianMunicipality {
+  denominazione_ita: string;
+  sigla_provincia: string;
+  denominazione_provincia?: string;
+  cap?: string;
+  postal_codes?: string | string[];
+  name?: string;
+  province_code?: string;
 }

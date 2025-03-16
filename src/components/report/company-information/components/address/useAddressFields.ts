@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Province } from './types';
+import { Province, Municipality } from './types';
+import { populateMunicipalitiesForProvince } from '../../utils/locationUtils';
 
 export const useAddressFields = (provinceCode?: string) => {
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -68,24 +69,37 @@ export const useAddressFields = (provinceCode?: string) => {
         
         console.log(`Found ${data?.length || 0} municipalities for province ${provinceCode}`);
         
-        // Ensure postal_codes is treated consistently as an array
-        const processedData = (data || []).map(city => {
-          let postalCodesArray: string[] = [];
+        // If no municipalities found, try to populate them
+        if (!data || data.length === 0) {
+          console.log(`No municipalities found for province ${provinceCode}, attempting to populate`);
           
-          if (city.postal_codes) {
-            if (typeof city.postal_codes === 'string') {
-              postalCodesArray = city.postal_codes.split(',');
-            } else if (Array.isArray(city.postal_codes)) {
-              postalCodesArray = city.postal_codes;
+          const populateResult = await populateMunicipalitiesForProvince(provinceCode);
+          
+          if (populateResult) {
+            // Fetch municipalities again after populating
+            const { data: refreshedData, error: refreshError } = await supabase
+              .from('municipalities')
+              .select('*')
+              .eq('province_code', provinceCode)
+              .order('name', { ascending: true });
+              
+            if (refreshError) {
+              throw refreshError;
+            }
+            
+            if (refreshedData && refreshedData.length > 0) {
+              console.log(`Successfully populated and fetched ${refreshedData.length} municipalities`);
+              
+              // Process the refreshed data
+              const processedData = processRawMunicipalities(refreshedData);
+              setCities(processedData);
+              return;
             }
           }
-          
-          return {
-            ...city,
-            postal_codes: postalCodesArray
-          };
-        });
+        }
         
+        // Process the original data
+        const processedData = processRawMunicipalities(data || []);
         setCities(processedData);
       } catch (error: any) {
         console.error('Error loading cities:', error);
@@ -101,6 +115,30 @@ export const useAddressFields = (provinceCode?: string) => {
     
     fetchCities();
   }, [provinceCode]);
+  
+  // Helper function to process raw municipalities data
+  const processRawMunicipalities = (rawData: any[]): Array<{name: string; postal_codes: string[]}> => {
+    return rawData.map(city => {
+      let postalCodesArray: string[] = [];
+      
+      if (city.postal_codes) {
+        if (typeof city.postal_codes === 'string') {
+          // Handle comma-separated string
+          postalCodesArray = city.postal_codes.split(',').map((code: string) => code.trim());
+        } else if (Array.isArray(city.postal_codes)) {
+          // Handle array (could be array of strings or objects)
+          postalCodesArray = city.postal_codes.map((code: any) => 
+            typeof code === 'string' ? code : String(code)
+          );
+        }
+      }
+      
+      return {
+        ...city,
+        postal_codes: postalCodesArray
+      };
+    });
+  };
   
   // Update postal codes when city changes
   useEffect(() => {
