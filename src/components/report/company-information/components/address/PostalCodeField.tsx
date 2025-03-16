@@ -5,17 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PostalCodeFieldProps {
-  postalCode: string;
+  value: string;
+  onChange: (value: string) => void;
   postalCodes: string[];
-  citySelected: boolean;
-  onChange: (field: string, value: string) => void;
+  disabled?: boolean;
 }
 
 const PostalCodeField: React.FC<PostalCodeFieldProps> = ({
-  postalCode,
+  value,
+  onChange,
   postalCodes,
-  citySelected,
-  onChange
+  disabled = false
 }) => {
   const hasMultiplePostalCodes = postalCodes.length > 1;
 
@@ -24,9 +24,9 @@ const PostalCodeField: React.FC<PostalCodeFieldProps> = ({
       <Label htmlFor="address_postal_code">CAP</Label>
       {hasMultiplePostalCodes ? (
         <Select 
-          value={postalCode || ''}
-          onValueChange={(value) => onChange('address_postal_code', value)}
-          disabled={!citySelected}
+          value={value || ''}
+          onValueChange={(value) => onChange(value)}
+          disabled={disabled}
         >
           <SelectTrigger id="address_postal_code">
             <SelectValue placeholder="Seleziona CAP..." />
@@ -43,10 +43,10 @@ const PostalCodeField: React.FC<PostalCodeFieldProps> = ({
         <Input
           id="address_postal_code"
           name="address_postal_code"
-          value={postalCode || ''}
-          onChange={(e) => onChange('address_postal_code', e.target.value)}
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
           placeholder="CAP"
-          disabled={!citySelected}
+          disabled={disabled}
         />
       )}
     </div>

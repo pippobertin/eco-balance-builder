@@ -1,5 +1,5 @@
 
-import { Municipality } from './types';
+import { Province } from './types';
 
 export const formatProvinceName = (name: string, code: string): string => {
   return `${name} (${code})`;

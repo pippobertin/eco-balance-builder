@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { AddressData } from './types';
+import { Province } from './types';
 
-export const useAddressFields = (initialData?: Partial<AddressData>) => {
-  const [addressData, setAddressData] = useState<Partial<AddressData>>(initialData || {});
-  const [provinces, setProvinces] = useState<Array<{code: string; name: string}>>([]);
-  const [cities, setCities] = useState<Array<{name: string; postal_codes: string | string[];}>>([]);
+export const useAddressFields = (provinceCode?: string) => {
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [cities, setCities] = useState<Array<{name: string; postal_codes: string[];}>>([]);
+  const [postalCodes, setPostalCodes] = useState<string[]>([]);
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
   
@@ -16,6 +16,7 @@ export const useAddressFields = (initialData?: Partial<AddressData>) => {
     const fetchProvinces = async () => {
       setIsLoadingProvinces(true);
       try {
+        console.log('Fetching provinces');
         const { data, error } = await supabase
           .from('provinces')
           .select('*')
@@ -25,6 +26,7 @@ export const useAddressFields = (initialData?: Partial<AddressData>) => {
           throw error;
         }
         
+        console.log(`Fetched ${data?.length || 0} provinces`);
         setProvinces(data || []);
       } catch (error: any) {
         console.error('Error loading provinces:', error);
@@ -43,35 +45,46 @@ export const useAddressFields = (initialData?: Partial<AddressData>) => {
   
   // Load cities based on selected province
   useEffect(() => {
-    if (!addressData.address_province) {
+    if (!provinceCode) {
       setCities([]);
+      setPostalCodes([]);
       return;
     }
     
     const fetchCities = async () => {
       setIsLoadingCities(true);
       try {
-        console.log(`Fetching municipalities for province: ${addressData.address_province}`);
+        console.log(`Fetching municipalities for province: ${provinceCode}`);
         
         const { data, error } = await supabase
           .from('municipalities')
           .select('*')
-          .eq('province_code', addressData.address_province)
+          .eq('province_code', provinceCode)
           .order('name', { ascending: true });
         
         if (error) {
           throw error;
         }
         
-        console.log(`Found ${data?.length || 0} municipalities for province ${addressData.address_province}`);
+        console.log(`Found ${data?.length || 0} municipalities for province ${provinceCode}`);
         
         // Ensure postal_codes is treated consistently as an array
-        const processedData = (data || []).map(city => ({
-          ...city,
-          postal_codes: typeof city.postal_codes === 'string' 
-            ? city.postal_codes.split(',') 
-            : city.postal_codes || []
-        }));
+        const processedData = (data || []).map(city => {
+          let postalCodesArray: string[] = [];
+          
+          if (city.postal_codes) {
+            if (typeof city.postal_codes === 'string') {
+              postalCodesArray = city.postal_codes.split(',');
+            } else if (Array.isArray(city.postal_codes)) {
+              postalCodesArray = city.postal_codes;
+            }
+          }
+          
+          return {
+            ...city,
+            postal_codes: postalCodesArray
+          };
+        });
         
         setCities(processedData);
       } catch (error: any) {
@@ -87,53 +100,18 @@ export const useAddressFields = (initialData?: Partial<AddressData>) => {
     };
     
     fetchCities();
-  }, [addressData.address_province]);
+  }, [provinceCode]);
   
-  // Set postal code based on city selection if available
+  // Update postal codes when city changes
   useEffect(() => {
-    if (addressData.address_city && cities.length > 0) {
-      const selectedCity = cities.find(city => city.name === addressData.address_city);
-      
-      if (selectedCity && selectedCity.postal_codes && 
-          Array.isArray(selectedCity.postal_codes) && 
-          selectedCity.postal_codes.length > 0) {
-        // Get first postal code if there are multiple
-        const postalCode = Array.isArray(selectedCity.postal_codes) 
-          ? selectedCity.postal_codes[0] 
-          : selectedCity.postal_codes;
-        
-        if (postalCode && (!addressData.address_postal_code || addressData.address_postal_code === '')) {
-          setAddressData(prev => ({
-            ...prev,
-            address_postal_code: postalCode
-          }));
-        }
-      }
-    }
-  }, [addressData.address_city, cities]);
-  
-  const handleChange = (name: keyof AddressData, value: string) => {
-    setAddressData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Reset dependent fields
-    if (name === 'address_province') {
-      setAddressData(prev => ({
-        ...prev,
-        address_city: '',
-        address_postal_code: ''
-      }));
-    }
-  };
+    setPostalCodes([]);
+  }, [cities]);
   
   return {
-    addressData,
     provinces,
     cities,
+    postalCodes,
     isLoadingProvinces,
-    isLoadingCities,
-    handleChange
+    isLoadingCities
   };
 };

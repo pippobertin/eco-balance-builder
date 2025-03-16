@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileUploadTabs, UploadOptions, StatusIndicator, UploadButton, useDataUploader } from './data-uploader';
+import { FileUploadTabs, UploadOptions, StatusIndicator, UploadButton } from './data-uploader';
+import { useDataUploader } from './data-uploader/useDataUploader';
 
 const DataUploader = () => {
   const {

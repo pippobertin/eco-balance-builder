@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AddressData } from './types';
+import { AddressFieldsProps } from './types';
 import { useAddressFields } from './useAddressFields';
 import StreetFields from './StreetFields';
 import NumberField from './NumberField';
@@ -8,26 +8,18 @@ import ProvinceField from './ProvinceField';
 import CityField from './CityField';
 import PostalCodeField from './PostalCodeField';
 
-interface AddressFieldsProps {
-  addressData: AddressData;
-  onChange: (data: Partial<AddressData>) => void;
-  className?: string;
-}
-
 const AddressFields: React.FC<AddressFieldsProps> = ({
   addressData,
   onChange,
-  className = ''
+  disabled = false
 }) => {
   const {
     provinces,
-    municipalities,
+    cities,
     postalCodes,
-    isLoading
-  } = useAddressFields(
-    addressData.address_province,
-    addressData.address_city
-  );
+    isLoadingProvinces,
+    isLoadingCities
+  } = useAddressFields(addressData.address_province);
 
   const handleFieldChange = (field: string, value: string) => {
     onChange({ [field]: value });
@@ -42,51 +34,49 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       onChange({ address_postal_code: '' });
       
       // Auto-select postal code if only one is available
-      if (municipalities.length > 0) {
-        const selectedMunicipality = municipalities.find(m => m.name === value);
-        if (selectedMunicipality && selectedMunicipality.postal_codes?.length === 1) {
-          onChange({ address_postal_code: selectedMunicipality.postal_codes[0] });
+      if (cities.length > 0) {
+        const selectedCity = cities.find(m => m.name === value);
+        if (selectedCity && Array.isArray(selectedCity.postal_codes) && selectedCity.postal_codes.length === 1) {
+          onChange({ address_postal_code: selectedCity.postal_codes[0] });
         }
       }
     }
   };
 
   return (
-    <div className={`grid gap-4 ${className}`}>
+    <div className="grid gap-4">
       <StreetFields 
-        streetType={addressData.address_street_type}
-        street={addressData.address_street}
-        onChange={handleFieldChange}
+        streetType={addressData.address_street_type || ''}
+        streetName={addressData.address_street || ''}
+        streetNumber={addressData.address_number || ''}
+        onChangeStreetType={(value) => handleFieldChange('address_street_type', value)}
+        onChangeStreetName={(value) => handleFieldChange('address_street', value)}
+        onChangeStreetNumber={(value) => handleFieldChange('address_number', value)}
+        disabled={disabled}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <NumberField 
-          number={addressData.address_number}
-          onChange={handleFieldChange}
-        />
-        
         <ProvinceField 
-          province={addressData.address_province}
+          value={addressData.address_province || ''}
+          onChange={(value) => handleFieldChange('address_province', value)}
           provinces={provinces}
-          isLoading={isLoading.provinces}
-          onChange={handleFieldChange}
+          isLoading={isLoadingProvinces}
+          disabled={disabled}
         />
         
         <CityField 
-          city={addressData.address_city}
-          municipalities={municipalities}
-          provinceSelected={!!addressData.address_province}
-          isLoading={isLoading.municipalities}
-          onChange={handleFieldChange}
+          value={addressData.address_city || ''}
+          onChange={(value) => handleFieldChange('address_city', value)}
+          cities={cities}
+          isLoading={isLoadingCities}
+          disabled={!addressData.address_province || disabled}
         />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
         <PostalCodeField 
-          postalCode={addressData.address_postal_code}
+          value={addressData.address_postal_code || ''}
+          onChange={(value) => handleFieldChange('address_postal_code', value)}
           postalCodes={postalCodes}
-          citySelected={!!addressData.address_city}
-          onChange={handleFieldChange}
+          disabled={!addressData.address_city || disabled}
         />
       </div>
     </div>

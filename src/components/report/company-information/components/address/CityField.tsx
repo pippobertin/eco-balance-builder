@@ -2,31 +2,23 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Municipality } from './types';
+import { CityFieldProps } from './types';
 import { Loader2 } from 'lucide-react';
 
-interface CityFieldProps {
-  city: string;
-  municipalities: Municipality[];
-  provinceSelected: boolean;
-  isLoading: boolean;
-  onChange: (field: string, value: string) => void;
-}
-
 const CityField: React.FC<CityFieldProps> = ({
-  city,
-  municipalities,
-  provinceSelected,
+  value,
+  onChange,
+  cities,
   isLoading,
-  onChange
+  disabled = false
 }) => {
   return (
     <div>
       <Label htmlFor="address_city">Comune</Label>
       <Select 
-        value={city || ''}
-        onValueChange={(value) => onChange('address_city', value)}
-        disabled={!provinceSelected || isLoading}
+        value={value || ''}
+        onValueChange={(value) => onChange(value)}
+        disabled={disabled || isLoading}
       >
         <SelectTrigger id="address_city" className="flex items-center">
           {isLoading ? (
@@ -36,23 +28,23 @@ const CityField: React.FC<CityFieldProps> = ({
             </div>
           ) : (
             <SelectValue placeholder={
-              !provinceSelected 
+              disabled 
                 ? "Seleziona prima una provincia" 
-                : municipalities.length === 0 
+                : cities.length === 0 
                   ? "Nessun comune disponibile" 
                   : "Seleziona comune..."
             } />
           )}
         </SelectTrigger>
         <SelectContent>
-          {municipalities.length === 0 && provinceSelected && !isLoading && (
+          {cities.length === 0 && !disabled && !isLoading && (
             <div className="p-2 text-center text-sm text-muted-foreground">
               Nessun comune disponibile per questa provincia
             </div>
           )}
-          {municipalities.map((municipality) => (
-            <SelectItem key={municipality.id} value={municipality.name}>
-              {municipality.name}
+          {cities.map((city, index) => (
+            <SelectItem key={`${city.name}-${index}`} value={city.name}>
+              {city.name}
             </SelectItem>
           ))}
         </SelectContent>

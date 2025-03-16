@@ -45,3 +45,16 @@ export interface StreetFieldsProps {
   onChangeStreetNumber: (value: string) => void;
   disabled?: boolean;
 }
+
+// Add missing types
+export interface Province {
+  code: string;
+  name: string;
+}
+
+export interface Municipality {
+  id: number;
+  name: string;
+  province_code: string;
+  postal_codes: string[];
+}

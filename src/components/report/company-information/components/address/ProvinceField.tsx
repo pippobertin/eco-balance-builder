@@ -2,30 +2,24 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Province } from './types';
+import { ProvinceFieldProps } from './types';
 import { formatProvinceName } from './addressUtils';
 import { Loader2 } from 'lucide-react';
 
-interface ProvinceFieldProps {
-  province: string;
-  provinces: Province[];
-  isLoading: boolean;
-  onChange: (field: string, value: string) => void;
-}
-
 const ProvinceField: React.FC<ProvinceFieldProps> = ({
-  province,
+  value,
+  onChange,
   provinces,
   isLoading,
-  onChange
+  disabled = false
 }) => {
   return (
     <div>
       <Label htmlFor="address_province">Provincia</Label>
       <Select 
-        value={province || ''}
-        onValueChange={(value) => onChange('address_province', value)}
-        disabled={isLoading}
+        value={value || ''}
+        onValueChange={(value) => onChange(value)}
+        disabled={disabled || isLoading}
       >
         <SelectTrigger id="address_province" className="flex items-center">
           {isLoading ? (

@@ -1,22 +1,27 @@
 
 import React from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 interface UploadOptionsProps {
   clearExisting: boolean;
   setClearExisting: (value: boolean) => void;
 }
 
-const UploadOptions: React.FC<UploadOptionsProps> = ({ clearExisting, setClearExisting }) => {
+const UploadOptions: React.FC<UploadOptionsProps> = ({
+  clearExisting,
+  setClearExisting
+}) => {
   return (
-    <div className="flex items-center space-x-2 pt-2">
-      <Checkbox 
-        id="clear-existing" 
+    <div className="flex items-center space-x-2">
+      <Switch
+        id="clear-existing"
         checked={clearExisting}
-        onCheckedChange={(checked) => setClearExisting(checked as boolean)}
+        onCheckedChange={setClearExisting}
       />
-      <Label htmlFor="clear-existing">Cancella dati esistenti prima del caricamento</Label>
+      <Label htmlFor="clear-existing">
+        Cancella i dati esistenti prima di caricare
+      </Label>
     </div>
   );
 };

@@ -9,21 +9,25 @@ interface UploadButtonProps {
   onClick: () => void;
 }
 
-const UploadButton: React.FC<UploadButtonProps> = ({ isUploading, isDisabled, onClick }) => {
+const UploadButton: React.FC<UploadButtonProps> = ({
+  isUploading,
+  isDisabled,
+  onClick
+}) => {
   return (
-    <Button 
-      onClick={onClick} 
-      disabled={isUploading || isDisabled}
+    <Button
+      onClick={onClick}
+      disabled={isDisabled || isUploading}
     >
       {isUploading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Caricamento in corso...
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Caricamento...
         </>
       ) : (
         <>
-          <Upload className="mr-2 h-4 w-4" />
-          Carica dati
+          <Upload className="h-4 w-4 mr-2" />
+          Carica
         </>
       )}
     </Button>
