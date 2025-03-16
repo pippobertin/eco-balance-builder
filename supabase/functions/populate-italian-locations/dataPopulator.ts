@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.8.0";
 import { corsHeaders, provinces, defaultMunicipalities } from "./constants.ts";
-import { RequestData } from "./types.ts";
 
 /**
  * Populates the database with provinces and municipalities data

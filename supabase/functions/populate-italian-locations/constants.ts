@@ -210,4 +210,15 @@ export const defaultMunicipalities: Municipality[] = [
   { name: "Gressoney-Saint-Jean", province_code: "AO", postal_codes: "11025" }
 ];
 
-import { Province } from './types';
+// Fix the import by defining the types directly here
+// Instead of importing from "./types"
+interface Province {
+  code: string;
+  name: string;
+}
+
+interface Municipality {
+  name: string;
+  province_code: string;
+  postal_codes: string[] | string;
+}
