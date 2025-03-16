@@ -29,7 +29,7 @@ export const useMunicipalityData = () => {
   // Force reload municipality data
   const handleForceLoadData = async () => {
     // Create a toast notification that will be updated with results
-    const loadingToast = toast({
+    const toastInstance = toast({
       title: 'Loading',
       description: 'Caricamento forzato dei dati geografici...',
     });
@@ -40,7 +40,7 @@ export const useMunicipalityData = () => {
       setMunicipalityCount(count);
       
       // Update the toast with success message
-      loadingToast.update({
+      toastInstance.update({
         title: 'Success',
         description: `Dati geografici ricaricati. ${count} comuni disponibili.`,
       });
@@ -48,7 +48,7 @@ export const useMunicipalityData = () => {
       console.error('Error forcing data load:', error);
       
       // Update the toast with error message
-      loadingToast.update({
+      toastInstance.update({
         title: 'Error',
         description: 'Errore durante il ricaricamento dei dati',
         variant: 'destructive',
