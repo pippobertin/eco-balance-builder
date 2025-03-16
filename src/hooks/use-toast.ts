@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -166,6 +167,32 @@ function toast({ ...props }: Toast) {
     dismiss,
     update,
   }
+}
+
+// Add variant helper methods
+toast.loading = (message: string, options = {}) => {
+  return toast({
+    title: "Loading",
+    description: message,
+    ...options,
+  })
+}
+
+toast.success = (message: string, options = {}) => {
+  return toast({
+    title: "Success",
+    description: message,
+    ...options,
+  })
+}
+
+toast.error = (message: string, options = {}) => {
+  return toast({
+    title: "Error",
+    description: message,
+    variant: "destructive",
+    ...options,
+  })
 }
 
 function useToast() {

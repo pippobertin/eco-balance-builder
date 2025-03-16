@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -68,20 +67,29 @@ const CompanyProfile = () => {
 
   // Force reload municipality data
   const handleForceLoadData = async () => {
-    const toastId = toast.loading('Caricamento forzato dei dati geografici...');
+    // Create a toast notification that will be updated with results
+    const toastId = toast({
+      title: 'Loading',
+      description: 'Caricamento forzato dei dati geografici...',
+    });
     
     try {
       await ensureLocationDataLoaded(true);
       const count = await countMunicipalities();
       setMunicipalityCount(count);
       
-      toast.success(`Dati geografici ricaricati. ${count} comuni disponibili.`, {
-        id: toastId
+      toast({
+        id: toastId,
+        title: 'Success',
+        description: `Dati geografici ricaricati. ${count} comuni disponibili.`,
       });
     } catch (error) {
       console.error('Error forcing data load:', error);
-      toast.error('Errore durante il ricaricamento dei dati', {
-        id: toastId
+      toast({
+        id: toastId,
+        title: 'Error',
+        description: 'Errore durante il ricaricamento dei dati',
+        variant: 'destructive',
       });
     }
   };
