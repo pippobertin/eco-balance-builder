@@ -15,6 +15,24 @@ export const useExistingEmissions = (
 ) => {
   // Load existing calculation results
   useEffect(() => {
+    // Check if we received a reset command
+    if (formValues.target && formValues.target.name === 'resetEmissions') {
+      // Reset the calculator's state
+      resetCalculation();
+      
+      // Also update the displayed emissions to zero
+      if (setCalculatedEmissions) {
+        setCalculatedEmissions({
+          scope1: 0,
+          scope2: 0,
+          scope3: 0,
+          total: 0
+        });
+      }
+      return;
+    }
+    
+    // Regular data loading logic
     const metricsData = getMetricsData(formValues);
     
     if (metricsData) {
@@ -25,8 +43,8 @@ export const useExistingEmissions = (
       const total = parseFloat(metricsData.totalScopeEmissions) || 0;
       
       // Only update if there's at least one non-zero value
-      if (scope1 > 0 || scope2 > 0 || scope3 > 0 && setCalculatedEmissions) {
-        // Use the new setCalculatedEmissions function to update emission results
+      if ((scope1 > 0 || scope2 > 0 || scope3 > 0) && setCalculatedEmissions) {
+        // Use the setCalculatedEmissions function to update emission results
         setCalculatedEmissions({
           scope1,
           scope2,
@@ -34,11 +52,6 @@ export const useExistingEmissions = (
           total
         });
       }
-    }
-
-    // Check for reset emission command
-    if (formValues.target && formValues.target.name === 'resetEmissions') {
-      resetCalculation();
     }
   }, [formValues, updateInput, resetCalculation, setCalculatedEmissions]);
 };

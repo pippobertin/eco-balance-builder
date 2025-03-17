@@ -19,8 +19,10 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
   onResetClick
 }) => {
   const handleReset = () => {
-    // Call the parent component's reset handler directly
-    onResetClick();
+    // Trigger the reset process via the parent component
+    if (onResetClick) {
+      onResetClick();
+    }
   };
 
   return (

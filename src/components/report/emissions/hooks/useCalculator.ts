@@ -40,6 +40,22 @@ export const useCalculator = (
     setCalculatedEmissions(results);
   }, [results]);
 
+  // Listen for the resetEmissions command from the parent component
+  useEffect(() => {
+    if (formValues && formValues.target && formValues.target.name === 'resetEmissions') {
+      // When resetEmissions is triggered, reset the local state
+      setCalculatedEmissions({
+        scope1: 0,
+        scope2: 0,
+        scope3: 0,
+        total: 0
+      });
+      
+      // Also reset the calculator's internal state
+      resetCalculation();
+    }
+  }, [formValues, resetCalculation]);
+
   // Monitor existing emissions data
   useExistingEmissions(
     formValues, 
@@ -50,10 +66,7 @@ export const useCalculator = (
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
-    // Reset local emissions state first
-    resetCalculation();
-    
-    // Then pass the reset request to the parent component
+    // Pass the reset request to the parent component
     if (onResetClick) {
       onResetClick();
     }
@@ -63,6 +76,7 @@ export const useCalculator = (
     activeTab,
     setActiveTab,
     calculatedEmissions,
+    setCalculatedEmissions,
     inputs,
     updateInput,
     calculateEmissions,

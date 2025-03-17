@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { LocationEnvironmentalMetrics } from '@/context/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,14 +14,12 @@ export const useLocationMetrics = (
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
 
-  // Load company locations
   useEffect(() => {
     if (!companyId) return;
     
     const loadLocations = async () => {
       setIsLoading(true);
       try {
-        // First, check if company has multiple locations
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
           .select('has_multiple_locations, address_street_type, address_street, address_number, address_postal_code, address_city, address_province')
@@ -34,7 +31,6 @@ export const useLocationMetrics = (
         setHasMultipleLocations(companyData?.has_multiple_locations || false);
         
         if (companyData?.has_multiple_locations) {
-          // Create a location object for the main company address
           const mainLocation: CompanyLocation = {
             id: 'main-location',
             location_type: 'sede_legale',
@@ -46,7 +42,6 @@ export const useLocationMetrics = (
             address_province: companyData.address_province
           };
           
-          // Load additional locations
           const { data, error } = await supabase
             .from('company_locations')
             .select('*')
@@ -55,14 +50,11 @@ export const useLocationMetrics = (
             
           if (error) throw error;
           
-          // Combine main location with additional locations
           const allLocations = [mainLocation, ...(data || [])];
           setLocations(allLocations);
           
-          // Initialize metrics for locations if not already done
           initializeLocationMetrics(allLocations);
           
-          // Select the first location by default if none is selected
           if (!selectedLocationId && allLocations.length > 0) {
             setSelectedLocationId(allLocations[0].id || 'main-location');
           }
@@ -77,12 +69,9 @@ export const useLocationMetrics = (
     loadLocations();
   }, [companyId]);
 
-  // Initialize location metrics if they don't exist yet
   const initializeLocationMetrics = (locationData: CompanyLocation[]) => {
-    // Check if we already have metrics in the form values
     const existingLocationMetrics = formValues.environmentalMetrics?.locationMetrics || [];
     
-    // Only create new location metrics for locations that don't have them yet
     const existingLocationIds = existingLocationMetrics.map((lm: LocationEnvironmentalMetrics) => lm.location_id);
     const newLocations = locationData.filter(loc => !existingLocationIds.includes(loc.id!));
     
@@ -94,10 +83,8 @@ export const useLocationMetrics = (
         metrics: {}
       }));
       
-      // Merge existing and new location metrics
       const updatedLocationMetrics = [...existingLocationMetrics, ...newLocationMetrics];
       
-      // Update the form values
       setFormValues((prev: any) => ({
         ...prev,
         environmentalMetrics: {
@@ -108,7 +95,6 @@ export const useLocationMetrics = (
     }
   };
 
-  // Format location name for display
   const formatLocationName = (location: CompanyLocation): string => {
     const locationType = location.location_type ? 
       (location.location_type === 'sede_legale' ? 'Sede Legale' :
@@ -132,7 +118,6 @@ export const useLocationMetrics = (
     return `${locationType}${address ? ': ' + address : ''}${cityInfo ? ', ' + cityInfo : ''}`;
   };
 
-  // Get current metrics for the selected location
   const getCurrentLocationMetrics = () => {
     if (!selectedLocationId || !formValues.environmentalMetrics?.locationMetrics) {
       return {};
@@ -145,11 +130,9 @@ export const useLocationMetrics = (
     return locationMetric?.metrics || {};
   };
 
-  // Handle metrics change for the selected location
   const handleLocationMetricsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // Special handling for resetEmissions event
     if (name === 'resetEmissions') {
       const resetScope = value as 'current' | 'all';
       
@@ -158,13 +141,11 @@ export const useLocationMetrics = (
         const locationMetrics = [...(environmentalMetrics.locationMetrics || [])];
         
         if (resetScope === 'current' && selectedLocationId) {
-          // Find the index of the current location
           const locationIndex = locationMetrics.findIndex(
             (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
           );
           
           if (locationIndex !== -1) {
-            // Reset only the current location metrics
             locationMetrics[locationIndex] = {
               ...locationMetrics[locationIndex],
               metrics: {
@@ -179,7 +160,6 @@ export const useLocationMetrics = (
               }
             };
             
-            // Show toast notification that reset was successful
             toast({
               title: "Dati azzerati",
               description: "I calcoli delle emissioni per la sede corrente sono stati azzerati.",
@@ -187,7 +167,6 @@ export const useLocationMetrics = (
             });
           }
         } else if (resetScope === 'all') {
-          // Reset metrics for all locations
           locationMetrics.forEach((lm: LocationEnvironmentalMetrics, index: number) => {
             locationMetrics[index] = {
               ...lm,
@@ -208,7 +187,6 @@ export const useLocationMetrics = (
             };
           });
           
-          // Show toast notification that reset was successful
           toast({
             title: "Dati azzerati",
             description: "I calcoli delle emissioni per tutte le sedi sono stati azzerati.",
@@ -216,30 +194,28 @@ export const useLocationMetrics = (
           });
         }
         
-        return {
+        const updatedState = {
           ...prev,
           environmentalMetrics: {
             ...environmentalMetrics,
             locationMetrics
           }
         };
+        
+        return updatedState;
       });
       
       return;
     }
     
-    // Regular handling for other fields
     setFormValues((prev: any) => {
-      // Clone the location metrics array
       const locationMetrics = [...(prev.environmentalMetrics?.locationMetrics || [])];
       
-      // Find the index of the current location in the array
       const locationIndex = locationMetrics.findIndex(
         (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
       );
       
       if (locationIndex !== -1) {
-        // Update the metrics for this location
         locationMetrics[locationIndex] = {
           ...locationMetrics[locationIndex],
           metrics: {
