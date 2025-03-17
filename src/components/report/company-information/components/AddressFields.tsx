@@ -77,11 +77,13 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     if (addressData.address_city && municipalities.length > 0) {
       const selectedMunicipality = municipalities.find(m => m.name === addressData.address_city);
       if (selectedMunicipality) {
-        setPostalCodes(selectedMunicipality.postal_codes || []);
+        const codes = selectedMunicipality.postal_codes || [];
+        console.log("Setting postal codes for municipality:", selectedMunicipality.name, codes);
+        setPostalCodes(codes);
         
         // If only one postal code is available or none currently selected, auto-select it
-        if (selectedMunicipality.postal_codes?.length === 1 || !addressData.address_postal_code) {
-          onChange({ address_postal_code: selectedMunicipality.postal_codes?.[0] || '' });
+        if (codes.length === 1 || !addressData.address_postal_code) {
+          onChange({ address_postal_code: codes[0] || '' });
         }
       } else {
         setPostalCodes([]);
@@ -94,6 +96,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   const loadProvinces = async () => {
     setIsLoading(prev => ({ ...prev, provinces: true }));
     try {
+      console.log("Loading provinces...");
       const { data, error } = await supabase
         .from('provinces')
         .select('*')
@@ -109,8 +112,40 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         return;
       }
 
-      setProvinces(data || []);
-      console.log('Province caricate:', data?.length || 0);
+      if (!data || data.length === 0) {
+        console.log("No provinces found, attempting to populate data...");
+        try {
+          const { data: populateData, error: populateError } = await supabase.functions.invoke('populate-italian-locations');
+          
+          if (populateError) {
+            console.error('Error populating location data:', populateError);
+            toast({
+              title: 'Errore',
+              description: 'Impossibile popolare i dati di località',
+              variant: 'destructive',
+            });
+          } else {
+            console.log("Location data populated successfully:", populateData);
+            // Try loading provinces again
+            const { data: refreshedData, error: refreshError } = await supabase
+              .from('provinces')
+              .select('*')
+              .order('name');
+              
+            if (refreshError) {
+              throw refreshError;
+            }
+            
+            setProvinces(refreshedData || []);
+            console.log('Province caricate dopo popolamento:', refreshedData?.length || 0);
+          }
+        } catch (populateErr) {
+          console.error('Failed to populate location data:', populateErr);
+        }
+      } else {
+        setProvinces(data);
+        console.log('Province caricate:', data?.length || 0);
+      }
     } catch (error) {
       console.error('Failed to load provinces:', error);
       toast({
@@ -125,6 +160,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
+    setMunicipalities([]);
     try {
       console.log('Caricamento comuni per la provincia:', provinceCode);
       
@@ -144,17 +180,26 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         return;
       }
 
-      console.log('Comuni caricati:', data?.length || 0, 'per la provincia', provinceCode);
-      setMunicipalities(data || []);
-      
-      // Reset city and postal code when municipalities change
-      if (addressData.address_city) {
-        const cityExists = data?.some(m => m.name === addressData.address_city);
-        if (!cityExists) {
-          onChange({ 
-            address_city: '',
-            address_postal_code: ''
-          });
+      if (!data || data.length === 0) {
+        console.log("No municipalities found for province:", provinceCode);
+        toast({
+          title: 'Nessun comune trovato',
+          description: `Non ci sono comuni disponibili per la provincia selezionata (${provinceCode})`,
+        });
+      } else {
+        console.log('Comuni caricati:', data.length, 'per la provincia', provinceCode);
+        console.log('Primi 3 comuni:', data.slice(0, 3).map(m => m.name));
+        setMunicipalities(data);
+        
+        // Reset city and postal code when municipalities change
+        if (addressData.address_city) {
+          const cityExists = data.some(m => m.name === addressData.address_city);
+          if (!cityExists) {
+            onChange({ 
+              address_city: '',
+              address_postal_code: ''
+            });
+          }
         }
       }
     } catch (error) {
@@ -175,6 +220,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   };
 
   const handleSelectChange = (name: string, value: string) => {
+    console.log(`Changing ${name} to ${value}`);
     onChange({ [name]: value });
     
     // Clear dependent fields when parent field changes
@@ -258,14 +304,18 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             disabled={!addressData.address_province || isLoading.municipalities}
           >
             <SelectTrigger id="address_city">
-              <SelectValue placeholder={isLoading.municipalities ? "Caricamento..." : "Seleziona comune..."} />
+              <SelectValue placeholder={isLoading.municipalities ? "Caricamento..." : municipalities.length === 0 ? "Nessun comune disponibile" : "Seleziona comune..."} />
             </SelectTrigger>
             <SelectContent>
-              {municipalities.map((municipality) => (
-                <SelectItem key={municipality.id} value={municipality.name}>
-                  {municipality.name}
-                </SelectItem>
-              ))}
+              {municipalities.length > 0 ? (
+                municipalities.map((municipality) => (
+                  <SelectItem key={municipality.id} value={municipality.name}>
+                    {municipality.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem disabled value="">Nessun comune disponibile</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
