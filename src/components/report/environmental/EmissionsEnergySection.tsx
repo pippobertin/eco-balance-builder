@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import GHGEmissionsCalculator from '../GHGEmissionsCalculator';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import EmissionsResetDialog from './components/EmissionsResetDialog';
-import EnergyInputsForm from './components/EnergyInputsForm';
 import EmissionsSectionHeader from './components/EmissionsSectionHeader';
 import { toast } from '@/components/ui/use-toast';
 
@@ -19,24 +18,6 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
   // State for reset dialog
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetScope, setResetScope] = useState<'current' | 'all'>('current');
-
-  // This handleChange function handles different form value updates
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
-    if (typeof setFormValues === 'function' && setFormValues.length === 1) {
-      setFormValues(e);
-    } else {
-      // This is the standard approach for global metrics
-      const { name, value } = e.target;
-      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          [name]: value
-        }
-      }));
-    }
-  };
 
   // Handle reset button click
   const handleResetClick = () => {
@@ -136,11 +117,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
             onResetClick={handleResetClick}
           />
           
-          {/* Energy Section */}
-          <EnergyInputsForm 
-            formValues={formValues} 
-            handleChange={handleChange} 
-          />
+          {/* Energy Section has been removed as requested */}
         </div>
       </GlassmorphicCard>
 

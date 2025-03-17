@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ReportData, LocationEnvironmentalMetrics } from '@/context/types';
 import { Leaf } from 'lucide-react';
@@ -21,9 +22,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
         totalScope2Emissions: 0,
         totalScope3Emissions: 0,
         totalScopeEmissions: 0,
-        energyConsumption: 0,
-        renewableEnergy: 0,
-        fossilFuelEnergy: 0,
+        // Energy metrics removed as requested
         waterUsage: 0,
         waterConsumption: 0, 
         waterStressAreas: 0,
@@ -62,9 +61,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     totalScope1Emissions,
     totalScope2Emissions,
     totalScopeEmissions,
-    energyConsumption,
-    renewableEnergy,
-    fossilFuelEnergy,
+    // Energy metrics removed as requested
     waterUsage,
     waterConsumption,
     waterStressAreas,
@@ -86,14 +83,8 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
   if (totalScope1Emissions) emissionsData.push({ name: 'Scope 1', value: totalScope1Emissions });
   if (totalScope2Emissions) emissionsData.push({ name: 'Scope 2', value: totalScope2Emissions });
   
-  const energyData = [];
-  if (fossilFuelEnergy) energyData.push({ name: 'Combustibili\nFossili', value: fossilFuelEnergy });
-  if (renewableEnergy) energyData.push({ name: 'Rinnovabile', value: renewableEnergy });
-  if (energyConsumption && (energyConsumption > (fossilFuelEnergy || 0) + (renewableEnergy || 0))) {
-    const otherEnergy = energyConsumption - (fossilFuelEnergy || 0) - (renewableEnergy || 0);
-    energyData.push({ name: 'Altro', value: otherEnergy });
-  }
-
+  // Energy data section removed as requested
+  
   const pollutionData = [];
   if (airPollution) pollutionData.push({ name: 'Aria', value: airPollution });
   if (waterPollution) pollutionData.push({ name: 'Acqua', value: waterPollution });
@@ -139,14 +130,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
           onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'emissions' } })}
         />
         
-        <MetricChart
-          title="B3 - Energia"
-          description="Consumo energetico (MWh)"
-          type={energyData.length > 0 ? "donut" : "empty"}
-          data={[{ ring: 'inner', data: energyData, colors: ['#F97316', '#34C759', '#8B5CF6'] }]}
-          dataKey="name"
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'energy' } })}
-        />
+        {/* Energy chart removed as requested */}
         
         <MetricChart
           title="B4 - Inquinamento"
