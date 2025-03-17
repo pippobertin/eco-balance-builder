@@ -8,9 +8,8 @@ import LegalDetails from './components/LegalDetails';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import GroupCompaniesSection from './components/GroupCompaniesSection';
-import { CompanyLocationsSection } from './components/locations';
-import { AddressFields } from './components/address';
-import { AddressData } from './components/address/types';
+import CompanyLocationsSection from './components/CompanyLocationsSection';
+import AddressFields, { AddressData } from './components/AddressFields';
 
 interface CompanyGeneralInfoProps {
   companyData: {
