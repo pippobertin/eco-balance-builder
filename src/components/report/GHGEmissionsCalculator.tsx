@@ -1,28 +1,23 @@
-
 import React, { useState, useEffect } from 'react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Calculator } from 'lucide-react';
 import { 
-  EmissionScope, 
   EmissionFactorSource, 
   PeriodType, 
   FuelType, 
   EnergyType, 
   TransportType, 
   WasteType, 
-  PurchaseType,
-  BaseEmissionSource
+  PurchaseType
 } from '@/lib/emissions-types';
-import { Info, Plus, Trash2, Calculator, ArrowRight, RefreshCcw } from 'lucide-react';
+
+// Import refactored components
+import Scope1Form from './emissions/Scope1Form';
+import Scope2Form from './emissions/Scope2Form';
+import Scope3Form from './emissions/Scope3Form';
+import EmissionsResults from './emissions/EmissionsResults';
+import CalculatorHeader from './emissions/CalculatorHeader';
 
 interface GHGEmissionsCalculatorProps {
   formValues: any;
@@ -85,7 +80,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     total: 0
   });
 
-  // Get the appropriate metrics data and handle changes
+  // Get the appropriate metrics data
   const getMetricsData = () => {
     // If we're using location-specific metrics, we need to get the data from the specific location
     if (formValues.environmentalMetrics?.locationMetrics) {
@@ -98,7 +93,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     return formValues.environmentalMetrics || {};
   };
 
-  // Emit value changes to parent component using the appropriate mechanism
+  // Emit value changes to parent component
   const updateFormValues = (name: string, value: any) => {
     if (typeof setFormValues === 'function') {
       if (setFormValues.length === 1) {
@@ -408,7 +403,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     updateFormValues('totalScopeEmissions', emissionsResult.total.toFixed(2));
   };
 
-  // Handle reset button click
+  // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
     if (onResetClick) {
       onResetClick();
@@ -417,25 +412,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
 
   return (
     <div className="border rounded-md p-4 bg-white/80">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">Calcolatore di Emissioni GHG</h3>
-        <div className="text-sm text-gray-500">
-          <span>Fonte dati: </span>
-          <Select 
-            value={calculationMethod} 
-            onValueChange={(value) => setCalculationMethod(value as EmissionFactorSource)}
-          >
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Seleziona fonte" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value={EmissionFactorSource.DEFRA}>DEFRA (UK)</SelectItem>
-              <SelectItem value={EmissionFactorSource.ISPRA}>ISPRA (Italia)</SelectItem>
-              <SelectItem value={EmissionFactorSource.IPCC}>IPCC</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <CalculatorHeader 
+        calculationMethod={calculationMethod}
+        setCalculationMethod={setCalculationMethod}
+      />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 mb-4">
@@ -446,291 +426,54 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         
         {/* Scope 1 Content */}
         <TabsContent value="scope1" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Categoria fonte di emissione</Label>
-              <Select 
-                value={scope1Source} 
-                onValueChange={setScope1Source}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona categoria" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="fuel">Combustibili per produzione</SelectItem>
-                  <SelectItem value="fleet">Flotta aziendale</SelectItem>
-                  <SelectItem value="other">Altre fonti dirette</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {scope1Source === 'fuel' && (
-              <div>
-                <Label>Tipo di combustibile</Label>
-                <Select 
-                  value={fuelType} 
-                  onValueChange={(value) => setFuelType(value as FuelType)}
-                >
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Seleziona combustibile" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="DIESEL">Diesel</SelectItem>
-                    <SelectItem value="GASOLINE">Benzina</SelectItem>
-                    <SelectItem value="NATURAL_GAS">Gas Naturale</SelectItem>
-                    <SelectItem value="LPG">GPL</SelectItem>
-                    <SelectItem value="BIOMASS_PELLET">Pellet di Biomassa</SelectItem>
-                    <SelectItem value="BIOMASS_WOOD">Legna</SelectItem>
-                    <SelectItem value="BIOFUEL">Biocombustibile</SelectItem>
-                    <SelectItem value="COAL">Carbone</SelectItem>
-                    <SelectItem value="FUEL_OIL">Olio Combustibile</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label>Quantità</Label>
-              <Input 
-                type="number" 
-                value={fuelQuantity} 
-                onChange={(e) => setFuelQuantity(e.target.value)}
-                placeholder="Inserisci quantità"
-                className="bg-white"
-              />
-            </div>
-            
-            <div>
-              <Label>Unità di misura</Label>
-              <Select 
-                value={fuelUnit} 
-                onValueChange={setFuelUnit}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona unità" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="L">Litri (L)</SelectItem>
-                  <SelectItem value="kg">Kilogrammi (kg)</SelectItem>
-                  <SelectItem value="m3">Metri cubi (m³)</SelectItem>
-                  <SelectItem value="kWh">Kilowattora (kWh)</SelectItem>
-                  <SelectItem value="MWh">Megawattora (MWh)</SelectItem>
-                  <SelectItem value="GJ">Gigajoule (GJ)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label>Periodo di riferimento</Label>
-              <Select 
-                value={periodType} 
-                onValueChange={(value) => setPeriodType(value as PeriodType)}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona periodo" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value={PeriodType.ANNUAL}>Annuale</SelectItem>
-                  <SelectItem value={PeriodType.QUARTERLY}>Trimestrale</SelectItem>
-                  <SelectItem value={PeriodType.MONTHLY}>Mensile</SelectItem>
-                  <SelectItem value={PeriodType.WEEKLY}>Settimanale</SelectItem>
-                  <SelectItem value={PeriodType.DAILY}>Giornaliero</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Scope1Form
+            scope1Source={scope1Source}
+            setScope1Source={setScope1Source}
+            fuelType={fuelType}
+            setFuelType={setFuelType}
+            fuelQuantity={fuelQuantity}
+            setFuelQuantity={setFuelQuantity}
+            fuelUnit={fuelUnit}
+            setFuelUnit={setFuelUnit}
+            periodType={periodType}
+            setPeriodType={setPeriodType}
+          />
         </TabsContent>
         
         {/* Scope 2 Content */}
         <TabsContent value="scope2" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Tipo di energia</Label>
-              <Select 
-                value={energyType} 
-                onValueChange={(value) => setEnergyType(value as EnergyType)}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona tipo di energia" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="ELECTRICITY_IT">Elettricità da rete nazionale (Italia)</SelectItem>
-                  <SelectItem value="ELECTRICITY_EU">Elettricità da rete europea</SelectItem>
-                  <SelectItem value="ELECTRICITY_RENEWABLE">Elettricità 100% rinnovabile</SelectItem>
-                  <SelectItem value="ELECTRICITY_COGENERATION">Elettricità da cogenerazione</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label>Percentuale di energia rinnovabile (%)</Label>
-              <Input 
-                type="number" 
-                min="0" 
-                max="100" 
-                value={renewablePercentage.toString()} 
-                onChange={(e) => setRenewablePercentage(Number(e.target.value))}
-                placeholder="Percentuale energia rinnovabile"
-                className="bg-white"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Quantità di energia consumata (kWh)</Label>
-              <Input 
-                type="number" 
-                value={energyQuantity} 
-                onChange={(e) => setEnergyQuantity(e.target.value)}
-                placeholder="Inserisci quantità in kWh"
-                className="bg-white"
-              />
-            </div>
-            
-            <div>
-              <Label>Periodo di riferimento</Label>
-              <Select 
-                value={periodType} 
-                onValueChange={(value) => setPeriodType(value as PeriodType)}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona periodo" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value={PeriodType.ANNUAL}>Annuale</SelectItem>
-                  <SelectItem value={PeriodType.QUARTERLY}>Trimestrale</SelectItem>
-                  <SelectItem value={PeriodType.MONTHLY}>Mensile</SelectItem>
-                  <SelectItem value={PeriodType.WEEKLY}>Settimanale</SelectItem>
-                  <SelectItem value={PeriodType.DAILY}>Giornaliero</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Scope2Form
+            energyType={energyType}
+            setEnergyType={setEnergyType}
+            energyQuantity={energyQuantity}
+            setEnergyQuantity={setEnergyQuantity}
+            renewablePercentage={renewablePercentage}
+            setRenewablePercentage={setRenewablePercentage}
+            periodType={periodType}
+            setPeriodType={setPeriodType}
+          />
         </TabsContent>
         
         {/* Scope 3 Content */}
         <TabsContent value="scope3" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label>Categoria</Label>
-              <Select 
-                value={scope3Category} 
-                onValueChange={setScope3Category}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Seleziona categoria" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="transport">Trasporto e Logistica</SelectItem>
-                  <SelectItem value="waste">Gestione Rifiuti</SelectItem>
-                  <SelectItem value="purchases">Acquisto di beni e servizi</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          {scope3Category === 'transport' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Tipo di trasporto</Label>
-                <Select 
-                  value={transportType} 
-                  onValueChange={(value) => setTransportType(value as TransportType)}
-                >
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Seleziona tipo di trasporto" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="FREIGHT_ROAD">Trasporto merci su strada</SelectItem>
-                    <SelectItem value="FREIGHT_RAIL">Trasporto merci su rotaia</SelectItem>
-                    <SelectItem value="FREIGHT_SEA">Trasporto merci via mare</SelectItem>
-                    <SelectItem value="FREIGHT_AIR">Trasporto merci via aerea</SelectItem>
-                    <SelectItem value="BUSINESS_TRAVEL_CAR">Viaggi di lavoro in auto</SelectItem>
-                    <SelectItem value="BUSINESS_TRAVEL_TRAIN">Viaggi di lavoro in treno</SelectItem>
-                    <SelectItem value="BUSINESS_TRAVEL_FLIGHT_SHORT">Viaggi di lavoro in aereo (corto raggio)</SelectItem>
-                    <SelectItem value="BUSINESS_TRAVEL_FLIGHT_LONG">Viaggi di lavoro in aereo (lungo raggio)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label>Distanza percorsa (km)</Label>
-                <Input 
-                  type="number" 
-                  value={transportDistance} 
-                  onChange={(e) => setTransportDistance(e.target.value)}
-                  placeholder="Inserisci distanza in km"
-                  className="bg-white"
-                />
-              </div>
-            </div>
-          )}
-          
-          {scope3Category === 'waste' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Tipo di rifiuto</Label>
-                <Select 
-                  value={wasteType} 
-                  onValueChange={(value) => setWasteType(value as WasteType)}
-                >
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Seleziona tipo di rifiuto" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="WASTE_LANDFILL">Rifiuti in discarica</SelectItem>
-                    <SelectItem value="WASTE_RECYCLED">Rifiuti riciclati</SelectItem>
-                    <SelectItem value="WASTE_INCINERATION">Rifiuti inceneriti</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label>Quantità di rifiuti (kg)</Label>
-                <Input 
-                  type="number" 
-                  value={wasteQuantity} 
-                  onChange={(e) => setWasteQuantity(e.target.value)}
-                  placeholder="Inserisci quantità in kg"
-                  className="bg-white"
-                />
-              </div>
-            </div>
-          )}
-          
-          {scope3Category === 'purchases' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Tipo di acquisto</Label>
-                <Select 
-                  value={purchaseType} 
-                  onValueChange={(value) => setPurchaseType(value as PurchaseType)}
-                >
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Seleziona tipo di acquisto" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="PURCHASED_GOODS">Beni acquistati</SelectItem>
-                    <SelectItem value="PURCHASED_SERVICES">Servizi acquistati</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label>Quantità</Label>
-                <Input 
-                  type="number" 
-                  value={purchaseQuantity} 
-                  onChange={(e) => setPurchaseQuantity(e.target.value)}
-                  placeholder={purchaseType === 'PURCHASED_GOODS' ? "Inserisci quantità in kg" : "Inserisci numero di unità"}
-                  className="bg-white"
-                />
-              </div>
-            </div>
-          )}
+          <Scope3Form
+            scope3Category={scope3Category}
+            setScope3Category={setScope3Category}
+            transportType={transportType}
+            setTransportType={setTransportType}
+            transportDistance={transportDistance}
+            setTransportDistance={setTransportDistance}
+            wasteType={wasteType}
+            setWasteType={setWasteType}
+            wasteQuantity={wasteQuantity}
+            setWasteQuantity={setWasteQuantity}
+            purchaseType={purchaseType}
+            setPurchaseType={setPurchaseType}
+            purchaseQuantity={purchaseQuantity}
+            setPurchaseQuantity={setPurchaseQuantity}
+            periodType={periodType}
+            setPeriodType={setPeriodType}
+          />
         </TabsContent>
       </Tabs>
       
@@ -743,39 +486,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           Calcola Emissioni
         </Button>
         
-        <div className="flex items-center space-x-4">
-          <div className="text-right">
-            <p className="text-xs text-gray-500 mb-1">Risultati del calcolo (tonnellate CO₂e):</p>
-            <div className="grid grid-cols-4 gap-2 text-sm">
-              <div className="text-center">
-                <p className="font-semibold">Scope 1</p>
-                <p>{calculatedEmissions.scope1.toFixed(2)}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-semibold">Scope 2</p>
-                <p>{calculatedEmissions.scope2.toFixed(2)}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-semibold">Scope 3</p>
-                <p>{calculatedEmissions.scope3.toFixed(2)}</p>
-              </div>
-              <div className="text-center bg-blue-50 rounded-md p-1">
-                <p className="font-semibold">Totale</p>
-                <p>{calculatedEmissions.total.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleResetClick}
-            className="flex items-center gap-1 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-          >
-            <RefreshCcw className="h-4 w-4" />
-            Azzera calcoli
-          </Button>
-        </div>
+        <EmissionsResults
+          calculatedEmissions={calculatedEmissions}
+          onResetClick={handleResetClick}
+        />
       </div>
     </div>
   );
