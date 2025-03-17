@@ -1,10 +1,9 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/context/types';
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { GroupCompany, CompanyLocation } from './CompanyGeneralInfo';
-import { AddressData } from './components/AddressFields';
+import { AddressData } from './components/address/types';
 
 interface CompanyDataState {
   name: string;
@@ -61,13 +60,11 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
   });
 
   useEffect(() => {
-    // Reset loading state when component mounts or currentCompany changes
     if (!currentCompany || !currentCompany.id) {
       setIsLoading(false);
       return;
     }
     
-    // Prevent duplicate loading
     if (loadingAttemptedRef.current && companyData.name) {
       return;
     }
@@ -75,7 +72,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     setIsLoading(true);
     loadingAttemptedRef.current = true;
     
-    // Load the company data
     const loadCompanyDetails = async () => {
       try {
         console.log("Loading company details for:", currentCompany.id);
@@ -118,12 +114,10 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
             address_province: data.address_province || ''
           });
 
-          // Load group companies if is_part_of_group is true
           if (data.is_part_of_group) {
             loadGroupCompanies(currentCompany.id);
           }
           
-          // Load company locations if has_multiple_locations is true
           if (data.has_multiple_locations) {
             loadCompanyLocations(currentCompany.id);
           }
@@ -236,7 +230,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }));
   };
 
-  // Group companies handlers
   const handleAddGroupCompany = async (company: GroupCompany) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -332,7 +325,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedCompany = groupCompanies[index];
     if (!removedCompany || !removedCompany.id) {
-      // If the company doesn't have an ID, it was added locally but not saved to the database
       setGroupCompanies(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -366,7 +358,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }
   };
 
-  // Company locations handlers
   const handleAddLocation = async (location: CompanyLocation) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -460,7 +451,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedLocation = companyLocations[index];
     if (!removedLocation || !removedLocation.id) {
-      // If the location doesn't have an ID, it was added locally but not saved to the database
       setCompanyLocations(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -509,7 +499,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     try {
       console.log("Saving company info for:", currentCompany.id);
       
-      // Update company data
       const updateData = {
         name: companyData.name,
         vat_number: companyData.vat_number,
@@ -551,7 +540,6 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         description: 'Le informazioni aziendali sono state salvate con successo',
       });
       
-      // Only proceed to next step if callback provided
       if (onNext) {
         onNext();
       }

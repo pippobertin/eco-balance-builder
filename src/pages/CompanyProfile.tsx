@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -11,7 +10,7 @@ import CompanyGeneralInfo from '@/components/report/company-information/CompanyG
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
 import { useCompanyInfo } from '@/components/report/company-information/useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
-import { AddressData } from '@/components/report/company-information/components/AddressFields';
+import { AddressData } from '@/components/report/company-information/components/address/types';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();

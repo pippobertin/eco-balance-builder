@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import CompanyGeneralInfo from './CompanyGeneralInfo';
 import CompanyProfileInfo from './CompanyProfileInfo';
 import { useCompanyInfo } from './useCompanyInfo';
 import { useToast } from '@/hooks/use-toast';
-import { AddressData } from './components/AddressFields';
+import { AddressData } from './components/address/types';
 
 interface CompanyInformationProps {
   currentCompany: Company | null;
