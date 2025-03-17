@@ -450,13 +450,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                       <div>
                         <Label htmlFor={`scope1-${source.id}-category`} className="mb-1">Categoria</Label>
                         <Select
-                          value={source.category}
-                          onValueChange={(value) => updateScope1Source(source.id, { category: value as any })}
+                          value={source.category || 'production'}
+                          onValueChange={(value) => updateScope1Source(source.id, { category: value as 'production' | 'fleet' | 'other' })}
                         >
-                          <SelectTrigger id={`scope1-${source.id}-category`}>
+                          <SelectTrigger id={`scope1-${source.id}-category`} className="bg-white">
                             <SelectValue placeholder="Seleziona categoria" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             <SelectItem value="production">Combustibile per produzione</SelectItem>
                             <SelectItem value="fleet">Flotta aziendale</SelectItem>
                             <SelectItem value="other">Altro</SelectItem>
@@ -468,13 +468,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                         <div>
                           <Label htmlFor={`scope1-${source.id}-vehicle-type`} className="mb-1">Tipo di veicolo</Label>
                           <Select
-                            value={source.vehicleType}
+                            value={source.vehicleType || ''}
                             onValueChange={(value) => updateScope1Source(source.id, { vehicleType: value })}
                           >
-                            <SelectTrigger id={`scope1-${source.id}-vehicle-type`}>
+                            <SelectTrigger id={`scope1-${source.id}-vehicle-type`} className="bg-white">
                               <SelectValue placeholder="Seleziona tipo di veicolo" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-white">
                               {vehicleTypes.map(type => (
                                 <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                               ))}
@@ -489,10 +489,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.fuelType}
                           onValueChange={(value) => updateScope1Source(source.id, { fuelType: value as FuelType })}
                         >
-                          <SelectTrigger id={`scope1-${source.id}-fuel-type`}>
+                          <SelectTrigger id={`scope1-${source.id}-fuel-type`} className="bg-white">
                             <SelectValue placeholder="Seleziona tipo di combustibile" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {fuelTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
@@ -509,6 +509,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           step="0.01"
                           value={source.quantity || ''}
                           onChange={(e) => updateScope1Source(source.id, { quantity: parseFloat(e.target.value) || 0 })}
+                          className="bg-white"
                         />
                       </div>
                       
@@ -518,10 +519,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.unit}
                           onValueChange={(value) => updateScope1Source(source.id, { unit: value })}
                         >
-                          <SelectTrigger id={`scope1-${source.id}-unit`}>
+                          <SelectTrigger id={`scope1-${source.id}-unit`} className="bg-white">
                             <SelectValue placeholder="Seleziona unità" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {getAvailableUnits('FUEL').map(unit => (
                               <SelectItem key={unit.value} value={unit.value}>{unit.label}</SelectItem>
                             ))}
@@ -540,6 +541,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                               step="1"
                               value={source.kilometers || ''}
                               onChange={(e) => updateScope1Source(source.id, { kilometers: parseFloat(e.target.value) || 0 })}
+                              className="bg-white"
                             />
                           </div>
                           
@@ -552,6 +554,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                               step="0.1"
                               value={source.fuelConsumption || ''}
                               onChange={(e) => updateScope1Source(source.id, { fuelConsumption: parseFloat(e.target.value) || 0 })}
+                              className="bg-white"
                             />
                           </div>
                         </>
@@ -563,10 +566,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.periodType || PeriodType.ANNUAL}
                           onValueChange={(value) => updateScope1Source(source.id, { periodType: value as PeriodType })}
                         >
-                          <SelectTrigger id={`scope1-${source.id}-period`}>
+                          <SelectTrigger id={`scope1-${source.id}-period`} className="bg-white">
                             <SelectValue placeholder="Seleziona periodo" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {periodTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
@@ -646,10 +649,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.energyType}
                           onValueChange={(value) => updateScope2Source(source.id, { energyType: value as EnergyType })}
                         >
-                          <SelectTrigger id={`scope2-${source.id}-energy-type`}>
+                          <SelectTrigger id={`scope2-${source.id}-energy-type`} className="bg-white">
                             <SelectValue placeholder="Seleziona tipo di energia" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {energyTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
@@ -666,6 +669,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           step="0.01"
                           value={source.quantity || ''}
                           onChange={(e) => updateScope2Source(source.id, { quantity: parseFloat(e.target.value) || 0 })}
+                          className="bg-white"
                         />
                       </div>
                       
@@ -675,10 +679,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.unit}
                           onValueChange={(value) => updateScope2Source(source.id, { unit: value })}
                         >
-                          <SelectTrigger id={`scope2-${source.id}-unit`}>
+                          <SelectTrigger id={`scope2-${source.id}-unit`} className="bg-white">
                             <SelectValue placeholder="Seleziona unità" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {getAvailableUnits('ENERGY').map(unit => (
                               <SelectItem key={unit.value} value={unit.value}>{unit.label}</SelectItem>
                             ))}
@@ -701,6 +705,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                               renewablePercentage: isNaN(value) ? 0 : value / 100 
                             });
                           }}
+                          className="bg-white"
                         />
                       </div>
                       
@@ -710,6 +715,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           id={`scope2-${source.id}-provider`}
                           value={source.provider || ''}
                           onChange={(e) => updateScope2Source(source.id, { provider: e.target.value })}
+                          className="bg-white"
                         />
                       </div>
                       
@@ -719,10 +725,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.periodType || PeriodType.ANNUAL}
                           onValueChange={(value) => updateScope2Source(source.id, { periodType: value as PeriodType })}
                         >
-                          <SelectTrigger id={`scope2-${source.id}-period`}>
+                          <SelectTrigger id={`scope2-${source.id}-period`} className="bg-white">
                             <SelectValue placeholder="Seleziona periodo" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {periodTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
@@ -799,13 +805,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                       <div>
                         <Label htmlFor={`scope3-${source.id}-category`} className="mb-1">Categoria</Label>
                         <Select
-                          value={source.category}
-                          onValueChange={(value) => updateScope3Source(source.id, { category: value as any })}
+                          value={source.category || 'transport'}
+                          onValueChange={(value) => updateScope3Source(source.id, { category: value as 'transport' | 'purchases' | 'waste' | 'other' })}
                         >
-                          <SelectTrigger id={`scope3-${source.id}-category`}>
+                          <SelectTrigger id={`scope3-${source.id}-category`} className="bg-white">
                             <SelectValue placeholder="Seleziona categoria" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             <SelectItem value="transport">Trasporto e Logistica</SelectItem>
                             <SelectItem value="purchases">Acquisto beni e servizi</SelectItem>
                             <SelectItem value="waste">Gestione rifiuti</SelectItem>
@@ -817,13 +823,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                       <div>
                         <Label htmlFor={`scope3-${source.id}-activity-type`} className="mb-1">Tipo di attività</Label>
                         <Select
-                          value={source.activityType}
+                          value={source.activityType || ''}
                           onValueChange={(value) => updateScope3Source(source.id, { activityType: value })}
                         >
-                          <SelectTrigger id={`scope3-${source.id}-activity-type`}>
+                          <SelectTrigger id={`scope3-${source.id}-activity-type`} className="bg-white">
                             <SelectValue placeholder="Seleziona tipo di attività" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {source.category === 'transport' && transportTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
@@ -844,13 +850,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                         <div>
                           <Label htmlFor={`scope3-${source.id}-vehicle-type`} className="mb-1">Tipo di veicolo/mezzo</Label>
                           <Select
-                            value={source.vehicleType}
+                            value={source.vehicleType || ''}
                             onValueChange={(value) => updateScope3Source(source.id, { vehicleType: value })}
                           >
-                            <SelectTrigger id={`scope3-${source.id}-vehicle-type`}>
+                            <SelectTrigger id={`scope3-${source.id}-vehicle-type`} className="bg-white">
                               <SelectValue placeholder="Seleziona tipo di veicolo" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-white">
                               {vehicleTypes.map(type => (
                                 <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                               ))}
@@ -876,6 +882,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           step="0.01"
                           value={source.quantity || ''}
                           onChange={(e) => updateScope3Source(source.id, { quantity: parseFloat(e.target.value) || 0 })}
+                          className="bg-white"
                         />
                       </div>
                       
@@ -885,10 +892,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.unit}
                           onValueChange={(value) => updateScope3Source(source.id, { unit: value })}
                         >
-                          <SelectTrigger id={`scope3-${source.id}-unit`}>
+                          <SelectTrigger id={`scope3-${source.id}-unit`} className="bg-white">
                             <SelectValue placeholder="Seleziona unità" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {source.category === 'transport' && getAvailableUnits('TRANSPORT').map(unit => (
                               <SelectItem key={unit.value} value={unit.value}>{unit.label}</SelectItem>
                             ))}
@@ -913,19 +920,20 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                               step="0.01"
                               value={source.secondaryQuantity || ''}
                               onChange={(e) => updateScope3Source(source.id, { secondaryQuantity: parseFloat(e.target.value) || 0 })}
+                              className="bg-white"
                             />
                           </div>
                           
                           <div>
                             <Label htmlFor={`scope3-${source.id}-secondary-unit`} className="mb-1">Unità di misura del carico</Label>
                             <Select
-                              value={source.secondaryUnit}
+                              value={source.secondaryUnit || ''}
                               onValueChange={(value) => updateScope3Source(source.id, { secondaryUnit: value })}
                             >
-                              <SelectTrigger id={`scope3-${source.id}-secondary-unit`}>
+                              <SelectTrigger id={`scope3-${source.id}-secondary-unit`} className="bg-white">
                                 <SelectValue placeholder="Seleziona unità" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 {getAvailableUnits('WASTE').map(unit => (
                                   <SelectItem key={unit.value} value={unit.value}>{unit.label}</SelectItem>
                                 ))}
@@ -941,10 +949,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
                           value={source.periodType || PeriodType.ANNUAL}
                           onValueChange={(value) => updateScope3Source(source.id, { periodType: value as PeriodType })}
                         >
-                          <SelectTrigger id={`scope3-${source.id}-period`}>
+                          <SelectTrigger id={`scope3-${source.id}-period`} className="bg-white">
                             <SelectValue placeholder="Seleziona periodo" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {periodTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
