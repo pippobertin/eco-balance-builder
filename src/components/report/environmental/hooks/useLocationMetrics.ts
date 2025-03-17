@@ -178,6 +178,13 @@ export const useLocationMetrics = (
                 scope3CalculationDetails: ""
               }
             };
+            
+            // Show toast notification that reset was successful
+            toast({
+              title: "Dati azzerati",
+              description: "I calcoli delle emissioni per la sede corrente sono stati azzerati.",
+              duration: 3000
+            });
           }
         } else if (resetScope === 'all') {
           // Reset metrics for all locations
@@ -199,6 +206,13 @@ export const useLocationMetrics = (
                 energyEmissionsDetails: ""
               }
             };
+          });
+          
+          // Show toast notification that reset was successful
+          toast({
+            title: "Dati azzerati",
+            description: "I calcoli delle emissioni per tutte le sedi sono stati azzerati.",
+            duration: 3000
           });
         }
         
