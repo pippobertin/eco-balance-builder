@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, MapPin, Trash2, Edit, Save, X } from 'lucide-react';
 import { CompanyLocation } from '../CompanyGeneralInfo';
@@ -7,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import AddressFields, { AddressData } from './AddressFields';
+import AddressFields, { AddressData } from './address';
 
 interface CompanyLocationsSectionProps {
   locations: CompanyLocation[];
@@ -57,7 +56,6 @@ const CompanyLocationsSection: React.FC<CompanyLocationsSectionProps> = ({
   };
 
   const handleSubmit = () => {
-    // Validate that there's at least one address field filled
     const hasAddress = formData.address_street_type && formData.address_street;
     
     if (!hasAddress) return;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, Building, Trash2, Edit, Save, X } from 'lucide-react';
 import { GroupCompany } from '../CompanyGeneralInfo';
@@ -7,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import AddressFields, { AddressData } from './AddressFields';
+import AddressFields, { AddressData } from './address';
 
 interface GroupCompaniesSectionProps {
   groupCompanies: GroupCompany[];

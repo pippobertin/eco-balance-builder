@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Building, Plus } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
@@ -9,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import GroupCompaniesSection from './components/GroupCompaniesSection';
 import CompanyLocationsSection from './components/CompanyLocationsSection';
-import AddressFields, { AddressData } from './components/AddressFields';
+import AddressFields, { AddressData } from './components/address';
 
 interface CompanyGeneralInfoProps {
   companyData: {
@@ -80,7 +79,6 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
   handleUpdateLocation,
   handleRemoveLocation
 }) => {
-  // Handle VAT number input to ensure only numbers and max 11 chars
   const handleVatNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 11);
     const target = { 
