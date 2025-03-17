@@ -1,3 +1,4 @@
+
 // Enum for emission scopes
 export enum EmissionScope {
   SCOPE1 = 'Scope 1',

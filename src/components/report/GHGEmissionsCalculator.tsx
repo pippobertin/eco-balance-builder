@@ -11,6 +11,7 @@ import {
   WasteType, 
   PurchaseType
 } from '@/lib/emissions-types';
+import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
 
 // Import refactored components
 import Scope1Form from './emissions/Scope1Form';
@@ -43,43 +44,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>('scope1');
   
-  // Scope 1 specific state
-  const [scope1Source, setScope1Source] = useState<string>('fuel');
-  const [fuelType, setFuelType] = useState<FuelType>('DIESEL');
-  const [fuelQuantity, setFuelQuantity] = useState<string>('');
-  const [fuelUnit, setFuelUnit] = useState<string>('L');
-  
-  // Scope 2 specific state
-  const [energyType, setEnergyType] = useState<EnergyType>('ELECTRICITY_IT');
-  const [energyQuantity, setEnergyQuantity] = useState<string>('');
-  const [renewablePercentage, setRenewablePercentage] = useState<number>(0);
-  
-  // Scope 3 specific state
-  const [scope3Category, setScope3Category] = useState<string>('transport');
-  const [transportType, setTransportType] = useState<TransportType>('BUSINESS_TRAVEL_CAR');
-  const [transportDistance, setTransportDistance] = useState<string>('');
-  const [wasteType, setWasteType] = useState<WasteType>('WASTE_LANDFILL');
-  const [wasteQuantity, setWasteQuantity] = useState<string>('');
-  const [purchaseType, setPurchaseType] = useState<PurchaseType>('PURCHASED_GOODS');
-  const [purchaseQuantity, setPurchaseQuantity] = useState<string>('');
-  
-  // Common state
-  const [periodType, setPeriodType] = useState<PeriodType>(PeriodType.ANNUAL);
-  const [calculationMethod, setCalculationMethod] = useState<EmissionFactorSource>(EmissionFactorSource.DEFRA);
-  
-  // Results state
-  const [calculatedEmissions, setCalculatedEmissions] = useState<{
-    scope1: number;
-    scope2: number;
-    scope3: number;
-    total: number;
-  }>({
-    scope1: 0,
-    scope2: 0,
-    scope3: 0,
-    total: 0
-  });
-
   // Get the appropriate metrics data
   const getMetricsData = () => {
     // If we're using location-specific metrics, we need to get the data from the specific location
@@ -114,294 +78,56 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
-  // Reset input fields
-  const resetInputFields = () => {
-    setFuelQuantity('');
-    setEnergyQuantity('');
-    setTransportDistance('');
-    setWasteQuantity('');
-    setPurchaseQuantity('');
-  };
+  // Use our custom hook for emissions calculations
+  const { 
+    inputs, 
+    updateInput, 
+    results: calculatedEmissions, 
+    details,
+    calculateEmissions, 
+    resetCalculation 
+  } = useEmissionsCalculator(undefined, (results, details) => {
+    // This callback runs when calculation results change
+    if (results.scope1 > 0) {
+      updateFormValues('totalScope1Emissions', results.scope1.toFixed(2));
+      updateFormValues('scope1CalculationDetails', details.scope1Details);
+    }
+    
+    if (results.scope2 > 0) {
+      updateFormValues('totalScope2Emissions', results.scope2.toFixed(2));
+      updateFormValues('scope2CalculationDetails', details.scope2Details);
+    }
+    
+    if (results.scope3 > 0) {
+      updateFormValues('totalScope3Emissions', results.scope3.toFixed(2));
+      updateFormValues('scope3CalculationDetails', details.scope3Details);
+    }
+    
+    updateFormValues('totalScopeEmissions', results.total.toFixed(2));
+  });
 
   // Load existing calculation results
   useEffect(() => {
     const metricsData = getMetricsData();
     
     if (metricsData) {
-      setCalculatedEmissions({
-        scope1: parseFloat(metricsData.totalScope1Emissions) || 0,
-        scope2: parseFloat(metricsData.totalScope2Emissions) || 0,
-        scope3: parseFloat(metricsData.totalScope3Emissions) || 0,
-        total: parseFloat(metricsData.totalScopeEmissions) || 0
-      });
+      // Update the state with existing values
+      const scope1 = parseFloat(metricsData.totalScope1Emissions) || 0;
+      const scope2 = parseFloat(metricsData.totalScope2Emissions) || 0;
+      const scope3 = parseFloat(metricsData.totalScope3Emissions) || 0;
+      const total = parseFloat(metricsData.totalScopeEmissions) || 0;
+      
+      // Only update if there's at least one non-zero value
+      if (scope1 > 0 || scope2 > 0 || scope3 > 0) {
+        updateInput('results', { scope1, scope2, scope3, total });
+      }
     }
 
     // Check for reset emission command
     if (formValues.target && formValues.target.name === 'resetEmissions') {
-      setCalculatedEmissions({
-        scope1: 0,
-        scope2: 0,
-        scope3: 0,
-        total: 0
-      });
-      resetInputFields();
+      resetCalculation();
     }
   }, [formValues]);
-
-  // Calculate emissions based on inputs
-  const calculateEmissions = () => {
-    let emissionsResult = {
-      scope1: 0,
-      scope2: 0,
-      scope3: 0,
-      total: 0,
-      scope1Details: '',
-      scope2Details: '',
-      scope3Details: ''
-    };
-    
-    // Scope 1 calculations
-    if (activeTab === 'scope1' && fuelQuantity) {
-      // Simple emission factor lookup (these would come from a database in a real application)
-      const emissionFactors: Record<FuelType, number> = {
-        'DIESEL': 2.68, // kg CO2e per liter
-        'GASOLINE': 2.31, // kg CO2e per liter
-        'NATURAL_GAS': 2.02, // kg CO2e per m3
-        'LPG': 1.51, // kg CO2e per liter
-        'BIOMASS_PELLET': 0.04, // kg CO2e per kg
-        'BIOMASS_WOOD': 0.02, // kg CO2e per kg
-        'BIOFUEL': 1.93, // kg CO2e per liter
-        'COAL': 2.42, // kg CO2e per kg
-        'FUEL_OIL': 3.15 // kg CO2e per liter
-      };
-      
-      const quantity = parseFloat(fuelQuantity);
-      const emissionFactor = emissionFactors[fuelType];
-      const emissionsKg = quantity * emissionFactor;
-      const emissionsTonnes = emissionsKg / 1000;
-      
-      emissionsResult.scope1 = emissionsTonnes;
-      
-      // Save calculation details as JSON string for later reference
-      const calculationDetails = {
-        fuelType,
-        quantity,
-        unit: fuelUnit,
-        periodType,
-        emissionsKg,
-        emissionsTonnes,
-        calculationDate: new Date().toISOString(),
-        source: {
-          name: calculationMethod,
-          url: calculationMethod === EmissionFactorSource.DEFRA ? 
-               'https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023' :
-               calculationMethod === EmissionFactorSource.ISPRA ?
-               'https://www.isprambiente.gov.it/it/pubblicazioni/manuali-e-linee-guida/fattori-emissione-in-atmosfera' :
-               'https://www.ipcc-nggip.iges.or.jp/EFDB/main.php',
-          year: '2023'
-        }
-      };
-      
-      emissionsResult.scope1Details = JSON.stringify(calculationDetails);
-    }
-    
-    // Scope 2 calculations
-    if (activeTab === 'scope2' && energyQuantity) {
-      // Energy emission factors by source
-      const emissionFactors: Record<EnergyType, number> = {
-        'ELECTRICITY_IT': 0.2835, // kg CO2e per kWh (Italy)
-        'ELECTRICITY_EU': 0.2556, // kg CO2e per kWh (EU average)
-        'ELECTRICITY_RENEWABLE': 0.0, // kg CO2e per kWh (100% renewable)
-        'ELECTRICITY_COGENERATION': 0.185 // kg CO2e per kWh (cogeneration)
-      };
-      
-      const quantity = parseFloat(energyQuantity);
-      let emissionFactor = emissionFactors[energyType];
-      
-      // Adjust emission factor based on renewable percentage
-      if (energyType === 'ELECTRICITY_IT' || energyType === 'ELECTRICITY_EU') {
-        emissionFactor = emissionFactor * (1 - (renewablePercentage / 100));
-      }
-      
-      const emissionsKg = quantity * emissionFactor;
-      const emissionsTonnes = emissionsKg / 1000;
-      
-      emissionsResult.scope2 = emissionsTonnes;
-      
-      // Save calculation details
-      const calculationDetails = {
-        energyType,
-        quantity,
-        unit: 'kWh',
-        renewablePercentage,
-        periodType,
-        emissionsKg,
-        emissionsTonnes,
-        calculationDate: new Date().toISOString(),
-        source: {
-          name: calculationMethod,
-          url: calculationMethod === EmissionFactorSource.DEFRA ? 
-               'https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023' :
-               calculationMethod === EmissionFactorSource.ISPRA ?
-               'https://www.isprambiente.gov.it/it/pubblicazioni/manuali-e-linee-guida/fattori-emissione-in-atmosfera' :
-               'https://www.ipcc-nggip.iges.or.jp/EFDB/main.php',
-          year: '2023'
-        }
-      };
-      
-      emissionsResult.scope2Details = JSON.stringify(calculationDetails);
-    }
-    
-    // Scope 3 calculations
-    if (activeTab === 'scope3') {
-      if (scope3Category === 'transport' && transportDistance) {
-        // Transport emission factors
-        const emissionFactors: Record<TransportType, number> = {
-          'FREIGHT_ROAD': 0.135, // kg CO2e per km
-          'FREIGHT_RAIL': 0.028, // kg CO2e per km
-          'FREIGHT_SEA': 0.008, // kg CO2e per km
-          'FREIGHT_AIR': 2.1, // kg CO2e per km
-          'BUSINESS_TRAVEL_CAR': 0.17, // kg CO2e per km
-          'BUSINESS_TRAVEL_TRAIN': 0.04, // kg CO2e per km
-          'BUSINESS_TRAVEL_FLIGHT_SHORT': 0.255, // kg CO2e per km
-          'BUSINESS_TRAVEL_FLIGHT_LONG': 0.18 // kg CO2e per km
-        };
-        
-        const distance = parseFloat(transportDistance);
-        const emissionFactor = emissionFactors[transportType];
-        const emissionsKg = distance * emissionFactor;
-        const emissionsTonnes = emissionsKg / 1000;
-        
-        emissionsResult.scope3 = emissionsTonnes;
-        
-        // Save calculation details
-        const calculationDetails = {
-          activityType: transportType,
-          quantity: distance,
-          unit: 'km',
-          secondaryQuantity: 0,
-          secondaryUnit: 't',
-          periodType,
-          emissionsKg,
-          emissionsTonnes,
-          calculationDate: new Date().toISOString(),
-          source: {
-            name: calculationMethod,
-            url: calculationMethod === EmissionFactorSource.DEFRA ? 
-                 'https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023' :
-                 calculationMethod === EmissionFactorSource.ISPRA ?
-                 'https://www.isprambiente.gov.it/it/pubblicazioni/manuali-e-linee-guida/fattori-emissione-in-atmosfera' :
-                 'https://www.ipcc-nggip.iges.or.jp/EFDB/main.php',
-            year: '2023'
-          }
-        };
-        
-        emissionsResult.scope3Details = JSON.stringify(calculationDetails);
-      }
-      else if (scope3Category === 'waste' && wasteQuantity) {
-        // Waste emission factors
-        const emissionFactors: Record<WasteType, number> = {
-          'WASTE_LANDFILL': 0.58, // kg CO2e per kg
-          'WASTE_RECYCLED': 0.021, // kg CO2e per kg
-          'WASTE_INCINERATION': 0.335 // kg CO2e per kg
-        };
-        
-        const quantity = parseFloat(wasteQuantity);
-        const emissionFactor = emissionFactors[wasteType];
-        const emissionsKg = quantity * emissionFactor;
-        const emissionsTonnes = emissionsKg / 1000;
-        
-        emissionsResult.scope3 = emissionsTonnes;
-        
-        // Save calculation details
-        const calculationDetails = {
-          activityType: wasteType,
-          quantity,
-          unit: 'kg',
-          periodType,
-          emissionsKg,
-          emissionsTonnes,
-          calculationDate: new Date().toISOString(),
-          source: {
-            name: calculationMethod,
-            url: calculationMethod === EmissionFactorSource.DEFRA ? 
-                 'https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023' :
-                 calculationMethod === EmissionFactorSource.ISPRA ?
-                 'https://www.isprambiente.gov.it/it/pubblicazioni/manuali-e-linee-guida/fattori-emissione-in-atmosfera' :
-                 'https://www.ipcc-nggip.iges.or.jp/EFDB/main.php',
-            year: '2023'
-          }
-        };
-        
-        emissionsResult.scope3Details = JSON.stringify(calculationDetails);
-      }
-      else if (scope3Category === 'purchases' && purchaseQuantity) {
-        // Purchase emission factors (simplified)
-        const emissionFactors: Record<PurchaseType, number> = {
-          'PURCHASED_GOODS': 1.2, // kg CO2e per kg
-          'PURCHASED_SERVICES': 0.4 // kg CO2e per unit
-        };
-        
-        const quantity = parseFloat(purchaseQuantity);
-        const emissionFactor = emissionFactors[purchaseType];
-        const emissionsKg = quantity * emissionFactor;
-        const emissionsTonnes = emissionsKg / 1000;
-        
-        emissionsResult.scope3 = emissionsTonnes;
-        
-        // Save calculation details
-        const calculationDetails = {
-          activityType: purchaseType,
-          quantity,
-          unit: purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unit',
-          periodType,
-          emissionsKg,
-          emissionsTonnes,
-          calculationDate: new Date().toISOString(),
-          source: {
-            name: calculationMethod,
-            url: calculationMethod === EmissionFactorSource.DEFRA ? 
-                 'https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023' :
-                 calculationMethod === EmissionFactorSource.ISPRA ?
-                 'https://www.isprambiente.gov.it/it/pubblicazioni/manuali-e-linee-guida/fattori-emissione-in-atmosfera' :
-                 'https://www.ipcc-nggip.iges.or.jp/EFDB/main.php',
-            year: '2023'
-          }
-        };
-        
-        emissionsResult.scope3Details = JSON.stringify(calculationDetails);
-      }
-    }
-    
-    // Calculate total emissions
-    emissionsResult.total = emissionsResult.scope1 + emissionsResult.scope2 + emissionsResult.scope3;
-    
-    // Update state
-    setCalculatedEmissions({
-      scope1: emissionsResult.scope1,
-      scope2: emissionsResult.scope2,
-      scope3: emissionsResult.scope3,
-      total: emissionsResult.total
-    });
-    
-    // Update form values
-    if (emissionsResult.scope1 > 0) {
-      updateFormValues('totalScope1Emissions', emissionsResult.scope1.toFixed(2));
-      updateFormValues('scope1CalculationDetails', emissionsResult.scope1Details);
-    }
-    
-    if (emissionsResult.scope2 > 0) {
-      updateFormValues('totalScope2Emissions', emissionsResult.scope2.toFixed(2));
-      updateFormValues('scope2CalculationDetails', emissionsResult.scope2Details);
-    }
-    
-    if (emissionsResult.scope3 > 0) {
-      updateFormValues('totalScope3Emissions', emissionsResult.scope3.toFixed(2));
-      updateFormValues('scope3CalculationDetails', emissionsResult.scope3Details);
-    }
-    
-    updateFormValues('totalScopeEmissions', emissionsResult.total.toFixed(2));
-  };
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
@@ -413,8 +139,8 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
-        calculationMethod={calculationMethod}
-        setCalculationMethod={setCalculationMethod}
+        calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA}
+        setCalculationMethod={(value) => updateInput('calculationMethod', value)}
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -427,59 +153,59 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         {/* Scope 1 Content */}
         <TabsContent value="scope1" className="space-y-4">
           <Scope1Form
-            scope1Source={scope1Source}
-            setScope1Source={setScope1Source}
-            fuelType={fuelType}
-            setFuelType={setFuelType}
-            fuelQuantity={fuelQuantity}
-            setFuelQuantity={setFuelQuantity}
-            fuelUnit={fuelUnit}
-            setFuelUnit={setFuelUnit}
-            periodType={periodType}
-            setPeriodType={setPeriodType}
+            scope1Source={inputs.scope1Source || 'fuel'}
+            setScope1Source={(value) => updateInput('scope1Source', value)}
+            fuelType={inputs.fuelType || 'DIESEL'}
+            setFuelType={(value) => updateInput('fuelType', value)}
+            fuelQuantity={inputs.fuelQuantity || ''}
+            setFuelQuantity={(value) => updateInput('fuelQuantity', value)}
+            fuelUnit={inputs.fuelUnit || 'L'}
+            setFuelUnit={(value) => updateInput('fuelUnit', value)}
+            periodType={inputs.periodType || PeriodType.ANNUAL}
+            setPeriodType={(value) => updateInput('periodType', value)}
           />
         </TabsContent>
         
         {/* Scope 2 Content */}
         <TabsContent value="scope2" className="space-y-4">
           <Scope2Form
-            energyType={energyType}
-            setEnergyType={setEnergyType}
-            energyQuantity={energyQuantity}
-            setEnergyQuantity={setEnergyQuantity}
-            renewablePercentage={renewablePercentage}
-            setRenewablePercentage={setRenewablePercentage}
-            periodType={periodType}
-            setPeriodType={setPeriodType}
+            energyType={inputs.energyType || 'ELECTRICITY_IT'}
+            setEnergyType={(value) => updateInput('energyType', value)}
+            energyQuantity={inputs.energyQuantity || ''}
+            setEnergyQuantity={(value) => updateInput('energyQuantity', value)}
+            renewablePercentage={inputs.renewablePercentage || 0}
+            setRenewablePercentage={(value) => updateInput('renewablePercentage', value)}
+            periodType={inputs.periodType || PeriodType.ANNUAL}
+            setPeriodType={(value) => updateInput('periodType', value)}
           />
         </TabsContent>
         
         {/* Scope 3 Content */}
         <TabsContent value="scope3" className="space-y-4">
           <Scope3Form
-            scope3Category={scope3Category}
-            setScope3Category={setScope3Category}
-            transportType={transportType}
-            setTransportType={setTransportType}
-            transportDistance={transportDistance}
-            setTransportDistance={setTransportDistance}
-            wasteType={wasteType}
-            setWasteType={setWasteType}
-            wasteQuantity={wasteQuantity}
-            setWasteQuantity={setWasteQuantity}
-            purchaseType={purchaseType}
-            setPurchaseType={setPurchaseType}
-            purchaseQuantity={purchaseQuantity}
-            setPurchaseQuantity={setPurchaseQuantity}
-            periodType={periodType}
-            setPeriodType={setPeriodType}
+            scope3Category={inputs.scope3Category || 'transport'}
+            setScope3Category={(value) => updateInput('scope3Category', value)}
+            transportType={inputs.transportType || 'BUSINESS_TRAVEL_CAR'}
+            setTransportType={(value) => updateInput('transportType', value)}
+            transportDistance={inputs.transportDistance || ''}
+            setTransportDistance={(value) => updateInput('transportDistance', value)}
+            wasteType={inputs.wasteType || 'WASTE_LANDFILL'}
+            setWasteType={(value) => updateInput('wasteType', value)}
+            wasteQuantity={inputs.wasteQuantity || ''}
+            setWasteQuantity={(value) => updateInput('wasteQuantity', value)}
+            purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'}
+            setPurchaseType={(value) => updateInput('purchaseType', value)}
+            purchaseQuantity={inputs.purchaseQuantity || ''}
+            setPurchaseQuantity={(value) => updateInput('purchaseQuantity', value)}
+            periodType={inputs.periodType || PeriodType.ANNUAL}
+            setPeriodType={(value) => updateInput('periodType', value)}
           />
         </TabsContent>
       </Tabs>
       
       <div className="mt-6 flex justify-between items-center">
         <Button 
-          onClick={calculateEmissions}
+          onClick={() => calculateEmissions()}
           className="flex items-center"
         >
           <Calculator className="mr-2 h-4 w-4" />
