@@ -1,18 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calculator } from 'lucide-react';
-import { 
-  EmissionFactorSource, 
-  PeriodType, 
-  FuelType, 
-  EnergyType, 
-  TransportType, 
-  WasteType, 
-  PurchaseType
-} from '@/lib/emissions-types';
-import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
+import { EmissionFactorSource, PeriodType } from '@/lib/emissions-types';
+import { GHGEmissionsCalculatorProps } from './emissions/types';
+import { useCalculator } from './emissions/hooks/useCalculator';
 
 // Import refactored components
 import Scope1Form from './emissions/Scope1Form';
@@ -21,127 +14,21 @@ import Scope3Form from './emissions/Scope3Form';
 import EmissionsResults from './emissions/EmissionsResults';
 import CalculatorHeader from './emissions/CalculatorHeader';
 
-interface GHGEmissionsCalculatorProps {
-  formValues: any;
-  setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void);
-  onResetClick?: () => void;
-}
-
-// Helper to create a synthetic event for use with the setFormValues function
-const createSyntheticEvent = (name: string, value: any): React.ChangeEvent<HTMLInputElement> => {
-  const event = {
-    target: {
-      name,
-      value
-    }
-  } as React.ChangeEvent<HTMLInputElement>;
-  return event;
-};
-
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ 
   formValues, 
   setFormValues,
   onResetClick
 }) => {
-  const [activeTab, setActiveTab] = useState<string>('scope1');
+  const {
+    activeTab,
+    setActiveTab,
+    calculatedEmissions,
+    inputs,
+    updateInput,
+    calculateEmissions,
+    handleResetClick
+  } = useCalculator(formValues, setFormValues, onResetClick);
   
-  // Get the appropriate metrics data
-  const getMetricsData = () => {
-    // If we're using location-specific metrics, we need to get the data from the specific location
-    if (formValues.environmentalMetrics?.locationMetrics) {
-      const locationMetrics = formValues.environmentalMetrics.locationMetrics;
-      const currentMetricsObj = locationMetrics.find((lm: any) => lm.metrics);
-      return currentMetricsObj?.metrics || {};
-    }
-    
-    // Otherwise, use the global metrics
-    return formValues.environmentalMetrics || {};
-  };
-
-  // Emit value changes to parent component
-  const updateFormValues = (name: string, value: any) => {
-    if (typeof setFormValues === 'function') {
-      if (setFormValues.length === 1) {
-        // It's a location-specific metrics handler
-        setFormValues(createSyntheticEvent(name, value));
-      } else {
-        // It's a global form handler (useState setter)
-        (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => {
-          return {
-            ...prev,
-            environmentalMetrics: {
-              ...prev.environmentalMetrics,
-              [name]: value
-            }
-          };
-        });
-      }
-    }
-  };
-
-  // Use our custom hook for emissions calculations
-  const { 
-    inputs, 
-    updateInput, 
-    results: calculatedEmissions, 
-    details,
-    calculateEmissions, 
-    resetCalculation 
-  } = useEmissionsCalculator(undefined, (results, details) => {
-    // This callback runs when calculation results change
-    if (results.scope1 > 0) {
-      updateFormValues('totalScope1Emissions', results.scope1.toFixed(2));
-      updateFormValues('scope1CalculationDetails', details.scope1Details);
-    }
-    
-    if (results.scope2 > 0) {
-      updateFormValues('totalScope2Emissions', results.scope2.toFixed(2));
-      updateFormValues('scope2CalculationDetails', details.scope2Details);
-    }
-    
-    if (results.scope3 > 0) {
-      updateFormValues('totalScope3Emissions', results.scope3.toFixed(2));
-      updateFormValues('scope3CalculationDetails', details.scope3Details);
-    }
-    
-    updateFormValues('totalScopeEmissions', results.total.toFixed(2));
-  });
-
-  // Load existing calculation results
-  useEffect(() => {
-    const metricsData = getMetricsData();
-    
-    if (metricsData) {
-      // Update the state with existing values
-      const scope1 = parseFloat(metricsData.totalScope1Emissions) || 0;
-      const scope2 = parseFloat(metricsData.totalScope2Emissions) || 0;
-      const scope3 = parseFloat(metricsData.totalScope3Emissions) || 0;
-      const total = parseFloat(metricsData.totalScopeEmissions) || 0;
-      
-      // Only update if there's at least one non-zero value
-      if (scope1 > 0 || scope2 > 0 || scope3 > 0) {
-        // Fixed: Using specific emission result values instead of "results" key
-        const newResults = { scope1, scope2, scope3, total };
-        // We need to set each property separately
-        Object.entries(newResults).forEach(([key, value]) => {
-          updateInput(key as keyof typeof inputs, value);
-        });
-      }
-    }
-
-    // Check for reset emission command
-    if (formValues.target && formValues.target.name === 'resetEmissions') {
-      resetCalculation();
-    }
-  }, [formValues]);
-
-  // Handle reset button click delegated from EmissionsResults component
-  const handleResetClick = () => {
-    if (onResetClick) {
-      onResetClick();
-    }
-  };
-
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
