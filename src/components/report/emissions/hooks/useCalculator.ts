@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
 import { useFormValueUpdater } from './useFormValueUpdater';
@@ -50,7 +49,7 @@ export const useCalculator = (
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
-    // First, reset the local state
+    // First, reset the local state to show zeros in the UI
     setCalculatedEmissions({
       scope1: 0,
       scope2: 0,
@@ -58,10 +57,7 @@ export const useCalculator = (
       total: 0
     });
     
-    // Then, call the resetCalculation from the calculator hook
-    resetCalculation();
-    
-    // Also clear the form values by updating them to zero
+    // Clear the form total values but keep input fields
     updateFormValues('totalScope1Emissions', '0');
     updateFormValues('totalScope2Emissions', '0');
     updateFormValues('totalScope3Emissions', '0');
