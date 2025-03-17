@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,17 +55,24 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     transportType: ''
   });
 
-  const handleScope1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Create a type-safe handler for both input and select elements
+  const handleScope1Change = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setScope1Data(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleScope2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScope2Change = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setScope2Data(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleScope3Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScope3Change = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setScope3Data(prev => ({ ...prev, [name]: value }));
   };
@@ -136,7 +144,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
               id="unit"
               name="unit"
               value={scope1Data.unit}
-              onChange={(e) => handleScope1Change(e)}
+              onChange={handleScope1Change}
               className="w-full border rounded-md py-2 px-3"
             >
               <option value="liters">Litri</option>
@@ -184,7 +192,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
               id="unit"
               name="unit"
               value={scope2Data.unit}
-              onChange={(e) => handleScope2Change(e)}
+              onChange={handleScope2Change}
               className="w-full border rounded-md py-2 px-3"
             >
               <option value="kWh">kWh</option>
