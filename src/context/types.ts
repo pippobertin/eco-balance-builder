@@ -1,4 +1,3 @@
-
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
@@ -27,16 +26,16 @@ export interface Company {
 export interface Report {
   id: string;
   company_id: string;
-  company?: Company; // Add this to support the joined company data
+  company?: Company;
   report_year: string;
-  report_type: string; // A, B, C, D
+  report_type: string;
   is_consolidated: boolean;
   environmental_metrics: any;
   social_metrics: any;
   conduct_metrics: any;
   narrative_pat_metrics?: any;
   materiality_analysis?: any;
-  status: string; // draft, published
+  status: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -48,42 +47,84 @@ export interface Subsidiary {
   location: string;
 }
 
+// Define environmental metrics by location
+export interface LocationEnvironmentalMetrics {
+  location_id: string;
+  location_name?: string;
+  location_type?: string;
+  metrics: {
+    carbonEmissions?: number;
+    energyConsumption?: number;
+    fossilFuelEnergy?: number;
+    renewableEnergy?: number;
+    wasteGeneration?: number;
+    waterUsage?: number;
+    waterConsumption?: number;
+    waterStressAreas?: number;
+    scope1Data?: any;
+    scope2Data?: any;
+    scope3Data?: any;
+    totalScope1Emissions?: number;
+    totalScope2Emissions?: number;
+    totalScope3Emissions?: number;
+    totalScopeEmissions?: number;
+    airPollution?: number;
+    waterPollution?: number;
+    soilPollution?: number;
+    landUse?: number;
+    impermeableSurface?: number;
+    natureSurfaceOnSite?: number;
+    natureSurfaceOffSite?: number;
+    totalWaste?: number;
+    recycledWaste?: number;
+    hazardousWaste?: number;
+    recycledContent?: number;
+    recyclableContent?: number;
+    energyEmissionsDetails?: string;
+    pollutionDetails?: string;
+    biodiversityDetails?: string;
+    waterDetails?: string;
+    resourcesDetails?: string;
+  };
+}
+
 // Define the structure of report data
 export interface ReportData {
   environmentalMetrics: {
     carbonEmissions?: number;
-    energyConsumption?: number; // Total energy in MWh
-    fossilFuelEnergy?: number; // Fossil fuel energy in MWh
-    renewableEnergy?: number; // Renewable energy in MWh
+    energyConsumption?: number;
+    fossilFuelEnergy?: number;
+    renewableEnergy?: number;
     wasteGeneration?: number;
-    waterUsage?: number; // Total water withdrawal
-    waterConsumption?: number; // Water consumption (withdrawal - discharge)
-    waterStressAreas?: number; // Water withdrawal in water stress areas
+    waterUsage?: number;
+    waterConsumption?: number;
+    waterStressAreas?: number;
     scope1Data?: any;
     scope2Data?: any;
     scope3Data?: any;
-    totalScope1Emissions?: number; // Scope 1 emissions in tCO2eq
-    totalScope2Emissions?: number; // Scope 2 emissions in tCO2eq
-    totalScope3Emissions?: number; // Scope 3 emissions in tCO2eq
-    totalScopeEmissions?: number; // Total emissions
+    totalScope1Emissions?: number;
+    totalScope2Emissions?: number;
+    totalScope3Emissions?: number;
+    totalScopeEmissions?: number;
+    airPollution?: number;
+    waterPollution?: number;
+    soilPollution?: number;
+    landUse?: number;
+    impermeableSurface?: number;
+    natureSurfaceOnSite?: number;
+    natureSurfaceOffSite?: number;
+    totalWaste?: number;
+    recycledWaste?: number;
+    hazardousWaste?: number;
+    recycledContent?: number;
+    recyclableContent?: number;
+    energyEmissionsDetails?: string;
+    pollutionDetails?: string;
+    biodiversityDetails?: string;
+    waterDetails?: string;
+    resourcesDetails?: string;
     
-    // B4 - Pollution
-    airPollution?: number; // Air pollutants
-    waterPollution?: number; // Water pollutants
-    soilPollution?: number; // Soil pollutants
-    
-    // B5 - Biodiversity
-    landUse?: number; // Total land use in hectares
-    impermeableSurface?: number; // Total impermeable surface in hectares
-    natureSurfaceOnSite?: number; // Nature-oriented surface on site in hectares
-    natureSurfaceOffSite?: number; // Nature-oriented surface off site in hectares
-    
-    // B7 - Resources & Circular Economy
-    totalWaste?: number; // Total waste in kg or tons
-    recycledWaste?: number; // Recycled waste in kg or tons
-    hazardousWaste?: number; // Hazardous waste in kg or tons
-    recycledContent?: number; // Recycled content in products (%)
-    recyclableContent?: number; // Recyclable content in products (%)
+    locationMetrics?: LocationEnvironmentalMetrics[];
   };
   socialMetrics: {
     employeeDiversity?: number;
@@ -103,19 +144,19 @@ export interface ReportData {
     avgTrainingHoursMale?: number;
     avgTrainingHoursFemale?: number;
     employeesByCountry?: string;
-    workAccidentsNumber?: number; // Number of recordable work accidents
+    workAccidentsNumber?: number;
     totalHoursWorked?: number;
     workAccidentsRate?: number;
-    workAccidentDeaths?: number; // Deaths due to work accidents
-    workDiseaseDeaths?: number; // Deaths due to occupational diseases
-    entryWage?: number; // Entry wage
-    localMinimumWage?: number; // Local minimum wage
-    entryWageToMinimumWageRatio?: number; // Ratio of entry wage to minimum wage
-    genderPayGap?: number; // Gender pay gap (%)
-    collectiveBargainingCoverage?: number; // Collective bargaining coverage (%)
-    totalEmployeesFTE?: number; // Total employees in FTE
-    supplyChainImpactProcess?: string; // Process to identify supply chain impacts
-    identifiedImpacts?: string; // Identified impacts in supply chain
+    workAccidentDeaths?: number;
+    workDiseaseDeaths?: number;
+    entryWage?: number;
+    localMinimumWage?: number;
+    entryWageToMinimumWageRatio?: number;
+    genderPayGap?: number;
+    collectiveBargainingCoverage?: number;
+    totalEmployeesFTE?: number;
+    supplyChainImpactProcess?: string;
+    identifiedImpacts?: string;
     employeeTurnover?: number;
     workAccidents?: number;
   };
@@ -128,8 +169,8 @@ export interface ReportData {
     boardDiversity?: number;
     executivePayRatio?: number;
     sustainabilityCommittee?: number;
-    antiCorruptionConvictions?: number; // Number of convictions for corruption (B12)
-    antiCorruptionSanctions?: number; // Amount of sanctions paid for corruption (B12)
+    antiCorruptionConvictions?: number;
+    antiCorruptionSanctions?: number;
   };
   businessPartnersMetrics?: {
     totalSuppliers?: number;
@@ -152,6 +193,20 @@ export interface ReportData {
   narrativePATMetrics?: any;
 }
 
+// Default empty report data
+export const defaultReportData: ReportData = {
+  environmentalMetrics: {
+    locationMetrics: []
+  },
+  socialMetrics: {},
+  conductMetrics: {},
+  businessPartnersMetrics: {},
+  materialityAnalysis: {
+    issues: [],
+    stakeholders: []
+  }
+};
+
 // Context type definition
 export interface ReportContextType {
   reportData: ReportData;
@@ -171,19 +226,7 @@ export interface ReportContextType {
   setCurrentReport: React.Dispatch<React.SetStateAction<Report | null>>;
   saveSubsidiaries: (subsidiaries: Subsidiary[], reportId: string) => Promise<void>;
   saveCurrentReport: () => Promise<void>;
-  needsSaving: boolean; // Added this property to fix the error
-  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>; // Also add the setter for completeness
-  lastSaved: Date | null; // Added this to track when the report was last saved
+  needsSaving: boolean;
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>;
+  lastSaved: Date | null;
 }
-
-// Default empty report data
-export const defaultReportData: ReportData = {
-  environmentalMetrics: {},
-  socialMetrics: {},
-  conductMetrics: {},
-  businessPartnersMetrics: {},
-  materialityAnalysis: {
-    issues: [],
-    stakeholders: []
-  }
-};

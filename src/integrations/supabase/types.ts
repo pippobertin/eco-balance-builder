@@ -223,6 +223,35 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "municipalities_duplicate_province_code_fkey"
+            columns: ["province_code"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      municipalities_OLD: {
+        Row: {
+          id: number
+          name: string
+          postal_codes: string[]
+          province_code: string
+        }
+        Insert: {
+          id?: number
+          name: string
+          postal_codes: string[]
+          province_code: string
+        }
+        Update: {
+          id?: number
+          name?: string
+          postal_codes?: string[]
+          province_code?: string
+        }
+        Relationships: [
+          {
             foreignKeyName: "municipalities_province_code_fkey"
             columns: ["province_code"]
             isOneToOne: false

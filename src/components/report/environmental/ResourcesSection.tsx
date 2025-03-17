@@ -8,7 +8,7 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 
 interface ResourcesSectionProps {
   formValues: any;
-  setFormValues: React.Dispatch<React.SetStateAction<any>>;
+  setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void);
 }
 
 const ResourcesSection: React.FC<ResourcesSectionProps> = ({
@@ -16,14 +16,20 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
   setFormValues
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev: any) => ({
-      ...prev,
-      environmentalMetrics: {
-        ...prev.environmentalMetrics,
-        [name]: value
-      }
-    }));
+    // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
+    if (typeof setFormValues === 'function' && setFormValues.length === 1) {
+      setFormValues(e);
+    } else {
+      // This is the standard approach for global metrics
+      const { name, value } = e.target;
+      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          [name]: value
+        }
+      }));
+    }
   };
 
   return (

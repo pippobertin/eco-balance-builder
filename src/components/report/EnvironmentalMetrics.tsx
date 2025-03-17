@@ -6,6 +6,9 @@ import PollutionSection from './environmental/PollutionSection';
 import BiodiversitySection from './environmental/BiodiversitySection';
 import WaterSection from './environmental/WaterSection';
 import ResourcesSection from './environmental/ResourcesSection';
+import LocationSelector from './environmental/components/LocationSelector';
+import { useLocationMetrics } from './environmental/hooks/useLocationMetrics';
+import { useReport } from '@/context/ReportContext';
 
 interface EnvironmentalMetricsProps {
   formValues: any;
@@ -24,6 +27,20 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
   const biodiversityRef = useRef<HTMLDivElement>(null);
   const waterRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
+  
+  // Get current company
+  const { currentCompany } = useReport();
+  
+  // Use location metrics hook
+  const {
+    locations,
+    hasMultipleLocations,
+    isLoading,
+    selectedLocationId,
+    setSelectedLocationId,
+    getCurrentLocationMetrics,
+    handleLocationMetricsChange
+  } = useLocationMetrics(currentCompany?.id, formValues, setFormValues);
 
   useEffect(() => {
     // Scroll to the initial field if provided
@@ -41,34 +58,72 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
       }
     }
   }, [initialField]);
+  
+  // Get the appropriate metrics data and change handler based on whether we're using location-specific metrics
+  const getMetricsProps = () => {
+    if (hasMultipleLocations && selectedLocationId) {
+      // Return location-specific metrics and handler
+      return {
+        metricsData: getCurrentLocationMetrics(),
+        handleChange: handleLocationMetricsChange
+      };
+    } else {
+      // Return global metrics and handler
+      return {
+        metricsData: formValues.environmentalMetrics,
+        handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+          const { name, value } = e.target;
+          setFormValues((prev: any) => ({
+            ...prev,
+            environmentalMetrics: {
+              ...prev.environmentalMetrics,
+              [name]: value
+            }
+          }));
+        }
+      };
+    }
+  };
+  
+  const { metricsData, handleChange } = getMetricsProps();
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Ambiente</h2>
       
+      {/* Location selector - only show if the company has multiple locations */}
+      {hasMultipleLocations && (
+        <LocationSelector
+          locations={locations}
+          selectedLocationId={selectedLocationId}
+          onLocationChange={setSelectedLocationId}
+          isLoading={isLoading}
+        />
+      )}
+      
       {/* Emissions & Energy Section - B3 */}
       <div ref={emissionsRef}>
-        <EmissionsEnergySection formValues={formValues} setFormValues={setFormValues} />
+        <EmissionsEnergySection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
       </div>
       
       {/* Pollution Section - B4 */}
       <div ref={pollutionRef}>
-        <PollutionSection formValues={formValues} setFormValues={setFormValues} />
+        <PollutionSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
       </div>
       
       {/* Biodiversity Section - B5 */}
       <div ref={biodiversityRef}>
-        <BiodiversitySection formValues={formValues} setFormValues={setFormValues} />
+        <BiodiversitySection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
       </div>
       
       {/* Water Section - B6 */}
       <div ref={waterRef}>
-        <WaterSection formValues={formValues} setFormValues={setFormValues} />
+        <WaterSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
       </div>
       
       {/* Resources & Circular Economy Section - B7 */}
       <div ref={resourcesRef}>
-        <ResourcesSection formValues={formValues} setFormValues={setFormValues} />
+        <ResourcesSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
       </div>
     </div>
   );

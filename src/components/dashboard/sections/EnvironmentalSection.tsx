@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ReportData } from '@/context/types';
+import { ReportData, LocationEnvironmentalMetrics } from '@/context/types';
 import { Leaf } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +11,52 @@ interface EnvironmentalSectionProps {
 
 const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData, companyName }) => {
   const navigate = useNavigate();
+  
+  const getAggregatedMetrics = () => {
+    const locationMetrics = reportData.environmentalMetrics?.locationMetrics || [];
+    
+    if (locationMetrics.length > 0) {
+      const aggregated = {
+        totalScope1Emissions: 0,
+        totalScope2Emissions: 0,
+        totalScope3Emissions: 0,
+        totalScopeEmissions: 0,
+        energyConsumption: 0,
+        renewableEnergy: 0,
+        fossilFuelEnergy: 0,
+        waterUsage: 0,
+        waterConsumption: 0, 
+        waterStressAreas: 0,
+        landUse: 0,
+        impermeableSurface: 0,
+        natureSurfaceOnSite: 0,
+        natureSurfaceOffSite: 0,
+        airPollution: 0,
+        waterPollution: 0,
+        soilPollution: 0,
+        totalWaste: 0,
+        recycledWaste: 0,
+        hazardousWaste: 0,
+        recycledContent: 0,
+        recyclableContent: 0
+      };
+      
+      locationMetrics.forEach((loc: LocationEnvironmentalMetrics) => {
+        const metrics = loc.metrics;
+        
+        Object.keys(metrics).forEach(key => {
+          const value = Number(metrics[key]);
+          if (!isNaN(value) && aggregated.hasOwnProperty(key)) {
+            aggregated[key] += value;
+          }
+        });
+      });
+      
+      return aggregated;
+    } else {
+      return reportData.environmentalMetrics;
+    }
+  };
   
   const {
     totalScope1Emissions,
@@ -35,14 +80,12 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     hazardousWaste,
     recycledContent,
     recyclableContent
-  } = reportData.environmentalMetrics || {};
+  } = getAggregatedMetrics() || {};
 
-  // B3: GHG Emissions
   const emissionsData = [];
   if (totalScope1Emissions) emissionsData.push({ name: 'Scope 1', value: totalScope1Emissions });
   if (totalScope2Emissions) emissionsData.push({ name: 'Scope 2', value: totalScope2Emissions });
   
-  // B3: Energy
   const energyData = [];
   if (fossilFuelEnergy) energyData.push({ name: 'Combustibili\nFossili', value: fossilFuelEnergy });
   if (renewableEnergy) energyData.push({ name: 'Rinnovabile', value: renewableEnergy });
@@ -51,26 +94,22 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     energyData.push({ name: 'Altro', value: otherEnergy });
   }
 
-  // B4: Pollution
   const pollutionData = [];
   if (airPollution) pollutionData.push({ name: 'Aria', value: airPollution });
   if (waterPollution) pollutionData.push({ name: 'Acqua', value: waterPollution });
   if (soilPollution) pollutionData.push({ name: 'Suolo', value: soilPollution });
 
-  // B5: Biodiversity & Land Use
   const biodiversityData = [];
   if (landUse) biodiversityData.push({ name: 'Uso Totale\nTerreno', value: landUse });
   if (impermeableSurface) biodiversityData.push({ name: 'Superficie\nImpermeabilizzata', value: impermeableSurface });
   if (natureSurfaceOnSite) biodiversityData.push({ name: 'Sup. Naturale\nIn Sito', value: natureSurfaceOnSite });
   if (natureSurfaceOffSite) biodiversityData.push({ name: 'Sup. Naturale\nFuori Sito', value: natureSurfaceOffSite });
 
-  // B6: Water
   const waterData = [];
   if (waterUsage) waterData.push({ name: 'Prelievo\nIdrico', value: waterUsage });
   if (waterConsumption) waterData.push({ name: 'Consumo\nIdrico', value: waterConsumption });
   if (waterStressAreas) waterData.push({ name: 'Prelievo Aree\nStress Idrico', value: waterStressAreas });
 
-  // B7: Resources & Waste
   const wasteData = [];
   if (totalWaste) wasteData.push({ name: 'Totale\nRifiuti', value: totalWaste });
   if (recycledWaste) wasteData.push({ name: 'Rifiuti\nRiciclati', value: recycledWaste });
