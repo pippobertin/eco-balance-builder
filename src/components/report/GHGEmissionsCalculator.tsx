@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -119,7 +120,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       
       // Only update if there's at least one non-zero value
       if (scope1 > 0 || scope2 > 0 || scope3 > 0) {
-        updateInput('results', { scope1, scope2, scope3, total });
+        // Fixed: Using specific emission result values instead of "results" key
+        const newResults = { scope1, scope2, scope3, total };
+        // We need to set each property separately
+        Object.entries(newResults).forEach(([key, value]) => {
+          updateInput(key as keyof typeof inputs, value);
+        });
       }
     }
 
