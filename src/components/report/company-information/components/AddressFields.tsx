@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 export interface Province {
   code: string;
@@ -80,7 +81,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         
         // If only one postal code is available or none currently selected, auto-select it
         if (selectedMunicipality.postal_codes?.length === 1 || !addressData.address_postal_code) {
-          onChange({ address_postal_code: selectedMunicipality.postal_codes[0] });
+          onChange({ address_postal_code: selectedMunicipality.postal_codes?.[0] || '' });
         }
       } else {
         setPostalCodes([]);
@@ -100,12 +101,23 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       if (error) {
         console.error('Error loading provinces:', error);
+        toast({
+          title: 'Errore',
+          description: 'Impossibile caricare le province: ' + error.message,
+          variant: 'destructive',
+        });
         return;
       }
 
       setProvinces(data || []);
+      console.log('Province caricate:', data?.length || 0);
     } catch (error) {
       console.error('Failed to load provinces:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile caricare le province',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(prev => ({ ...prev, provinces: false }));
     }
@@ -114,6 +126,8 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
     try {
+      console.log('Caricamento comuni per la provincia:', provinceCode);
+      
       const { data, error } = await supabase
         .from('municipalities')
         .select('*')
@@ -122,12 +136,34 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       if (error) {
         console.error('Error loading municipalities:', error);
+        toast({
+          title: 'Errore',
+          description: 'Impossibile caricare i comuni: ' + error.message,
+          variant: 'destructive',
+        });
         return;
       }
 
+      console.log('Comuni caricati:', data?.length || 0, 'per la provincia', provinceCode);
       setMunicipalities(data || []);
+      
+      // Reset city and postal code when municipalities change
+      if (addressData.address_city) {
+        const cityExists = data?.some(m => m.name === addressData.address_city);
+        if (!cityExists) {
+          onChange({ 
+            address_city: '',
+            address_postal_code: ''
+          });
+        }
+      }
     } catch (error) {
       console.error('Failed to load municipalities:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile caricare i comuni',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(prev => ({ ...prev, municipalities: false }));
     }
@@ -203,7 +239,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             onValueChange={(value) => handleSelectChange('address_province', value)}
           >
             <SelectTrigger id="address_province">
-              <SelectValue placeholder="Seleziona provincia..." />
+              <SelectValue placeholder={isLoading.provinces ? "Caricamento..." : "Seleziona provincia..."} />
             </SelectTrigger>
             <SelectContent>
               {provinces.map((province) => (

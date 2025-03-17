@@ -1,178 +1,16 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.8.0";
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface Province {
-  code: string;
-  name: string;
-}
-
-interface Municipality {
-  name: string;
-  province_code: string;
-  postal_codes: string[];
-}
-
-const provinces: Province[] = [
-  { code: "AG", name: "Agrigento" },
-  { code: "AL", name: "Alessandria" },
-  { code: "AN", name: "Ancona" },
-  { code: "AO", name: "Aosta" },
-  { code: "AR", name: "Arezzo" },
-  { code: "AP", name: "Ascoli Piceno" },
-  { code: "AT", name: "Asti" },
-  { code: "AV", name: "Avellino" },
-  { code: "BA", name: "Bari" },
-  { code: "BT", name: "Barletta-Andria-Trani" },
-  { code: "BL", name: "Belluno" },
-  { code: "BN", name: "Benevento" },
-  { code: "BG", name: "Bergamo" },
-  { code: "BI", name: "Biella" },
-  { code: "BO", name: "Bologna" },
-  { code: "BZ", name: "Bolzano" },
-  { code: "BS", name: "Brescia" },
-  { code: "BR", name: "Brindisi" },
-  { code: "CA", name: "Cagliari" },
-  { code: "CL", name: "Caltanissetta" },
-  { code: "CB", name: "Campobasso" },
-  { code: "CE", name: "Caserta" },
-  { code: "CT", name: "Catania" },
-  { code: "CZ", name: "Catanzaro" },
-  { code: "CH", name: "Chieti" },
-  { code: "CO", name: "Como" },
-  { code: "CS", name: "Cosenza" },
-  { code: "CR", name: "Cremona" },
-  { code: "KR", name: "Crotone" },
-  { code: "CN", name: "Cuneo" },
-  { code: "EN", name: "Enna" },
-  { code: "FM", name: "Fermo" },
-  { code: "FE", name: "Ferrara" },
-  { code: "FI", name: "Firenze" },
-  { code: "FG", name: "Foggia" },
-  { code: "FC", name: "Forlì-Cesena" },
-  { code: "FR", name: "Frosinone" },
-  { code: "GE", name: "Genova" },
-  { code: "GO", name: "Gorizia" },
-  { code: "GR", name: "Grosseto" },
-  { code: "IM", name: "Imperia" },
-  { code: "IS", name: "Isernia" },
-  { code: "SP", name: "La Spezia" },
-  { code: "AQ", name: "L'Aquila" },
-  { code: "LT", name: "Latina" },
-  { code: "LE", name: "Lecce" },
-  { code: "LC", name: "Lecco" },
-  { code: "LI", name: "Livorno" },
-  { code: "LO", name: "Lodi" },
-  { code: "LU", name: "Lucca" },
-  { code: "MC", name: "Macerata" },
-  { code: "MN", name: "Mantova" },
-  { code: "MS", name: "Massa-Carrara" },
-  { code: "MT", name: "Matera" },
-  { code: "ME", name: "Messina" },
-  { code: "MI", name: "Milano" },
-  { code: "MO", name: "Modena" },
-  { code: "MB", name: "Monza e della Brianza" },
-  { code: "NA", name: "Napoli" },
-  { code: "NO", name: "Novara" },
-  { code: "NU", name: "Nuoro" },
-  { code: "OR", name: "Oristano" },
-  { code: "PD", name: "Padova" },
-  { code: "PA", name: "Palermo" },
-  { code: "PR", name: "Parma" },
-  { code: "PV", name: "Pavia" },
-  { code: "PG", name: "Perugia" },
-  { code: "PU", name: "Pesaro e Urbino" },
-  { code: "PE", name: "Pescara" },
-  { code: "PC", name: "Piacenza" },
-  { code: "PI", name: "Pisa" },
-  { code: "PT", name: "Pistoia" },
-  { code: "PN", name: "Pordenone" },
-  { code: "PZ", name: "Potenza" },
-  { code: "PO", name: "Prato" },
-  { code: "RG", name: "Ragusa" },
-  { code: "RA", name: "Ravenna" },
-  { code: "RC", name: "Reggio Calabria" },
-  { code: "RE", name: "Reggio Emilia" },
-  { code: "RI", name: "Rieti" },
-  { code: "RN", name: "Rimini" },
-  { code: "RM", name: "Roma" },
-  { code: "RO", name: "Rovigo" },
-  { code: "SA", name: "Salerno" },
-  { code: "SS", name: "Sassari" },
-  { code: "SV", name: "Savona" },
-  { code: "SI", name: "Siena" },
-  { code: "SR", name: "Siracusa" },
-  { code: "SO", name: "Sondrio" },
-  { code: "SU", name: "Sud Sardegna" },
-  { code: "TA", name: "Taranto" },
-  { code: "TE", name: "Teramo" },
-  { code: "TR", name: "Terni" },
-  { code: "TO", name: "Torino" },
-  { code: "TP", name: "Trapani" },
-  { code: "TN", name: "Trento" },
-  { code: "TV", name: "Treviso" },
-  { code: "TS", name: "Trieste" },
-  { code: "UD", name: "Udine" },
-  { code: "VA", name: "Varese" },
-  { code: "VE", name: "Venezia" },
-  { code: "VB", name: "Verbano-Cusio-Ossola" },
-  { code: "VC", name: "Vercelli" },
-  { code: "VR", name: "Verona" },
-  { code: "VV", name: "Vibo Valentia" },
-  { code: "VI", name: "Vicenza" },
-  { code: "VT", name: "Viterbo" }
-];
-
-// Example municipalities data - in a real scenario, this would be a complete dataset
-const municipalities: Municipality[] = [
-  // Roma municipalities
-  { name: "Roma", province_code: "RM", postal_codes: ["00100", "00118", "00121", "00122", "00123", "00124", "00125", "00126", "00127", "00128", "00131", "00133", "00135", "00136", "00137", "00138", "00139", "00141", "00142", "00143", "00144", "00145", "00146", "00147", "00148", "00149", "00151", "00152", "00153", "00154", "00155", "00156", "00159", "00161", "00162", "00164", "00165", "00167", "00168", "00169", "00171", "00172", "00173", "00174", "00175", "00176", "00177", "00178", "00179", "00181", "00182", "00183", "00184", "00185", "00186", "00187", "00188", "00189", "00191", "00192", "00193", "00195", "00196", "00197", "00198", "00199"] },
-  { name: "Fiumicino", province_code: "RM", postal_codes: ["00054", "00050", "00057"] },
-  { name: "Ciampino", province_code: "RM", postal_codes: ["00043"] },
-  
-  // Milano municipalities
-  { name: "Milano", province_code: "MI", postal_codes: ["20121", "20122", "20123", "20124", "20125", "20126", "20127", "20128", "20129", "20131", "20132", "20133", "20134", "20135", "20136", "20137", "20138", "20139", "20141", "20142", "20143", "20144", "20145", "20146", "20147", "20148", "20149", "20151", "20152", "20153", "20154", "20155", "20156", "20157", "20158", "20159", "20161", "20162"] },
-  { name: "Segrate", province_code: "MI", postal_codes: ["20090"] },
-  { name: "Corsico", province_code: "MI", postal_codes: ["20094"] },
-  
-  // Napoli municipalities
-  { name: "Napoli", province_code: "NA", postal_codes: ["80100", "80121", "80122", "80123", "80124", "80125", "80126", "80127", "80128", "80129", "80131", "80132", "80133", "80134", "80135", "80136", "80137", "80138", "80139", "80141", "80142", "80143", "80144", "80145", "80146", "80147"] },
-  { name: "Pozzuoli", province_code: "NA", postal_codes: ["80078"] },
-  { name: "Portici", province_code: "NA", postal_codes: ["80055"] },
-  
-  // Torino municipalities
-  { name: "Torino", province_code: "TO", postal_codes: ["10121", "10122", "10123", "10124", "10125", "10126", "10127", "10128", "10129", "10131", "10132", "10133", "10134", "10135", "10136", "10137", "10138", "10139", "10141", "10142", "10143", "10144", "10145", "10146", "10147", "10148", "10149", "10151", "10152", "10153", "10154", "10155", "10156"] },
-  { name: "Moncalieri", province_code: "TO", postal_codes: ["10024"] },
-  { name: "Rivoli", province_code: "TO", postal_codes: ["10098"] },
-  
-  // Bologna municipalities
-  { name: "Bologna", province_code: "BO", postal_codes: ["40121", "40122", "40123", "40124", "40125", "40126", "40127", "40128", "40129", "40131", "40132", "40133", "40134", "40135", "40136", "40137", "40138", "40139"] },
-  { name: "Casalecchio di Reno", province_code: "BO", postal_codes: ["40033"] },
-  { name: "San Lazzaro di Savena", province_code: "BO", postal_codes: ["40068"] },
-  
-  // Firenze municipalities
-  { name: "Firenze", province_code: "FI", postal_codes: ["50121", "50122", "50123", "50124", "50125", "50126", "50127", "50128", "50129", "50131", "50132", "50133", "50134", "50135", "50136", "50137", "50138", "50139", "50141", "50142", "50143", "50144", "50145"] },
-  { name: "Sesto Fiorentino", province_code: "FI", postal_codes: ["50019"] },
-  { name: "Scandicci", province_code: "FI", postal_codes: ["50018"] },
-  
-  // Bari municipalities
-  { name: "Bari", province_code: "BA", postal_codes: ["70121", "70122", "70123", "70124", "70125", "70126", "70127", "70128", "70129", "70131", "70132"] },
-  { name: "Modugno", province_code: "BA", postal_codes: ["70026"] },
-  { name: "Altamura", province_code: "BA", postal_codes: ["70022"] },
-  
-  // Sample for other provinces
-  { name: "Verona", province_code: "VR", postal_codes: ["37121", "37122", "37123", "37124", "37125", "37126", "37127", "37128", "37129", "37131", "37132", "37133", "37134", "37135", "37136", "37137", "37138", "37139", "37141", "37142"] },
-  { name: "Venezia", province_code: "VE", postal_codes: ["30121", "30122", "30123", "30124", "30125", "30126", "30127", "30128", "30129", "30131", "30132", "30133", "30134", "30135", "30136", "30137", "30138", "30139", "30141", "30142"] },
-  { name: "Genova", province_code: "GE", postal_codes: ["16121", "16122", "16123", "16124", "16125", "16126", "16127", "16128", "16129", "16131", "16132", "16133", "16134", "16135", "16136", "16137", "16138", "16139", "16141", "16142", "16143", "16144", "16145", "16146", "16147", "16148", "16149"] },
-  { name: "Palermo", province_code: "PA", postal_codes: ["90121", "90122", "90123", "90124", "90125", "90126", "90127", "90128", "90129", "90131", "90132", "90133", "90134", "90135", "90136", "90137", "90138", "90139", "90141", "90142", "90143", "90144", "90145", "90146", "90147"] },
-];
-
-serve(async (req) => {
+Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -182,60 +20,231 @@ serve(async (req) => {
     // Create a Supabase client with the Auth context of the logged in user
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { 
-        global: { 
-          headers: { Authorization: req.headers.get('Authorization')! } 
-        } 
-      }
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     );
 
-    // First check if we already have data
-    const { count: provinceCount, error: countError } = await supabaseClient
+    // Check if the tables already have data
+    const { count: provincesCount, error: provincesError } = await supabaseClient
       .from('provinces')
       .select('*', { count: 'exact', head: true });
 
-    if (countError) {
-      throw countError;
-    }
-
-    if (provinceCount && provinceCount > 0) {
-      return new Response(
-        JSON.stringify({ message: "Data already populated", count: provinceCount }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Insert provinces
-    const { error: provincesError } = await supabaseClient
-      .from('provinces')
-      .insert(provinces);
-
     if (provincesError) {
+      console.error("Error checking provinces:", provincesError);
       throw provincesError;
     }
 
+    if (provincesCount && provincesCount > 0) {
+      console.log("Data already exists in the provinces table. Operation skipped.");
+      return new Response(
+        JSON.stringify({ message: "Data already exists in the database. Operation skipped." }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
+    }
+
+    console.log("Starting data import...");
+
+    // Perform data import 
+    // (This is a simplified example - you'd typically have real location data)
+    const provinces = [
+      { code: "AG", name: "Agrigento" },
+      { code: "AL", name: "Alessandria" },
+      { code: "AN", name: "Ancona" },
+      { code: "AO", name: "Aosta" },
+      { code: "AP", name: "Ascoli Piceno" },
+      { code: "AQ", name: "L'Aquila" },
+      { code: "AR", name: "Arezzo" },
+      { code: "AT", name: "Asti" },
+      { code: "AV", name: "Avellino" },
+      { code: "BA", name: "Bari" },
+      { code: "BG", name: "Bergamo" },
+      { code: "BI", name: "Biella" },
+      { code: "BL", name: "Belluno" },
+      { code: "BN", name: "Benevento" },
+      { code: "BO", name: "Bologna" },
+      { code: "BR", name: "Brindisi" },
+      { code: "BS", name: "Brescia" },
+      { code: "BT", name: "Barletta-Andria-Trani" },
+      { code: "CA", name: "Cagliari" },
+      { code: "CB", name: "Campobasso" },
+      { code: "CE", name: "Caserta" },
+      { code: "CH", name: "Chieti" },
+      { code: "CL", name: "Caltanissetta" },
+      { code: "CN", name: "Cuneo" },
+      { code: "CO", name: "Como" },
+      { code: "CR", name: "Cremona" },
+      { code: "CS", name: "Cosenza" },
+      { code: "CT", name: "Catania" },
+      { code: "CZ", name: "Catanzaro" },
+      { code: "EN", name: "Enna" },
+      { code: "FC", name: "Forlì-Cesena" },
+      { code: "FE", name: "Ferrara" },
+      { code: "FG", name: "Foggia" },
+      { code: "FI", name: "Firenze" },
+      { code: "FM", name: "Fermo" },
+      { code: "FR", name: "Frosinone" },
+      { code: "GE", name: "Genova" },
+      { code: "GO", name: "Gorizia" },
+      { code: "GR", name: "Grosseto" },
+      { code: "IM", name: "Imperia" },
+      { code: "IS", name: "Isernia" },
+      { code: "KR", name: "Crotone" },
+      { code: "LC", name: "Lecco" },
+      { code: "LE", name: "Lecce" },
+      { code: "LI", name: "Livorno" },
+      { code: "LO", name: "Lodi" },
+      { code: "LT", name: "Latina" },
+      { code: "LU", name: "Lucca" },
+      { code: "MB", name: "Monza e Brianza" },
+      { code: "MC", name: "Macerata" },
+      { code: "ME", name: "Messina" },
+      { code: "MI", name: "Milano" },
+      { code: "MN", name: "Mantova" },
+      { code: "MO", name: "Modena" },
+      { code: "MS", name: "Massa-Carrara" },
+      { code: "MT", name: "Matera" },
+      { code: "NA", name: "Napoli" },
+      { code: "NO", name: "Novara" },
+      { code: "NU", name: "Nuoro" },
+      { code: "OR", name: "Oristano" },
+      { code: "PA", name: "Palermo" },
+      { code: "PC", name: "Piacenza" },
+      { code: "PD", name: "Padova" },
+      { code: "PE", name: "Pescara" },
+      { code: "PG", name: "Perugia" },
+      { code: "PI", name: "Pisa" },
+      { code: "PN", name: "Pordenone" },
+      { code: "PO", name: "Prato" },
+      { code: "PR", name: "Parma" },
+      { code: "PT", name: "Pistoia" },
+      { code: "PU", name: "Pesaro e Urbino" },
+      { code: "PV", name: "Pavia" },
+      { code: "PZ", name: "Potenza" },
+      { code: "RA", name: "Ravenna" },
+      { code: "RC", name: "Reggio Calabria" },
+      { code: "RE", name: "Reggio Emilia" },
+      { code: "RG", name: "Ragusa" },
+      { code: "RI", name: "Rieti" },
+      { code: "RM", name: "Roma" },
+      { code: "RN", name: "Rimini" },
+      { code: "RO", name: "Rovigo" },
+      { code: "SA", name: "Salerno" },
+      { code: "SI", name: "Siena" },
+      { code: "SO", name: "Sondrio" },
+      { code: "SP", name: "La Spezia" },
+      { code: "SR", name: "Siracusa" },
+      { code: "SS", name: "Sassari" },
+      { code: "SU", name: "Sud Sardegna" },
+      { code: "SV", name: "Savona" },
+      { code: "TA", name: "Taranto" },
+      { code: "TE", name: "Teramo" },
+      { code: "TN", name: "Trento" },
+      { code: "TO", name: "Torino" },
+      { code: "TP", name: "Trapani" },
+      { code: "TR", name: "Terni" },
+      { code: "TS", name: "Trieste" },
+      { code: "TV", name: "Treviso" },
+      { code: "UD", name: "Udine" },
+      { code: "VA", name: "Varese" },
+      { code: "VB", name: "Verbano-Cusio-Ossola" },
+      { code: "VC", name: "Vercelli" },
+      { code: "VE", name: "Venezia" },
+      { code: "VI", name: "Vicenza" },
+      { code: "VR", name: "Verona" },
+      { code: "VT", name: "Viterbo" },
+      { code: "VV", name: "Vibo Valentia" }
+    ];
+
+    // Insert provinces
+    const { error: insertProvincesError } = await supabaseClient
+      .from('provinces')
+      .insert(provinces);
+
+    if (insertProvincesError) {
+      console.error("Error inserting provinces:", insertProvincesError);
+      throw insertProvincesError;
+    }
+
+    console.log("Provinces inserted successfully");
+
+    // Add sample municipalities for testing
+    const municipalities = [
+      // Milano province
+      { name: "Milano", province_code: "MI", postal_codes: ["20121", "20122", "20123", "20124", "20125"] },
+      { name: "Sesto San Giovanni", province_code: "MI", postal_codes: ["20099"] },
+      { name: "Cinisello Balsamo", province_code: "MI", postal_codes: ["20092"] },
+      { name: "Legnano", province_code: "MI", postal_codes: ["20025"] },
+      { name: "Rho", province_code: "MI", postal_codes: ["20017"] },
+      
+      // Roma province
+      { name: "Roma", province_code: "RM", postal_codes: ["00118", "00119", "00120", "00121", "00122", "00123", "00124", "00125", "00126", "00127", "00128", "00129", "00130", "00131", "00132", "00133", "00134", "00135", "00136", "00137", "00138", "00139", "00140", "00141", "00142", "00143", "00144", "00145", "00146", "00147", "00148", "00149", "00150", "00151", "00152", "00153", "00154", "00155", "00156", "00157", "00158", "00159", "00160", "00161", "00162", "00163", "00164", "00165", "00166", "00167", "00168", "00169", "00170", "00171", "00172", "00173", "00174", "00175", "00176", "00177", "00178", "00179", "00181", "00182", "00183", "00184", "00185", "00186", "00187", "00188", "00189", "00190", "00191", "00192", "00193", "00194", "00195", "00196", "00197", "00198", "00199"] },
+      { name: "Fiumicino", province_code: "RM", postal_codes: ["00054"] },
+      { name: "Civitavecchia", province_code: "RM", postal_codes: ["00053"] },
+      { name: "Tivoli", province_code: "RM", postal_codes: ["00019"] },
+      { name: "Pomezia", province_code: "RM", postal_codes: ["00040"] },
+      
+      // Torino province
+      { name: "Torino", province_code: "TO", postal_codes: ["10121", "10122", "10123", "10124", "10125", "10126", "10127", "10128", "10129", "10130", "10131", "10132", "10133", "10134", "10135", "10136", "10137", "10138", "10139", "10140", "10141", "10142", "10143", "10144", "10145", "10146", "10147", "10148", "10149", "10150", "10151", "10152", "10153", "10154", "10155", "10156"] },
+      { name: "Moncalieri", province_code: "TO", postal_codes: ["10024"] },
+      { name: "Rivoli", province_code: "TO", postal_codes: ["10098"] },
+      { name: "Pinerolo", province_code: "TO", postal_codes: ["10064"] },
+      { name: "Chieri", province_code: "TO", postal_codes: ["10023"] },
+      
+      // Napoli province
+      { name: "Napoli", province_code: "NA", postal_codes: ["80121", "80122", "80123", "80124", "80125", "80126", "80127", "80128", "80129", "80130", "80131", "80132", "80133", "80134", "80135", "80136", "80137", "80138", "80139", "80140", "80141", "80142", "80143", "80144", "80145", "80146", "80147"] },
+      { name: "Pozzuoli", province_code: "NA", postal_codes: ["80078"] },
+      { name: "Portici", province_code: "NA", postal_codes: ["80055"] },
+      { name: "Casoria", province_code: "NA", postal_codes: ["80026"] },
+      { name: "Castellammare di Stabia", province_code: "NA", postal_codes: ["80053"] },
+      
+      // Bologna province
+      { name: "Bologna", province_code: "BO", postal_codes: ["40121", "40122", "40123", "40124", "40125", "40126", "40127", "40128", "40129", "40130", "40131", "40132", "40133", "40134", "40135", "40136", "40137", "40138", "40139"] },
+      { name: "Imola", province_code: "BO", postal_codes: ["40026"] },
+      { name: "San Lazzaro di Savena", province_code: "BO", postal_codes: ["40068"] },
+      { name: "Casalecchio di Reno", province_code: "BO", postal_codes: ["40033"] },
+      { name: "Budrio", province_code: "BO", postal_codes: ["40054"] }
+    ];
+
     // Insert municipalities
-    const { error: municipalitiesError } = await supabaseClient
+    const { error: insertMunicipalitiesError } = await supabaseClient
       .from('municipalities')
       .insert(municipalities);
 
-    if (municipalitiesError) {
-      throw municipalitiesError;
+    if (insertMunicipalitiesError) {
+      console.error("Error inserting municipalities:", insertMunicipalitiesError);
+      throw insertMunicipalitiesError;
     }
+
+    console.log("Municipalities inserted successfully");
 
     return new Response(
       JSON.stringify({ 
-        message: "Data populated successfully", 
-        provincesCount: provinces.length,
-        municipalitiesCount: municipalities.length
+        message: "Italian locations data imported successfully",
+        provinces_count: provinces.length,
+        municipalities_count: municipalities.length
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200 
+      }
     );
   } catch (error) {
+    console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400 
+      }
     );
   }
 });
+
+// To invoke:
+// curl -i --location --request POST 'http://localhost:54321/functions/v1/populate-italian-locations' \
+//   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+//   --header 'Content-Type: application/json' \
+//   --data '{"name":"Functions"}'
