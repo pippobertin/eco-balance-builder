@@ -5,7 +5,6 @@ import { Company } from '@/context/types';
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { GroupCompany, CompanyLocation } from './CompanyGeneralInfo';
 import { AddressData } from './components/AddressFields';
-import { ensureLocationData } from './utils/locationDataUtils';
 
 interface CompanyDataState {
   name: string;
@@ -61,45 +60,14 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     address_province: ''
   });
 
-  const ensureLocationDataLoaded = async () => {
-    try {
-      console.log('Verifica dei dati delle località...');
-      const result = await ensureLocationData();
-      
-      if (result.success) {
-        console.log('Dati delle località disponibili:', result.data);
-      } else {
-        console.warn('Impossibile verificare o popolare i dati delle località:', result.message || 'Nessun messaggio');
-        
-        // Mostriamo un toast informativo ma non blocchiamo l'applicazione
-        toast({
-          title: 'Avviso',
-          description: 'I dati di province e comuni potrebbero non essere disponibili. Alcune funzionalità potrebbero essere limitate.',
-          variant: 'default', // Changed from 'warning' to 'default'
-        });
-      }
-      
-      return true; // Ritorniamo true per indicare che la funzione è stata eseguita senza errori fatali
-    } catch (error) {
-      console.error('Errore durante la verifica dei dati delle località:', error);
-      
-      // Mostriamo un toast di avviso ma non blocchiamo l'applicazione
-      toast({
-        title: 'Avviso',
-        description: 'Impossibile verificare la disponibilità dei dati di province e comuni.',
-        variant: 'default', // Changed from 'warning' to 'default'
-      });
-      
-      return false;
-    }
-  };
-
   useEffect(() => {
+    // Reset loading state when component mounts or currentCompany changes
     if (!currentCompany || !currentCompany.id) {
       setIsLoading(false);
       return;
     }
     
+    // Prevent duplicate loading
     if (loadingAttemptedRef.current && companyData.name) {
       return;
     }
@@ -107,95 +75,75 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     setIsLoading(true);
     loadingAttemptedRef.current = true;
     
-    const loadData = async () => {
+    // Load the company data
+    const loadCompanyDetails = async () => {
       try {
-        // Verifichiamo la disponibilità dei dati delle località, ma non blocchiamo se fallisce
-        await ensureLocationDataLoaded();
+        console.log("Loading company details for:", currentCompany.id);
         
-        // Carichiamo i dettagli dell'azienda indipendentemente dal risultato precedente
-        await loadCompanyDetails();
+        const { data, error } = await withRetry(() => 
+          supabase
+            .from('companies')
+            .select('*')
+            .eq('id', currentCompany.id)
+            .single()
+        );
+
+        if (error) {
+          console.error("Error loading company data:", error);
+          throw error;
+        }
+
+        if (data) {
+          console.log("Company data loaded successfully:", data);
+          setCompanyData({
+            name: data.name || '',
+            vat_number: data.vat_number || '',
+            ateco_code: data.ateco_code || '',
+            nace_code: data.nace_code || '',
+            legal_form: data.legal_form || '',
+            collective_agreement: data.collective_agreement || '',
+            profile_about: data.profile_about || '',
+            profile_values: data.profile_values || '',
+            profile_mission: data.profile_mission || '',
+            profile_vision: data.profile_vision || '',
+            profile_value_chain: data.profile_value_chain || '',
+            profile_value_creation_factors: data.profile_value_creation_factors || '',
+            is_part_of_group: data.is_part_of_group || false,
+            has_multiple_locations: data.has_multiple_locations || false,
+            address_street_type: data.address_street_type || '',
+            address_street: data.address_street || '',
+            address_number: data.address_number || '',
+            address_postal_code: data.address_postal_code || '',
+            address_city: data.address_city || '',
+            address_province: data.address_province || ''
+          });
+
+          // Load group companies if is_part_of_group is true
+          if (data.is_part_of_group) {
+            loadGroupCompanies(currentCompany.id);
+          }
+          
+          // Load company locations if has_multiple_locations is true
+          if (data.has_multiple_locations) {
+            loadCompanyLocations(currentCompany.id);
+          }
+        } else {
+          console.error("No company data found for ID:", currentCompany.id);
+        }
       } catch (error) {
-        console.error('Errore durante il caricamento dei dati:', error);
-        setIsLoading(false);
+        console.error('Error loading company details:', error);
         toast({
           title: 'Errore',
-          description: 'Si è verificato un errore durante il caricamento dei dati dell\'azienda.',
+          description: 'Impossibile caricare i dettagli aziendali',
           variant: 'destructive'
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    loadData();
+    loadCompanyDetails();
   }, [currentCompany?.id]);
-
-  const loadCompanyDetails = async () => {
-    if (!currentCompany || !currentCompany.id) {
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      console.log("Loading company details for:", currentCompany.id);
-      
-      const { data, error } = await withRetry(() => 
-        supabase
-          .from('companies')
-          .select('*')
-          .eq('id', currentCompany.id)
-          .single()
-      );
-
-      if (error) {
-        console.error("Error loading company data:", error);
-        throw error;
-      }
-
-      if (data) {
-        console.log("Company data loaded successfully:", data);
-        setCompanyData({
-          name: data.name || '',
-          vat_number: data.vat_number || '',
-          ateco_code: data.ateco_code || '',
-          nace_code: data.nace_code || '',
-          legal_form: data.legal_form || '',
-          collective_agreement: data.collective_agreement || '',
-          profile_about: data.profile_about || '',
-          profile_values: data.profile_values || '',
-          profile_mission: data.profile_mission || '',
-          profile_vision: data.profile_vision || '',
-          profile_value_chain: data.profile_value_chain || '',
-          profile_value_creation_factors: data.profile_value_creation_factors || '',
-          is_part_of_group: data.is_part_of_group || false,
-          has_multiple_locations: data.has_multiple_locations || false,
-          address_street_type: data.address_street_type || '',
-          address_street: data.address_street || '',
-          address_number: data.address_number || '',
-          address_postal_code: data.address_postal_code || '',
-          address_city: data.address_city || '',
-          address_province: data.address_province || ''
-        });
-
-        if (data.is_part_of_group) {
-          loadGroupCompanies(currentCompany.id);
-        }
-        
-        if (data.has_multiple_locations) {
-          loadCompanyLocations(currentCompany.id);
-        }
-      } else {
-        console.error("No company data found for ID:", currentCompany.id);
-      }
-    } catch (error) {
-      console.error('Error loading company details:', error);
-      toast({
-        title: 'Errore',
-        description: 'Impossibile caricare i dettagli aziendali',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const loadGroupCompanies = async (companyId: string) => {
     try {
@@ -288,6 +236,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }));
   };
 
+  // Group companies handlers
   const handleAddGroupCompany = async (company: GroupCompany) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -383,6 +332,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedCompany = groupCompanies[index];
     if (!removedCompany || !removedCompany.id) {
+      // If the company doesn't have an ID, it was added locally but not saved to the database
       setGroupCompanies(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -416,6 +366,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     }
   };
 
+  // Company locations handlers
   const handleAddLocation = async (location: CompanyLocation) => {
     if (!currentCompany || !currentCompany.id) return;
     
@@ -509,6 +460,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     
     const removedLocation = companyLocations[index];
     if (!removedLocation || !removedLocation.id) {
+      // If the location doesn't have an ID, it was added locally but not saved to the database
       setCompanyLocations(prev => prev.filter((_, i) => i !== index));
       return;
     }
@@ -557,6 +509,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     try {
       console.log("Saving company info for:", currentCompany.id);
       
+      // Update company data
       const updateData = {
         name: companyData.name,
         vat_number: companyData.vat_number,
@@ -598,6 +551,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         description: 'Le informazioni aziendali sono state salvate con successo',
       });
       
+      // Only proceed to next step if callback provided
       if (onNext) {
         onNext();
       }

@@ -20,6 +20,7 @@ port = 54324
 
 [auth]
 enabled = true
+port = 54325
 
 [storage]
 enabled = true
@@ -27,6 +28,6 @@ enabled = true
 [realtime]
 enabled = true
 
-[functions]
-[functions.populate-italian-locations]
+[edge_functions]
+[edge_functions.populate-italian-locations]
 verify_jwt = false
