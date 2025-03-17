@@ -167,6 +167,16 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
     );
   };
 
+  // Helper function to create a synthetic event for form updates
+  const createSyntheticEvent = (name: string, value: string): React.ChangeEvent<HTMLInputElement> => {
+    return {
+      target: {
+        name,
+        value
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+  };
+
   // Funzione per calcolare le emissioni per ogni fonte
   const calculateEmissions = useCallback(() => {
     // Calcola emissioni Scope 1
@@ -278,41 +288,14 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ formVal
     if (typeof setFormValues === 'function') {
       if (setFormValues.length === 1) {
         // Se è una funzione che accetta direttamente un evento
-        // Creiamo un evento sintetico
-        const syntheticEvent = {
-          target: {
-            name: 'totalScope1Emissions',
-            value: scope1Total.toFixed(2)
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        setFormValues(syntheticEvent);
-        
-        const syntheticEvent2 = {
-          target: {
-            name: 'totalScope2Emissions',
-            value: scope2Total.toFixed(2)
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        setFormValues(syntheticEvent2);
-        
-        const syntheticEvent3 = {
-          target: {
-            name: 'totalScope3Emissions',
-            value: scope3Total.toFixed(2)
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        setFormValues(syntheticEvent3);
-        
-        const syntheticEvent4 = {
-          target: {
-            name: 'totalScopeEmissions',
-            value: total.toFixed(2)
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        setFormValues(syntheticEvent4);
+        // Creiamo eventi sintetici per ogni valore
+        setFormValues(createSyntheticEvent('totalScope1Emissions', scope1Total.toFixed(2)));
+        setFormValues(createSyntheticEvent('totalScope2Emissions', scope2Total.toFixed(2)));
+        setFormValues(createSyntheticEvent('totalScope3Emissions', scope3Total.toFixed(2)));
+        setFormValues(createSyntheticEvent('totalScopeEmissions', total.toFixed(2)));
       } else {
         // Altrimenti è una funzione di aggiornamento dello stato
-        setFormValues((prev: any) => ({
+        (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
           ...prev,
           environmentalMetrics: {
             ...prev.environmentalMetrics,
