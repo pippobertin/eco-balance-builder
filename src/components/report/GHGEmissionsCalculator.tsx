@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,7 @@ interface GHGEmissionsCalculatorProps {
   setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement>) => void);
 }
 
-// Interfacce per le fonti di emissione con ID unico
+// Interface per la fonte di emissione Scope 1
 interface Scope1EmissionSource {
   type: 'scope1';
   id: string;
@@ -38,6 +39,7 @@ interface Scope1EmissionSource {
   calculatedEmissions?: number;
 }
 
+// Interface per la fonte di emissione Scope 2
 interface Scope2EmissionSource {
   type: 'scope2';
   id: string;
@@ -45,6 +47,7 @@ interface Scope2EmissionSource {
   calculatedEmissions?: number;
 }
 
+// Interface per la fonte di emissione Scope 3
 interface Scope3EmissionSource {
   type: 'scope3';
   id: string;
@@ -52,6 +55,7 @@ interface Scope3EmissionSource {
   calculatedEmissions?: number;
 }
 
+// Tipo unione per tutti i tipi di fonti di emissione
 type EmissionSource = Scope1EmissionSource | Scope2EmissionSource | Scope3EmissionSource;
 
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
@@ -140,7 +144,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   ) => {
     setScope1Sources(prev => prev.map(source => 
       source.id === sourceId 
-        ? { ...source, data: { ...source.data, [key]: value } as Scope1Data } 
+        ? { ...source, data: { ...source.data, [key]: value } } 
         : source
     ));
     setScope1Error(null);
@@ -154,7 +158,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   ) => {
     setScope2Sources(prev => prev.map(source => 
       source.id === sourceId 
-        ? { ...source, data: { ...source.data, [key]: value } as Scope2Data } 
+        ? { ...source, data: { ...source.data, [key]: value } } 
         : source
     ));
     setScope2Error(null);
@@ -168,7 +172,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   ) => {
     setScope3Sources(prev => prev.map(source => 
       source.id === sourceId 
-        ? { ...source, data: { ...source.data, [key]: value } as Scope3Data } 
+        ? { ...source, data: { ...source.data, [key]: value } } 
         : source
     ));
     setScope3Error(null);
@@ -818,3 +822,159 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor={`activityType-${source.id}`}>Tipo di attività</Label>
+                <Select 
+                  value={source.data.activityType} 
+                  onValueChange={(value) => handleScope3SourceChange(source.id, 'activityType', value)}
+                >
+                  <SelectTrigger id={`activityType-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona tipo attività" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableScope3Types().map(activity => (
+                      <SelectItem key={activity.value} value={activity.value}>
+                        {activity.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor={`quantity-${source.id}`}>Quantità primaria</Label>
+                <Input
+                  type="number"
+                  id={`quantity-${source.id}`}
+                  value={source.data.quantity || ''}
+                  onChange={(e) => handleScope3SourceChange(source.id, 'quantity', e.target.value)}
+                  placeholder="es. 5000"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`unit-${source.id}`}>Unità primaria</Label>
+                <Select 
+                  value={source.data.unit} 
+                  onValueChange={(value) => handleScope3SourceChange(source.id, 'unit', value)}
+                >
+                  <SelectTrigger id={`unit-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona unità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableUnits('TRANSPORT').map(unit => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Alcuni tipi di attività richiedono una quantità secondaria (es. trasporto merci: distanza + peso) */}
+              {(source.data.activityType === 'FREIGHT_ROAD' || 
+                source.data.activityType === 'FREIGHT_RAIL' || 
+                source.data.activityType === 'FREIGHT_SEA' || 
+                source.data.activityType === 'FREIGHT_AIR') && (
+                <>
+                  <div>
+                    <Label htmlFor={`secondaryQuantity-${source.id}`}>Peso merci</Label>
+                    <Input
+                      type="number"
+                      id={`secondaryQuantity-${source.id}`}
+                      value={source.data.secondaryQuantity || ''}
+                      onChange={(e) => handleScope3SourceChange(source.id, 'secondaryQuantity', e.target.value)}
+                      placeholder="es. 2"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`secondaryUnit-${source.id}`}>Unità peso</Label>
+                    <Select 
+                      value={source.data.secondaryUnit || 't'} 
+                      onValueChange={(value) => handleScope3SourceChange(source.id, 'secondaryUnit', value)}
+                    >
+                      <SelectTrigger id={`secondaryUnit-${source.id}`} className="w-full">
+                        <SelectValue placeholder="Seleziona unità" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="kg">Chilogrammi (kg)</SelectItem>
+                        <SelectItem value="t">Tonnellate (t)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+        
+        <div className="mt-2 mb-4">
+          <Button 
+            onClick={addScope3Source} 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1 text-blue-600 border-blue-300 hover:bg-blue-50"
+          >
+            <PlusCircle className="h-4 w-4" /> Aggiungi fonte di emissione
+          </Button>
+        </div>
+        
+        {scope3Error && (
+          <div className="mt-2 text-sm text-red-500">
+            {scope3Error}
+          </div>
+        )}
+        
+        <div className="mt-4 flex justify-between items-center">
+          <button
+            type="button"
+            onClick={() => setShowScope3Options(!showScope3Options)}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            {showScope3Options ? 'Nascondi opzioni avanzate' : 'Mostra opzioni avanzate'}
+          </button>
+          
+          <button
+            onClick={calculateAndSaveScope3Emissions}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+          >
+            Calcola Emissioni Scope 3
+          </button>
+        </div>
+        
+        {showScope3Options && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <h5 className="font-medium mb-2">Dettagli sui fattori di emissione</h5>
+            <div className="text-sm text-gray-600">
+              {scope3Sources.map((source, index) => (
+                <div key={`source-details-${source.id}`} className="mb-2">
+                  <p>
+                    <strong>Fonte {index + 1}:</strong> {getEmissionFactorSource(source.data.activityType)?.name || 'Non disponibile'}
+                    {getEmissionFactorSource(source.data.activityType) && (
+                      <a 
+                        href={getEmissionFactorSource(source.data.activityType)?.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-500 hover:underline"
+                      >
+                        Visualizza fonte
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ))}
+              <p>Anno di riferimento: 2023</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GHGEmissionsCalculator;
