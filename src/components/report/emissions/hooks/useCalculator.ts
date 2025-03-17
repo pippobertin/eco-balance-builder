@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
 import { CalculatorState, EmissionsResults } from '../types';
+import { useToast } from '@/hooks/use-toast';
 
 export const useCalculator = (
   formValues: any,
@@ -17,6 +19,8 @@ export const useCalculator = (
     scope3: 0,
     total: 0
   });
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const { toast } = useToast();
 
   // Get the form value updater
   const { updateFormValues } = useFormValueUpdater(setFormValues);
@@ -47,8 +51,8 @@ export const useCalculator = (
     setCalculatedEmissions
   );
 
-  // Handle reset button click delegated from EmissionsResults component
-  const handleResetClick = () => {
+  // Function to perform the actual reset
+  const performReset = () => {
     // First, reset the local state to show zeros in the UI
     setCalculatedEmissions({
       scope1: 0,
@@ -63,10 +67,34 @@ export const useCalculator = (
     updateFormValues('totalScope3Emissions', '0');
     updateFormValues('totalScopeEmissions', '0');
     
+    // Show toast confirmation
+    toast({
+      title: "Calcoli azzerati",
+      description: "I dati delle emissioni sono stati azzerati correttamente.",
+      duration: 3000,
+    });
+    
     // Finally, if there's an external reset handler, call it
     if (onResetClick) {
       onResetClick();
     }
+  };
+
+  // Handle reset button click delegated from EmissionsResults component
+  const handleResetClick = () => {
+    // Show dialog to confirm reset
+    setShowResetDialog(true);
+  };
+
+  // Handler for dialog confirmation
+  const handleResetConfirm = () => {
+    performReset();
+    setShowResetDialog(false);
+  };
+
+  // Handler for dialog cancellation
+  const handleResetCancel = () => {
+    setShowResetDialog(false);
   };
 
   return {
@@ -76,6 +104,10 @@ export const useCalculator = (
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick
+    handleResetClick,
+    showResetDialog,
+    setShowResetDialog,
+    handleResetConfirm,
+    handleResetCancel
   };
 };

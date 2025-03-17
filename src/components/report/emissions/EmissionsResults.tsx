@@ -20,6 +20,7 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
   const handleResetClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Call the reset handler without making any immediate changes
     onResetClick();
   };
 

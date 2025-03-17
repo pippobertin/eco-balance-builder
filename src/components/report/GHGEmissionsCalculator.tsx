@@ -1,18 +1,18 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Calculator } from 'lucide-react';
-import { EmissionFactorSource, PeriodType } from '@/lib/emissions-types';
-import { GHGEmissionsCalculatorProps } from './emissions/types';
-import { useCalculator } from './emissions/hooks/useCalculator';
-
-// Import refactored components
 import Scope1Form from './emissions/Scope1Form';
 import Scope2Form from './emissions/Scope2Form';
 import Scope3Form from './emissions/Scope3Form';
-import EmissionsResults from './emissions/EmissionsResults';
 import CalculatorHeader from './emissions/CalculatorHeader';
+import EmissionsResults from './emissions/EmissionsResults';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCalculator } from './emissions/hooks/useCalculator';
+
+interface GHGEmissionsCalculatorProps {
+  formValues: any;
+  setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void);
+  onResetClick?: (callback: () => void) => void;
+}
 
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ 
   formValues, 
@@ -26,89 +26,68 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick
-  } = useCalculator(formValues, setFormValues, onResetClick);
-  
+    handleResetClick: calculatorResetHandler,
+    showResetDialog,
+    setShowResetDialog,
+    handleResetConfirm,
+    handleResetCancel
+  } = useCalculator(formValues, setFormValues);
+
+  // Use the external reset handler if provided, otherwise use the internal one
+  const handleResetClick = () => {
+    if (onResetClick) {
+      // Pass the calculatorResetHandler as a callback to be executed after confirmation
+      onResetClick(handleResetConfirm);
+    } else {
+      // Use internal reset handler
+      calculatorResetHandler();
+    }
+  };
+
   return (
-    <div className="border rounded-md p-4 bg-white/80">
-      <CalculatorHeader 
-        calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA}
-        setCalculationMethod={(value) => updateInput('calculationMethod', value)}
-      />
+    <div className="mb-6">
+      <CalculatorHeader />
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="scope1">Scope 1 - Emissioni Dirette</TabsTrigger>
-          <TabsTrigger value="scope2">Scope 2 - Energia</TabsTrigger>
-          <TabsTrigger value="scope3">Scope 3 - Altre Emissioni</TabsTrigger>
-        </TabsList>
-        
-        {/* Scope 1 Content */}
-        <TabsContent value="scope1" className="space-y-4">
-          <Scope1Form
-            scope1Source={inputs.scope1Source || 'fuel'}
-            setScope1Source={(value) => updateInput('scope1Source', value)}
-            fuelType={inputs.fuelType || 'DIESEL'}
-            setFuelType={(value) => updateInput('fuelType', value)}
-            fuelQuantity={inputs.fuelQuantity || ''}
-            setFuelQuantity={(value) => updateInput('fuelQuantity', value)}
-            fuelUnit={inputs.fuelUnit || 'L'}
-            setFuelUnit={(value) => updateInput('fuelUnit', value)}
-            periodType={inputs.periodType || PeriodType.ANNUAL}
-            setPeriodType={(value) => updateInput('periodType', value)}
+      <div className="mt-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base font-medium">Inserisci dati per il calcolo</h3>
+          <EmissionsResults 
+            calculatedEmissions={calculatedEmissions} 
+            onResetClick={handleResetClick}
           />
-        </TabsContent>
+        </div>
         
-        {/* Scope 2 Content */}
-        <TabsContent value="scope2" className="space-y-4">
-          <Scope2Form
-            energyType={inputs.energyType || 'ELECTRICITY_IT'}
-            setEnergyType={(value) => updateInput('energyType', value)}
-            energyQuantity={inputs.energyQuantity || ''}
-            setEnergyQuantity={(value) => updateInput('energyQuantity', value)}
-            renewablePercentage={inputs.renewablePercentage || 0}
-            setRenewablePercentage={(value) => updateInput('renewablePercentage', value)}
-            periodType={inputs.periodType || PeriodType.ANNUAL}
-            setPeriodType={(value) => updateInput('periodType', value)}
-          />
-        </TabsContent>
-        
-        {/* Scope 3 Content */}
-        <TabsContent value="scope3" className="space-y-4">
-          <Scope3Form
-            scope3Category={inputs.scope3Category || 'transport'}
-            setScope3Category={(value) => updateInput('scope3Category', value)}
-            transportType={inputs.transportType || 'BUSINESS_TRAVEL_CAR'}
-            setTransportType={(value) => updateInput('transportType', value)}
-            transportDistance={inputs.transportDistance || ''}
-            setTransportDistance={(value) => updateInput('transportDistance', value)}
-            wasteType={inputs.wasteType || 'WASTE_LANDFILL'}
-            setWasteType={(value) => updateInput('wasteType', value)}
-            wasteQuantity={inputs.wasteQuantity || ''}
-            setWasteQuantity={(value) => updateInput('wasteQuantity', value)}
-            purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'}
-            setPurchaseType={(value) => updateInput('purchaseType', value)}
-            purchaseQuantity={inputs.purchaseQuantity || ''}
-            setPurchaseQuantity={(value) => updateInput('purchaseQuantity', value)}
-            periodType={inputs.periodType || PeriodType.ANNUAL}
-            setPeriodType={(value) => updateInput('periodType', value)}
-          />
-        </TabsContent>
-      </Tabs>
-      
-      <div className="mt-6 flex justify-between items-center">
-        <Button 
-          onClick={() => calculateEmissions()}
-          className="flex items-center"
-        >
-          <Calculator className="mr-2 h-4 w-4" />
-          Calcola Emissioni
-        </Button>
-        
-        <EmissionsResults
-          calculatedEmissions={calculatedEmissions}
-          onResetClick={handleResetClick}
-        />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-3 mb-4">
+            <TabsTrigger value="scope1">Scope 1</TabsTrigger>
+            <TabsTrigger value="scope2">Scope 2</TabsTrigger>
+            <TabsTrigger value="scope3">Scope 3</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="scope1">
+            <Scope1Form 
+              inputs={inputs}
+              updateInput={updateInput}
+              calculateEmissions={() => calculateEmissions('scope1')}
+            />
+          </TabsContent>
+          
+          <TabsContent value="scope2">
+            <Scope2Form 
+              inputs={inputs}
+              updateInput={updateInput}
+              calculateEmissions={() => calculateEmissions('scope2')}
+            />
+          </TabsContent>
+          
+          <TabsContent value="scope3">
+            <Scope3Form 
+              inputs={inputs}
+              updateInput={updateInput}
+              calculateEmissions={() => calculateEmissions('scope3')}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

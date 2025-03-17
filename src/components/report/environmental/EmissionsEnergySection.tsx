@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import GHGEmissionsCalculator from '../GHGEmissionsCalculator';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
@@ -18,6 +17,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
   // State for reset dialog
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetScope, setResetScope] = useState<'current' | 'all'>('current');
+  const [pendingResetCallback, setPendingResetCallback] = useState<(() => void) | null>(null);
 
   // This handleChange function handles different form value updates
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -37,14 +37,21 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
     }
   };
 
-  // Handle reset button click
-  const handleResetClick = () => {
+  // Pass this to the GHGEmissionsCalculator as onResetClick
+  const openResetDialog = (callback: () => void) => {
+    // Store the callback for when the user confirms the reset
+    setPendingResetCallback(() => callback);
     setShowResetDialog(true);
   };
 
   // Handle reset confirmation
   const handleResetConfirm = () => {
-    // Create a synthetic event for resetting emissions data
+    // Execute the pending reset callback from the calculator
+    if (pendingResetCallback) {
+      pendingResetCallback();
+    }
+    
+    // Create a synthetic event for resetting emissions data if needed globally
     const resetEvent = {
       target: {
         name: 'resetEmissions',
@@ -52,7 +59,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
       }
     } as React.ChangeEvent<HTMLInputElement>;
 
-    // Call setFormValues with the synthetic event
+    // Call setFormValues with the synthetic event if needed
     if (typeof setFormValues === 'function' && setFormValues.length === 1) {
       setFormValues(resetEvent);
     } else {
@@ -110,7 +117,10 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
       });
     }
     
+    // Close the dialog
     setShowResetDialog(false);
+    // Clear the pending callback
+    setPendingResetCallback(null);
   };
 
   return (
@@ -123,7 +133,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
           <GHGEmissionsCalculator 
             formValues={formValues} 
             setFormValues={setFormValues} 
-            onResetClick={handleResetClick}
+            onResetClick={openResetDialog}
           />
           
           {/* Energy Section */}
