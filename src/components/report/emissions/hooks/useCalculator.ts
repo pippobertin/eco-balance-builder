@@ -50,6 +50,18 @@ export const useCalculator = (
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
+    // First, reset the local state
+    setCalculatedEmissions({
+      scope1: 0,
+      scope2: 0,
+      scope3: 0,
+      total: 0
+    });
+    
+    // Then, call the resetCalculation from the calculator hook
+    resetCalculation();
+    
+    // Finally, if there's an external reset handler, call it
     if (onResetClick) {
       onResetClick();
     }
