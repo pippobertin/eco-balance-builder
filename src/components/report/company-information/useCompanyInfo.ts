@@ -62,24 +62,34 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
 
   const ensureLocationDataLoaded = async () => {
     try {
+      console.log('Verifica dei dati delle località...');
       const result = await ensureLocationData();
-      if (result) {
-        console.log('Location data is now available');
+      
+      if (result.success) {
+        console.log('Dati delle località disponibili:', result.data);
       } else {
-        console.warn('Failed to ensure location data is available');
+        console.warn('Impossibile verificare o popolare i dati delle località:', result.message || 'Nessun messaggio');
+        
+        // Mostriamo un toast informativo ma non blocchiamo l'applicazione
         toast({
           title: 'Avviso',
           description: 'I dati di province e comuni potrebbero non essere disponibili. Alcune funzionalità potrebbero essere limitate.',
-          variant: 'destructive',
+          variant: 'warning',
         });
       }
+      
+      return true; // Ritorniamo true per indicare che la funzione è stata eseguita senza errori fatali
     } catch (error) {
-      console.error('Error ensuring location data is loaded:', error);
+      console.error('Errore durante la verifica dei dati delle località:', error);
+      
+      // Mostriamo un toast di avviso ma non blocchiamo l'applicazione
       toast({
-        title: 'Errore',
+        title: 'Avviso',
         description: 'Impossibile verificare la disponibilità dei dati di province e comuni.',
-        variant: 'destructive',
+        variant: 'warning',
       });
+      
+      return false;
     }
   };
 
@@ -97,14 +107,32 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
     loadingAttemptedRef.current = true;
     
     const loadData = async () => {
-      await ensureLocationDataLoaded();
-      loadCompanyDetails();
+      try {
+        // Verifichiamo la disponibilità dei dati delle località, ma non blocchiamo se fallisce
+        await ensureLocationDataLoaded();
+        
+        // Carichiamo i dettagli dell'azienda indipendentemente dal risultato precedente
+        await loadCompanyDetails();
+      } catch (error) {
+        console.error('Errore durante il caricamento dei dati:', error);
+        setIsLoading(false);
+        toast({
+          title: 'Errore',
+          description: 'Si è verificato un errore durante il caricamento dei dati dell\'azienda.',
+          variant: 'destructive'
+        });
+      }
     };
 
     loadData();
   }, [currentCompany?.id]);
 
   const loadCompanyDetails = async () => {
+    if (!currentCompany || !currentCompany.id) {
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       console.log("Loading company details for:", currentCompany.id);
       

@@ -57,11 +57,24 @@ export const ensureLocationData = async () => {
     // Se i dati esistono già, non fare nulla
     if (checkResult.hasData) {
       console.log('I dati delle località sono già presenti nel database', checkResult.counts);
-      return true;
+      return { success: true, data: checkResult };
     }
     
     console.log('Popolazione dei dati delle località necessaria...');
     
+    // Dato che abbiamo riscontrato problemi con la funzione edge, per ora
+    // non blocchiamo l'applicazione ma segnaliamo solo che i dati mancano
+    console.warn('La funzione edge per popolare i dati non è funzionante al momento');
+    
+    // Invece di fallire completamente, ritorniamo un oggetto che indica che
+    // non è stato possibile popolare i dati ma l'app può continuare
+    return { 
+      success: false, 
+      data: null, 
+      message: 'Non è stato possibile popolare i dati delle località, ma l\'applicazione può continuare'
+    };
+    
+    /* Codice precedente commentato per evitare errori
     // Chiama la funzione edge per popolare i dati
     const { data, error } = await supabase.functions.invoke('populate-italian-locations');
     
@@ -77,8 +90,9 @@ export const ensureLocationData = async () => {
     
     console.log('Dati delle località popolati con successo:', data);
     return true;
+    */
   } catch (error) {
     console.error('Errore durante l\'esecuzione di ensureLocationData:', error);
-    return false;
+    return { success: false, data: null, error };
   }
 };

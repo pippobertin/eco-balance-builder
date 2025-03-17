@@ -93,6 +93,25 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
     handleInputChange({ target } as React.ChangeEvent<HTMLInputElement>);
   };
 
+  // Ensure companyData properties are defined
+  const safeData = {
+    ...companyData,
+    name: companyData?.name || '',
+    vat_number: companyData?.vat_number || '',
+    ateco_code: companyData?.ateco_code || '',
+    nace_code: companyData?.nace_code || '',
+    legal_form: companyData?.legal_form || '',
+    collective_agreement: companyData?.collective_agreement || '',
+    is_part_of_group: !!companyData?.is_part_of_group,
+    has_multiple_locations: !!companyData?.has_multiple_locations,
+    address_street_type: companyData?.address_street_type || '',
+    address_street: companyData?.address_street || '',
+    address_number: companyData?.address_number || '',
+    address_postal_code: companyData?.address_postal_code || '',
+    address_city: companyData?.address_city || '',
+    address_province: companyData?.address_province || ''
+  };
+
   return (
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
@@ -102,21 +121,21 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <CompanyBasicInfo 
-          name={companyData.name}
-          vatNumber={companyData.vat_number}
+          name={safeData.name}
+          vatNumber={safeData.vat_number}
           handleInputChange={handleInputChange}
           handleVatNumberChange={handleVatNumberChange}
         />
         
         <ActivityCodes 
-          atecoCode={companyData.ateco_code}
-          naceCode={companyData.nace_code}
+          atecoCode={safeData.ateco_code}
+          naceCode={safeData.nace_code}
           handleSelectChange={handleSelectChange}
         />
         
         <LegalDetails 
-          legalForm={companyData.legal_form}
-          collectiveAgreement={companyData.collective_agreement}
+          legalForm={safeData.legal_form}
+          collectiveAgreement={safeData.collective_agreement}
           handleSelectChange={handleSelectChange}
         />
       </div>
@@ -125,12 +144,12 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         <h3 className="text-lg font-medium mb-3">Indirizzo Sede Principale</h3>
         <AddressFields 
           addressData={{
-            address_street_type: companyData.address_street_type,
-            address_street: companyData.address_street,
-            address_number: companyData.address_number,
-            address_postal_code: companyData.address_postal_code,
-            address_city: companyData.address_city,
-            address_province: companyData.address_province
+            address_street_type: safeData.address_street_type,
+            address_street: safeData.address_street,
+            address_number: safeData.address_number,
+            address_postal_code: safeData.address_postal_code,
+            address_city: safeData.address_city,
+            address_province: safeData.address_province
           }}
           onChange={handleAddressChange}
         />
@@ -146,7 +165,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         <div className="flex items-start space-x-2">
           <Checkbox 
             id="is_part_of_group" 
-            checked={companyData.is_part_of_group} 
+            checked={safeData.is_part_of_group} 
             onCheckedChange={(checked) => handleCheckboxChange('is_part_of_group', checked as boolean)}
           />
           <div className="grid gap-1.5 leading-none">
@@ -162,7 +181,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         <div className="flex items-start space-x-2">
           <Checkbox 
             id="has_multiple_locations" 
-            checked={companyData.has_multiple_locations} 
+            checked={safeData.has_multiple_locations} 
             onCheckedChange={(checked) => handleCheckboxChange('has_multiple_locations', checked as boolean)}
           />
           <div className="grid gap-1.5 leading-none">
@@ -176,7 +195,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         </div>
       </div>
 
-      {companyData.is_part_of_group && (
+      {safeData.is_part_of_group && (
         <GroupCompaniesSection 
           groupCompanies={groupCompanies}
           onAddCompany={handleAddGroupCompany}
@@ -185,7 +204,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         />
       )}
 
-      {companyData.has_multiple_locations && (
+      {safeData.has_multiple_locations && (
         <CompanyLocationsSection
           locations={companyLocations}
           onAddLocation={handleAddLocation}
