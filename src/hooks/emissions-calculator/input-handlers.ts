@@ -1,5 +1,6 @@
 
 import { EmissionsInput } from './types';
+import { PeriodType, EmissionFactorSource } from '@/lib/emissions-types';
 
 // Helper function to create default inputs
 export const createDefaultInputs = (): EmissionsInput => {
@@ -18,8 +19,8 @@ export const createDefaultInputs = (): EmissionsInput => {
     wasteQuantity: '',
     purchaseType: 'PURCHASED_GOODS',
     purchaseQuantity: '',
-    periodType: 'ANNUAL',
-    calculationMethod: 'DEFRA'
+    periodType: PeriodType.ANNUAL,
+    calculationMethod: EmissionFactorSource.DEFRA
   };
 };
 

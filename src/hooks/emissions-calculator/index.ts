@@ -4,9 +4,11 @@ import { EmissionsInput, EmissionsResults, EmissionsDetails } from './types';
 import { performEmissionsCalculation } from './calculations';
 import { createDefaultInputs, resetQuantityInputs } from './input-handlers';
 
-export { EmissionsInput, EmissionsResults, EmissionsDetails } from './types';
+// Use 'export type' for type exports when isolatedModules is enabled
+export { useEmissionsCalculator };
+export type { EmissionsInput, EmissionsResults, EmissionsDetails };
 
-export const useEmissionsCalculator = (
+const useEmissionsCalculator = (
   initialInputs?: EmissionsInput,
   onResultsChange?: (results: EmissionsResults, details: EmissionsDetails) => void
 ) => {
