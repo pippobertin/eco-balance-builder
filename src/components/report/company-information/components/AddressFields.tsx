@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -62,6 +62,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   });
   const [databaseStatus, setDatabaseStatus] = useState<'empty' | 'loading' | 'loaded' | 'error'>('loading');
   const [populatingData, setPopulatingData] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Check if provinces data exists on component mount
   useEffect(() => {
@@ -106,6 +107,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   const checkDatabaseStatus = async () => {
     setDatabaseStatus('loading');
+    setError(null);
     try {
       // Check if provinces table has data
       const { count, error } = await supabase
@@ -118,17 +120,21 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       if (count && count > 0) {
         setDatabaseStatus('loaded');
+        console.log(`Database contiene ${count} province`);
       } else {
         setDatabaseStatus('empty');
+        console.log('Database province vuoto');
       }
     } catch (error) {
       console.error('Error checking database status:', error);
       setDatabaseStatus('error');
+      setError('Errore durante la verifica dello stato del database');
     }
   };
 
   const populateLocationData = async () => {
     setPopulatingData(true);
+    setError(null);
     try {
       const { data, error } = await supabase.functions.invoke('populate-italian-locations');
       
@@ -138,7 +144,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       console.log('Population result:', data);
       
-      if (data.message.includes('already populated')) {
+      if (data.message?.includes('already populated')) {
         toast({
           title: 'Dati già presenti',
           description: 'Il database contiene già i dati delle località italiane.',
@@ -146,7 +152,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       } else {
         toast({
           title: 'Dati caricati con successo',
-          description: `Sono state caricate ${data.provincesCount} province e ${data.municipalitiesCount} comuni.`,
+          description: `Sono state caricate ${data.provinces_count} province e ${data.municipalities_count} comuni.`,
         });
       }
       
@@ -159,6 +165,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       }
     } catch (error) {
       console.error('Error populating location data:', error);
+      setError('Errore durante il caricamento dei dati delle località');
       toast({
         title: 'Errore',
         description: 'Si è verificato un errore durante il caricamento dei dati delle località.',
@@ -171,6 +178,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   const loadProvinces = async () => {
     setIsLoading(prev => ({ ...prev, provinces: true }));
+    setError(null);
     try {
       const { data, error } = await supabase
         .from('provinces')
@@ -179,12 +187,15 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       if (error) {
         console.error('Error loading provinces:', error);
+        setError('Errore durante il caricamento delle province');
         return;
       }
 
+      console.log(`Caricate ${data?.length || 0} province`);
       setProvinces(data || []);
     } catch (error) {
       console.error('Failed to load provinces:', error);
+      setError('Errore durante il caricamento delle province');
     } finally {
       setIsLoading(prev => ({ ...prev, provinces: false }));
     }
@@ -192,6 +203,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   const loadMunicipalities = async (provinceCode: string) => {
     setIsLoading(prev => ({ ...prev, municipalities: true }));
+    setError(null);
     try {
       const { data, error } = await supabase
         .from('municipalities')
@@ -201,6 +213,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
       if (error) {
         console.error('Error loading municipalities:', error);
+        setError(`Errore durante il caricamento dei comuni per la provincia ${provinceCode}`);
         return;
       }
 
@@ -208,6 +221,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       setMunicipalities(data || []);
     } catch (error) {
       console.error('Failed to load municipalities:', error);
+      setError(`Errore durante il caricamento dei comuni per la provincia ${provinceCode}`);
     } finally {
       setIsLoading(prev => ({ ...prev, municipalities: false }));
     }
@@ -256,6 +270,14 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
               )}
             </Button>
           </AlertDescription>
+        </Alert>
+      )}
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Errore</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
