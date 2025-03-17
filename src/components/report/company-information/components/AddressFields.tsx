@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Province {
   code: string;
@@ -48,6 +52,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   onChange,
   className = ''
 }) => {
+  const { toast } = useToast();
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [postalCodes, setPostalCodes] = useState<string[]>([]);
@@ -55,21 +60,30 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     provinces: false,
     municipalities: false
   });
+  const [databaseStatus, setDatabaseStatus] = useState<'empty' | 'loading' | 'loaded' | 'error'>('loading');
+  const [populatingData, setPopulatingData] = useState(false);
 
-  // Load provinces on component mount
+  // Check if provinces data exists on component mount
   useEffect(() => {
-    loadProvinces();
+    checkDatabaseStatus();
   }, []);
+
+  // Load provinces once database is confirmed to have data
+  useEffect(() => {
+    if (databaseStatus === 'loaded') {
+      loadProvinces();
+    }
+  }, [databaseStatus]);
 
   // Load municipalities when province changes
   useEffect(() => {
-    if (addressData.address_province) {
+    if (addressData.address_province && databaseStatus === 'loaded') {
       loadMunicipalities(addressData.address_province);
     } else {
       setMunicipalities([]);
       setPostalCodes([]);
     }
-  }, [addressData.address_province]);
+  }, [addressData.address_province, databaseStatus]);
 
   // Load postal codes when municipality changes
   useEffect(() => {
@@ -89,6 +103,71 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       setPostalCodes([]);
     }
   }, [addressData.address_city, municipalities]);
+
+  const checkDatabaseStatus = async () => {
+    setDatabaseStatus('loading');
+    try {
+      // Check if provinces table has data
+      const { count, error } = await supabase
+        .from('provinces')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) {
+        throw error;
+      }
+
+      if (count && count > 0) {
+        setDatabaseStatus('loaded');
+      } else {
+        setDatabaseStatus('empty');
+      }
+    } catch (error) {
+      console.error('Error checking database status:', error);
+      setDatabaseStatus('error');
+    }
+  };
+
+  const populateLocationData = async () => {
+    setPopulatingData(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('populate-italian-locations');
+      
+      if (error) {
+        throw error;
+      }
+
+      console.log('Population result:', data);
+      
+      if (data.message.includes('already populated')) {
+        toast({
+          title: 'Dati già presenti',
+          description: 'Il database contiene già i dati delle località italiane.',
+        });
+      } else {
+        toast({
+          title: 'Dati caricati con successo',
+          description: `Sono state caricate ${data.provincesCount} province e ${data.municipalitiesCount} comuni.`,
+        });
+      }
+      
+      // Refresh database status
+      await checkDatabaseStatus();
+      
+      // If data is now loaded, load provinces
+      if (databaseStatus === 'loaded') {
+        await loadProvinces();
+      }
+    } catch (error) {
+      console.error('Error populating location data:', error);
+      toast({
+        title: 'Errore',
+        description: 'Si è verificato un errore durante il caricamento dei dati delle località.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPopulatingData(false);
+    }
+  };
 
   const loadProvinces = async () => {
     setIsLoading(prev => ({ ...prev, provinces: true }));
@@ -125,6 +204,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         return;
       }
 
+      console.log(`Loaded ${data?.length || 0} municipalities for province ${provinceCode}`);
       setMunicipalities(data || []);
     } catch (error) {
       console.error('Failed to load municipalities:', error);
@@ -154,6 +234,48 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   return (
     <div className={`grid gap-4 ${className}`}>
+      {databaseStatus === 'empty' && (
+        <Alert className="mb-4 bg-amber-50 border-amber-200">
+          <AlertTitle className="text-amber-800">Database località non inizializzato</AlertTitle>
+          <AlertDescription className="text-amber-700">
+            <p className="mb-2">Il database delle località italiane (province e comuni) è vuoto.</p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="bg-white border-amber-300 text-amber-800 hover:bg-amber-100"
+              onClick={populateLocationData}
+              disabled={populatingData}
+            >
+              {populatingData ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Caricamento in corso...
+                </>
+              ) : (
+                'Inizializza database località'
+              )}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {databaseStatus === 'error' && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTitle>Errore di connessione</AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">Impossibile verificare lo stato del database delle località.</p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={checkDatabaseStatus}
+              className="bg-white text-destructive border-destructive/50 hover:bg-destructive/10"
+            >
+              Riprova
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <Label htmlFor="address_street_type">Tipo Indirizzo</Label>
@@ -201,9 +323,14 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           <Select 
             value={addressData.address_province || ''}
             onValueChange={(value) => handleSelectChange('address_province', value)}
+            disabled={databaseStatus !== 'loaded' || isLoading.provinces}
           >
             <SelectTrigger id="address_province">
-              <SelectValue placeholder="Seleziona provincia..." />
+              <SelectValue placeholder={
+                databaseStatus === 'empty' ? "Database non inizializzato" : 
+                databaseStatus === 'loading' || isLoading.provinces ? "Caricamento..." : 
+                "Seleziona provincia..."
+              } />
             </SelectTrigger>
             <SelectContent>
               {provinces.map((province) => (
@@ -219,10 +346,16 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           <Select 
             value={addressData.address_city || ''}
             onValueChange={(value) => handleSelectChange('address_city', value)}
-            disabled={!addressData.address_province || isLoading.municipalities}
+            disabled={!addressData.address_province || databaseStatus !== 'loaded' || isLoading.municipalities}
           >
             <SelectTrigger id="address_city">
-              <SelectValue placeholder={isLoading.municipalities ? "Caricamento..." : "Seleziona comune..."} />
+              <SelectValue placeholder={
+                databaseStatus === 'empty' ? "Database non inizializzato" : 
+                isLoading.municipalities ? "Caricamento..." : 
+                !addressData.address_province ? "Seleziona prima la provincia" :
+                municipalities.length === 0 ? "Nessun comune trovato" :
+                "Seleziona comune..."
+              } />
             </SelectTrigger>
             <SelectContent>
               {municipalities.map((municipality) => (
