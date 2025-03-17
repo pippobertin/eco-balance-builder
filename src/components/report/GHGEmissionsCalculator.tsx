@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Select, 
@@ -116,6 +117,15 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
+  // Reset input fields
+  const resetInputFields = () => {
+    setFuelQuantity('');
+    setEnergyQuantity('');
+    setTransportDistance('');
+    setWasteQuantity('');
+    setPurchaseQuantity('');
+  };
+
   // Load existing calculation results
   useEffect(() => {
     const metricsData = getMetricsData();
@@ -127,6 +137,17 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         scope3: parseFloat(metricsData.totalScope3Emissions) || 0,
         total: parseFloat(metricsData.totalScopeEmissions) || 0
       });
+    }
+
+    // Check for reset emission command
+    if (formValues.target && formValues.target.name === 'resetEmissions') {
+      setCalculatedEmissions({
+        scope1: 0,
+        scope2: 0,
+        scope3: 0,
+        total: 0
+      });
+      resetInputFields();
     }
   }, [formValues]);
 
