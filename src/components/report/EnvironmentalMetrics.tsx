@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Leaf } from 'lucide-react';
 import EmissionsEnergySection from './environmental/EmissionsEnergySection';
@@ -7,7 +6,7 @@ import BiodiversitySection from './environmental/BiodiversitySection';
 import WaterSection from './environmental/WaterSection';
 import ResourcesSection from './environmental/ResourcesSection';
 import LocationSelector from './environmental/components/LocationSelector';
-import { useLocationMetrics } from './environmental/hooks/useLocationMetrics';
+import { useLocationMetrics } from './environmental/hooks/location-metrics';
 import { useReport } from '@/context/ReportContext';
 
 interface EnvironmentalMetricsProps {

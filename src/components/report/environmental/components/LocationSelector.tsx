@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { CompanyLocation } from "@/components/report/company-information/CompanyGeneralInfo";
 import { MapPin } from 'lucide-react';
+import { formatLocationName } from '../hooks/location-metrics';
 
 interface LocationSelectorProps {
   locations: CompanyLocation[];
@@ -18,30 +19,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   onLocationChange,
   isLoading
 }) => {
-  // Format location name for display
-  const formatLocationName = (location: CompanyLocation): string => {
-    const locationType = location.location_type ? 
-      (location.location_type === 'sede_legale' ? 'Sede Legale' :
-       location.location_type === 'sede_operativa' ? 'Sede Operativa' :
-       location.location_type === 'stabilimento' ? 'Stabilimento' :
-       location.location_type === 'magazzino' ? 'Magazzino' :
-       location.location_type === 'ufficio' ? 'Ufficio' : 'Altro') : 'Sede';
-    
-    const address = [
-      location.address_street_type, 
-      location.address_street, 
-      location.address_number
-    ].filter(Boolean).join(' ');
-    
-    const cityInfo = [
-      location.address_postal_code,
-      location.address_city,
-      location.address_province ? `(${location.address_province})` : ''
-    ].filter(Boolean).join(' ');
-    
-    return `${locationType}${address ? ': ' + address : ''}${cityInfo ? ', ' + cityInfo : ''}`;
-  };
-  
   return (
     <div className="mb-6">
       <div className="flex items-center mb-2">
