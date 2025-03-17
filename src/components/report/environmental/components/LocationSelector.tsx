@@ -62,7 +62,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         </SelectTrigger>
         <SelectContent>
           {locations.map((location) => (
-            <SelectItem key={location.id} value={location.id || ''}>
+            <SelectItem key={location.id || 'main-location'} value={location.id || 'main-location'}>
               {formatLocationName(location)}
             </SelectItem>
           ))}

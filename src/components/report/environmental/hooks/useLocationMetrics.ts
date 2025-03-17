@@ -24,7 +24,7 @@ export const useLocationMetrics = (
         // First, check if company has multiple locations
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
-          .select('has_multiple_locations')
+          .select('has_multiple_locations, address_street_type, address_street, address_number, address_postal_code, address_city, address_province')
           .eq('id', companyId)
           .single();
           
@@ -33,7 +33,19 @@ export const useLocationMetrics = (
         setHasMultipleLocations(companyData?.has_multiple_locations || false);
         
         if (companyData?.has_multiple_locations) {
-          // Load locations
+          // Create a location object for the main company address
+          const mainLocation: CompanyLocation = {
+            id: 'main-location',
+            location_type: 'sede_legale',
+            address_street_type: companyData.address_street_type,
+            address_street: companyData.address_street,
+            address_number: companyData.address_number,
+            address_postal_code: companyData.address_postal_code,
+            address_city: companyData.address_city,
+            address_province: companyData.address_province
+          };
+          
+          // Load additional locations
           const { data, error } = await supabase
             .from('company_locations')
             .select('*')
@@ -42,16 +54,16 @@ export const useLocationMetrics = (
             
           if (error) throw error;
           
-          if (data && data.length > 0) {
-            setLocations(data);
-            
-            // Initialize metrics for locations if not already done
-            initializeLocationMetrics(data);
-            
-            // Select the first location by default if none is selected
-            if (!selectedLocationId && data.length > 0) {
-              setSelectedLocationId(data[0].id);
-            }
+          // Combine main location with additional locations
+          const allLocations = [mainLocation, ...(data || [])];
+          setLocations(allLocations);
+          
+          // Initialize metrics for locations if not already done
+          initializeLocationMetrics(allLocations);
+          
+          // Select the first location by default if none is selected
+          if (!selectedLocationId && allLocations.length > 0) {
+            setSelectedLocationId(allLocations[0].id || 'main-location');
           }
         }
       } catch (error) {
