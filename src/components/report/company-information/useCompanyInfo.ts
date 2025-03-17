@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/context/types';
@@ -74,7 +75,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
         toast({
           title: 'Avviso',
           description: 'I dati di province e comuni potrebbero non essere disponibili. Alcune funzionalità potrebbero essere limitate.',
-          variant: 'warning',
+          variant: 'default', // Changed from 'warning' to 'default'
         });
       }
       
@@ -86,7 +87,7 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
       toast({
         title: 'Avviso',
         description: 'Impossibile verificare la disponibilità dei dati di province e comuni.',
-        variant: 'warning',
+        variant: 'default', // Changed from 'warning' to 'default'
       });
       
       return false;
