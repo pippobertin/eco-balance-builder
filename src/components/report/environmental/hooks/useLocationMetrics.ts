@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { LocationEnvironmentalMetrics } from '@/context/types';
 import { supabase } from '@/integrations/supabase/client';
 import { CompanyLocation } from '@/components/report/company-information/CompanyGeneralInfo';
+import { toast } from '@/components/ui/use-toast';
 
 export const useLocationMetrics = (
   companyId: string | undefined, 
@@ -148,6 +149,72 @@ export const useLocationMetrics = (
   const handleLocationMetricsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
+    // Special handling for resetEmissions event
+    if (name === 'resetEmissions') {
+      const resetScope = value as 'current' | 'all';
+      
+      setFormValues((prev: any) => {
+        const environmentalMetrics = { ...prev.environmentalMetrics };
+        const locationMetrics = [...(environmentalMetrics.locationMetrics || [])];
+        
+        if (resetScope === 'current' && selectedLocationId) {
+          // Find the index of the current location
+          const locationIndex = locationMetrics.findIndex(
+            (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
+          );
+          
+          if (locationIndex !== -1) {
+            // Reset only the current location metrics
+            locationMetrics[locationIndex] = {
+              ...locationMetrics[locationIndex],
+              metrics: {
+                ...locationMetrics[locationIndex].metrics,
+                totalScope1Emissions: "0",
+                totalScope2Emissions: "0",
+                totalScope3Emissions: "0",
+                totalScopeEmissions: "0",
+                scope1CalculationDetails: "",
+                scope2CalculationDetails: "",
+                scope3CalculationDetails: ""
+              }
+            };
+          }
+        } else if (resetScope === 'all') {
+          // Reset metrics for all locations
+          locationMetrics.forEach((lm: LocationEnvironmentalMetrics, index: number) => {
+            locationMetrics[index] = {
+              ...lm,
+              metrics: {
+                ...lm.metrics,
+                totalScope1Emissions: "0",
+                totalScope2Emissions: "0",
+                totalScope3Emissions: "0",
+                totalScopeEmissions: "0",
+                scope1CalculationDetails: "",
+                scope2CalculationDetails: "",
+                scope3CalculationDetails: "",
+                energyConsumption: "",
+                fossilFuelEnergy: "",
+                renewableEnergy: "",
+                energyEmissionsDetails: ""
+              }
+            };
+          });
+        }
+        
+        return {
+          ...prev,
+          environmentalMetrics: {
+            ...environmentalMetrics,
+            locationMetrics
+          }
+        };
+      });
+      
+      return;
+    }
+    
+    // Regular handling for other fields
     setFormValues((prev: any) => {
       // Clone the location metrics array
       const locationMetrics = [...(prev.environmentalMetrics?.locationMetrics || [])];

@@ -5,6 +5,7 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import EmissionsResetDialog from './components/EmissionsResetDialog';
 import EnergyInputsForm from './components/EnergyInputsForm';
 import EmissionsSectionHeader from './components/EmissionsSectionHeader';
+import { toast } from '@/components/ui/use-toast';
 
 interface EmissionsEnergySectionProps {
   formValues: any;
@@ -109,6 +110,15 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
         };
       });
     }
+    
+    // Show a confirmation toast
+    toast({
+      title: "Dati azzerati",
+      description: resetScope === 'current' ? 
+        "I calcoli delle emissioni per la sede corrente sono stati azzerati." : 
+        "I calcoli delle emissioni per tutte le sedi sono stati azzerati.",
+      duration: 3000
+    });
     
     setShowResetDialog(false);
   };

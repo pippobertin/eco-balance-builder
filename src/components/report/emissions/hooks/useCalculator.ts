@@ -50,6 +50,7 @@ export const useCalculator = (
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
+    // Just pass the reset request to the parent component
     if (onResetClick) {
       onResetClick();
     }
