@@ -10,6 +10,30 @@ import { Label } from '@/components/ui/label';
 import GroupCompaniesSection from './components/GroupCompaniesSection';
 import CompanyLocationsSection from './components/CompanyLocationsSection';
 import AddressFields, { AddressData } from './components/AddressFields';
+import DatabaseDebugInfo from './components/DatabaseDebugInfo';
+
+export interface GroupCompany {
+  id?: string;
+  name: string;
+  relationship_type: string;
+  address_street_type?: string;
+  address_street?: string;
+  address_number?: string;
+  address_postal_code?: string;
+  address_city?: string;
+  address_province?: string;
+}
+
+export interface CompanyLocation {
+  id?: string;
+  location_type: string;
+  address_street_type?: string;
+  address_street?: string;
+  address_number?: string;
+  address_postal_code?: string;
+  address_city?: string;
+  address_province?: string;
+}
 
 interface CompanyGeneralInfoProps {
   companyData: {
@@ -40,29 +64,7 @@ interface CompanyGeneralInfoProps {
   handleAddLocation: (location: CompanyLocation) => void;
   handleUpdateLocation: (index: number, location: CompanyLocation) => void;
   handleRemoveLocation: (index: number) => void;
-}
-
-export interface GroupCompany {
-  id?: string;
-  name: string;
-  relationship_type: string;
-  address_street_type?: string;
-  address_street?: string;
-  address_number?: string;
-  address_postal_code?: string;
-  address_city?: string;
-  address_province?: string;
-}
-
-export interface CompanyLocation {
-  id?: string;
-  location_type: string;
-  address_street_type?: string;
-  address_street?: string;
-  address_number?: string;
-  address_postal_code?: string;
-  address_city?: string;
-  address_province?: string;
+  showDebugInfo?: boolean;
 }
 
 const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({ 
@@ -78,7 +80,8 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
   handleRemoveGroupCompany,
   handleAddLocation,
   handleUpdateLocation,
-  handleRemoveLocation
+  handleRemoveLocation,
+  showDebugInfo = true // Default to true for debugging
 }) => {
   // Handle VAT number input to ensure only numbers and max 11 chars
   const handleVatNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +135,12 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
           onChange={handleAddressChange}
         />
       </div>
+
+      {showDebugInfo && (
+        <div className="mb-6">
+          <DatabaseDebugInfo />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
         <div className="flex items-start space-x-2">

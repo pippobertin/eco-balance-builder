@@ -4,6 +4,7 @@ import { Company } from '@/context/types';
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { GroupCompany, CompanyLocation } from './CompanyGeneralInfo';
 import { AddressData } from './components/AddressFields';
+import { ensureLocationData } from './utils/locationDataUtils';
 
 interface CompanyDataState {
   name: string;
@@ -61,29 +62,24 @@ export const useCompanyInfo = (currentCompany: Company | null, onNext?: () => vo
 
   const ensureLocationDataLoaded = async () => {
     try {
-      const { count, error: countError } = await supabase
-        .from('provinces')
-        .select('*', { count: 'exact', head: true });
-      
-      if (countError) {
-        console.error('Error checking provinces count:', countError);
-        return;
-      }
-
-      if (!count || count === 0) {
-        console.log('No provinces found, calling populate-italian-locations function');
-        const { data, error } = await supabase.functions.invoke('populate-italian-locations');
-        
-        if (error) {
-          console.error('Error calling populate-italian-locations function:', error);
-        } else {
-          console.log('Location data population result:', data);
-        }
+      const result = await ensureLocationData();
+      if (result) {
+        console.log('Location data is now available');
       } else {
-        console.log(`Provinces already loaded (${count} provinces)`);
+        console.warn('Failed to ensure location data is available');
+        toast({
+          title: 'Avviso',
+          description: 'I dati di province e comuni potrebbero non essere disponibili. Alcune funzionalità potrebbero essere limitate.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Error ensuring location data is loaded:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile verificare la disponibilità dei dati di province e comuni.',
+        variant: 'destructive',
+      });
     }
   };
 

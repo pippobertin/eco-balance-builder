@@ -6,7 +6,7 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
+const TOAST_LIMIT = 20
 const TOAST_REMOVE_DELAY = 1000000
 
 type ToasterToast = ToastProps & {
@@ -15,8 +15,6 @@ type ToasterToast = ToastProps & {
   description?: React.ReactNode
   action?: ToastActionElement
 }
-
-export type Toast = Omit<ToasterToast, "id">
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -28,7 +26,7 @@ const actionTypes = {
 let count = 0
 
 function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
+  count = (count + 1) % Number.MAX_VALUE
   return count.toString()
 }
 
@@ -41,15 +39,15 @@ type Action =
     }
   | {
       type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
+      toast: Partial<ToasterToast> & { id: string }
     }
   | {
       type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
+      toastId?: string
     }
   | {
       type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
+      toastId?: string
     }
 
 interface State {
@@ -79,7 +77,7 @@ export const reducer = (state: State, action: Action): State => {
     case "ADD_TOAST":
       return {
         ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+        toasts: [...state.toasts, action.toast],
       }
 
     case "UPDATE_TOAST":
@@ -140,10 +138,12 @@ function dispatch(action: Action) {
   })
 }
 
+type Toast = Omit<ToasterToast, "id">
+
 function toast({ ...props }: Toast) {
   const id = genId()
 
-  const update = (props: Toast) =>
+  const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },

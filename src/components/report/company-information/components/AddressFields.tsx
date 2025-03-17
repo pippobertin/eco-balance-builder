@@ -65,6 +65,14 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   // Load municipalities when province changes
   useEffect(() => {
     if (addressData.address_province) {
+      // Resetta le città quando cambia la provincia
+      setMunicipalities([]);
+      setPostalCodes([]);
+      onChange({
+        address_city: '',
+        address_postal_code: ''
+      });
+      
       loadMunicipalities(addressData.address_province);
     } else {
       setMunicipalities([]);
@@ -97,9 +105,9 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     setIsLoading(prev => ({ ...prev, provinces: true }));
     try {
       console.log("Loading provinces...");
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('provinces')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('name');
 
       if (error) {
@@ -112,6 +120,8 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         return;
       }
 
+      console.log(`Provinces loaded: ${count || 0}`);
+      
       if (!data || data.length === 0) {
         console.log("No provinces found, attempting to populate data...");
         try {
@@ -190,17 +200,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         console.log('Comuni caricati:', data.length, 'per la provincia', provinceCode);
         console.log('Primi 3 comuni:', data.slice(0, 3).map(m => m.name));
         setMunicipalities(data);
-        
-        // Reset city and postal code when municipalities change
-        if (addressData.address_city) {
-          const cityExists = data.some(m => m.name === addressData.address_city);
-          if (!cityExists) {
-            onChange({ 
-              address_city: '',
-              address_postal_code: ''
-            });
-          }
-        }
       }
     } catch (error) {
       console.error('Failed to load municipalities:', error);
@@ -222,16 +221,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   const handleSelectChange = (name: string, value: string) => {
     console.log(`Changing ${name} to ${value}`);
     onChange({ [name]: value });
-    
-    // Clear dependent fields when parent field changes
-    if (name === 'address_province') {
-      onChange({ 
-        address_city: '',
-        address_postal_code: ''
-      });
-    } else if (name === 'address_city') {
-      onChange({ address_postal_code: '' });
-    }
   };
 
   return (
