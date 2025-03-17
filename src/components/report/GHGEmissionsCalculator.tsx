@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,19 +21,28 @@ import {
   FuelType,
   EnergyType
 } from '@/lib/emissions-types';
-import { Info, HelpCircle } from 'lucide-react';
+import { Info, HelpCircle, PlusCircle, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { v4 as uuidv4 } from 'uuid';
 
 interface GHGEmissionsCalculatorProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement>) => void);
 }
 
+// Interfaccia per le fonti di emissione con ID unico
+interface EmissionSource {
+  id: string;
+  data: Scope1Data | Scope2Data | Scope3Data;
+  calculatedEmissions?: number;
+}
+
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   formValues,
   setFormValues
 }) => {
-  // Function to handle changes correctly, supporting both regular and location-specific metrics
+  // Funzione per gestire le modifiche, supportando sia le metriche globali che quelle specifiche per sede
   const handleChange = (name: string, value: string) => {
     const event = {
       target: {
@@ -42,11 +51,11 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       }
     } as React.ChangeEvent<HTMLInputElement>;
 
-    // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
+    // Verifica se setFormValues è una funzione che accetta direttamente un evento (per le metriche specifiche della sede)
     if (typeof setFormValues === 'function' && setFormValues.length === 1) {
       setFormValues(event);
     } else {
-      // This is the standard approach for global metrics
+      // Questo è l'approccio standard per le metriche globali
       (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
         ...prev,
         environmentalMetrics: {
@@ -57,222 +66,350 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
-  // State for managing time periods
+  // Stato per la gestione dei periodi temporali
   const [periodType, setPeriodType] = useState<PeriodType>('ANNUAL');
   
-  // State for Scope 1 data (direct emissions from fuel combustion)
-  const [scope1Data, setScope1Data] = useState<Scope1Data>({
-    fuelType: 'DIESEL',
-    quantity: 0,
-    unit: 'L',
-    periodType: 'ANNUAL'
-  });
+  // Stati per le fonti di emissione multiple
+  const [scope1Sources, setScope1Sources] = useState<EmissionSource[]>([{
+    id: uuidv4(),
+    data: {
+      fuelType: 'DIESEL',
+      quantity: 0,
+      unit: 'L',
+      periodType: 'ANNUAL'
+    }
+  }]);
 
-  // State for Scope 2 data (indirect emissions from purchased electricity)
-  const [scope2Data, setScope2Data] = useState<Scope2Data>({
-    energyType: 'ELECTRICITY_IT',
-    quantity: 0,
-    unit: 'kWh',
-    renewablePercentage: 0.41, // Default to Italian grid mix
-    periodType: 'ANNUAL'
-  });
+  const [scope2Sources, setScope2Sources] = useState<EmissionSource[]>([{
+    id: uuidv4(),
+    data: {
+      energyType: 'ELECTRICITY_IT',
+      quantity: 0,
+      unit: 'kWh',
+      renewablePercentage: 0.41, // Default per il mix energetico italiano
+      periodType: 'ANNUAL'
+    }
+  }]);
 
-  // State for Scope 3 data (other indirect emissions)
-  const [scope3Data, setScope3Data] = useState<Scope3Data>({
-    activityType: 'FREIGHT_ROAD',
-    quantity: 0,
-    unit: 'km',
-    secondaryQuantity: 0,
-    secondaryUnit: 't',
-    periodType: 'ANNUAL'
-  });
+  const [scope3Sources, setScope3Sources] = useState<EmissionSource[]>([{
+    id: uuidv4(),
+    data: {
+      activityType: 'FREIGHT_ROAD',
+      quantity: 0,
+      unit: 'km',
+      secondaryQuantity: 0,
+      secondaryUnit: 't',
+      periodType: 'ANNUAL'
+    }
+  }]);
   
-  // Show/hide extended options
+  // Mostra/nascondi opzioni estese
   const [showScope1Options, setShowScope1Options] = useState(false);
   const [showScope2Options, setShowScope2Options] = useState(false);
   const [showScope3Options, setShowScope3Options] = useState(false);
   
-  // Error states
+  // Stati di errore
   const [scope1Error, setScope1Error] = useState<string | null>(null);
   const [scope2Error, setScope2Error] = useState<string | null>(null);
   const [scope3Error, setScope3Error] = useState<string | null>(null);
 
-  // Handle Scope 1 input changes
-  const handleScope1Change = (
+  // Gestione delle modifiche per Scope 1
+  const handleScope1SourceChange = (
+    sourceId: string,
     key: keyof Scope1Data,
     value: string | number | PeriodType
   ) => {
-    setScope1Data(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setScope1Sources(prev => prev.map(source => 
+      source.id === sourceId 
+        ? { ...source, data: { ...source.data, [key]: value } as Scope1Data } 
+        : source
+    ));
     setScope1Error(null);
   };
 
-  // Handle Scope 2 input changes
-  const handleScope2Change = (
+  // Gestione delle modifiche per Scope 2
+  const handleScope2SourceChange = (
+    sourceId: string,
     key: keyof Scope2Data,
     value: string | number | PeriodType
   ) => {
-    setScope2Data(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setScope2Sources(prev => prev.map(source => 
+      source.id === sourceId 
+        ? { ...source, data: { ...source.data, [key]: value } as Scope2Data } 
+        : source
+    ));
     setScope2Error(null);
   };
 
-  // Handle Scope 3 input changes
-  const handleScope3Change = (
+  // Gestione delle modifiche per Scope 3
+  const handleScope3SourceChange = (
+    sourceId: string,
     key: keyof Scope3Data,
     value: string | number | PeriodType
   ) => {
-    setScope3Data(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setScope3Sources(prev => prev.map(source => 
+      source.id === sourceId 
+        ? { ...source, data: { ...source.data, [key]: value } as Scope3Data } 
+        : source
+    ));
     setScope3Error(null);
   };
 
-  // Calculate Scope 1 emissions
+  // Aggiungere una nuova fonte di emissione per Scope 1
+  const addScope1Source = () => {
+    setScope1Sources(prev => [...prev, {
+      id: uuidv4(),
+      data: {
+        fuelType: 'DIESEL',
+        quantity: 0,
+        unit: 'L',
+        periodType: periodType
+      }
+    }]);
+  };
+
+  // Aggiungere una nuova fonte di emissione per Scope 2
+  const addScope2Source = () => {
+    setScope2Sources(prev => [...prev, {
+      id: uuidv4(),
+      data: {
+        energyType: 'ELECTRICITY_IT',
+        quantity: 0,
+        unit: 'kWh',
+        renewablePercentage: 0.41, // Default per il mix energetico italiano
+        periodType: periodType
+      }
+    }]);
+  };
+
+  // Aggiungere una nuova fonte di emissione per Scope 3
+  const addScope3Source = () => {
+    setScope3Sources(prev => [...prev, {
+      id: uuidv4(),
+      data: {
+        activityType: 'FREIGHT_ROAD',
+        quantity: 0,
+        unit: 'km',
+        secondaryQuantity: 0,
+        secondaryUnit: 't',
+        periodType: periodType
+      }
+    }]);
+  };
+
+  // Rimuovere una fonte di emissione per Scope 1
+  const removeScope1Source = (sourceId: string) => {
+    if (scope1Sources.length > 1) {
+      setScope1Sources(prev => prev.filter(source => source.id !== sourceId));
+    }
+  };
+
+  // Rimuovere una fonte di emissione per Scope 2
+  const removeScope2Source = (sourceId: string) => {
+    if (scope2Sources.length > 1) {
+      setScope2Sources(prev => prev.filter(source => source.id !== sourceId));
+    }
+  };
+
+  // Rimuovere una fonte di emissione per Scope 3
+  const removeScope3Source = (sourceId: string) => {
+    if (scope3Sources.length > 1) {
+      setScope3Sources(prev => prev.filter(source => source.id !== sourceId));
+    }
+  };
+
+  // Calcolo delle emissioni Scope 1
   const calculateAndSaveScope1Emissions = () => {
     try {
-      if (!scope1Data.fuelType || !scope1Data.quantity) {
-        setScope1Error('Inserisci sia il tipo di combustibile che la quantità');
-        return;
+      // Verifica che tutte le fonti abbiano dati validi
+      for (const source of scope1Sources) {
+        if (!source.data.fuelType || !source.data.quantity) {
+          setScope1Error('Inserisci sia il tipo di combustibile che la quantità per tutte le fonti');
+          return;
+        }
       }
       
-      const emissions = calculateScope1Emissions(
-        scope1Data.fuelType as FuelType,
-        Number(scope1Data.quantity),
-        scope1Data.unit
-      );
+      // Calcola le emissioni per ogni fonte
+      let totalEmissions = 0;
+      const updatedSources = scope1Sources.map(source => {
+        const emissions = calculateScope1Emissions(
+          source.data.fuelType as FuelType,
+          Number(source.data.quantity),
+          source.data.unit
+        );
+        totalEmissions += emissions;
+        return { ...source, calculatedEmissions: emissions };
+      });
       
-      // Convert to tonnes if over 1000kg
-      const formattedEmissions = emissions >= 1000 
-        ? (emissions / 1000).toFixed(2) 
-        : emissions.toFixed(2);
+      // Aggiorna lo stato con le fonti calcolate
+      setScope1Sources(updatedSources);
       
-      // Update state with emissions result
+      // Converti in tonnellate se superiore a 1000kg
+      const formattedEmissions = totalEmissions >= 1000 
+        ? (totalEmissions / 1000).toFixed(2) 
+        : (totalEmissions / 1000).toFixed(3);
+      
+      // Aggiorna lo stato con il risultato delle emissioni
       handleChange('totalScope1Emissions', formattedEmissions);
       
-      // Store the calculation details for transparency
-      const source = getEmissionFactorSource(scope1Data.fuelType);
+      // Memorizza i dettagli del calcolo per trasparenza
       handleChange('scope1CalculationDetails', JSON.stringify({
-        ...scope1Data,
-        emissionsKg: emissions,
-        emissionsTonnes: emissions / 1000,
+        sources: updatedSources.map(s => ({
+          ...s.data,
+          emissionsKg: s.calculatedEmissions,
+          emissionsTonnes: s.calculatedEmissions ? s.calculatedEmissions / 1000 : 0,
+        })),
+        totalEmissionsKg: totalEmissions,
+        totalEmissionsTonnes: totalEmissions / 1000,
         calculationDate: new Date().toISOString(),
-        source: source
+        sourceDetails: updatedSources.map(s => getEmissionFactorSource(s.data.fuelType))
       }));
       
-      // Show success message
+      // Mostra messaggio di successo
       setScope1Error(null);
     } catch (error) {
-      console.error("Error calculating Scope 1 emissions:", error);
+      console.error("Errore nel calcolo delle emissioni Scope 1:", error);
       setScope1Error('Errore nel calcolo delle emissioni. Verifica i dati inseriti.');
     }
   };
 
-  // Calculate Scope 2 emissions
+  // Calcolo delle emissioni Scope 2
   const calculateAndSaveScope2Emissions = () => {
     try {
-      if (!scope2Data.energyType || !scope2Data.quantity) {
-        setScope2Error('Inserisci sia il tipo di energia che la quantità');
-        return;
+      // Verifica che tutte le fonti abbiano dati validi
+      for (const source of scope2Sources) {
+        if (!source.data.energyType || !source.data.quantity) {
+          setScope2Error('Inserisci sia il tipo di energia che la quantità per tutte le fonti');
+          return;
+        }
       }
       
-      const emissions = calculateScope2Emissions(
-        scope2Data.energyType as EnergyType,
-        Number(scope2Data.quantity),
-        scope2Data.unit,
-        scope2Data.renewablePercentage
-      );
+      // Calcola le emissioni per ogni fonte
+      let totalEmissions = 0;
+      const updatedSources = scope2Sources.map(source => {
+        const emissions = calculateScope2Emissions(
+          source.data.energyType as EnergyType,
+          Number(source.data.quantity),
+          source.data.unit,
+          source.data.renewablePercentage
+        );
+        totalEmissions += emissions;
+        return { ...source, calculatedEmissions: emissions };
+      });
       
-      // Convert to tonnes if over 1000kg
-      const formattedEmissions = emissions >= 1000 
-        ? (emissions / 1000).toFixed(2) 
-        : emissions.toFixed(2);
+      // Aggiorna lo stato con le fonti calcolate
+      setScope2Sources(updatedSources);
       
-      // Update state with emissions result
+      // Converti in tonnellate se superiore a 1000kg
+      const formattedEmissions = totalEmissions >= 1000 
+        ? (totalEmissions / 1000).toFixed(2) 
+        : (totalEmissions / 1000).toFixed(3);
+      
+      // Aggiorna lo stato con il risultato delle emissioni
       handleChange('totalScope2Emissions', formattedEmissions);
       
-      // Store the calculation details for transparency
-      const source = getEmissionFactorSource(scope2Data.energyType);
+      // Memorizza i dettagli del calcolo per trasparenza
       handleChange('scope2CalculationDetails', JSON.stringify({
-        ...scope2Data,
-        emissionsKg: emissions,
-        emissionsTonnes: emissions / 1000,
+        sources: updatedSources.map(s => ({
+          ...s.data,
+          emissionsKg: s.calculatedEmissions,
+          emissionsTonnes: s.calculatedEmissions ? s.calculatedEmissions / 1000 : 0,
+        })),
+        totalEmissionsKg: totalEmissions,
+        totalEmissionsTonnes: totalEmissions / 1000,
         calculationDate: new Date().toISOString(),
-        source: source
+        sourceDetails: updatedSources.map(s => getEmissionFactorSource(s.data.energyType))
       }));
       
-      // Show success message
+      // Mostra messaggio di successo
       setScope2Error(null);
     } catch (error) {
-      console.error("Error calculating Scope 2 emissions:", error);
+      console.error("Errore nel calcolo delle emissioni Scope 2:", error);
       setScope2Error('Errore nel calcolo delle emissioni. Verifica i dati inseriti.');
     }
   };
 
-  // Calculate Scope 3 emissions
+  // Calcolo delle emissioni Scope 3
   const calculateAndSaveScope3Emissions = () => {
     try {
-      if (!scope3Data.activityType || !scope3Data.quantity) {
-        setScope3Error('Inserisci sia il tipo di attività che la quantità');
-        return;
+      // Verifica che tutte le fonti abbiano dati validi
+      for (const source of scope3Sources) {
+        if (!source.data.activityType || !source.data.quantity) {
+          setScope3Error('Inserisci sia il tipo di attività che la quantità per tutte le fonti');
+          return;
+        }
       }
       
-      const emissions = calculateScope3Emissions(
-        scope3Data.activityType,
-        Number(scope3Data.quantity),
-        scope3Data.unit,
-        scope3Data.secondaryQuantity ? Number(scope3Data.secondaryQuantity) : undefined,
-        scope3Data.secondaryUnit
-      );
+      // Calcola le emissioni per ogni fonte
+      let totalEmissions = 0;
+      const updatedSources = scope3Sources.map(source => {
+        const emissions = calculateScope3Emissions(
+          source.data.activityType,
+          Number(source.data.quantity),
+          source.data.unit,
+          source.data.secondaryQuantity ? Number(source.data.secondaryQuantity) : undefined,
+          source.data.secondaryUnit
+        );
+        totalEmissions += emissions;
+        return { ...source, calculatedEmissions: emissions };
+      });
       
-      // Convert to tonnes if over 1000kg
-      const formattedEmissions = emissions >= 1000 
-        ? (emissions / 1000).toFixed(2) 
-        : emissions.toFixed(2);
+      // Aggiorna lo stato con le fonti calcolate
+      setScope3Sources(updatedSources);
       
-      // Update state with emissions result
+      // Converti in tonnellate se superiore a 1000kg
+      const formattedEmissions = totalEmissions >= 1000 
+        ? (totalEmissions / 1000).toFixed(2) 
+        : (totalEmissions / 1000).toFixed(3);
+      
+      // Aggiorna lo stato con il risultato delle emissioni
       handleChange('totalScope3Emissions', formattedEmissions);
       
-      // Store the calculation details for transparency
-      const source = getEmissionFactorSource(scope3Data.activityType);
+      // Memorizza i dettagli del calcolo per trasparenza
       handleChange('scope3CalculationDetails', JSON.stringify({
-        ...scope3Data,
-        emissionsKg: emissions,
-        emissionsTonnes: emissions / 1000,
+        sources: updatedSources.map(s => ({
+          ...s.data,
+          emissionsKg: s.calculatedEmissions,
+          emissionsTonnes: s.calculatedEmissions ? s.calculatedEmissions / 1000 : 0,
+        })),
+        totalEmissionsKg: totalEmissions,
+        totalEmissionsTonnes: totalEmissions / 1000,
         calculationDate: new Date().toISOString(),
-        source: source
+        sourceDetails: updatedSources.map(s => getEmissionFactorSource(s.data.activityType))
       }));
       
-      // Show success message
+      // Mostra messaggio di successo
       setScope3Error(null);
     } catch (error) {
-      console.error("Error calculating Scope 3 emissions:", error);
+      console.error("Errore nel calcolo delle emissioni Scope 3:", error);
       setScope3Error('Errore nel calcolo delle emissioni. Verifica i dati inseriti.');
     }
   };
 
-  // Calculate total emissions from all scopes
+  // Calcola le emissioni totali da tutti gli scope
   const calculateTotalEmissions = () => {
     try {
-      // Get values from formValues or use 0 if not available
+      // Ottieni i valori da formValues o usa 0 se non disponibili
       const scope1 = parseFloat(formValues.environmentalMetrics?.totalScope1Emissions || '0');
       const scope2 = parseFloat(formValues.environmentalMetrics?.totalScope2Emissions || '0');
       const scope3 = parseFloat(formValues.environmentalMetrics?.totalScope3Emissions || '0');
       
-      // Calculate total
+      // Calcola il totale
       const total = scope1 + scope2 + scope3;
       
-      // Update the total
+      // Aggiorna il totale
       handleChange('totalScopeEmissions', total.toFixed(2));
     } catch (error) {
-      console.error("Error calculating total emissions:", error);
+      console.error("Errore nel calcolo delle emissioni totali:", error);
     }
   };
+
+  // Quando cambia qualsiasi valore di Scope, aggiorna il totale
+  useEffect(() => {
+    calculateTotalEmissions();
+  }, [formValues.environmentalMetrics?.totalScope1Emissions, 
+      formValues.environmentalMetrics?.totalScope2Emissions, 
+      formValues.environmentalMetrics?.totalScope3Emissions]);
 
   return (
     <div className="space-y-6">
@@ -290,16 +427,22 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         </div>
       </div>
       
-      {/* Period selector for all calculations */}
+      {/* Selettore del periodo per tutti i calcoli */}
       <div className="mb-4">
         <Label htmlFor="period-type" className="mb-2 inline-block">Periodo di riferimento</Label>
         <Select 
           value={periodType} 
           onValueChange={(value) => {
             setPeriodType(value as PeriodType);
-            handleScope1Change('periodType', value as PeriodType);
-            handleScope2Change('periodType', value as PeriodType);
-            handleScope3Change('periodType', value as PeriodType);
+            scope1Sources.forEach(source => {
+              handleScope1SourceChange(source.id, 'periodType', value as PeriodType);
+            });
+            scope2Sources.forEach(source => {
+              handleScope2SourceChange(source.id, 'periodType', value as PeriodType);
+            });
+            scope3Sources.forEach(source => {
+              handleScope3SourceChange(source.id, 'periodType', value as PeriodType);
+            });
           }}
         >
           <SelectTrigger className="w-full md:w-72">
@@ -313,7 +456,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         </Select>
       </div>
       
-      {/* Scope 1 Emissions */}
+      {/* Emissioni Scope 1 */}
       <div className="p-4 rounded-md border border-gray-200 mb-6">
         <div className="flex justify-between items-center mb-3">
           <h4 className="font-semibold text-lg">Calcolo Emissioni Scope 1</h4>
@@ -329,55 +472,84 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           </TooltipProvider>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="fuelType">Tipo di combustibile</Label>
-            <Select 
-              value={scope1Data.fuelType} 
-              onValueChange={(value) => handleScope1Change('fuelType', value)}
-            >
-              <SelectTrigger id="fuelType" className="w-full">
-                <SelectValue placeholder="Seleziona combustibile" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableFuelTypes().map(fuel => (
-                  <SelectItem key={fuel.value} value={fuel.value}>
-                    {fuel.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {scope1Sources.map((source, index) => (
+          <div key={source.id} className="mb-4 p-3 border border-gray-100 rounded-md bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h5 className="font-medium text-gray-700">Fonte di emissione {index + 1}</h5>
+              {scope1Sources.length > 1 && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeScope1Source(source.id)}
+                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor={`fuelType-${source.id}`}>Tipo di combustibile</Label>
+                <Select 
+                  value={source.data.fuelType} 
+                  onValueChange={(value) => handleScope1SourceChange(source.id, 'fuelType', value)}
+                >
+                  <SelectTrigger id={`fuelType-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona combustibile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableFuelTypes().map(fuel => (
+                      <SelectItem key={fuel.value} value={fuel.value}>
+                        {fuel.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor={`quantity-${source.id}`}>Quantità</Label>
+                <Input
+                  type="number"
+                  id={`quantity-${source.id}`}
+                  value={source.data.quantity || ''}
+                  onChange={(e) => handleScope1SourceChange(source.id, 'quantity', e.target.value)}
+                  placeholder="es. 1000"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`unit-${source.id}`}>Unità</Label>
+                <Select 
+                  value={source.data.unit} 
+                  onValueChange={(value) => handleScope1SourceChange(source.id, 'unit', value)}
+                >
+                  <SelectTrigger id={`unit-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona unità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableUnits('FUEL').map(unit => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
-          
-          <div>
-            <Label htmlFor="quantity">Quantità</Label>
-            <Input
-              type="number"
-              id="quantity"
-              value={scope1Data.quantity || ''}
-              onChange={(e) => handleScope1Change('quantity', e.target.value)}
-              placeholder="es. 1000"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="unit">Unità</Label>
-            <Select 
-              value={scope1Data.unit} 
-              onValueChange={(value) => handleScope1Change('unit', value)}
-            >
-              <SelectTrigger id="unit" className="w-full">
-                <SelectValue placeholder="Seleziona unità" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableUnits('FUEL').map(unit => (
-                  <SelectItem key={unit.value} value={unit.value}>
-                    {unit.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        ))}
+        
+        <div className="mt-2 mb-4">
+          <Button 
+            onClick={addScope1Source} 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1 text-blue-600 border-blue-300 hover:bg-blue-50"
+          >
+            <PlusCircle className="h-4 w-4" /> Aggiungi fonte di emissione
+          </Button>
         </div>
         
         {scope1Error && (
@@ -405,28 +577,32 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         
         {showScope1Options && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <h5 className="font-medium mb-2">Dettagli sul fattore di emissione</h5>
+            <h5 className="font-medium mb-2">Dettagli sui fattori di emissione</h5>
             <div className="text-sm text-gray-600">
-              <p>
-                Fonte: {getEmissionFactorSource(scope1Data.fuelType)?.name || 'Non disponibile'}
-                {getEmissionFactorSource(scope1Data.fuelType) && (
-                  <a 
-                    href={getEmissionFactorSource(scope1Data.fuelType)?.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="ml-2 text-blue-500 hover:underline"
-                  >
-                    Visualizza fonte
-                  </a>
-                )}
-              </p>
+              {scope1Sources.map((source, index) => (
+                <div key={`source-details-${source.id}`} className="mb-2">
+                  <p>
+                    <strong>Fonte {index + 1}:</strong> {getEmissionFactorSource(source.data.fuelType)?.name || 'Non disponibile'}
+                    {getEmissionFactorSource(source.data.fuelType) && (
+                      <a 
+                        href={getEmissionFactorSource(source.data.fuelType)?.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-500 hover:underline"
+                      >
+                        Visualizza fonte
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ))}
               <p>Anno di riferimento: 2023</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Scope 2 Emissions */}
+      {/* Emissioni Scope 2 */}
       <div className="p-4 rounded-md border border-gray-200 mb-6">
         <div className="flex justify-between items-center mb-3">
           <h4 className="font-semibold text-lg">Calcolo Emissioni Scope 2</h4>
@@ -442,75 +618,104 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           </TooltipProvider>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="energyType">Tipo di energia</Label>
-            <Select 
-              value={scope2Data.energyType} 
-              onValueChange={(value) => handleScope2Change('energyType', value)}
-            >
-              <SelectTrigger id="energyType" className="w-full">
-                <SelectValue placeholder="Seleziona tipo energia" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableEnergyTypes().map(energy => (
-                  <SelectItem key={energy.value} value={energy.value}>
-                    {energy.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {scope2Sources.map((source, index) => (
+          <div key={source.id} className="mb-4 p-3 border border-gray-100 rounded-md bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h5 className="font-medium text-gray-700">Fonte di energia {index + 1}</h5>
+              {scope2Sources.length > 1 && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeScope2Source(source.id)}
+                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor={`energyType-${source.id}`}>Tipo di energia</Label>
+                <Select 
+                  value={source.data.energyType} 
+                  onValueChange={(value) => handleScope2SourceChange(source.id, 'energyType', value)}
+                >
+                  <SelectTrigger id={`energyType-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona tipo energia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableEnergyTypes().map(energy => (
+                      <SelectItem key={energy.value} value={energy.value}>
+                        {energy.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor={`quantity-${source.id}`}>Quantità</Label>
+                <Input
+                  type="number"
+                  id={`quantity-${source.id}`}
+                  value={source.data.quantity || ''}
+                  onChange={(e) => handleScope2SourceChange(source.id, 'quantity', e.target.value)}
+                  placeholder="es. 2000"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`unit-${source.id}`}>Unità</Label>
+                <Select 
+                  value={source.data.unit} 
+                  onValueChange={(value) => handleScope2SourceChange(source.id, 'unit', value)}
+                >
+                  <SelectTrigger id={`unit-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona unità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableUnits('ENERGY').map(unit => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {/* Slider percentuale rinnovabile - Solo per l'elettricità di rete */}
+            {(source.data.energyType === 'ELECTRICITY_IT' || source.data.energyType === 'ELECTRICITY_EU') && (
+              <div className="mt-4">
+                <Label htmlFor={`renewablePercentage-${source.id}`}>
+                  Percentuale di energia rinnovabile nel mix energetico: {((source.data.renewablePercentage || 0) * 100).toFixed(0)}%
+                </Label>
+                <Input
+                  type="range"
+                  id={`renewablePercentage-${source.id}`}
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={source.data.renewablePercentage || 0}
+                  onChange={(e) => handleScope2SourceChange(source.id, 'renewablePercentage', parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
-          
-          <div>
-            <Label htmlFor="quantity">Quantità</Label>
-            <Input
-              type="number"
-              id="quantity"
-              value={scope2Data.quantity || ''}
-              onChange={(e) => handleScope2Change('quantity', e.target.value)}
-              placeholder="es. 2000"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="unit">Unità</Label>
-            <Select 
-              value={scope2Data.unit} 
-              onValueChange={(value) => handleScope2Change('unit', value)}
-            >
-              <SelectTrigger id="unit" className="w-full">
-                <SelectValue placeholder="Seleziona unità" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableUnits('ENERGY').map(unit => (
-                  <SelectItem key={unit.value} value={unit.value}>
-                    {unit.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        ))}
         
-        {/* Renewable percentage slider - Only for grid electricity */}
-        {(scope2Data.energyType === 'ELECTRICITY_IT' || scope2Data.energyType === 'ELECTRICITY_EU') && (
-          <div className="mt-4">
-            <Label htmlFor="renewablePercentage">
-              Percentuale di energia rinnovabile nel mix energetico: {(scope2Data.renewablePercentage || 0) * 100}%
-            </Label>
-            <Input
-              type="range"
-              id="renewablePercentage"
-              min="0"
-              max="1"
-              step="0.01"
-              value={scope2Data.renewablePercentage || 0}
-              onChange={(e) => handleScope2Change('renewablePercentage', parseFloat(e.target.value))}
-              className="w-full"
-            />
-          </div>
-        )}
+        <div className="mt-2 mb-4">
+          <Button 
+            onClick={addScope2Source} 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1 text-blue-600 border-blue-300 hover:bg-blue-50"
+          >
+            <PlusCircle className="h-4 w-4" /> Aggiungi fonte di energia
+          </Button>
+        </div>
         
         {scope2Error && (
           <div className="mt-2 text-sm text-red-500">
@@ -537,28 +742,32 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         
         {showScope2Options && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <h5 className="font-medium mb-2">Dettagli sul fattore di emissione</h5>
+            <h5 className="font-medium mb-2">Dettagli sui fattori di emissione</h5>
             <div className="text-sm text-gray-600">
-              <p>
-                Fonte: {getEmissionFactorSource(scope2Data.energyType)?.name || 'Non disponibile'}
-                {getEmissionFactorSource(scope2Data.energyType) && (
-                  <a 
-                    href={getEmissionFactorSource(scope2Data.energyType)?.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="ml-2 text-blue-500 hover:underline"
-                  >
-                    Visualizza fonte
-                  </a>
-                )}
-              </p>
+              {scope2Sources.map((source, index) => (
+                <div key={`source-details-${source.id}`} className="mb-2">
+                  <p>
+                    <strong>Fonte {index + 1}:</strong> {getEmissionFactorSource(source.data.energyType)?.name || 'Non disponibile'}
+                    {getEmissionFactorSource(source.data.energyType) && (
+                      <a 
+                        href={getEmissionFactorSource(source.data.energyType)?.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-500 hover:underline"
+                      >
+                        Visualizza fonte
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ))}
               <p>Anno di riferimento: 2023</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Scope 3 Emissions */}
+      {/* Emissioni Scope 3 */}
       <div className="p-4 rounded-md border border-gray-200 mb-6">
         <div className="flex justify-between items-center mb-3">
           <h4 className="font-semibold text-lg">Calcolo Emissioni Scope 3</h4>
@@ -574,101 +783,130 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           </TooltipProvider>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="activityType">Tipo di attività</Label>
-            <Select 
-              value={scope3Data.activityType} 
-              onValueChange={(value) => handleScope3Change('activityType', value)}
-            >
-              <SelectTrigger id="activityType" className="w-full">
-                <SelectValue placeholder="Seleziona attività" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableScope3Types().map(activity => (
-                  <SelectItem key={activity.value} value={activity.value}>
-                    {activity.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label htmlFor="quantity">
-              {scope3Data.activityType?.startsWith('FREIGHT') ? 'Distanza' : 
-                scope3Data.activityType?.startsWith('WASTE') ? 'Quantità' : 'Valore'}
-            </Label>
-            <Input
-              type="number"
-              id="quantity"
-              value={scope3Data.quantity || ''}
-              onChange={(e) => handleScope3Change('quantity', e.target.value)}
-              placeholder={scope3Data.activityType?.startsWith('FREIGHT') ? 'es. 500 km' : 
-                scope3Data.activityType?.startsWith('WASTE') ? 'es. 10 tonnellate' : 'es. 100'}
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="unit">Unità</Label>
-            <Select 
-              value={scope3Data.unit} 
-              onValueChange={(value) => handleScope3Change('unit', value)}
-            >
-              <SelectTrigger id="unit" className="w-full">
-                <SelectValue placeholder="Seleziona unità" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableUnits(
-                  scope3Data.activityType?.startsWith('FREIGHT') || scope3Data.activityType?.startsWith('BUSINESS_TRAVEL') 
-                    ? 'TRANSPORT' 
-                    : scope3Data.activityType?.startsWith('WASTE') 
-                      ? 'WASTE' 
-                      : 'TRANSPORT'
-                ).map(unit => (
-                  <SelectItem key={unit.value} value={unit.value}>
-                    {unit.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        
-        {/* Secondary quantity for freight transport */}
-        {scope3Data.activityType?.startsWith('FREIGHT') && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <Label htmlFor="secondaryQuantity">Peso del carico</Label>
-              <Input
-                type="number"
-                id="secondaryQuantity"
-                value={scope3Data.secondaryQuantity || ''}
-                onChange={(e) => handleScope3Change('secondaryQuantity', e.target.value)}
-                placeholder="es. 5 tonnellate"
-              />
+        {scope3Sources.map((source, index) => (
+          <div key={source.id} className="mb-4 p-3 border border-gray-100 rounded-md bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h5 className="font-medium text-gray-700">Attività {index + 1}</h5>
+              {scope3Sources.length > 1 && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeScope3Source(source.id)}
+                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             
-            <div>
-              <Label htmlFor="secondaryUnit">Unità</Label>
-              <Select 
-                value={scope3Data.secondaryUnit || 't'} 
-                onValueChange={(value) => handleScope3Change('secondaryUnit', value)}
-              >
-                <SelectTrigger id="secondaryUnit" className="w-full">
-                  <SelectValue placeholder="Seleziona unità" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAvailableUnits('WASTE').map(unit => (
-                    <SelectItem key={unit.value} value={unit.value}>
-                      {unit.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor={`activityType-${source.id}`}>Tipo di attività</Label>
+                <Select 
+                  value={source.data.activityType} 
+                  onValueChange={(value) => handleScope3SourceChange(source.id, 'activityType', value)}
+                >
+                  <SelectTrigger id={`activityType-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona attività" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableScope3Types().map(activity => (
+                      <SelectItem key={activity.value} value={activity.value}>
+                        {activity.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor={`quantity-${source.id}`}>
+                  {source.data.activityType?.startsWith('FREIGHT') ? 'Distanza' : 
+                    source.data.activityType?.startsWith('WASTE') ? 'Quantità' : 'Valore'}
+                </Label>
+                <Input
+                  type="number"
+                  id={`quantity-${source.id}`}
+                  value={source.data.quantity || ''}
+                  onChange={(e) => handleScope3SourceChange(source.id, 'quantity', e.target.value)}
+                  placeholder={source.data.activityType?.startsWith('FREIGHT') ? 'es. 500 km' : 
+                    source.data.activityType?.startsWith('WASTE') ? 'es. 10 tonnellate' : 'es. 100'}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`unit-${source.id}`}>Unità</Label>
+                <Select 
+                  value={source.data.unit} 
+                  onValueChange={(value) => handleScope3SourceChange(source.id, 'unit', value)}
+                >
+                  <SelectTrigger id={`unit-${source.id}`} className="w-full">
+                    <SelectValue placeholder="Seleziona unità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableUnits(
+                      source.data.activityType?.startsWith('FREIGHT') || source.data.activityType?.startsWith('BUSINESS_TRAVEL') 
+                        ? 'TRANSPORT' 
+                        : source.data.activityType?.startsWith('WASTE') 
+                          ? 'WASTE' 
+                          : 'TRANSPORT'
+                    ).map(unit => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            
+            {/* Quantità secondaria per il trasporto merci */}
+            {source.data.activityType?.startsWith('FREIGHT') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <Label htmlFor={`secondaryQuantity-${source.id}`}>Peso del carico</Label>
+                  <Input
+                    type="number"
+                    id={`secondaryQuantity-${source.id}`}
+                    value={source.data.secondaryQuantity || ''}
+                    onChange={(e) => handleScope3SourceChange(source.id, 'secondaryQuantity', e.target.value)}
+                    placeholder="es. 5 tonnellate"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor={`secondaryUnit-${source.id}`}>Unità</Label>
+                  <Select 
+                    value={source.data.secondaryUnit || 't'} 
+                    onValueChange={(value) => handleScope3SourceChange(source.id, 'secondaryUnit', value)}
+                  >
+                    <SelectTrigger id={`secondaryUnit-${source.id}`} className="w-full">
+                      <SelectValue placeholder="Seleziona unità" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableUnits('WASTE').map(unit => (
+                        <SelectItem key={unit.value} value={unit.value}>
+                          {unit.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        ))}
+        
+        <div className="mt-2 mb-4">
+          <Button 
+            onClick={addScope3Source} 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1 text-blue-600 border-blue-300 hover:bg-blue-50"
+          >
+            <PlusCircle className="h-4 w-4" /> Aggiungi attività
+          </Button>
+        </div>
         
         {scope3Error && (
           <div className="mt-2 text-sm text-red-500">
@@ -695,28 +933,32 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         
         {showScope3Options && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <h5 className="font-medium mb-2">Dettagli sul fattore di emissione</h5>
+            <h5 className="font-medium mb-2">Dettagli sui fattori di emissione</h5>
             <div className="text-sm text-gray-600">
-              <p>
-                Fonte: {getEmissionFactorSource(scope3Data.activityType)?.name || 'Non disponibile'}
-                {getEmissionFactorSource(scope3Data.activityType) && (
-                  <a 
-                    href={getEmissionFactorSource(scope3Data.activityType)?.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="ml-2 text-blue-500 hover:underline"
-                  >
-                    Visualizza fonte
-                  </a>
-                )}
-              </p>
+              {scope3Sources.map((source, index) => (
+                <div key={`source-details-${source.id}`} className="mb-2">
+                  <p>
+                    <strong>Attività {index + 1}:</strong> {getEmissionFactorSource(source.data.activityType)?.name || 'Non disponibile'}
+                    {getEmissionFactorSource(source.data.activityType) && (
+                      <a 
+                        href={getEmissionFactorSource(source.data.activityType)?.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-500 hover:underline"
+                      >
+                        Visualizza fonte
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ))}
               <p>Anno di riferimento: 2023</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Calculate Total Emissions */}
+      {/* Calcola Emissioni Totali */}
       <div className="p-4 rounded-md border border-gray-200 mb-6 bg-gray-50">
         <h4 className="font-semibold text-lg mb-3">Emissioni Totali</h4>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

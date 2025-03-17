@@ -1,259 +1,259 @@
 
 import { EmissionFactor, EmissionFactorSource, EmissionScope, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from './emissions-types';
 
-// Emission factors sourced from IPCC, DEFRA, and ISPRA
-// Values in kgCO2e per unit specified
+// Fattori di emissione provenienti da IPCC, DEFRA e ISPRA
+// Valori in kgCO2e per unità specificata
 export const EMISSION_FACTORS: Record<string, EmissionFactor> = {
-  // Scope 1 - Fuel types
+  // Scope 1 - Tipi di combustibile
   DIESEL: { 
     value: 2.68, 
     unit: 'kg/L',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Diesel fuel'
+    description: 'Gasolio (Diesel)'
   },
   GASOLINE: { 
     value: 2.31, 
     unit: 'kg/L',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Gasoline/Petrol'
+    description: 'Benzina'
   },
   NATURAL_GAS: { 
     value: 2.02, 
     unit: 'kg/m³',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Natural gas'
+    description: 'Gas naturale'
   },
   LPG: { 
     value: 1.51, 
     unit: 'kg/L',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Liquefied Petroleum Gas'
+    description: 'GPL'
   },
   BIOMASS_PELLET: { 
     value: 0.04, 
     unit: 'kg/kg',
     source: EmissionFactorSource.IPCC,
     scope: EmissionScope.SCOPE1,
-    description: 'Wood pellets (biomass)'
+    description: 'Pellet di legno (biomassa)'
   },
   BIOMASS_WOOD: { 
     value: 0.03, 
     unit: 'kg/kg',
     source: EmissionFactorSource.IPCC,
     scope: EmissionScope.SCOPE1,
-    description: 'Wood logs (biomass)'
+    description: 'Legna da ardere (biomassa)'
   },
   BIOFUEL: { 
     value: 1.13, 
     unit: 'kg/L',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Biofuel blend'
+    description: 'Biocombustibili'
   },
   COAL: { 
     value: 2.42, 
     unit: 'kg/kg',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Coal'
+    description: 'Carbone'
   },
   FUEL_OIL: { 
     value: 3.17, 
     unit: 'kg/L',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE1,
-    description: 'Fuel oil'
+    description: 'Olio combustibile'
   },
   
-  // Scope 2 - Energy types
+  // Scope 2 - Tipi di energia
   ELECTRICITY_IT: { 
     value: 0.233, 
     unit: 'kg/kWh',
     source: EmissionFactorSource.ISPRA,
     scope: EmissionScope.SCOPE2,
-    description: 'Grid electricity (Italy)'
+    description: 'Elettricità da rete (Italia)'
   },
   ELECTRICITY_EU: { 
     value: 0.256, 
     unit: 'kg/kWh',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE2,
-    description: 'Grid electricity (EU average)'
+    description: 'Elettricità da rete (media UE)'
   },
   ELECTRICITY_RENEWABLE: { 
     value: 0.0, 
     unit: 'kg/kWh',
     source: EmissionFactorSource.ISPRA,
     scope: EmissionScope.SCOPE2,
-    description: 'Renewable energy (solar, wind)'
+    description: 'Energia rinnovabile (solare, eolica)'
   },
   ELECTRICITY_COGENERATION: { 
     value: 0.181, 
     unit: 'kg/kWh',
     source: EmissionFactorSource.ISPRA,
     scope: EmissionScope.SCOPE2,
-    description: 'Cogeneration/Combined heat and power'
+    description: 'Cogenerazione/Energia termoelettrica combinata'
   },
   
-  // Scope 3 - Transport and other indirect emissions
+  // Scope 3 - Trasporto e altre emissioni indirette
   FREIGHT_ROAD: { 
     value: 0.107, 
     unit: 'kg/t·km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Road freight (average truck)'
+    description: 'Trasporto merci su strada (camion medio)'
   },
   FREIGHT_RAIL: { 
     value: 0.028, 
     unit: 'kg/t·km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Rail freight'
+    description: 'Trasporto merci su rotaia'
   },
   FREIGHT_SEA: { 
     value: 0.015, 
     unit: 'kg/t·km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Sea freight'
+    description: 'Trasporto merci via mare'
   },
   FREIGHT_AIR: { 
     value: 0.654, 
     unit: 'kg/t·km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Air freight'
+    description: 'Trasporto merci aereo'
   },
   BUSINESS_TRAVEL_CAR: { 
     value: 0.17, 
     unit: 'kg/km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Business travel - car (average)'
+    description: 'Viaggi di lavoro - auto (media)'
   },
   BUSINESS_TRAVEL_TRAIN: { 
     value: 0.03, 
     unit: 'kg/km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Business travel - train'
+    description: 'Viaggi di lavoro - treno'
   },
   BUSINESS_TRAVEL_FLIGHT_SHORT: { 
     value: 0.154, 
     unit: 'kg/km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Business travel - short haul flight (<1500km)'
+    description: 'Viaggi di lavoro - volo breve (<1500km)'
   },
   BUSINESS_TRAVEL_FLIGHT_LONG: { 
     value: 0.114, 
     unit: 'kg/km',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Business travel - long haul flight (>1500km)'
+    description: 'Viaggi di lavoro - volo lungo (>1500km)'
   },
   WASTE_LANDFILL: { 
     value: 458, 
     unit: 'kg/t',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Waste disposal - landfill (general)'
+    description: 'Smaltimento rifiuti - discarica (generale)'
   },
   WASTE_RECYCLED: { 
     value: 21, 
     unit: 'kg/t',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Waste disposal - recycling (average)'
+    description: 'Smaltimento rifiuti - riciclaggio (media)'
   },
   WASTE_INCINERATION: { 
     value: 21.3, 
     unit: 'kg/t',
     source: EmissionFactorSource.DEFRA,
     scope: EmissionScope.SCOPE3,
-    description: 'Waste disposal - incineration'
+    description: 'Smaltimento rifiuti - incenerimento'
   }
 };
 
-// Unit conversion factors to standardize inputs
+// Fattori di conversione delle unità per standardizzare gli input
 export const UNIT_CONVERSIONS: Record<string, Record<string, number>> = {
-  // Fuel conversions to standard units
+  // Conversioni per combustibili
   FUEL: {
-    'L': 1, // liter (base unit)
-    'kL': 1000, // kiloliter to liter
-    'gal': 3.78541, // US gallon to liter
-    'kg': 1, // kg (for solid fuels - base unit)
-    't': 1000, // metric ton to kg
-    'm³': 1, // cubic meter (for gases - base unit)
-    'ft³': 0.0283168, // cubic feet to cubic meter
-    'kWh': 1, // kWh (for energy content - base unit)
-    'MWh': 1000, // MWh to kWh
-    'GJ': 277.778 // GJ to kWh
+    'L': 1, // litro (unità base)
+    'kL': 1000, // kilolitro a litro
+    'gal': 3.78541, // gallone US a litro
+    'kg': 1, // kg (per combustibili solidi - unità base)
+    't': 1000, // tonnellata metrica a kg
+    'm³': 1, // metro cubo (per gas - unità base)
+    'ft³': 0.0283168, // piedi cubi a metro cubo
+    'kWh': 1, // kWh (per contenuto energetico - unità base)
+    'MWh': 1000, // MWh a kWh
+    'GJ': 277.778 // GJ a kWh
   },
   
-  // Energy conversions
+  // Conversioni per energia
   ENERGY: {
-    'kWh': 1, // kWh (base unit)
-    'MWh': 1000, // MWh to kWh
-    'GWh': 1000000, // GWh to kWh
-    'GJ': 277.778 // GJ to kWh
+    'kWh': 1, // kWh (unità base)
+    'MWh': 1000, // MWh a kWh
+    'GWh': 1000000, // GWh a kWh
+    'GJ': 277.778 // GJ a kWh
   },
   
-  // Transport conversions
+  // Conversioni per trasporti
   TRANSPORT: {
-    'km': 1, // kilometer (base unit)
-    'mi': 1.60934, // miles to km
-    't·km': 1, // tonne-kilometer (base unit for freight)
-    'kg·km': 0.001 // kg-kilometer to tonne-kilometer
+    'km': 1, // chilometro (unità base)
+    'mi': 1.60934, // miglia a km
+    't·km': 1, // tonnellata-chilometro (unità base per trasporto merci)
+    'kg·km': 0.001 // kg-chilometro a tonnellata-chilometro
   },
   
-  // Waste conversions
+  // Conversioni per rifiuti
   WASTE: {
-    'kg': 0.001, // kg to tonnes
-    't': 1 // tonnes (base unit)
+    'kg': 0.001, // kg a tonnellate
+    't': 1 // tonnellate (unità base)
   }
 };
 
-// Energy mix percentages for different countries (for Scope 2 calculations)
+// Percentuali di mix energetico per diversi paesi (per calcoli Scope 2)
 export const ENERGY_MIX = {
   IT: {
-    renewable: 0.41, // 41% renewable in Italy (example)
+    renewable: 0.41, // 41% rinnovabile in Italia (esempio)
     fossil: 0.59
   },
   EU: {
-    renewable: 0.38, // 38% renewable in EU average (example)
+    renewable: 0.38, // 38% rinnovabile nella media UE (esempio)
     fossil: 0.62
   }
 };
 
 /**
- * Calculate CO2 emissions for Scope 1 (direct emissions from fuel combustion)
- * @param fuelType - Type of fuel used
- * @param quantity - Amount of fuel
- * @param unit - Unit of measurement
- * @returns - CO2 emissions in kgCO2e
+ * Calcola le emissioni di CO2 per Scope 1 (emissioni dirette da combustione di combustibili)
+ * @param fuelType - Tipo di combustibile utilizzato
+ * @param quantity - Quantità di combustibile
+ * @param unit - Unità di misura
+ * @returns - Emissioni di CO2 in kgCO2e
  */
 export const calculateScope1Emissions = (
   fuelType: FuelType,
   quantity: number,
   unit: string
 ): number => {
-  // Get the emission factor for the fuel type
+  // Ottieni il fattore di emissione per il tipo di combustibile
   const emissionFactor = EMISSION_FACTORS[fuelType];
   
   if (!emissionFactor) {
-    console.warn(`Emission factor not found for fuel type: ${fuelType}`);
+    console.warn(`Fattore di emissione non trovato per il tipo di combustibile: ${fuelType}`);
     return 0;
   }
   
-  // Get the conversion factor for the unit
+  // Ottieni il fattore di conversione per l'unità
   const conversionFactor = UNIT_CONVERSIONS.FUEL[unit] || 1;
   
-  // Calculate emissions
+  // Calcola le emissioni
   const standardizedQuantity = quantity * conversionFactor;
   const emissions = emissionFactor.value * standardizedQuantity;
   
@@ -261,12 +261,12 @@ export const calculateScope1Emissions = (
 };
 
 /**
- * Calculate CO2 emissions for Scope 2 (indirect emissions from purchased electricity)
- * @param energyType - Type of energy
- * @param quantity - Amount of energy
- * @param unit - Unit of measurement
- * @param renewablePercentage - Optional: percentage of energy from renewable sources (0-1)
- * @returns - CO2 emissions in kgCO2e
+ * Calcola le emissioni di CO2 per Scope 2 (emissioni indirette da energia acquistata)
+ * @param energyType - Tipo di energia
+ * @param quantity - Quantità di energia
+ * @param unit - Unità di misura
+ * @param renewablePercentage - Opzionale: percentuale di energia da fonti rinnovabili (0-1)
+ * @returns - Emissioni di CO2 in kgCO2e
  */
 export const calculateScope2Emissions = (
   energyType: EnergyType,
@@ -274,42 +274,42 @@ export const calculateScope2Emissions = (
   unit: string,
   renewablePercentage?: number
 ): number => {
-  // Get the emission factor for the energy type
+  // Ottieni il fattore di emissione per il tipo di energia
   const emissionFactor = EMISSION_FACTORS[energyType];
   
   if (!emissionFactor) {
-    console.warn(`Emission factor not found for energy type: ${energyType}`);
+    console.warn(`Fattore di emissione non trovato per il tipo di energia: ${energyType}`);
     return 0;
   }
   
-  // Get the conversion factor for the unit
+  // Ottieni il fattore di conversione per l'unità
   const conversionFactor = UNIT_CONVERSIONS.ENERGY[unit] || 1;
   
-  // Calculate standardized quantity
+  // Calcola la quantità standardizzata
   const standardizedQuantity = quantity * conversionFactor;
   
-  // Apply renewable percentage if provided (for mixed grid electricity)
+  // Applica la percentuale rinnovabile se fornita (per elettricità da rete mista)
   let adjustedEmissionFactor = emissionFactor.value;
   if (renewablePercentage !== undefined && (energyType === 'ELECTRICITY_IT' || energyType === 'ELECTRICITY_EU')) {
-    // Apply weighted average based on renewable percentage
+    // Applica media ponderata basata sulla percentuale rinnovabile
     const fossilFactor = adjustedEmissionFactor / (1 - (energyType === 'ELECTRICITY_IT' ? ENERGY_MIX.IT.renewable : ENERGY_MIX.EU.renewable));
     adjustedEmissionFactor = fossilFactor * (1 - renewablePercentage);
   }
   
-  // Calculate emissions
+  // Calcola le emissioni
   const emissions = adjustedEmissionFactor * standardizedQuantity;
   
   return emissions;
 };
 
 /**
- * Calculate CO2 emissions for Scope 3 (other indirect emissions)
- * @param activityType - Type of activity (transport, waste, etc.)
- * @param quantity - Primary quantity (distance, weight, etc.)
- * @param unit - Unit of measurement
- * @param secondaryQuantity - Optional: Secondary quantity (e.g., weight for freight transport)
- * @param secondaryUnit - Optional: Unit for secondary quantity
- * @returns - CO2 emissions in kgCO2e
+ * Calcola le emissioni di CO2 per Scope 3 (altre emissioni indirette)
+ * @param activityType - Tipo di attività (trasporto, rifiuti, ecc.)
+ * @param quantity - Quantità primaria (distanza, peso, ecc.)
+ * @param unit - Unità di misura
+ * @param secondaryQuantity - Opzionale: Quantità secondaria (es., peso per trasporto merci)
+ * @param secondaryUnit - Opzionale: Unità per quantità secondaria
+ * @returns - Emissioni di CO2 in kgCO2e
  */
 export const calculateScope3Emissions = (
   activityType: string,
@@ -318,43 +318,43 @@ export const calculateScope3Emissions = (
   secondaryQuantity?: number,
   secondaryUnit?: string
 ): number => {
-  // Get the emission factor for the activity type
+  // Ottieni il fattore di emissione per il tipo di attività
   const emissionFactor = EMISSION_FACTORS[activityType];
   
   if (!emissionFactor) {
-    console.warn(`Emission factor not found for activity type: ${activityType}`);
+    console.warn(`Fattore di emissione non trovato per il tipo di attività: ${activityType}`);
     return 0;
   }
   
-  // Determine the category based on activity type
+  // Determina la categoria in base al tipo di attività
   let category = 'TRANSPORT';
   if (activityType.startsWith('WASTE')) {
     category = 'WASTE';
   }
   
-  // Get the conversion factor for the unit
+  // Ottieni il fattore di conversione per l'unità
   const conversionFactor = UNIT_CONVERSIONS[category][unit] || 1;
   
-  // Calculate standardized quantity
+  // Calcola la quantità standardizzata
   let standardizedQuantity = quantity * conversionFactor;
   
-  // For freight transport, we need to account for weight and distance
+  // Per il trasporto merci, dobbiamo considerare peso e distanza
   if (activityType.startsWith('FREIGHT') && secondaryQuantity && secondaryUnit) {
     const secondaryConversionFactor = UNIT_CONVERSIONS.WASTE[secondaryUnit] || 1;
     const standardizedSecondaryQuantity = secondaryQuantity * secondaryConversionFactor;
     standardizedQuantity *= standardizedSecondaryQuantity;
   }
   
-  // Calculate emissions
+  // Calcola le emissioni
   const emissions = emissionFactor.value * standardizedQuantity;
   
   return emissions;
 };
 
 /**
- * Get source information for an emission factor
- * @param factorKey - Key of the emission factor
- * @returns - Source information including name, URL, and reference year
+ * Ottieni informazioni sulla fonte per un fattore di emissione
+ * @param factorKey - Chiave del fattore di emissione
+ * @returns - Informazioni sulla fonte inclusi nome, URL e anno di riferimento
  */
 export const getEmissionFactorSource = (factorKey: string) => {
   const factor = EMISSION_FACTORS[factorKey];
@@ -369,12 +369,12 @@ export const getEmissionFactorSource = (factorKey: string) => {
   return {
     name: factor.source,
     url: sourceUrls[factor.source],
-    year: '2023' // Update this when using a different reference year
+    year: '2023' // Aggiorna questo quando usi un anno di riferimento diverso
   };
 };
 
 /**
- * Get all available fuel types
+ * Ottieni tutti i tipi di combustibile disponibili
  */
 export const getAvailableFuelTypes = (): {value: string, label: string}[] => {
   return Object.entries(EMISSION_FACTORS)
@@ -386,7 +386,7 @@ export const getAvailableFuelTypes = (): {value: string, label: string}[] => {
 };
 
 /**
- * Get all available energy types
+ * Ottieni tutti i tipi di energia disponibili
  */
 export const getAvailableEnergyTypes = (): {value: string, label: string}[] => {
   return Object.entries(EMISSION_FACTORS)
@@ -398,7 +398,7 @@ export const getAvailableEnergyTypes = (): {value: string, label: string}[] => {
 };
 
 /**
- * Get all available scope 3 activity types
+ * Ottieni tutti i tipi di attività Scope 3 disponibili
  */
 export const getAvailableScope3Types = (): {value: string, label: string}[] => {
   return Object.entries(EMISSION_FACTORS)
@@ -410,7 +410,7 @@ export const getAvailableScope3Types = (): {value: string, label: string}[] => {
 };
 
 /**
- * Get available units for a specific category
+ * Ottieni le unità disponibili per una categoria specifica
  */
 export const getAvailableUnits = (category: 'FUEL' | 'ENERGY' | 'TRANSPORT' | 'WASTE'): {value: string, label: string}[] => {
   return Object.keys(UNIT_CONVERSIONS[category]).map(unit => ({
