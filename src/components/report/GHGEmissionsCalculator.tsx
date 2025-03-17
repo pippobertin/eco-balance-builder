@@ -7,6 +7,7 @@ import CalculatorHeader from './emissions/CalculatorHeader';
 import EmissionsResults from './emissions/EmissionsResults';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCalculator } from './emissions/hooks/useCalculator';
+import { EmissionFactorSource } from '@/lib/emissions-types';
 
 interface GHGEmissionsCalculatorProps {
   formValues: any;
@@ -30,7 +31,9 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     showResetDialog,
     setShowResetDialog,
     handleResetConfirm,
-    handleResetCancel
+    handleResetCancel,
+    calculationMethod,
+    setCalculationMethod
   } = useCalculator(formValues, setFormValues);
 
   // Use the external reset handler if provided, otherwise use the internal one
@@ -46,7 +49,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
 
   return (
     <div className="mb-6">
-      <CalculatorHeader />
+      <CalculatorHeader 
+        calculationMethod={calculationMethod}
+        setCalculationMethod={setCalculationMethod}
+      />
       
       <div className="mt-4">
         <div className="flex justify-between items-center mb-4">
@@ -66,24 +72,52 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           
           <TabsContent value="scope1">
             <Scope1Form 
-              inputs={inputs}
-              updateInput={updateInput}
+              scope1Source={inputs.scope1Source || ''}
+              setScope1Source={(value) => updateInput('scope1Source', value)}
+              fuelType={inputs.fuelType || 'DIESEL'}
+              setFuelType={(value) => updateInput('fuelType', value)}
+              fuelQuantity={inputs.fuelQuantity || ''}
+              setFuelQuantity={(value) => updateInput('fuelQuantity', value)}
+              fuelUnit={inputs.fuelUnit || 'L'}
+              setFuelUnit={(value) => updateInput('fuelUnit', value)}
+              periodType={inputs.periodType || 'ANNUAL'}
+              setPeriodType={(value) => updateInput('periodType', value)}
               calculateEmissions={() => calculateEmissions('scope1')}
             />
           </TabsContent>
           
           <TabsContent value="scope2">
             <Scope2Form 
-              inputs={inputs}
-              updateInput={updateInput}
+              energyType={inputs.energyType || 'ELECTRICITY_IT'}
+              setEnergyType={(value) => updateInput('energyType', value)}
+              energyQuantity={inputs.energyQuantity || ''}
+              setEnergyQuantity={(value) => updateInput('energyQuantity', value)}
+              renewablePercentage={inputs.renewablePercentage || 0}
+              setRenewablePercentage={(value) => updateInput('renewablePercentage', value)}
+              periodType={inputs.periodType || 'ANNUAL'}
+              setPeriodType={(value) => updateInput('periodType', value)}
               calculateEmissions={() => calculateEmissions('scope2')}
             />
           </TabsContent>
           
           <TabsContent value="scope3">
             <Scope3Form 
-              inputs={inputs}
-              updateInput={updateInput}
+              scope3Category={inputs.scope3Category || 'transport'}
+              setScope3Category={(value) => updateInput('scope3Category', value)}
+              transportType={inputs.transportType || 'FREIGHT_ROAD'}
+              setTransportType={(value) => updateInput('transportType', value)}
+              transportDistance={inputs.transportDistance || ''}
+              setTransportDistance={(value) => updateInput('transportDistance', value)}
+              wasteType={inputs.wasteType || 'WASTE_LANDFILL'}
+              setWasteType={(value) => updateInput('wasteType', value)}
+              wasteQuantity={inputs.wasteQuantity || ''}
+              setWasteQuantity={(value) => updateInput('wasteQuantity', value)}
+              purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'}
+              setPurchaseType={(value) => updateInput('purchaseType', value)}
+              purchaseQuantity={inputs.purchaseQuantity || ''}
+              setPurchaseQuantity={(value) => updateInput('purchaseQuantity', value)}
+              periodType={inputs.periodType || 'ANNUAL'}
+              setPeriodType={(value) => updateInput('periodType', value)}
               calculateEmissions={() => calculateEmissions('scope3')}
             />
           </TabsContent>

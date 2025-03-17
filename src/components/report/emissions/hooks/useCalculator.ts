@@ -6,6 +6,7 @@ import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
 import { CalculatorState, EmissionsResults } from '../types';
 import { useToast } from '@/hooks/use-toast';
+import { EmissionFactorSource } from '@/lib/emissions-types';
 
 export const useCalculator = (
   formValues: any,
@@ -20,6 +21,7 @@ export const useCalculator = (
     total: 0
   });
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [calculationMethod, setCalculationMethod] = useState<EmissionFactorSource>(EmissionFactorSource.DEFRA);
   const { toast } = useToast();
 
   // Get the form value updater
@@ -37,6 +39,11 @@ export const useCalculator = (
     calculateEmissions, 
     resetCalculation 
   } = useEmissionsCalculator(undefined, handleCalculationResults);
+
+  // Update calculator when calculation method changes
+  useEffect(() => {
+    updateInput('calculationMethod', calculationMethod);
+  }, [calculationMethod, updateInput]);
 
   // Update local state when calculator results change
   useEffect(() => {
@@ -108,6 +115,8 @@ export const useCalculator = (
     showResetDialog,
     setShowResetDialog,
     handleResetConfirm,
-    handleResetCancel
+    handleResetCancel,
+    calculationMethod,
+    setCalculationMethod
   };
 };
