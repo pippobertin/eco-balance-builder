@@ -94,56 +94,6 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="totalScope1Emissions">Emissioni Scope 1 (tonnellate CO2e)</Label>
-              <Input 
-                id="totalScope1Emissions" 
-                name="totalScope1Emissions" 
-                type="number" 
-                placeholder="0.0" 
-                value={formValues.environmentalMetrics?.totalScope1Emissions || ""} 
-                onChange={handleChange} 
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="totalScope2Emissions">Emissioni Scope 2 (tonnellate CO2e)</Label>
-              <Input 
-                id="totalScope2Emissions" 
-                name="totalScope2Emissions" 
-                type="number" 
-                placeholder="0.0" 
-                value={formValues.environmentalMetrics?.totalScope2Emissions || ""} 
-                onChange={handleChange} 
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="totalScope3Emissions">Emissioni Scope 3 (tonnellate CO2e)</Label>
-              <Input 
-                id="totalScope3Emissions" 
-                name="totalScope3Emissions" 
-                type="number" 
-                placeholder="0.0" 
-                value={formValues.environmentalMetrics?.totalScope3Emissions || ""} 
-                onChange={handleChange} 
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="totalScopeEmissions">Emissioni Totali (tonnellate CO2e)</Label>
-              <Input 
-                id="totalScopeEmissions" 
-                name="totalScopeEmissions" 
-                type="number" 
-                placeholder="0.0" 
-                value={formValues.environmentalMetrics?.totalScopeEmissions || ""} 
-                onChange={handleChange} 
-              />
-            </div>
-          </div>
-          
           <div>
             <Label htmlFor="energyEmissionsDetails">Dettagli su energia ed emissioni (opzionale)</Label>
             <Textarea 

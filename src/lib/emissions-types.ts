@@ -13,6 +13,15 @@ export enum EmissionFactorSource {
   ISPRA = 'ISPRA'
 }
 
+// Enum for period types
+export enum PeriodType {
+  ANNUAL = 'ANNUAL',
+  QUARTERLY = 'QUARTERLY',
+  MONTHLY = 'MONTHLY',
+  WEEKLY = 'WEEKLY',
+  DAILY = 'DAILY'
+}
+
 // Emission factor interface
 export interface EmissionFactor {
   value: number;
@@ -21,6 +30,62 @@ export interface EmissionFactor {
   scope: EmissionScope;
   description: string;
 }
+
+// Base interface for emission sources
+export interface BaseEmissionSource {
+  id: string;
+  type: 'scope1' | 'scope2' | 'scope3';
+  name?: string;
+  description?: string;
+  quantity: number;
+  unit: string;
+  periodType?: PeriodType;
+  periodValue?: number;
+  calculationDate?: string;
+  emissionsKg?: number;
+  emissionsTonnes?: number;
+  source?: {
+    name: string;
+    url: string;
+    year: string;
+  };
+}
+
+// Scope 1 Emissions Source - Direct Emissions
+export interface Scope1EmissionSource extends BaseEmissionSource {
+  type: 'scope1';
+  fuelType: FuelType;
+  category?: 'production' | 'fleet' | 'other';
+  vehicleType?: string;
+  fuelConsumption?: number;
+  kilometers?: number;
+}
+
+// Scope 2 Emissions Source - Indirect Energy Emissions
+export interface Scope2EmissionSource extends BaseEmissionSource {
+  type: 'scope2';
+  energyType: EnergyType;
+  renewablePercentage?: number;
+  provider?: string;
+  location?: string;
+}
+
+// Scope 3 Emissions Source - Other Indirect Emissions
+export interface Scope3EmissionSource extends BaseEmissionSource {
+  type: 'scope3';
+  activityType: string;
+  category?: 'transport' | 'purchases' | 'waste' | 'other';
+  transportType?: string;
+  vehicleType?: string;
+  secondaryQuantity?: number;
+  secondaryUnit?: string;
+  productType?: string;
+  wasteType?: string;
+  disposalMethod?: string;
+}
+
+// Union type for any emission source
+export type EmissionSource = Scope1EmissionSource | Scope2EmissionSource | Scope3EmissionSource;
 
 // Type for fuel types (Scope 1)
 export type FuelType = 
@@ -63,35 +128,14 @@ export type PurchaseType =
   'PURCHASED_GOODS' | 
   'PURCHASED_SERVICES';
 
-// Interface for Scope 1 data
-export interface Scope1Data {
-  fuelType: FuelType;
-  quantity: number;
-  unit: string;
-  periodType?: PeriodType;
-  periodValue?: number;
+// Interfacce per l'input utente
+export interface EmissionsCalculationInput {
+  scope1Sources: Scope1EmissionSource[];
+  scope2Sources: Scope2EmissionSource[];
+  scope3Sources: Scope3EmissionSource[];
+  totalScope1Emissions: number;
+  totalScope2Emissions: number;
+  totalScope3Emissions: number;
+  totalEmissions: number;
+  calculationDate: string;
 }
-
-// Interface for Scope 2 data
-export interface Scope2Data {
-  energyType: EnergyType;
-  quantity: number;
-  unit: string;
-  renewablePercentage?: number;
-  periodType?: PeriodType;
-  periodValue?: number;
-}
-
-// Interface for Scope 3 data
-export interface Scope3Data {
-  activityType: string;
-  quantity: number;
-  unit: string;
-  secondaryQuantity?: number;
-  secondaryUnit?: string;
-  periodType?: PeriodType;
-  periodValue?: number;
-}
-
-// Type for time period
-export type PeriodType = 'ANNUAL' | 'QUARTERLY' | 'MONTHLY' | 'WEEKLY' | 'DAILY';
