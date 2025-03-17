@@ -13,14 +13,20 @@ export const useEmissionsResults = (
   
   const handleCalculationResults = (results: EmissionsResults, details: EmissionsDetails) => {
     // This callback runs when calculation results change
-    updateFormValues('totalScope1Emissions', results.scope1.toFixed(2));
-    updateFormValues('scope1CalculationDetails', details.scope1Details);
+    if (results.scope1 > 0) {
+      updateFormValues('totalScope1Emissions', results.scope1.toFixed(2));
+      updateFormValues('scope1CalculationDetails', details.scope1Details);
+    }
     
-    updateFormValues('totalScope2Emissions', results.scope2.toFixed(2));
-    updateFormValues('scope2CalculationDetails', details.scope2Details);
+    if (results.scope2 > 0) {
+      updateFormValues('totalScope2Emissions', results.scope2.toFixed(2));
+      updateFormValues('scope2CalculationDetails', details.scope2Details);
+    }
     
-    updateFormValues('totalScope3Emissions', results.scope3.toFixed(2));
-    updateFormValues('scope3CalculationDetails', details.scope3Details);
+    if (results.scope3 > 0) {
+      updateFormValues('totalScope3Emissions', results.scope3.toFixed(2));
+      updateFormValues('scope3CalculationDetails', details.scope3Details);
+    }
     
     updateFormValues('totalScopeEmissions', results.total.toFixed(2));
   };
