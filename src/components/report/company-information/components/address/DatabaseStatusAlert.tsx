@@ -46,7 +46,7 @@ const DatabaseStatusAlert: React.FC<DatabaseStatusAlertProps> = ({
         </Alert>
       )}
 
-      {error && (
+      {error && databaseStatus === 'error' && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Errore</AlertTitle>

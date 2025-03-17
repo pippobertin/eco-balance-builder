@@ -136,8 +136,11 @@ export const useAddressData = (initialProvince: string = '') => {
   };
 
   const loadMunicipalities = async (provinceCode: string) => {
+    if (!provinceCode) return;
+    
     setIsLoading(prev => ({ ...prev, municipalities: true }));
-    setError(null);
+    // Non settiamo più l'errore a null qui, in modo da non mostrare errori se i dati vengono comunque caricati
+    
     try {
       const { data, error } = await supabase
         .from('municipalities')
@@ -145,17 +148,25 @@ export const useAddressData = (initialProvince: string = '') => {
         .eq('province_code', provinceCode)
         .order('name');
 
-      if (error) {
+      // Se abbiamo comunque ottenuto dei dati, consideriamo l'operazione come riuscita
+      // anche se c'è stato un errore tecnico
+      if (data && data.length > 0) {
+        console.log(`Loaded ${data.length} municipalities for province ${provinceCode}`);
+        setMunicipalities(data);
+        setError(null); // Puliamo l'errore se abbiamo comunque dati
+      } else if (error) {
         console.error('Error loading municipalities:', error);
         setError(`Errore durante il caricamento dei comuni per la provincia ${provinceCode}`);
-        return;
+        setMunicipalities([]);
+      } else {
+        console.log(`No municipalities found for province ${provinceCode}`);
+        setMunicipalities([]);
+        setError(null); // Non ci sono errori, semplicemente nessun dato
       }
-
-      console.log(`Loaded ${data?.length || 0} municipalities for province ${provinceCode}`);
-      setMunicipalities(data || []);
     } catch (error) {
       console.error('Failed to load municipalities:', error);
       setError(`Errore durante il caricamento dei comuni per la provincia ${provinceCode}`);
+      setMunicipalities([]);
     } finally {
       setIsLoading(prev => ({ ...prev, municipalities: false }));
     }
