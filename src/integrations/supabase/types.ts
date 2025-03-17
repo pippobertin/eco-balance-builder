@@ -206,19 +206,19 @@ export type Database = {
         Row: {
           id: number
           name: string
-          postal_codes: string[]
+          postal_codes: string[] | null
           province_code: string
         }
         Insert: {
           id?: number
           name: string
-          postal_codes: string[]
+          postal_codes?: string[] | null
           province_code: string
         }
         Update: {
           id?: number
           name?: string
-          postal_codes?: string[]
+          postal_codes?: string[] | null
           province_code?: string
         }
         Relationships: [
