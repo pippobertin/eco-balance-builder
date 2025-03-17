@@ -135,15 +135,6 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
             <Factory className="mr-2 h-5 w-5 text-red-500" />
             <h3 className="text-xl font-semibold">B3 - Emissioni di gas a effetto serra (GHG) e Energia</h3>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleResetClick}
-            className="flex items-center gap-1 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-          >
-            <RefreshCcw className="h-4 w-4" />
-            Azzera calcoli
-          </Button>
         </div>
         
         <div className="space-y-4">
@@ -160,6 +151,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
           <GHGEmissionsCalculator 
             formValues={formValues} 
             setFormValues={setFormValues} 
+            onResetClick={handleResetClick}
           />
           
           {/* Energy Section */}

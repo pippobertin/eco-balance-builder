@@ -22,11 +22,12 @@ import {
   PurchaseType,
   BaseEmissionSource
 } from '@/lib/emissions-types';
-import { Info, Plus, Trash2, Calculator, ArrowRight } from 'lucide-react';
+import { Info, Plus, Trash2, Calculator, ArrowRight, RefreshCcw } from 'lucide-react';
 
 interface GHGEmissionsCalculatorProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void);
+  onResetClick?: () => void;
 }
 
 // Helper to create a synthetic event for use with the setFormValues function
@@ -42,7 +43,8 @@ const createSyntheticEvent = (name: string, value: any): React.ChangeEvent<HTMLI
 
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ 
   formValues, 
-  setFormValues 
+  setFormValues,
+  onResetClick
 }) => {
   const [activeTab, setActiveTab] = useState<string>('scope1');
   
@@ -406,6 +408,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     updateFormValues('totalScopeEmissions', emissionsResult.total.toFixed(2));
   };
 
+  // Handle reset button click
+  const handleResetClick = () => {
+    if (onResetClick) {
+      onResetClick();
+    }
+  };
+
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <div className="flex justify-between items-center mb-4">
@@ -734,26 +743,38 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           Calcola Emissioni
         </Button>
         
-        <div className="text-right">
-          <p className="text-xs text-gray-500 mb-1">Risultati del calcolo (tonnellate CO₂e):</p>
-          <div className="grid grid-cols-4 gap-2 text-sm">
-            <div className="text-center">
-              <p className="font-semibold">Scope 1</p>
-              <p>{calculatedEmissions.scope1.toFixed(2)}</p>
-            </div>
-            <div className="text-center">
-              <p className="font-semibold">Scope 2</p>
-              <p>{calculatedEmissions.scope2.toFixed(2)}</p>
-            </div>
-            <div className="text-center">
-              <p className="font-semibold">Scope 3</p>
-              <p>{calculatedEmissions.scope3.toFixed(2)}</p>
-            </div>
-            <div className="text-center bg-blue-50 rounded-md p-1">
-              <p className="font-semibold">Totale</p>
-              <p>{calculatedEmissions.total.toFixed(2)}</p>
+        <div className="flex items-center space-x-4">
+          <div className="text-right">
+            <p className="text-xs text-gray-500 mb-1">Risultati del calcolo (tonnellate CO₂e):</p>
+            <div className="grid grid-cols-4 gap-2 text-sm">
+              <div className="text-center">
+                <p className="font-semibold">Scope 1</p>
+                <p>{calculatedEmissions.scope1.toFixed(2)}</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold">Scope 2</p>
+                <p>{calculatedEmissions.scope2.toFixed(2)}</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold">Scope 3</p>
+                <p>{calculatedEmissions.scope3.toFixed(2)}</p>
+              </div>
+              <div className="text-center bg-blue-50 rounded-md p-1">
+                <p className="font-semibold">Totale</p>
+                <p>{calculatedEmissions.total.toFixed(2)}</p>
+              </div>
             </div>
           </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleResetClick}
+            className="flex items-center gap-1 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Azzera calcoli
+          </Button>
         </div>
       </div>
     </div>
