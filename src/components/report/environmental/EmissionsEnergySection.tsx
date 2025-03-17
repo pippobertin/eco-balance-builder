@@ -16,6 +16,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
   formValues,
   setFormValues
 }) => {
+  // This handleChange function needs to be modified to better handle different form value updates
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
     if (typeof setFormValues === 'function' && setFormValues.length === 1) {
@@ -53,7 +54,10 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
             </div>
           </div>
 
-          <GHGEmissionsCalculator formValues={formValues} setFormValues={setFormValues} />
+          <GHGEmissionsCalculator 
+            formValues={formValues} 
+            setFormValues={setFormValues} 
+          />
           
           {/* Energy Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -66,6 +70,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
                 placeholder="0.0" 
                 value={formValues.environmentalMetrics?.energyConsumption || ""} 
                 onChange={handleChange} 
+                className="bg-white"
               />
             </div>
             
@@ -78,6 +83,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
                 placeholder="0.0" 
                 value={formValues.environmentalMetrics?.fossilFuelEnergy || ""} 
                 onChange={handleChange} 
+                className="bg-white"
               />
             </div>
             
@@ -90,6 +96,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
                 placeholder="0.0" 
                 value={formValues.environmentalMetrics?.renewableEnergy || ""} 
                 onChange={handleChange} 
+                className="bg-white"
               />
             </div>
           </div>
@@ -102,7 +109,7 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
               placeholder="Fornisci dettagli aggiuntivi su energia ed emissioni di gas serra, se applicabile." 
               value={formValues.environmentalMetrics?.energyEmissionsDetails || ""} 
               onChange={handleChange} 
-              className="min-h-[120px]" 
+              className="min-h-[120px] bg-white" 
             />
           </div>
         </div>
