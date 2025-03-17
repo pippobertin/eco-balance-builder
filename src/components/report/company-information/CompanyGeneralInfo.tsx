@@ -1,16 +1,16 @@
 
 import React from 'react';
-import { Building, Plus } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import CompanyBasicInfo from './components/CompanyBasicInfo';
 import ActivityCodes from './components/ActivityCodes';
 import LegalDetails from './components/LegalDetails';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import HeaderSection from './components/HeaderSection';
+import MainAddressSection from './components/MainAddressSection';
+import CompanyOptionsSection from './components/CompanyOptionsSection';
 import GroupCompaniesSection from './components/GroupCompaniesSection';
 import CompanyLocationsSection from './components/CompanyLocationsSection';
-import AddressFields, { AddressData } from './components/AddressFields';
 import DatabaseDebugInfo from './components/DatabaseDebugInfo';
+import { AddressData } from './components/AddressFields';
 
 export interface GroupCompany {
   id?: string;
@@ -114,10 +114,7 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center mb-4">
-        <Building className="mr-2 h-5 w-5 text-blue-500" />
-        <h2 className="text-xl font-semibold">Informazioni Generali dell'Azienda</h2>
-      </div>
+      <HeaderSection title="Informazioni Generali dell'Azienda" />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <CompanyBasicInfo 
@@ -140,20 +137,17 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         />
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-medium mb-3">Indirizzo Sede Principale</h3>
-        <AddressFields 
-          addressData={{
-            address_street_type: safeData.address_street_type,
-            address_street: safeData.address_street,
-            address_number: safeData.address_number,
-            address_postal_code: safeData.address_postal_code,
-            address_city: safeData.address_city,
-            address_province: safeData.address_province
-          }}
-          onChange={handleAddressChange}
-        />
-      </div>
+      <MainAddressSection 
+        addressData={{
+          address_street_type: safeData.address_street_type,
+          address_street: safeData.address_street,
+          address_number: safeData.address_number,
+          address_postal_code: safeData.address_postal_code,
+          address_city: safeData.address_city,
+          address_province: safeData.address_province
+        }}
+        onChange={handleAddressChange}
+      />
 
       {showDebugInfo && (
         <div className="mb-6">
@@ -161,39 +155,11 @@ const CompanyGeneralInfo: React.FC<CompanyGeneralInfoProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-        <div className="flex items-start space-x-2">
-          <Checkbox 
-            id="is_part_of_group" 
-            checked={safeData.is_part_of_group} 
-            onCheckedChange={(checked) => handleCheckboxChange('is_part_of_group', checked as boolean)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <Label htmlFor="is_part_of_group" className="text-sm font-medium">
-              L'azienda fa parte di un gruppo
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Seleziona questa opzione se l'azienda è parte di un gruppo societario
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-2">
-          <Checkbox 
-            id="has_multiple_locations" 
-            checked={safeData.has_multiple_locations} 
-            onCheckedChange={(checked) => handleCheckboxChange('has_multiple_locations', checked as boolean)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <Label htmlFor="has_multiple_locations" className="text-sm font-medium">
-              L'azienda ha più sedi o stabilimenti
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Seleziona questa opzione se l'azienda ha più sedi o stabilimenti oltre alla sede principale
-            </p>
-          </div>
-        </div>
-      </div>
+      <CompanyOptionsSection 
+        isPartOfGroup={safeData.is_part_of_group}
+        hasMultipleLocations={safeData.has_multiple_locations}
+        onCheckboxChange={handleCheckboxChange}
+      />
 
       {safeData.is_part_of_group && (
         <GroupCompaniesSection 
