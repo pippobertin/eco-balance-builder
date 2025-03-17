@@ -17,6 +17,12 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
   calculatedEmissions,
   onResetClick
 }) => {
+  const handleResetClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onResetClick();
+  };
+
   return (
     <div className="flex items-center space-x-4">
       <div className="text-right">
@@ -44,7 +50,7 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={onResetClick}
+        onClick={handleResetClick}
         className="flex items-center gap-1 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
       >
         <RefreshCcw className="h-4 w-4" />

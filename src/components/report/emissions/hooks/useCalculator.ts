@@ -61,6 +61,12 @@ export const useCalculator = (
     // Then, call the resetCalculation from the calculator hook
     resetCalculation();
     
+    // Also clear the form values by updating them to zero
+    updateFormValues('totalScope1Emissions', '0');
+    updateFormValues('totalScope2Emissions', '0');
+    updateFormValues('totalScope3Emissions', '0');
+    updateFormValues('totalScopeEmissions', '0');
+    
     // Finally, if there's an external reset handler, call it
     if (onResetClick) {
       onResetClick();
