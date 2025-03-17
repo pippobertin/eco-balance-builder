@@ -1,10 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
-import { CalculatorState } from '../types';
+import { CalculatorState, EmissionsResults } from '../types';
 
 export const useCalculator = (
   formValues: any,
@@ -12,6 +12,12 @@ export const useCalculator = (
   onResetClick?: () => void
 ) => {
   const [activeTab, setActiveTab] = useState<string>('scope1');
+  const [calculatedEmissions, setCalculatedEmissions] = useState<EmissionsResults>({
+    scope1: 0,
+    scope2: 0,
+    scope3: 0,
+    total: 0
+  });
 
   // Get the form value updater
   const { updateFormValues } = useFormValueUpdater(setFormValues);
@@ -23,14 +29,24 @@ export const useCalculator = (
   const { 
     inputs, 
     updateInput, 
-    results: calculatedEmissions, 
+    results, 
     details,
     calculateEmissions, 
     resetCalculation 
   } = useEmissionsCalculator(undefined, handleCalculationResults);
 
+  // Update local state when calculator results change
+  useEffect(() => {
+    setCalculatedEmissions(results);
+  }, [results]);
+
   // Monitor existing emissions data
-  useExistingEmissions(formValues, updateInput, resetCalculation);
+  useExistingEmissions(
+    formValues, 
+    updateInput, 
+    resetCalculation, 
+    setCalculatedEmissions
+  );
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {

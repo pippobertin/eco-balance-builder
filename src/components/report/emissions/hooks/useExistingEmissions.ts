@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { getMetricsData } from '../utils/formUtils';
 import { EmissionsInput } from '@/hooks/emissions-calculator';
+import { EmissionsResults } from '../types';
 
 /**
  * Hook for monitoring and loading existing emissions data
@@ -9,7 +10,8 @@ import { EmissionsInput } from '@/hooks/emissions-calculator';
 export const useExistingEmissions = (
   formValues: any,
   updateInput: (key: keyof EmissionsInput, value: any) => void,
-  resetCalculation: () => void
+  resetCalculation: () => void,
+  setCalculatedEmissions?: (results: EmissionsResults) => void
 ) => {
   // Load existing calculation results
   useEffect(() => {
@@ -23,12 +25,13 @@ export const useExistingEmissions = (
       const total = parseFloat(metricsData.totalScopeEmissions) || 0;
       
       // Only update if there's at least one non-zero value
-      if (scope1 > 0 || scope2 > 0 || scope3 > 0) {
-        // Fixed: Using specific emission result values instead of "results" key
-        const newResults = { scope1, scope2, scope3, total };
-        // We need to set each property separately
-        Object.entries(newResults).forEach(([key, value]) => {
-          updateInput(key as keyof typeof newResults, value);
+      if (scope1 > 0 || scope2 > 0 || scope3 > 0 && setCalculatedEmissions) {
+        // Use the new setCalculatedEmissions function to update emission results
+        setCalculatedEmissions({
+          scope1,
+          scope2,
+          scope3,
+          total
         });
       }
     }
@@ -37,5 +40,5 @@ export const useExistingEmissions = (
     if (formValues.target && formValues.target.name === 'resetEmissions') {
       resetCalculation();
     }
-  }, [formValues, updateInput, resetCalculation]);
+  }, [formValues, updateInput, resetCalculation, setCalculatedEmissions]);
 };
