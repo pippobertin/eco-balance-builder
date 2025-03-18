@@ -1,7 +1,7 @@
 
 import React, { createContext } from 'react';
 import { useReportState } from './report/reportState';
-import { ReportContextType } from './types';
+import { ReportContextType } from '@/context/types';
 
 // Create context
 export const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -41,7 +41,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 // Re-export types for easier access
-export type { Company, Report, Subsidiary, ReportData } from './types';
+export type { Company, Report, Subsidiary, ReportData } from '@/context/types';
 
 // Re-export the hook
 export { useReport } from '@/hooks/use-report-context';

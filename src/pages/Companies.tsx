@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -22,6 +21,10 @@ const Companies = () => {
   const { toast } = useToast();
   const loadingCompaniesRef = useRef(false);
   
+  console.log("Companies page rendering. Companies:", companies);
+  console.log("Loading state:", isLoading);
+  console.log("Error state:", hasError);
+  
   const { 
     reportToDelete, 
     isDeleteDialogOpen, 
@@ -30,10 +33,8 @@ const Companies = () => {
     handleDeleteReport 
   } = useReportDialogs();
   
-  // Create a debounced fetch function to prevent multiple rapid calls
   const debouncedFetchCompanies = useCallback(
     debounce(async () => {
-      // Skip if already loading
       if (loadingCompaniesRef.current) {
         console.log("Skipping companies fetch - already loading");
         return;
@@ -59,21 +60,18 @@ const Companies = () => {
         setIsLoading(false);
         setLoadingAttempts(prev => prev + 1);
         
-        // Reset loading ref after a delay to allow state updates to complete
         setTimeout(() => {
           loadingCompaniesRef.current = false;
-        }, 300); // Reduced from 500ms to 300ms for faster retries
+        }, 300);
       }
-    }, 300), // Reduced from 500ms to 300ms for faster response
+    }, 300),
     [loadCompanies, loadingAttempts, toast]
   );
   
-  // Initial load - only run once
   useEffect(() => {
     console.log("Initial companies fetch");
     debouncedFetchCompanies();
     
-    // Add an additional timer to ensure companies load even if something goes wrong
     const backupTimer = setTimeout(() => {
       if (companies.length === 0 && !loadingCompaniesRef.current) {
         console.log("Backup companies fetch triggered");
@@ -82,14 +80,12 @@ const Companies = () => {
       }
     }, 2000);
     
-    // Cleanup function to cancel pending requests
     return () => {
       console.log("Companies page unmounting, cleanup");
       clearTimeout(backupTimer);
     };
   }, []);
   
-  // Only retry on error with backoff
   useEffect(() => {
     if (hasError && loadingAttempts < 3) {
       const timeout = Math.min(1500 * Math.pow(1.5, loadingAttempts), 5000);
@@ -97,7 +93,7 @@ const Companies = () => {
       
       const timer = setTimeout(() => {
         if (!loadingCompaniesRef.current) {
-          loadingCompaniesRef.current = false; // Force reset the flag
+          loadingCompaniesRef.current = false;
           debouncedFetchCompanies();
         }
       }, timeout);
@@ -106,8 +102,9 @@ const Companies = () => {
     }
   }, [hasError, loadingAttempts, debouncedFetchCompanies]);
   
-  // Ensure the companies state is not empty
   const displayCompanies = companies.length > 0;
+  
+  console.log("Should display companies:", displayCompanies);
   
   return (
     <div className="min-h-screen flex flex-col">

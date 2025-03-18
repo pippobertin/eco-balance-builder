@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
+import { useCompanyOperations } from '@/context/companyOperations';
 import { useToast } from '@/hooks/use-toast';
 import { localStorageUtils } from '../localStorageUtils';
 
@@ -15,20 +15,19 @@ export const useReportLoad = (
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { loadReports: fetchReports, loadReport: fetchReport } = useReportOperations();
+  const { loadCompanies: fetchCompanies, loadCompanyById: fetchCompanyById } = useCompanyOperations();
 
   // Load all companies
   const loadCompanies = async (): Promise<void> => {
     setLoading(true);
     try {
-      console.info("Initial companies fetch");
+      console.info("Initial companies fetch in useReportLoad");
       // Fetch companies from Supabase
-      const { data: companies, error } = await fetchCompanies();
-      if (error) throw error;
-
-      console.info("Companies loaded:", companies.length);
+      const companies = await fetchCompanies();
+      console.info("Companies loaded in useReportLoad:", companies.length);
       setCompanies(companies);
     } catch (error: any) {
-      console.error("Error loading companies:", error.message);
+      console.error("Error loading companies in useReportLoad:", error.message);
       toast({
         title: "Errore",
         description: `Impossibile caricare le aziende: ${error.message}`,
@@ -44,9 +43,7 @@ export const useReportLoad = (
     setLoading(true);
     try {
       // Fetch company from Supabase
-      const { data: company, error } = await fetchCompanyById(companyId);
-      if (error) throw error;
-
+      const company = await fetchCompanyById(companyId);
       return company;
     } catch (error: any) {
       console.error("Error loading company:", error.message);
