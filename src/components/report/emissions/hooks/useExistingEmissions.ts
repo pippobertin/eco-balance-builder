@@ -1,59 +1,59 @@
 
 import { useEffect } from 'react';
-import { getMetricsData } from '../utils/formUtils';
-import { EmissionsInput } from '@/hooks/emissions-calculator';
-import { EmissionsResults } from '../types';
+import { EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator';
 
-/**
- * Hook for monitoring and loading existing emissions data
- */
 export const useExistingEmissions = (
   formValues: any,
   updateInput: (key: keyof EmissionsInput, value: any) => void,
   resetCalculation: () => void,
   setCalculatedEmissions?: (results: EmissionsResults) => void
 ) => {
-  // Load existing calculation results
+  // Effect to load existing emissions data from formValues
   useEffect(() => {
-    // Check if we received a reset command
-    if (formValues.target && formValues.target.name === 'resetEmissions') {
-      // Reset the calculator's state
-      resetCalculation();
-      
-      // Also update the displayed emissions to zero
-      if (setCalculatedEmissions) {
-        setCalculatedEmissions({
-          scope1: 0,
-          scope2: 0,
-          scope3: 0,
-          total: 0
-        });
-      }
+    if (!formValues || !formValues.environmentalMetrics) {
       return;
     }
     
-    // Regular data loading logic
-    const metricsData = getMetricsData(formValues);
+    // Extract emission values from the form
+    const { 
+      totalScope1Emissions, 
+      totalScope2Emissions, 
+      totalScope3Emissions, 
+      totalScopeEmissions 
+    } = formValues.environmentalMetrics;
     
-    if (metricsData) {
-      // Update the state with existing values
-      const scope1 = parseFloat(metricsData.totalScope1Emissions) || 0;
-      const scope2 = parseFloat(metricsData.totalScope2Emissions) || 0;
-      const scope3 = parseFloat(metricsData.totalScope3Emissions) || 0;
-      const total = parseFloat(metricsData.totalScopeEmissions) || 0;
+    // Only update if we have values and they are not already loaded
+    if (
+      totalScope1Emissions || 
+      totalScope2Emissions || 
+      totalScope3Emissions
+    ) {
+      // Parse the values to numbers
+      const scope1 = parseFloat(totalScope1Emissions || '0');
+      const scope2 = parseFloat(totalScope2Emissions || '0');
+      const scope3 = parseFloat(totalScope3Emissions || '0');
+      const total = parseFloat(totalScopeEmissions || '0');
       
-      // Only update if there's at least one non-zero value or we're resetting
-      if (scope1 > 0 || scope2 > 0 || scope3 > 0 || total > 0) {
-        if (setCalculatedEmissions) {
-          // Use the setCalculatedEmissions function to update emission results
-          setCalculatedEmissions({
-            scope1,
-            scope2,
-            scope3,
-            total
-          });
-        }
+      // Update the calculated emissions state if available
+      if (setCalculatedEmissions) {
+        setCalculatedEmissions({
+          scope1,
+          scope2,
+          scope3,
+          total: isNaN(total) ? (scope1 + scope2 + scope3) : total
+        });
       }
     }
-  }, [formValues, updateInput, resetCalculation, setCalculatedEmissions]);
+    
+    // Get calculation logs from formValues if available
+    if (formValues.environmentalMetrics.emissionCalculationLogs) {
+      try {
+        const logsData = JSON.parse(formValues.environmentalMetrics.emissionCalculationLogs);
+        // Se ci sono logs qui, non dobbiamo fare nulla di particolare perché
+        // saranno gestiti direttamente nel componente EmissionsCalculationTable
+      } catch (error) {
+        console.error("Error parsing emission calculation logs:", error);
+      }
+    }
+  }, [formValues?.environmentalMetrics]);
 };

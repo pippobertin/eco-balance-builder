@@ -4,5 +4,7 @@ export { useEmissionsCalculator } from './emissions-calculator';
 export type { 
   EmissionsInput,
   EmissionsResults,
-  EmissionsDetails
+  EmissionsDetails,
+  EmissionCalculationRecord,
+  EmissionCalculationLogs
 } from './emissions-calculator';

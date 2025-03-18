@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useEmissionsCalculator } from '@/hooks/use-emissions-calculator';
+import { useEmissionsCalculator, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
@@ -23,7 +23,12 @@ export const useCalculator = (
   const { updateFormValues } = useFormValueUpdater(setFormValues);
   
   // Get emissions results handler
-  const { handleCalculationResults, resetEmissionsValues } = useEmissionsResults(setFormValues);
+  const { 
+    handleCalculationResults, 
+    handleCalculationLogs,
+    calculationLogs,
+    resetEmissionsValues 
+  } = useEmissionsResults(setFormValues);
 
   // Use our emissions calculator hook
   const { 
@@ -32,8 +37,13 @@ export const useCalculator = (
     results, 
     details,
     calculateEmissions, 
-    resetCalculation 
-  } = useEmissionsCalculator(undefined, handleCalculationResults);
+    resetCalculation,
+    removeCalculation 
+  } = useEmissionsCalculator(
+    undefined, 
+    handleCalculationResults,
+    handleCalculationLogs
+  );
 
   // Update local state when calculator results change
   useEffect(() => {
@@ -59,6 +69,29 @@ export const useCalculator = (
     }
   }, [formValues, resetCalculation, resetEmissionsValues]);
 
+  // Parse existing calculation logs from form values
+  useEffect(() => {
+    if (formValues?.environmentalMetrics?.emissionCalculationLogs) {
+      try {
+        const logs = JSON.parse(formValues.environmentalMetrics.emissionCalculationLogs);
+        if (logs && typeof logs === 'object') {
+          const scope1Total = logs.scope1Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
+          const scope2Total = logs.scope2Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
+          const scope3Total = logs.scope3Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
+          
+          setCalculatedEmissions({
+            scope1: scope1Total,
+            scope2: scope2Total,
+            scope3: scope3Total,
+            total: scope1Total + scope2Total + scope3Total
+          });
+        }
+      } catch (error) {
+        console.error("Error parsing calculation logs:", error);
+      }
+    }
+  }, [formValues?.environmentalMetrics?.emissionCalculationLogs]);
+
   // Monitor existing emissions data
   useExistingEmissions(
     formValues, 
@@ -66,6 +99,13 @@ export const useCalculator = (
     resetCalculation, 
     setCalculatedEmissions
   );
+
+  // Handle removing a specific calculation
+  const handleRemoveCalculation = (calculationId: string) => {
+    if (removeCalculation) {
+      removeCalculation(calculationId);
+    }
+  };
 
   // Handle reset button click delegated from EmissionsResults component
   const handleResetClick = () => {
@@ -83,6 +123,8 @@ export const useCalculator = (
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick
+    handleResetClick,
+    calculationLogs,
+    handleRemoveCalculation
   };
 };

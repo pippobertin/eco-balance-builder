@@ -13,6 +13,7 @@ import Scope2Form from './emissions/Scope2Form';
 import Scope3Form from './emissions/Scope3Form';
 import EmissionsResults from './emissions/EmissionsResults';
 import CalculatorHeader from './emissions/CalculatorHeader';
+import EmissionsCalculationTable from './emissions/EmissionsCalculationTable';
 
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({ 
   formValues, 
@@ -26,25 +27,15 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick
+    handleResetClick,
+    calculationLogs,
+    handleRemoveCalculation
   } = useCalculator(formValues, setFormValues, onResetClick);
   
-  return (
-    <div className="border rounded-md p-4 bg-white/80">
-      <CalculatorHeader 
-        calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA}
-        setCalculationMethod={(value) => updateInput('calculationMethod', value)}
-      />
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="scope1">Scope 1 - Emissioni Dirette</TabsTrigger>
-          <TabsTrigger value="scope2">Scope 2 - Energia</TabsTrigger>
-          <TabsTrigger value="scope3">Scope 3 - Altre Emissioni</TabsTrigger>
-        </TabsList>
-        
-        {/* Scope 1 Content */}
-        <TabsContent value="scope1" className="space-y-4">
+  const getActiveTabContent = () => {
+    switch (activeTab) {
+      case 'scope1':
+        return (
           <Scope1Form
             scope1Source={inputs.scope1Source || 'fuel'}
             setScope1Source={(value) => updateInput('scope1Source', value)}
@@ -57,10 +48,9 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
             periodType={inputs.periodType || PeriodType.ANNUAL}
             setPeriodType={(value) => updateInput('periodType', value)}
           />
-        </TabsContent>
-        
-        {/* Scope 2 Content */}
-        <TabsContent value="scope2" className="space-y-4">
+        );
+      case 'scope2':
+        return (
           <Scope2Form
             energyType={inputs.energyType || 'ELECTRICITY_IT'}
             setEnergyType={(value) => updateInput('energyType', value)}
@@ -71,10 +61,9 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
             periodType={inputs.periodType || PeriodType.ANNUAL}
             setPeriodType={(value) => updateInput('periodType', value)}
           />
-        </TabsContent>
-        
-        {/* Scope 3 Content */}
-        <TabsContent value="scope3" className="space-y-4">
+        );
+      case 'scope3':
+        return (
           <Scope3Form
             scope3Category={inputs.scope3Category || 'transport'}
             setScope3Category={(value) => updateInput('scope3Category', value)}
@@ -93,12 +82,35 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
             periodType={inputs.periodType || PeriodType.ANNUAL}
             setPeriodType={(value) => updateInput('periodType', value)}
           />
+        );
+      default:
+        return null;
+    }
+  };
+  
+  return (
+    <div className="border rounded-md p-4 bg-white/80">
+      <CalculatorHeader 
+        calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA}
+        setCalculationMethod={(value) => updateInput('calculationMethod', value)}
+      />
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="scope1">Scope 1 - Emissioni Dirette</TabsTrigger>
+          <TabsTrigger value="scope2">Scope 2 - Energia</TabsTrigger>
+          <TabsTrigger value="scope3">Scope 3 - Altre Emissioni</TabsTrigger>
+        </TabsList>
+        
+        {/* Contenuto dinamico in base al tab attivo */}
+        <TabsContent value={activeTab} className="space-y-4">
+          {getActiveTabContent()}
         </TabsContent>
       </Tabs>
       
       <div className="mt-6 flex justify-between items-center">
         <Button 
-          onClick={() => calculateEmissions()}
+          onClick={() => calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3')}
           className="flex items-center"
         >
           <Calculator className="mr-2 h-4 w-4" />
@@ -108,6 +120,32 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         <EmissionsResults
           calculatedEmissions={calculatedEmissions}
           onResetClick={handleResetClick}
+        />
+      </div>
+      
+      {/* Tabelle di riepilogo per ogni scope */}
+      <div className="mt-8 space-y-6">
+        <h3 className="text-lg font-semibold mb-4">Riepilogo calcoli emissioni</h3>
+        
+        <EmissionsCalculationTable 
+          scope="scope1"
+          scopeLabel="Scope 1 - Emissioni Dirette"
+          calculations={calculationLogs.scope1Calculations}
+          onRemoveCalculation={handleRemoveCalculation}
+        />
+        
+        <EmissionsCalculationTable 
+          scope="scope2"
+          scopeLabel="Scope 2 - Energia"
+          calculations={calculationLogs.scope2Calculations}
+          onRemoveCalculation={handleRemoveCalculation}
+        />
+        
+        <EmissionsCalculationTable 
+          scope="scope3"
+          scopeLabel="Scope 3 - Altre Emissioni"
+          calculations={calculationLogs.scope3Calculations}
+          onRemoveCalculation={handleRemoveCalculation}
         />
       </div>
     </div>

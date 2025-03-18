@@ -67,3 +67,22 @@ export interface EmissionsInput {
   periodType?: PeriodType;
   calculationMethod?: EmissionFactorSource;
 }
+
+// Calculation log types
+export interface EmissionCalculationRecord {
+  id: string;
+  date: string;
+  source: string;
+  scope: 'scope1' | 'scope2' | 'scope3';
+  description: string;
+  quantity: number;
+  unit: string;
+  emissions: number; // tonnellate CO2e
+  details: any;
+}
+
+export interface EmissionCalculationLogs {
+  scope1Calculations: EmissionCalculationRecord[];
+  scope2Calculations: EmissionCalculationRecord[];
+  scope3Calculations: EmissionCalculationRecord[];
+}
