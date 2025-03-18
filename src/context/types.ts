@@ -1,3 +1,4 @@
+
 import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
 
 // Define interfaces for companies and reports
@@ -106,6 +107,7 @@ export interface ReportData {
     totalScope2Emissions?: number;
     totalScope3Emissions?: number;
     totalScopeEmissions?: number;
+    emissionCalculationLogs?: string; // Added missing property
     airPollution?: number;
     waterPollution?: number;
     soilPollution?: number;

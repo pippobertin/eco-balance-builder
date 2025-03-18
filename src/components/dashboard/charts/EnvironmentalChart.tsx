@@ -84,9 +84,9 @@ const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({ reportData }) =
       value: waterUsage,
       color: '#4CD964' // Verde
     }] : []),
-    ...(typeof wasteGeneration === 'number' && wasteGeneration > 0 ? [{ 
+    ...(typeof totalWaste === 'number' && totalWaste > 0 ? [{ 
       metric: 'Generazione Rifiuti', 
-      value: wasteGeneration,
+      value: totalWaste,
       color: '#8E8E93' // Grigio
     }] : []),
     ...(typeof airPollution === 'number' && airPollution > 0 ? [{ 
