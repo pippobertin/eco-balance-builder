@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Users } from 'lucide-react';
 import WorkforceGeneral from './social/WorkforceGeneral';
@@ -51,29 +50,33 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Questioni Sociali</h2>
       
-      <WorkforceGeneral
-        ref={workforceGeneralRef}
-        formValues={formValues}
-        handleChange={handleChange}
-      />
+      <div ref={workforceGeneralRef}>
+        <WorkforceGeneral 
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
       
-      <WorkforceSafety
-        ref={workforceSafetyRef}
-        formValues={formValues}
-        handleChange={handleChange}
-      />
+      <div ref={workforceSafetyRef}>
+        <WorkforceSafety 
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
       
-      <WorkforceCompensation
-        ref={workforceCompensationRef}
-        formValues={formValues}
-        handleChange={handleChange}
-      />
+      <div ref={workforceCompensationRef}>
+        <WorkforceCompensation 
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
       
-      <SupplyChainMetrics
-        ref={supplyChainRef}
-        formValues={formValues}
-        handleChange={handleChange}
-      />
+      <div ref={supplyChainRef}>
+        <SupplyChainMetrics 
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
     </div>
   );
 };
