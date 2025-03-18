@@ -1,5 +1,5 @@
 
-// Re-export the types from the main types file
+// Re-export the types from the new types files
 export type { 
   Company, 
   Report, 
