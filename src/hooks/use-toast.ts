@@ -1,7 +1,7 @@
 
 // This file re-exports toast functions from the sonner package
 import { toast as sonnerToast } from "sonner";
-import { useToast as useShadcnToast } from "@/components/ui/toast";
+import { useToast as useShadcnToast } from "@/components/ui/use-toast";
 
 type ToastProps = {
   title?: string;

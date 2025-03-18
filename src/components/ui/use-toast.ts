@@ -1,6 +1,11 @@
 
-// This is now a simple re-export file
-import { useToast as useToastHook, toast as toastFunc } from "@/components/ui/toast";
+// This file re-exports the toast hook from src/components/ui/toast.tsx
+import { useToast, ToastActionElement, ToastProps, ToasterToast } from "@/components/ui/toast";
 
-export const useToast = useToastHook;
-export const toast = toastFunc;
+// Create a simple toast function export
+const toast = ({ title, description, ...props }: { title?: string; description?: string; [key: string]: any }) => {
+  const { toast: toastFunction } = useToast();
+  return toastFunction({ title, description, ...props });
+};
+
+export { useToast, toast, type ToastActionElement, type ToastProps, type ToasterToast };
