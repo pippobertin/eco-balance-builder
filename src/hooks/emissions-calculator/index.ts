@@ -230,6 +230,8 @@ const useEmissionsCalculator = (
   
   // Function to remove a specific calculation
   const removeCalculation = (calculationId: string) => {
+    console.log("Removing calculation in hook:", calculationId);
+    
     setCalculationLogs(prev => {
       // Find which scope contains this calculation
       let targetScope: 'scope1' | 'scope2' | 'scope3' | null = null;
@@ -242,13 +244,20 @@ const useEmissionsCalculator = (
         }
       }
       
-      if (!targetScope) return prev;
+      if (!targetScope) {
+        console.log("Target scope not found for ID:", calculationId);
+        console.log("Available calculations:", JSON.stringify(prev));
+        return prev;
+      }
       
       // Create new logs object with the calculation removed
       const updatedLogs = { ...prev };
       updatedLogs[`${targetScope}Calculations`] = prev[`${targetScope}Calculations`].filter(
         calc => calc.id !== calculationId
       );
+      
+      console.log(`Removed calculation from ${targetScope}. New count:`, 
+                 updatedLogs[`${targetScope}Calculations`].length);
       
       // Calculate new totals from updated logs
       const updatedResults = calculateTotalsFromLogs(updatedLogs);

@@ -48,12 +48,11 @@ export const useExistingEmissions = (
     // Get calculation logs from formValues if available
     if (formValues.environmentalMetrics.emissionCalculationLogs) {
       try {
-        const logsData = JSON.parse(formValues.environmentalMetrics.emissionCalculationLogs);
-        // Se ci sono logs qui, non dobbiamo fare nulla di particolare perché
-        // saranno gestiti direttamente nel componente EmissionsCalculationTable
+        console.log("Parsing logs in useExistingEmissions");
+        // I logs saranno gestiti direttamente in useCalculator
       } catch (error) {
         console.error("Error parsing emission calculation logs:", error);
       }
     }
-  }, [formValues?.environmentalMetrics]);
+  }, [formValues?.environmentalMetrics, setCalculatedEmissions]);
 };

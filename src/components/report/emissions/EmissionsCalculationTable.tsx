@@ -45,6 +45,12 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
   // Calcola il totale delle emissioni
   const totalEmissions = calculations.reduce((sum, calc) => sum + calc.emissions, 0);
 
+  // Funzione per gestire la rimozione
+  const handleRemove = (id: string) => {
+    console.log(`Removing calculation with ID: ${id}`);
+    onRemoveCalculation(id);
+  };
+
   return (
     <div className="mt-4">
       <h3 className="text-md font-medium mb-2">{scopeLabel}</h3>
@@ -75,7 +81,7 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    onClick={() => onRemoveCalculation(calc.id)}
+                    onClick={() => handleRemove(calc.id)}
                     className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
