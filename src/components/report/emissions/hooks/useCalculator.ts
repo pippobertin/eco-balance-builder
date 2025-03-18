@@ -75,22 +75,34 @@ export const useCalculator = (
       try {
         const logs = JSON.parse(formValues.environmentalMetrics.emissionCalculationLogs);
         if (logs && typeof logs === 'object') {
-          const scope1Total = logs.scope1Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
-          const scope2Total = logs.scope2Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
-          const scope3Total = logs.scope3Calculations?.reduce((sum: number, calc: any) => sum + (calc.emissions || 0), 0) || 0;
+          // Set calculation logs
+          handleCalculationLogs(logs);
           
+          // Calculate totals from logs
+          const scope1Total = logs.scope1Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+          const scope2Total = logs.scope2Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+          const scope3Total = logs.scope3Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+          const total = scope1Total + scope2Total + scope3Total;
+          
+          // Update calculated emissions
           setCalculatedEmissions({
             scope1: scope1Total,
             scope2: scope2Total,
             scope3: scope3Total,
-            total: scope1Total + scope2Total + scope3Total
+            total: total
           });
+          
+          // Update form values with totals from logs
+          updateFormValues('totalScope1Emissions', scope1Total.toFixed(2));
+          updateFormValues('totalScope2Emissions', scope2Total.toFixed(2));
+          updateFormValues('totalScope3Emissions', scope3Total.toFixed(2));
+          updateFormValues('totalScopeEmissions', total.toFixed(2));
         }
       } catch (error) {
         console.error("Error parsing calculation logs:", error);
       }
     }
-  }, [formValues?.environmentalMetrics?.emissionCalculationLogs]);
+  }, [formValues?.environmentalMetrics?.emissionCalculationLogs, handleCalculationLogs, updateFormValues]);
 
   // Monitor existing emissions data
   useExistingEmissions(

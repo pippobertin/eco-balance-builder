@@ -96,30 +96,39 @@ const useEmissionsCalculator = (
       details
     };
   };
+
+  // Calculate totals from calculation logs
+  const calculateTotalsFromLogs = (logs: EmissionCalculationLogs): EmissionsResults => {
+    const scope1Total = logs.scope1Calculations.reduce(
+      (sum, calc) => sum + calc.emissions, 0
+    );
+    
+    const scope2Total = logs.scope2Calculations.reduce(
+      (sum, calc) => sum + calc.emissions, 0
+    );
+    
+    const scope3Total = logs.scope3Calculations.reduce(
+      (sum, calc) => sum + calc.emissions, 0
+    );
+    
+    return {
+      scope1: scope1Total,
+      scope2: scope2Total,
+      scope3: scope3Total,
+      total: scope1Total + scope2Total + scope3Total
+    };
+  };
   
   // Calculation function
   const calculateEmissions = (scope?: 'scope1' | 'scope2' | 'scope3') => {
     const { results: newResults, details: newDetails } = performEmissionsCalculation(inputs, scope);
     
-    // Update state
-    setResults(prev => ({
-      scope1: scope === 'scope1' ? newResults.scope1 : prev.scope1,
-      scope2: scope === 'scope2' ? newResults.scope2 : prev.scope2,
-      scope3: scope === 'scope3' ? newResults.scope3 : prev.scope3,
-      total: (scope === 'scope1' ? newResults.scope1 : prev.scope1) + 
-             (scope === 'scope2' ? newResults.scope2 : prev.scope2) + 
-             (scope === 'scope3' ? newResults.scope3 : prev.scope3)
-    }));
+    // Create updated logs
+    let updatedLogs = { ...calculationLogs };
     
-    setDetails(prev => ({
-      scope1Details: scope === 'scope1' ? newDetails.scope1Details : prev.scope1Details,
-      scope2Details: scope === 'scope2' ? newDetails.scope2Details : prev.scope2Details,
-      scope3Details: scope === 'scope3' ? newDetails.scope3Details : prev.scope3Details
-    }));
-    
-    // Update calculation logs
+    // Update calculation logs if we have a new calculation
     if (scope) {
-      // Crea un record solo se ci sono emissioni calcolate
+      // Create a record only if there are calculated emissions
       const emissionValue = scope === 'scope1' ? newResults.scope1 : 
                            scope === 'scope2' ? newResults.scope2 : newResults.scope3;
       
@@ -135,37 +144,56 @@ const useEmissionsCalculator = (
           detailsObj
         );
         
-        setCalculationLogs(prev => {
-          const updatedLogs = { ...prev };
-          if (scope === 'scope1') {
-            updatedLogs.scope1Calculations = [...prev.scope1Calculations, newRecord];
-          } else if (scope === 'scope2') {
-            updatedLogs.scope2Calculations = [...prev.scope2Calculations, newRecord];
-          } else if (scope === 'scope3') {
-            updatedLogs.scope3Calculations = [...prev.scope3Calculations, newRecord];
-          }
-          
-          // Callback for log changes
-          if (onCalculationLogChange) {
-            onCalculationLogChange(updatedLogs);
-          }
-          
-          return updatedLogs;
-        });
+        updatedLogs = { ...calculationLogs };
+        if (scope === 'scope1') {
+          updatedLogs.scope1Calculations = [...calculationLogs.scope1Calculations, newRecord];
+        } else if (scope === 'scope2') {
+          updatedLogs.scope2Calculations = [...calculationLogs.scope2Calculations, newRecord];
+        } else if (scope === 'scope3') {
+          updatedLogs.scope3Calculations = [...calculationLogs.scope3Calculations, newRecord];
+        }
+        
+        // Update calculation logs
+        setCalculationLogs(updatedLogs);
+        
+        // Callback for log changes
+        if (onCalculationLogChange) {
+          onCalculationLogChange(updatedLogs);
+        }
       }
     }
     
+    // Calculate new totals from logs
+    const updatedResults = calculateTotalsFromLogs(updatedLogs);
+    
+    // Update results state
+    setResults(updatedResults);
+    
+    // Update details state
+    setDetails(prev => ({
+      scope1Details: scope === 'scope1' ? newDetails.scope1Details : prev.scope1Details,
+      scope2Details: scope === 'scope2' ? newDetails.scope2Details : prev.scope2Details,
+      scope3Details: scope === 'scope3' ? newDetails.scope3Details : prev.scope3Details
+    }));
+    
     // Call callback if provided
     if (onResultsChange) {
-      onResultsChange(newResults, newDetails);
+      onResultsChange(updatedResults, newDetails);
     }
     
-    return { results: newResults, details: newDetails };
+    return { results: updatedResults, details: newDetails };
   };
   
   // Reset calculation
   const resetCalculation = () => {
-    // Reset results
+    // Reset calculation logs
+    const newLogs = {
+      scope1Calculations: [],
+      scope2Calculations: [],
+      scope3Calculations: []
+    };
+    
+    // Reset results based on empty logs
     const newResults = {
       scope1: 0,
       scope2: 0,
@@ -173,19 +201,14 @@ const useEmissionsCalculator = (
       total: 0
     };
     
+    // Reset details
     const newDetails = {
       scope1Details: '',
       scope2Details: '',
       scope3Details: ''
     };
     
-    // Reset logs
-    const newLogs = {
-      scope1Calculations: [],
-      scope2Calculations: [],
-      scope3Calculations: []
-    };
-    
+    // Update state
     setResults(newResults);
     setDetails(newDetails);
     setCalculationLogs(newLogs);
@@ -210,18 +233,16 @@ const useEmissionsCalculator = (
     setCalculationLogs(prev => {
       // Find which scope contains this calculation
       let targetScope: 'scope1' | 'scope2' | 'scope3' | null = null;
-      let calculationToRemove: EmissionCalculationRecord | null = null;
       
       for (const scope of ['scope1', 'scope2', 'scope3'] as Array<'scope1' | 'scope2' | 'scope3'>) {
         const calculation = prev[`${scope}Calculations`].find(calc => calc.id === calculationId);
         if (calculation) {
           targetScope = scope;
-          calculationToRemove = calculation;
           break;
         }
       }
       
-      if (!targetScope || !calculationToRemove) return prev;
+      if (!targetScope) return prev;
       
       // Create new logs object with the calculation removed
       const updatedLogs = { ...prev };
@@ -229,18 +250,11 @@ const useEmissionsCalculator = (
         calc => calc.id !== calculationId
       );
       
-      // Recalculate the total emissions for this scope
-      const scopeEmissions = updatedLogs[`${targetScope}Calculations`].reduce(
-        (sum, calc) => sum + calc.emissions, 
-        0
-      );
+      // Calculate new totals from updated logs
+      const updatedResults = calculateTotalsFromLogs(updatedLogs);
       
-      // Update results
-      setResults(prevResults => ({
-        ...prevResults,
-        [targetScope]: scopeEmissions,
-        total: prevResults.total - calculationToRemove.emissions
-      }));
+      // Update results state
+      setResults(updatedResults);
       
       // Call callbacks
       if (onCalculationLogChange) {
@@ -248,11 +262,7 @@ const useEmissionsCalculator = (
       }
       
       if (onResultsChange) {
-        onResultsChange({
-          ...results,
-          [targetScope]: scopeEmissions,
-          total: results.total - calculationToRemove.emissions
-        }, details);
+        onResultsChange(updatedResults, details);
       }
       
       return updatedLogs;
