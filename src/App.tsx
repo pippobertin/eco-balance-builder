@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/hooks/use-theme';
 import { Toaster } from "sonner";
@@ -63,7 +64,6 @@ function App() {
               </Routes>
             </BrowserRouter>
             <Toaster position="top-right" expand={true} richColors />
-            <Toaster />
           </ReportProvider>
         </AuthProvider>
       </ThemeProvider>
