@@ -1,3 +1,4 @@
+
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { Report, Subsidiary, ReportData } from './types';
 import { useToast } from '@/hooks/use-toast';
@@ -232,14 +233,15 @@ export const useReportOperations = () => {
           throw new Error('You do not have permission to save this report');
         }
         
+        // Convert complex objects to strings to match JSON type in database
         const { error } = await supabase
           .from('reports')
           .update({
-            environmental_metrics: reportData.environmentalMetrics,
-            social_metrics: reportData.socialMetrics,
-            conduct_metrics: reportData.conductMetrics,
-            materiality_analysis: reportData.materialityAnalysis,
-            narrative_pat_metrics: reportData.narrativePATMetrics,
+            environmental_metrics: JSON.stringify(reportData.environmentalMetrics),
+            social_metrics: JSON.stringify(reportData.socialMetrics),
+            conduct_metrics: JSON.stringify(reportData.conductMetrics),
+            materiality_analysis: JSON.stringify(reportData.materialityAnalysis),
+            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics),
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);
