@@ -1,5 +1,5 @@
 
-import { useLocationData } from './useLocationData';
+import { useLocationData, formatLocationName } from './useLocationData';
 import { useLocationMetricsHandlers } from './useLocationMetricsHandlers';
 
 export const useLocationMetrics = (
@@ -32,3 +32,6 @@ export const useLocationMetrics = (
     handleLocationMetricsChange
   };
 };
+
+// Export formatLocationName so it can be used in LocationSelector.tsx
+export { formatLocationName };

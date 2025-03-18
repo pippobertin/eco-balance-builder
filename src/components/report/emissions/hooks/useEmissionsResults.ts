@@ -72,6 +72,7 @@ export const useEmissionsResults = (
     handleCalculationResults,
     handleCalculationLogs,
     calculationLogs,
+    setCalculationLogs, // Export the setter
     resetEmissionsValues 
   };
 };

@@ -69,9 +69,9 @@ export const useCalculator = (
     setCalculationLogs
   );
   
-  // Handle removing a specific calculation
-  const handleRemoveCalculation = (scope: string, calculationId: string) => {
-    // Call removeCalculation function
+  // Update handleRemoveCalculation to match expected signature
+  const handleRemoveCalculation = (calculationId: string) => {
+    // Call removeCalculation function with just the ID
     removeCalculation(calculationId);
   };
   
@@ -83,6 +83,7 @@ export const useCalculator = (
     updateInput,
     calculateEmissions,
     calculationLogs,
+    setCalculationLogs, // Make sure to return setCalculationLogs
     handleRemoveCalculation,
     resetCalculation: resetEmissionsValues
   };

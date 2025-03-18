@@ -145,7 +145,7 @@ export const useEmissionsCalculator = (
     return { results: newResults, details: newDetails };
   }, [resetInputs, setResults, setDetails, setCalculationLogs, onResultsChange, onCalculationLogChange]);
   
-  // Function to remove a specific calculation
+  // Function to remove a specific calculation - simplified to only require calculationId
   const removeCalculation = useCallback((calculationId: string) => {
     console.log("Removing calculation in emissions hook:", calculationId);
     
