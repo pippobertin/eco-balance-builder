@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Leaf } from 'lucide-react';
 import EmissionsEnergySection from './environmental/EmissionsEnergySection';
