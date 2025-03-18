@@ -12,13 +12,18 @@ export const useCalculator = (
   setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void),
   onResetClick?: () => void
 ) => {
+  // State for active tab
   const [activeTab, setActiveTab] = useState<string>('scope1');
+  
+  // State for calculated emissions
   const [calculatedEmissions, setCalculatedEmissions] = useState<EmissionsResults>({
     scope1: 0,
     scope2: 0,
     scope3: 0,
     total: 0
   });
+  
+  // Get toast notification
   const { toast } = useToast();
 
   // Get the form value updater
