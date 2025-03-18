@@ -1,7 +1,6 @@
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/hooks/use-theme';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReportProvider } from '@/context/ReportContext';
 import { AuthProvider } from '@/context/AuthContext';
@@ -17,7 +16,6 @@ import Auth from '@/pages/Auth';
 import UserManagement from '@/pages/UserManagement';
 import NotFound from '@/pages/NotFound';
 
-// Create a client
 const queryClient = new QueryClient();
 
 function App() {
@@ -64,6 +62,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            <Toaster position="top-right" expand={true} richColors />
             <Toaster />
           </ReportProvider>
         </AuthProvider>

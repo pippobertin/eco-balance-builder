@@ -1,5 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { toast } from '@/hooks/use-toast';
 
 const supabaseUrl = 'https://xvjgziihekwjyzihjihx.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2amd6aWloZWt3anl6aWhqaWh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MDU4MzIsImV4cCI6MjA1NzE4MTgzMn0.rrTCmkxGFX7mEZemMqWVoOMdPTJsptPGCZr37dyhG14';
@@ -97,17 +98,29 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 });
 
-// Improved retry logic with better error handling
-export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) => {
+// Improved retry logic with exponential backoff and better error handling
+export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) => {
   let retries = 0;
   let lastError;
+  let retryDelay = initialDelay;
   
-  while (retries < maxRetries) {
+  // Check if Supabase is reporting service issues
+  let isServiceIssue = false;
+  
+  while (retries <= maxRetries) {
     try {
+      if (retries > 0) {
+        console.log(`Tentativo ${retries}/${maxRetries} dopo ${Math.round(retryDelay)}ms...`);
+      }
+      
       return await operation();
     } catch (error) {
       lastError = error;
       
+      // Log all errors for debugging
+      console.error(`Errore durante l'operazione (tentativo ${retries}/${maxRetries}):`, error);
+      
+      // Check if this is likely a service issue
       const isNetworkError = 
         error.message === 'Failed to fetch' || 
         error.code === 'NETWORK_ERROR' ||
@@ -120,21 +133,54 @@ export const withRetry = async (operation, maxRetries = 2, initialDelay = 300) =
         error.code === 'TIMEOUT' ||
         error.name === 'AbortError';
       
-      // Always retry network errors, but only retry other errors once
-      if (!isNetworkError && retries >= 1) {
-        throw error;
+      const isServerError = 
+        error.status >= 500 || 
+        error.code === 'PGRST116' || // Postgres REST API error
+        error.message?.includes('too many connections') ||
+        error.message?.includes('database connection') ||
+        error.message?.includes('rate limit');
+      
+      // Mark as service issue if we see a pattern
+      if ((isNetworkError || isServerError) && retries >= 1) {
+        isServiceIssue = true;
+      }
+      
+      // Only retry:
+      // 1. Network errors (connectivity issues)
+      // 2. Server errors (500s)
+      // 3. Rate limiting issues
+      // Don't retry client errors (400s) except specific cases
+      if (!isNetworkError && !isServerError && !error.message?.includes('rate limit')) {
+        const statusCode = error.status || (error.error?.status) || 0;
+        // Don't retry 4xx errors except 408 (timeout), 429 (rate limit)
+        if (statusCode >= 400 && statusCode < 500 && statusCode !== 408 && statusCode !== 429) {
+          console.log(`Errore client (${statusCode}), non verrà ritentato:`, error.message);
+          throw error;
+        }
       }
       
       retries++;
       
-      if (retries >= maxRetries) {
-        console.error(`Max retries (${maxRetries}) reached, giving up`);
+      if (retries > maxRetries) {
+        // If this appears to be a service issue, show a helpful toast message
+        if (isServiceIssue) {
+          toast({
+            title: "Problemi di connessione con Supabase",
+            description: "Supabase sta attualmente riscontrando problemi. Riprova più tardi.",
+            variant: "destructive",
+            duration: 5000
+          });
+          console.error("Problema del servizio Supabase rilevato dopo più tentativi");
+        }
+        
+        console.error(`Numero massimo di tentativi (${maxRetries}) raggiunto, operazione fallita`);
         throw lastError;
       }
       
-      const delay = initialDelay * Math.pow(1.5, retries) * (0.9 + Math.random() * 0.2);
-      console.log(`Retrying operation in ${Math.round(delay)}ms... (attempt ${retries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      // Exponential backoff with jitter
+      retryDelay = initialDelay * Math.pow(1.5, retries) * (0.9 + Math.random() * 0.2);
+      console.log(`Nuovo tentativo tra ${Math.round(retryDelay)}ms...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
   }
   
@@ -155,4 +201,49 @@ export const debounce = (func, wait, immediate = false) => {
     timeout = setTimeout(later, wait);
     if (callNow) func.apply(context, args);
   };
+};
+
+// Utility to handle common Supabase errors and show appropriate user notifications
+export const handleSupabaseError = (error, customMessage = "Si è verificato un errore") => {
+  console.error("Supabase error:", error);
+  
+  // Extract error message
+  let errorMessage = customMessage;
+  
+  if (error.message) {
+    errorMessage = error.message;
+  } else if (error.error?.message) {
+    errorMessage = error.error.message;
+  }
+  
+  // Format error message for user display
+  if (errorMessage.includes("network") || errorMessage.includes("connection") || 
+      errorMessage.includes("Failed to fetch") || errorMessage.includes("timeout")) {
+    toast({
+      title: "Errore di connessione",
+      description: "Verifica la tua connessione internet e riprova.",
+      variant: "destructive"
+    });
+  } else if (errorMessage.includes("rate limit") || errorMessage.includes("too many requests")) {
+    toast({
+      title: "Troppe richieste",
+      description: "Hai effettuato troppe richieste. Attendi qualche momento e riprova.",
+      variant: "destructive"
+    });
+  } else if (error.status >= 500 || errorMessage.includes("server error")) {
+    toast({
+      title: "Errore del server",
+      description: "Supabase sta riscontrando problemi. Riprova più tardi.",
+      variant: "destructive"
+    });
+  } else {
+    // Generic error
+    toast({
+      title: "Si è verificato un errore",
+      description: errorMessage.substring(0, 100), // Limit message length
+      variant: "destructive"
+    });
+  }
+  
+  return error;
 };
