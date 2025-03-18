@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -100,7 +99,7 @@ export const useReportForm = () => {
     ensureData();
   }, [currentReport, currentCompany, navigate, toast, loadReport, loadCompanies]);
 
-  const handleSaveReport = async () => {
+  const handleSaveReport = async (): Promise<void> => {
     try {
       console.log("Saving report data");
       // First update the context with the latest form values
@@ -113,8 +112,6 @@ export const useReportForm = () => {
         title: "Report salvato",
         description: "Tutte le modifiche sono state salvate con successo"
       });
-      
-      return true;
     } catch (error) {
       console.error("Error saving report:", error);
       toast({
@@ -122,7 +119,6 @@ export const useReportForm = () => {
         description: "Si è verificato un errore durante il salvataggio del report",
         variant: "destructive"
       });
-      return false;
     }
   };
 
