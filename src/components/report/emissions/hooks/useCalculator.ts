@@ -5,6 +5,7 @@ import { useFormValueUpdater } from './useFormValueUpdater';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
 import { CalculatorState, EmissionsResults } from '../types';
+import { useToast } from '@/hooks/use-toast';
 
 export const useCalculator = (
   formValues: any,
@@ -18,6 +19,7 @@ export const useCalculator = (
     scope3: 0,
     total: 0
   });
+  const { toast } = useToast();
 
   // Get the form value updater
   const { updateFormValues } = useFormValueUpdater(setFormValues);
@@ -151,36 +153,94 @@ export const useCalculator = (
 
   // Handle removing a specific calculation
   const handleRemoveCalculation = (calculationId: string) => {
-    console.log("Removing calculation:", calculationId);
+    console.log("Removing calculation in useCalculator:", calculationId);
     
-    if (removeCalculation) {
-      removeCalculation(calculationId);
-      
-      // Immediately update the form state to ensure changes are saved
-      if (formValues?.environmentalMetrics?.emissionCalculationLogs && calculationLogs) {
-        console.log("Updating form after calculation removal");
-        
-        // Get the latest logs after removal
-        updateFormValues('emissionCalculationLogs', JSON.stringify(calculationLogs));
-        
-        // Also update emission totals
-        const scope1Total = calculationLogs.scope1Calculations?.reduce((sum, calc) => 
-          sum + calc.emissions, 0) || 0;
-          
-        const scope2Total = calculationLogs.scope2Calculations?.reduce((sum, calc) => 
-          sum + calc.emissions, 0) || 0;
-          
-        const scope3Total = calculationLogs.scope3Calculations?.reduce((sum, calc) => 
-          sum + calc.emissions, 0) || 0;
-          
-        const total = scope1Total + scope2Total + scope3Total;
-        
-        // Update emission totals in form
-        updateFormValues('totalScope1Emissions', scope1Total.toFixed(2));
-        updateFormValues('totalScope2Emissions', scope2Total.toFixed(2));
-        updateFormValues('totalScope3Emissions', scope3Total.toFixed(2));
-        updateFormValues('totalScopeEmissions', total.toFixed(2));
+    try {
+      if (!calculationId) {
+        console.error("No calculation ID provided for removal");
+        return;
       }
+      
+      // Find which scope contains this calculation
+      let targetScope: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
+      let calculationToRemove = null;
+      
+      // Check every scope for the calculation
+      for (const scope of ['scope1Calculations', 'scope2Calculations', 'scope3Calculations'] as const) {
+        const found = calculationLogs[scope].find(calc => calc.id === calculationId);
+        if (found) {
+          targetScope = scope;
+          calculationToRemove = found;
+          break;
+        }
+      }
+      
+      if (!targetScope || !calculationToRemove) {
+        console.error("Calculation not found in any scope:", calculationId);
+        console.log("Current logs:", JSON.stringify(calculationLogs));
+        return;
+      }
+      
+      console.log(`Found calculation to remove in ${targetScope}:`, calculationToRemove);
+      
+      // Call the removeCalculation function from the calculator hook
+      if (removeCalculation) {
+        removeCalculation(calculationId);
+        
+        // Force immediate update of the form state to ensure changes are saved
+        if (calculationLogs) {
+          console.log("Updating form after calculation removal");
+          
+          // Create a new logs object with the calculation removed
+          const updatedLogs = { ...calculationLogs };
+          updatedLogs[targetScope] = calculationLogs[targetScope].filter(
+            calc => calc.id !== calculationId
+          );
+          
+          // Update the form values with the new logs
+          updateFormValues('emissionCalculationLogs', JSON.stringify(updatedLogs));
+          
+          // Also update emission totals
+          const scope1Total = updatedLogs.scope1Calculations.reduce((sum, calc) => 
+            sum + calc.emissions, 0) || 0;
+            
+          const scope2Total = updatedLogs.scope2Calculations.reduce((sum, calc) => 
+            sum + calc.emissions, 0) || 0;
+            
+          const scope3Total = updatedLogs.scope3Calculations.reduce((sum, calc) => 
+            sum + calc.emissions, 0) || 0;
+            
+          const total = scope1Total + scope2Total + scope3Total;
+          
+          // Update local state
+          setCalculatedEmissions({
+            scope1: scope1Total,
+            scope2: scope2Total,
+            scope3: scope3Total,
+            total: total
+          });
+          
+          // Update emission totals in form
+          updateFormValues('totalScope1Emissions', scope1Total.toFixed(2));
+          updateFormValues('totalScope2Emissions', scope2Total.toFixed(2));
+          updateFormValues('totalScope3Emissions', scope3Total.toFixed(2));
+          updateFormValues('totalScopeEmissions', total.toFixed(2));
+          
+          console.log("Form values updated after removal. New totals:", {
+            scope1: scope1Total,
+            scope2: scope2Total,
+            scope3: scope3Total,
+            total
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error removing calculation:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante la rimozione del calcolo.",
+        variant: "destructive"
+      });
     }
   };
 

@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmissionCalculationRecord } from '@/hooks/emissions-calculator';
+import { useToast } from '@/hooks/use-toast';
 
 interface EmissionsCalculationTableProps {
   scope: 'scope1' | 'scope2' | 'scope3';
@@ -26,6 +27,8 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
   onRemoveCalculation,
   scopeLabel
 }) => {
+  const { toast } = useToast();
+  
   if (calculations.length === 0) {
     return null;
   }
@@ -47,8 +50,16 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
 
   // Funzione per gestire la rimozione
   const handleRemove = (id: string) => {
-    console.log(`Removing calculation with ID: ${id}`);
+    console.log(`Removing calculation with ID: ${id} from ${scope}`);
+    
+    // Call the removal function
     onRemoveCalculation(id);
+    
+    // Show a toast notification
+    toast({
+      title: "Calcolo rimosso",
+      description: "Il calcolo delle emissioni è stato eliminato con successo.",
+    });
   };
 
   return (

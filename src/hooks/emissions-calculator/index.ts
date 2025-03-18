@@ -230,34 +230,36 @@ const useEmissionsCalculator = (
   
   // Function to remove a specific calculation
   const removeCalculation = (calculationId: string) => {
-    console.log("Removing calculation in hook:", calculationId);
+    console.log("Removing calculation in emissions hook:", calculationId);
     
     setCalculationLogs(prev => {
       // Find which scope contains this calculation
-      let targetScope: 'scope1' | 'scope2' | 'scope3' | null = null;
+      let targetScope: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
       
-      for (const scope of ['scope1', 'scope2', 'scope3'] as Array<'scope1' | 'scope2' | 'scope3'>) {
-        const calculation = prev[`${scope}Calculations`].find(calc => calc.id === calculationId);
-        if (calculation) {
+      // Check each scope for the calculation ID
+      for (const scope of ['scope1Calculations', 'scope2Calculations', 'scope3Calculations'] as const) {
+        if (prev[scope].some(calc => calc.id === calculationId)) {
           targetScope = scope;
           break;
         }
       }
       
       if (!targetScope) {
-        console.log("Target scope not found for ID:", calculationId);
+        console.error("Target scope not found for ID:", calculationId);
         console.log("Available calculations:", JSON.stringify(prev));
         return prev;
       }
       
+      console.log(`Found calculation to remove in ${targetScope}`);
+      
       // Create new logs object with the calculation removed
       const updatedLogs = { ...prev };
-      updatedLogs[`${targetScope}Calculations`] = prev[`${targetScope}Calculations`].filter(
+      updatedLogs[targetScope] = prev[targetScope].filter(
         calc => calc.id !== calculationId
       );
       
       console.log(`Removed calculation from ${targetScope}. New count:`, 
-                 updatedLogs[`${targetScope}Calculations`].length);
+                 updatedLogs[targetScope].length);
       
       // Calculate new totals from updated logs
       const updatedResults = calculateTotalsFromLogs(updatedLogs);
