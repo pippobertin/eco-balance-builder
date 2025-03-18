@@ -26,6 +26,8 @@ export const useReportSave = (
     
     try {
       console.log("Saving report data to database...");
+      console.log("Report data being saved:", JSON.stringify(reportData));
+      
       const success = await saveReportData(currentReport.id, reportData);
       
       if (success) {

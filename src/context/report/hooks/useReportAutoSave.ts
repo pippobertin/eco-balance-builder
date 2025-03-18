@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Report, ReportData } from '@/context/types';
+import { debounce } from '@/integrations/supabase/client';
 
 export const useReportAutoSave = (
   needsSaving: boolean,
@@ -10,6 +11,32 @@ export const useReportAutoSave = (
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
+  // Create auto-save functionality
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Setup auto-save when report data changes
+  useEffect(() => {
+    if (needsSaving && currentReport && reportData) {
+      // Clear any existing timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+      
+      // Set a new timer for auto-save (60 seconds)
+      autoSaveTimerRef.current = setTimeout(async () => {
+        console.log("Auto-saving report...");
+        await saveCurrentReport();
+      }, 60000); // Auto-save after 60 seconds of inactivity
+    }
+    
+    // Clean up timer on unmount
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [reportData, needsSaving, currentReport, saveCurrentReport]);
+
   // Track when report data changes to set the needsSaving flag
   useEffect(() => {
     if (currentReport) {

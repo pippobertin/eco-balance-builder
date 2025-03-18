@@ -36,6 +36,8 @@ const EmissionsChart: React.FC<EmissionsChartProps> = ({
       
       scope3Value = logs.scope3Calculations?.reduce((sum: number, calc: any) => 
         sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      
+      console.log("Emissions from logs", { scope1Value, scope2Value, scope3Value });
     } catch (error) {
       console.error("Error parsing calculation logs:", error);
       // Fall back to the totalScope values if parsing fails

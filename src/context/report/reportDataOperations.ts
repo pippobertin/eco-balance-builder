@@ -33,6 +33,15 @@ export const useReportDataOperations = () => {
           throw new Error('You do not have permission to save this report');
         }
         
+        // Log the data being saved to help with debugging
+        console.log("Saving to database:", {
+          environmental_metrics: reportData.environmentalMetrics,
+          social_metrics: reportData.socialMetrics,
+          conduct_metrics: reportData.conductMetrics,
+          materiality_analysis: reportData.materialityAnalysis,
+          narrative_pat_metrics: reportData.narrativePATMetrics
+        });
+        
         const { error } = await supabase
           .from('reports')
           .update({
@@ -45,7 +54,10 @@ export const useReportDataOperations = () => {
           })
           .eq('id', reportId);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Database error when saving report:", error);
+          throw error;
+        }
         
         return true;
       });
