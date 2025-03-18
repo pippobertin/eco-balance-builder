@@ -29,13 +29,19 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormValues((prev: any) => ({
-      ...prev,
-      conductMetrics: {
-        ...prev.conductMetrics,
-        [name]: value
-      }
-    }));
+    console.log(`ConductMetrics - Updating field ${name} with value:`, value);
+    
+    setFormValues((prev: any) => {
+      const updatedValues = {
+        ...prev,
+        conductMetrics: {
+          ...prev.conductMetrics,
+          [name]: value
+        }
+      };
+      console.log("Updated conductMetrics:", updatedValues.conductMetrics);
+      return updatedValues;
+    });
   };
 
   return (

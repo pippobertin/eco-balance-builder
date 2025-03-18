@@ -28,21 +28,31 @@ export const useReportSave = (
       console.log("Saving report data to database...");
       console.log("Report data being saved:", JSON.stringify(reportData));
       
-      const success = await saveReportData(currentReport.id, reportData);
-      
-      if (success) {
-        console.log("Report saved to database successfully");
-        setNeedsSaving(false);
-        setLastSaved(new Date());
-        toast({
-          title: "Salvataggio completato",
-          description: "Report salvato con successo",
-        });
+      if (currentReport?.id) {
+        console.log("Current report exists:", currentReport.id);
+        const success = await saveReportData(currentReport.id, reportData);
+        
+        if (success) {
+          console.log("Report saved to database successfully");
+          setNeedsSaving(false);
+          setLastSaved(new Date());
+          toast({
+            title: "Salvataggio completato",
+            description: "Report salvato con successo",
+          });
+        } else {
+          console.error("Failed to save report data");
+          toast({
+            title: "Errore",
+            description: "Non è stato possibile salvare il report",
+            variant: "destructive"
+          });
+        }
       } else {
-        console.error("Failed to save report data");
+        console.error("Report ID is undefined, cannot save");
         toast({
           title: "Errore",
-          description: "Non è stato possibile salvare il report",
+          description: "ID Report non valido, impossibile salvare",
           variant: "destructive"
         });
       }

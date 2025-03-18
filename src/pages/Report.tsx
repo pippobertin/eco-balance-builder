@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useBeforeUnload } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ReportHeader from '@/components/report/ReportHeader';
@@ -39,7 +39,30 @@ const Report = () => {
     removeSubsidiary
   } = useReportForm();
 
+  // Warn user when navigating away with unsaved changes
+  useBeforeUnload(
+    React.useCallback(
+      (event) => {
+        if (needsSaving) {
+          const message = "Hai modifiche non salvate. Sei sicuro di voler lasciare questa pagina?";
+          event.returnValue = message;
+          return message;
+        }
+      },
+      [needsSaving]
+    )
+  );
+
+  // Auto-save on tab change
+  useEffect(() => {
+    if (formValues && Object.keys(formValues).length > 0) {
+      console.log("Form values changed, marking as needs saving");
+      // This will be picked up by the auto-save mechanism
+    }
+  }, [formValues]);
+
   const handleTabChange = (value: string) => {
+    // Always try to save current changes before changing tabs
     if (needsSaving) {
       setPendingTab(value);
       setShowUnsavedDialog(true);

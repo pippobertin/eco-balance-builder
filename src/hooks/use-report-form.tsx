@@ -37,6 +37,17 @@ export const useReportForm = () => {
     materialityAnalysis: reportData.materialityAnalysis || {}
   });
 
+  // Synchronize formValues with reportData whenever reportData changes
+  useEffect(() => {
+    setFormValues({
+      environmentalMetrics: reportData.environmentalMetrics || {},
+      socialMetrics: reportData.socialMetrics || {},
+      conductMetrics: reportData.conductMetrics || {},
+      narrativePATMetrics: reportData.narrativePATMetrics || {},
+      materialityAnalysis: reportData.materialityAnalysis || {}
+    });
+  }, [reportData]);
+
   // Make sure we have company data
   useEffect(() => {
     const ensureData = async () => {
@@ -50,14 +61,6 @@ export const useReportForm = () => {
         if (currentReport) {
           console.log("Current report exists:", currentReport.id);
           setIsConsolidated(currentReport.is_consolidated || false);
-          
-          setFormValues({
-            environmentalMetrics: reportData.environmentalMetrics || {},
-            socialMetrics: reportData.socialMetrics || {},
-            conductMetrics: reportData.conductMetrics || {},
-            narrativePATMetrics: reportData.narrativePATMetrics || {},
-            materialityAnalysis: reportData.materialityAnalysis || {}
-          });
           
           // If the report doesn't have complete company data, reload it
           if (currentReport.id && (!currentReport.company || !currentReport.company.name)) {
@@ -95,19 +98,23 @@ export const useReportForm = () => {
     };
     
     ensureData();
-  }, [currentReport, currentCompany, navigate, toast, reportData, loadReport, loadCompanies]);
+  }, [currentReport, currentCompany, navigate, toast, loadReport, loadCompanies]);
 
   const handleSaveReport = async () => {
     try {
       console.log("Saving report data");
+      // First update the context with the latest form values
       updateReportData(formValues);
       
+      // Then save the updated data to the database
       await saveCurrentReport();
       
       toast({
         title: "Report salvato",
         description: "Tutte le modifiche sono state salvate con successo"
       });
+      
+      return true;
     } catch (error) {
       console.error("Error saving report:", error);
       toast({
@@ -115,14 +122,15 @@ export const useReportForm = () => {
         description: "Si è verificato un errore durante il salvataggio del report",
         variant: "destructive"
       });
+      return false;
     }
   };
 
-  const saveBasicInfo = () => {
+  const saveBasicInfo = async () => {
     try {
       if (isConsolidated && currentReport && currentReport.id) {
         console.log("Saving subsidiaries for report:", currentReport.id);
-        saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
+        await saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
       }
       
       toast({
@@ -130,6 +138,7 @@ export const useReportForm = () => {
         description: "Le informazioni di base sono state salvate con successo."
       });
       setActiveTab('metrics');
+      return true;
     } catch (error) {
       console.error("Error saving basic info:", error);
       toast({
@@ -137,20 +146,24 @@ export const useReportForm = () => {
         description: "Si è verificato un errore durante il salvataggio delle informazioni di base",
         variant: "destructive"
       });
+      return false;
     }
   };
   
   const saveMetrics = async () => {
     try {
       console.log("Saving metrics");
+      // First update the context with the latest form values
       updateReportData(formValues);
       
+      // Then save the updated data to the database
       await saveCurrentReport();
       
       toast({
         title: "Report completato",
         description: "Il report V-SME è stato compilato e salvato con successo."
       });
+      return true;
     } catch (error) {
       console.error("Error saving metrics:", error);
       toast({
@@ -158,6 +171,7 @@ export const useReportForm = () => {
         description: "Si è verificato un errore durante il salvataggio delle metriche",
         variant: "destructive"
       });
+      return false;
     }
   };
 

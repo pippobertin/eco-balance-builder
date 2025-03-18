@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ReportData, defaultReportData } from '../types';
 
 export const useReportDataState = () => {
@@ -8,7 +8,7 @@ export const useReportDataState = () => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Update report data
-  const updateReportData = (newData: Partial<ReportData>) => {
+  const updateReportData = useCallback((newData: Partial<ReportData>) => {
     setReportData(prevData => {
       const updatedData = {
         ...prevData,
@@ -28,6 +28,10 @@ export const useReportDataState = () => {
         materialityAnalysis: {
           ...prevData.materialityAnalysis,
           ...(newData.materialityAnalysis || {})
+        },
+        narrativePATMetrics: {
+          ...prevData.narrativePATMetrics,
+          ...(newData.narrativePATMetrics || {})
         }
       };
       
@@ -36,13 +40,13 @@ export const useReportDataState = () => {
     });
     
     setNeedsSaving(true);
-  };
+  }, []);
 
   // Reset report data
-  const resetReportData = () => {
+  const resetReportData = useCallback(() => {
     setReportData(defaultReportData);
     setNeedsSaving(false);
-  };
+  }, []);
 
   return {
     reportData,

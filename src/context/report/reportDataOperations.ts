@@ -30,6 +30,7 @@ export const useReportDataOperations = () => {
         const { data, error: accessError } = await query.single();
         
         if (accessError || !data) {
+          console.error("Access error when saving report:", accessError);
           throw new Error('You do not have permission to save this report');
         }
         
@@ -60,10 +61,16 @@ export const useReportDataOperations = () => {
           throw error;
         }
         
+        console.log("Report saved to database successfully");
         return true;
       });
     } catch (error: any) {
       console.error('Error saving report data:', error.message);
+      toast({
+        title: "Errore",
+        description: `Impossibile salvare i dati del report: ${error.message}`,
+        variant: "destructive"
+      });
       return false;
     }
   };
