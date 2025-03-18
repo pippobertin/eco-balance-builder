@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useEmissionsCalculator, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
+import { useEmissionsCalculator } from '@/hooks/emissions-calculator';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
@@ -119,14 +119,6 @@ export const useCalculator = (
     }
   };
 
-  // Handle reset button click delegated from EmissionsResults component
-  const handleResetClick = () => {
-    // Pass the reset request to the parent component
-    if (onResetClick) {
-      onResetClick();
-    }
-  };
-
   return {
     activeTab,
     setActiveTab,
@@ -135,7 +127,6 @@ export const useCalculator = (
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick,
     calculationLogs,
     handleRemoveCalculation
   };

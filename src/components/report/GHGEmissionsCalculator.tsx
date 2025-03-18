@@ -27,7 +27,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     inputs,
     updateInput,
     calculateEmissions,
-    handleResetClick,
     calculationLogs,
     handleRemoveCalculation
   } = useCalculator(formValues, setFormValues, onResetClick);
@@ -117,10 +116,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           Calcola Emissioni
         </Button>
         
-        <EmissionsResults
-          calculatedEmissions={calculatedEmissions}
-          onResetClick={handleResetClick}
-        />
+        <EmissionsResults calculatedEmissions={calculatedEmissions} />
       </div>
       
       {/* Tabelle di riepilogo per ogni scope */}
