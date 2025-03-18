@@ -116,8 +116,6 @@ const EmissionsEnergySection: React.FC<EmissionsEnergySectionProps> = ({
             setFormValues={setFormValues} 
             onResetClick={handleResetClick}
           />
-          
-          {/* Energy Section has been removed as requested */}
         </div>
       </GlassmorphicCard>
 

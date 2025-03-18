@@ -1,5 +1,4 @@
 
-import { useEffect } from 'react';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { EmissionsResults, EmissionsDetails } from '@/hooks/emissions-calculator';
 
@@ -31,5 +30,19 @@ export const useEmissionsResults = (
     updateFormValues('totalScopeEmissions', results.total.toFixed(2));
   };
 
-  return { handleCalculationResults };
+  // Function to explicitly reset all emissions values
+  const resetEmissionsValues = () => {
+    updateFormValues('totalScope1Emissions', '0');
+    updateFormValues('scope1CalculationDetails', '');
+    updateFormValues('totalScope2Emissions', '0');
+    updateFormValues('scope2CalculationDetails', '');
+    updateFormValues('totalScope3Emissions', '0');
+    updateFormValues('scope3CalculationDetails', '');
+    updateFormValues('totalScopeEmissions', '0');
+  };
+
+  return { 
+    handleCalculationResults,
+    resetEmissionsValues 
+  };
 };

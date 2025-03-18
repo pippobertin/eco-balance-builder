@@ -42,15 +42,17 @@ export const useExistingEmissions = (
       const scope3 = parseFloat(metricsData.totalScope3Emissions) || 0;
       const total = parseFloat(metricsData.totalScopeEmissions) || 0;
       
-      // Only update if there's at least one non-zero value
-      if ((scope1 > 0 || scope2 > 0 || scope3 > 0) && setCalculatedEmissions) {
-        // Use the setCalculatedEmissions function to update emission results
-        setCalculatedEmissions({
-          scope1,
-          scope2,
-          scope3,
-          total
-        });
+      // Only update if there's at least one non-zero value or we're resetting
+      if (scope1 > 0 || scope2 > 0 || scope3 > 0 || total > 0) {
+        if (setCalculatedEmissions) {
+          // Use the setCalculatedEmissions function to update emission results
+          setCalculatedEmissions({
+            scope1,
+            scope2,
+            scope3,
+            total
+          });
+        }
       }
     }
   }, [formValues, updateInput, resetCalculation, setCalculatedEmissions]);

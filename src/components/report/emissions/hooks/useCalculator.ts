@@ -23,7 +23,7 @@ export const useCalculator = (
   const { updateFormValues } = useFormValueUpdater(setFormValues);
   
   // Get emissions results handler
-  const { handleCalculationResults } = useEmissionsResults(setFormValues);
+  const { handleCalculationResults, resetEmissionsValues } = useEmissionsResults(setFormValues);
 
   // Use our emissions calculator hook
   const { 
@@ -53,8 +53,11 @@ export const useCalculator = (
       
       // Also reset the calculator's internal state
       resetCalculation();
+      
+      // Explicitly reset the form values
+      resetEmissionsValues();
     }
-  }, [formValues, resetCalculation]);
+  }, [formValues, resetCalculation, resetEmissionsValues]);
 
   // Monitor existing emissions data
   useExistingEmissions(

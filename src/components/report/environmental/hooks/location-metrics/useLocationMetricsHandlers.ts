@@ -89,6 +89,7 @@ export const useLocationMetricsHandlers = (
           });
         }
       } else if (resetScope === 'all') {
+        // Reset all locations
         locationMetrics.forEach((lm: LocationEnvironmentalMetrics, index: number) => {
           locationMetrics[index] = {
             ...lm,
@@ -116,6 +117,7 @@ export const useLocationMetricsHandlers = (
         });
       }
       
+      // Create a new state object to ensure React detects the change
       const updatedState = {
         ...prev,
         environmentalMetrics: {
