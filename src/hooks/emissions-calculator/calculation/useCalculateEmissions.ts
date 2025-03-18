@@ -27,16 +27,16 @@ export const useCalculateEmissions = (
     calculateTotalsFromLogs
   } = useEmissionsRecords();
   
-  // Get calculation processor
+  // Get calculation processor with fixed parameter order
   const { 
     performCalculation,
     processCalculationResults
   } = useCalculationProcessor(
-    onResultsChange,
-    onCalculationLogChange,
     setResults,
     setDetails,
-    setCalculationLogs
+    setCalculationLogs,
+    onResultsChange,
+    onCalculationLogChange
   );
   
   /**

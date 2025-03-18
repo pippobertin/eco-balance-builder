@@ -29,47 +29,47 @@ export const useRemoveCalculation = (
   const removeCalculation = useCallback((calculationId: string) => {
     console.log("Removing calculation in emissions hook:", calculationId);
     
-    setCalculationLogs(prev => {
-      // Find which scope contains this calculation
-      let targetScope: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
-      
-      // Check each scope for the calculation ID
-      for (const scope of ['scope1Calculations', 'scope2Calculations', 'scope3Calculations'] as const) {
-        if (prev[scope].some(calc => calc.id === calculationId)) {
-          targetScope = scope;
-          break;
-        }
+    // Find which scope contains this calculation
+    let targetScope: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
+    
+    // Check each scope for the calculation ID
+    for (const scope of ['scope1Calculations', 'scope2Calculations', 'scope3Calculations'] as const) {
+      if (calculationLogs[scope].some(calc => calc.id === calculationId)) {
+        targetScope = scope;
+        break;
       }
-      
-      if (!targetScope) {
-        console.error("Target scope not found for ID:", calculationId);
-        console.log("Available calculations:", JSON.stringify(prev));
-        return prev;
-      }
-      
-      console.log(`Found calculation to remove in ${targetScope}`);
-      
-      // Remove the record from logs
-      const updatedLogs = removeRecord(prev, targetScope, calculationId);
-      
-      // Calculate new totals from updated logs
-      const updatedResults = calculateTotalsFromLogs(updatedLogs);
-      
-      // Update results state
-      setResults(updatedResults);
-      
-      // Call callbacks
-      if (onCalculationLogChange) {
-        onCalculationLogChange(updatedLogs);
-      }
-      
-      if (onResultsChange) {
-        onResultsChange(updatedResults, details);
-      }
-      
-      return updatedLogs;
-    });
+    }
+    
+    if (!targetScope) {
+      console.error("Target scope not found for ID:", calculationId);
+      console.log("Available calculations:", JSON.stringify(calculationLogs));
+      return;
+    }
+    
+    console.log(`Found calculation to remove in ${targetScope}`);
+    
+    // Remove the record from logs
+    const updatedLogs = removeRecord(calculationLogs, targetScope, calculationId);
+    
+    // Calculate new totals from updated logs
+    const updatedResults = calculateTotalsFromLogs(updatedLogs);
+    
+    // Update results state
+    setResults(updatedResults);
+    
+    // Update logs state
+    setCalculationLogs(updatedLogs);
+    
+    // Call callbacks
+    if (onCalculationLogChange) {
+      onCalculationLogChange(updatedLogs);
+    }
+    
+    if (onResultsChange) {
+      onResultsChange(updatedResults, details);
+    }
   }, [
+    calculationLogs,
     setCalculationLogs, 
     setResults, 
     removeRecord, 
