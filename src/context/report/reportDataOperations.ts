@@ -42,6 +42,7 @@ export const useReportDataOperations = () => {
           narrative_pat_metrics: reportData.narrativePATMetrics
         });
         
+        // Convert camelCase to snake_case for database compatibility
         const { error } = await supabase
           .from('reports')
           .update({

@@ -32,7 +32,6 @@ const Report = () => {
     saveMetrics,
     initialSection,
     initialField,
-    // Get subsidiaries state from the hook
     subsidiaries,
     newSubsidiary,
     setNewSubsidiary,
