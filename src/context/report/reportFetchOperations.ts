@@ -59,7 +59,7 @@ export const useReportFetchOperations = () => {
           if (!item) return null;
           const { companies, ...reportData } = item;
           return reportData;
-        }).filter(Boolean); // Filter out null values
+        }).filter(Boolean) as Report[]; // Filter out null values
 
         return cleanedData || [];
       }, 2, 200);
@@ -123,12 +123,16 @@ export const useReportFetchOperations = () => {
 
         // Process the data if it exists
         if (data) {
+          // Create a proper Report object that includes the company property
           const { companies, ...reportData } = data;
-          reportData.company = companies;
+          const reportWithCompany: Report = {
+            ...reportData,
+            company: companies
+          } as Report;
           
           // Load subsidiaries if the report is consolidated
           let subsidiaries = undefined;
-          if (reportData.is_consolidated) {
+          if (reportWithCompany.is_consolidated) {
             const { data: subsData, error: subsError } = await supabase
               .from('subsidiaries')
               .select('*')
@@ -143,7 +147,7 @@ export const useReportFetchOperations = () => {
             }
           }
 
-          return { report: reportData, subsidiaries };
+          return { report: reportWithCompany, subsidiaries };
         }
 
         return { report: null };

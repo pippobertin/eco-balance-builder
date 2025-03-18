@@ -44,14 +44,15 @@ export const useReportDataOperations = () => {
         });
         
         // Convert camelCase to snake_case for database compatibility
+        // Stringify complex objects to ensure they match the JSON type
         const { error } = await supabase
           .from('reports')
           .update({
-            environmental_metrics: reportData.environmentalMetrics,
-            social_metrics: reportData.socialMetrics,
-            conduct_metrics: reportData.conductMetrics,
-            materiality_analysis: reportData.materialityAnalysis,
-            narrative_pat_metrics: reportData.narrativePATMetrics,
+            environmental_metrics: JSON.stringify(reportData.environmentalMetrics),
+            social_metrics: JSON.stringify(reportData.socialMetrics),
+            conduct_metrics: JSON.stringify(reportData.conductMetrics),
+            materiality_analysis: JSON.stringify(reportData.materialityAnalysis),
+            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics),
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);
