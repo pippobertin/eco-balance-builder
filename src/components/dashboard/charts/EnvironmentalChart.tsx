@@ -13,39 +13,71 @@ const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({ reportData }) =
     totalScope1Emissions,
     totalScope2Emissions,
     totalScope3Emissions,
-    carbonEmissions,
-    energyConsumption,
-    wasteGeneration,
+    emissionCalculationLogs,
     waterUsage,
-    renewableEnergy
+    waterConsumption,
+    waterStressAreas,
+    landUse,
+    impermeableSurface,
+    natureSurfaceOnSite,
+    natureSurfaceOffSite,
+    airPollution,
+    waterPollution,
+    soilPollution,
+    totalWaste,
+    recycledWaste,
+    hazardousWaste,
+    recycledContent,
+    recyclableContent
   } = reportData.environmentalMetrics || {};
   
   // Verifichiamo se ci sono dati sulle emissioni per scope
-  const hasScope1 = typeof totalScope1Emissions === 'number' && totalScope1Emissions > 0;
-  const hasScope2 = typeof totalScope2Emissions === 'number' && totalScope2Emissions > 0;
-  const hasScope3 = typeof totalScope3Emissions === 'number' && totalScope3Emissions > 0;
+  let hasEmissionsData = false;
+  let scope1Value = 0;
+  let scope2Value = 0; 
+  let scope3Value = 0;
+  
+  // Tentiamo di calcolare le emissioni dai log di calcolo
+  if (emissionCalculationLogs) {
+    try {
+      const logs = JSON.parse(emissionCalculationLogs);
+      scope1Value = logs.scope1Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      scope2Value = logs.scope2Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      scope3Value = logs.scope3Calculations?.reduce((sum: number, calc: any) => sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      
+      hasEmissionsData = scope1Value > 0 || scope2Value > 0 || scope3Value > 0;
+    } catch (error) {
+      console.error("Error parsing calculation logs:", error);
+      // Fallback to direct values
+      hasEmissionsData = 
+        (typeof totalScope1Emissions === 'number' && totalScope1Emissions > 0) ||
+        (typeof totalScope2Emissions === 'number' && totalScope2Emissions > 0) ||
+        (typeof totalScope3Emissions === 'number' && totalScope3Emissions > 0);
+    }
+  } else {
+    // Check if we have direct emission values
+    hasEmissionsData = 
+      (typeof totalScope1Emissions === 'number' && totalScope1Emissions > 0) ||
+      (typeof totalScope2Emissions === 'number' && totalScope2Emissions > 0) ||
+      (typeof totalScope3Emissions === 'number' && totalScope3Emissions > 0);
+  }
   
   // Creiamo la struttura dati per il grafico
   const environmentalData = [
-    ...(hasScope1 ? [{ 
+    ...(scope1Value > 0 || (typeof totalScope1Emissions === 'number' && totalScope1Emissions > 0) ? [{ 
       metric: 'Emissioni Scope 1', 
-      value: totalScope1Emissions,
+      value: scope1Value > 0 ? scope1Value : totalScope1Emissions,
       color: '#FF3B30' // Rosso
     }] : []),
-    ...(hasScope2 ? [{ 
+    ...(scope2Value > 0 || (typeof totalScope2Emissions === 'number' && totalScope2Emissions > 0) ? [{ 
       metric: 'Emissioni Scope 2', 
-      value: totalScope2Emissions,
+      value: scope2Value > 0 ? scope2Value : totalScope2Emissions,
       color: '#FF9500' // Arancione
     }] : []),
-    ...(hasScope3 ? [{ 
+    ...(scope3Value > 0 || (typeof totalScope3Emissions === 'number' && totalScope3Emissions > 0) ? [{ 
       metric: 'Emissioni Scope 3', 
-      value: totalScope3Emissions,
+      value: scope3Value > 0 ? scope3Value : totalScope3Emissions,
       color: '#FFCC00' // Giallo
-    }] : []),
-    ...(typeof energyConsumption === 'number' && energyConsumption > 0 ? [{ 
-      metric: 'Consumo Energia', 
-      value: energyConsumption,
-      color: '#5AC8FA' // Blu
     }] : []),
     ...(typeof waterUsage === 'number' && waterUsage > 0 ? [{ 
       metric: 'Consumo Acqua', 
@@ -57,9 +89,14 @@ const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({ reportData }) =
       value: wasteGeneration,
       color: '#8E8E93' // Grigio
     }] : []),
-    ...(typeof renewableEnergy === 'number' && renewableEnergy > 0 ? [{ 
-      metric: 'Energia Rinnovabile', 
-      value: renewableEnergy,
+    ...(typeof airPollution === 'number' && airPollution > 0 ? [{ 
+      metric: 'Inquinamento Aria', 
+      value: airPollution,
+      color: '#8E8E93' // Grigio
+    }] : []),
+    ...(typeof waterPollution === 'number' && waterPollution > 0 ? [{ 
+      metric: 'Inquinamento Acqua', 
+      value: waterPollution,
       color: '#34C759' // Verde
     }] : [])
   ];
@@ -67,22 +104,22 @@ const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({ reportData }) =
   // Controlliamo se ci sono dati da visualizzare
   const hasEnvironmentalData = environmentalData.length > 0;
   
-  // Se non ci sono dati specifici, ma ci sono emissioni totali, creiamo un grafico di confronto
-  if (!hasEnvironmentalData && (hasScope1 || hasScope2 || hasScope3)) {
+  // Se non ci sono dati specifici, ma ci sono emissioni, creiamo un grafico di confronto
+  if (!hasEnvironmentalData && hasEmissionsData) {
     const totalEmissionsData = [
       { 
         metric: 'Scope 1', 
-        value: hasScope1 ? totalScope1Emissions : 0,
+        value: scope1Value > 0 ? scope1Value : (totalScope1Emissions || 0),
         color: '#FF3B30' // Rosso
       },
       { 
         metric: 'Scope 2', 
-        value: hasScope2 ? totalScope2Emissions : 0,
+        value: scope2Value > 0 ? scope2Value : (totalScope2Emissions || 0),
         color: '#FF9500' // Arancione
       },
       { 
         metric: 'Scope 3', 
-        value: hasScope3 ? totalScope3Emissions : 0,
+        value: scope3Value > 0 ? scope3Value : (totalScope3Emissions || 0),
         color: '#FFCC00' // Giallo
       }
     ].filter(item => item.value > 0);

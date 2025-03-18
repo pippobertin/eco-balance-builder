@@ -7,19 +7,48 @@ interface EmissionsChartProps {
   totalScope1Emissions?: number;
   totalScope2Emissions?: number;
   totalScope3Emissions?: number;
+  emissionCalculationLogs?: string;
 }
 
 const EmissionsChart: React.FC<EmissionsChartProps> = ({
   totalScope1Emissions,
   totalScope2Emissions,
-  totalScope3Emissions
+  totalScope3Emissions,
+  emissionCalculationLogs
 }) => {
   const navigate = useNavigate();
   
-  // Filtra valori undefined e li converte a 0
-  const scope1Value = typeof totalScope1Emissions === 'number' ? totalScope1Emissions : 0;
-  const scope2Value = typeof totalScope2Emissions === 'number' ? totalScope2Emissions : 0;
-  const scope3Value = typeof totalScope3Emissions === 'number' ? totalScope3Emissions : 0;
+  // Try to parse calculation logs to get more accurate data
+  let scope1Value = 0;
+  let scope2Value = 0;
+  let scope3Value = 0;
+  
+  if (emissionCalculationLogs) {
+    try {
+      const logs = JSON.parse(emissionCalculationLogs);
+      
+      // Calculate totals from logs if available
+      scope1Value = logs.scope1Calculations?.reduce((sum: number, calc: any) => 
+        sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      
+      scope2Value = logs.scope2Calculations?.reduce((sum: number, calc: any) => 
+        sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+      
+      scope3Value = logs.scope3Calculations?.reduce((sum: number, calc: any) => 
+        sum + (parseFloat(calc.emissions) || 0), 0) || 0;
+    } catch (error) {
+      console.error("Error parsing calculation logs:", error);
+      // Fall back to the totalScope values if parsing fails
+      scope1Value = typeof totalScope1Emissions === 'number' ? totalScope1Emissions : 0;
+      scope2Value = typeof totalScope2Emissions === 'number' ? totalScope2Emissions : 0;
+      scope3Value = typeof totalScope3Emissions === 'number' ? totalScope3Emissions : 0;
+    }
+  } else {
+    // Use the provided total values if no logs are available
+    scope1Value = typeof totalScope1Emissions === 'number' ? totalScope1Emissions : 0;
+    scope2Value = typeof totalScope2Emissions === 'number' ? totalScope2Emissions : 0;
+    scope3Value = typeof totalScope3Emissions === 'number' ? totalScope3Emissions : 0;
+  }
   
   // Calcola emissioni totali
   const total = scope1Value + scope2Value + scope3Value;

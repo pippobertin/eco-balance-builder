@@ -4,6 +4,7 @@ import { ReportData, LocationEnvironmentalMetrics } from '@/context/types';
 import { Leaf } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
+import EmissionsChart from './environmental/EmissionsChart';
 
 interface EnvironmentalSectionProps {
   reportData: ReportData;
@@ -22,6 +23,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
         totalScope2Emissions: 0,
         totalScope3Emissions: 0,
         totalScopeEmissions: 0,
+        emissionCalculationLogs: reportData.environmentalMetrics?.emissionCalculationLogs,
         // Energy metrics removed as requested
         waterUsage: 0,
         waterConsumption: 0, 
@@ -61,6 +63,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     totalScope1Emissions,
     totalScope2Emissions,
     totalScopeEmissions,
+    emissionCalculationLogs,
     // Energy metrics removed as requested
     waterUsage,
     waterConsumption,
@@ -79,12 +82,6 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     recyclableContent
   } = getAggregatedMetrics() || {};
 
-  const emissionsData = [];
-  if (totalScope1Emissions) emissionsData.push({ name: 'Scope 1', value: totalScope1Emissions });
-  if (totalScope2Emissions) emissionsData.push({ name: 'Scope 2', value: totalScope2Emissions });
-  
-  // Energy data section removed as requested
-  
   const pollutionData = [];
   if (airPollution) pollutionData.push({ name: 'Aria', value: airPollution });
   if (waterPollution) pollutionData.push({ name: 'Acqua', value: waterPollution });
@@ -121,13 +118,11 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <MetricChart
-          title="B3 - Emissioni GHG"
-          description="Emissioni di gas serra (tCO2eq)"
-          type={emissionsData.length > 0 ? "donut" : "empty"}
-          data={[{ ring: 'inner', data: emissionsData, colors: ['#34C759', '#F97316'] }]}
-          dataKey="name"
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'emissions' } })}
+        <EmissionsChart
+          totalScope1Emissions={totalScope1Emissions}
+          totalScope2Emissions={totalScope2Emissions}
+          totalScope3Emissions={reportData.environmentalMetrics?.totalScope3Emissions}
+          emissionCalculationLogs={emissionCalculationLogs}
         />
         
         {/* Energy chart removed as requested */}
