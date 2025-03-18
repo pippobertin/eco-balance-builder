@@ -1,15 +1,13 @@
 
 import { useLocationData } from './useLocationData';
 import { useLocationMetricsHandlers } from './useLocationMetricsHandlers';
-import { LocationMetricsHook } from './types';
-import { formatLocationName } from './useLocationData';
 
 export const useLocationMetrics = (
   companyId: string | undefined, 
   formValues: any, 
   setFormValues: React.Dispatch<React.SetStateAction<any>>
-): LocationMetricsHook => {
-  // Get location data and state
+) => {
+  // Get location data
   const {
     locations,
     hasMultipleLocations,
@@ -17,13 +15,13 @@ export const useLocationMetrics = (
     selectedLocationId,
     setSelectedLocationId
   } = useLocationData(companyId, formValues, setFormValues);
-
-  // Get handlers for location metrics
+  
+  // Get location metrics handlers
   const {
     getCurrentLocationMetrics,
     handleLocationMetricsChange
   } = useLocationMetricsHandlers(selectedLocationId, formValues, setFormValues);
-
+  
   return {
     locations,
     hasMultipleLocations,
@@ -34,6 +32,3 @@ export const useLocationMetrics = (
     handleLocationMetricsChange
   };
 };
-
-// Re-export the location formatter for use in other components
-export { formatLocationName };

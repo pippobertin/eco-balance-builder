@@ -4,10 +4,12 @@ import { supabase } from './core/supabaseClient';
 import { withRetry } from './utils/retryUtils';
 import { debounce } from './utils/debounceUtils';
 import { handleSupabaseError } from './utils/errorUtils';
+import { safeJsonParse } from './utils/jsonUtils';
 
 export { 
   supabase, 
   withRetry, 
   debounce, 
-  handleSupabaseError 
+  handleSupabaseError,
+  safeJsonParse
 };

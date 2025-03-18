@@ -1,12 +1,14 @@
 
 import { useEffect } from 'react';
-import { EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator';
+import { EmissionsInput, EmissionsResults, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
+import { safeJsonParse } from '@/integrations/supabase/client';
 
 export const useExistingEmissions = (
   formValues: any,
   updateInput: (key: keyof EmissionsInput, value: any) => void,
   resetCalculation: () => void,
-  setCalculatedEmissions?: (results: EmissionsResults) => void
+  setCalculatedEmissions?: (results: EmissionsResults) => void,
+  setCalculationLogs?: (logs: EmissionCalculationLogs) => void
 ) => {
   // Effect to load existing emissions data from formValues
   useEffect(() => {
@@ -19,7 +21,8 @@ export const useExistingEmissions = (
       totalScope1Emissions, 
       totalScope2Emissions, 
       totalScope3Emissions, 
-      totalScopeEmissions 
+      totalScopeEmissions,
+      emissionCalculationLogs
     } = formValues.environmentalMetrics;
     
     // Only update if we have values and they are not already loaded
@@ -46,13 +49,21 @@ export const useExistingEmissions = (
     }
     
     // Get calculation logs from formValues if available
-    if (formValues.environmentalMetrics.emissionCalculationLogs) {
+    if (emissionCalculationLogs && setCalculationLogs) {
       try {
         console.log("Parsing logs in useExistingEmissions");
-        // I logs saranno gestiti direttamente in useCalculator
+        const parsedLogs = safeJsonParse<EmissionCalculationLogs>(
+          emissionCalculationLogs, 
+          { scope1Calculations: [], scope2Calculations: [], scope3Calculations: [] }
+        );
+        
+        console.log("Loaded calculation logs:", JSON.stringify(parsedLogs));
+        
+        // Set calculation logs state if available
+        setCalculationLogs(parsedLogs);
       } catch (error) {
         console.error("Error parsing emission calculation logs:", error);
       }
     }
-  }, [formValues?.environmentalMetrics, setCalculatedEmissions]);
+  }, [formValues?.environmentalMetrics, setCalculatedEmissions, setCalculationLogs]);
 };
