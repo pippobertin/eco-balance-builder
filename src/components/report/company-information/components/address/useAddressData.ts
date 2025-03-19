@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -66,50 +65,6 @@ export const useAddressData = (initialProvince: string = '') => {
     }
   };
 
-  const populateLocationData = async () => {
-    setPopulatingData(true);
-    setError(null);
-    try {
-      const { data, error } = await supabase.functions.invoke('populate-italian-locations');
-      
-      if (error) {
-        throw error;
-      }
-
-      console.log('Population result:', data);
-      
-      if (data.message?.includes('already populated')) {
-        toast({
-          title: 'Dati già presenti',
-          description: 'Il database contiene già i dati delle località italiane.',
-        });
-      } else {
-        toast({
-          title: 'Dati caricati con successo',
-          description: `Sono state caricate ${data.provinces_count} province e ${data.municipalities_count} comuni.`,
-        });
-      }
-      
-      // Refresh database status
-      await checkDatabaseStatus();
-      
-      // If data is now loaded, load provinces
-      if (databaseStatus === 'loaded') {
-        await loadProvinces();
-      }
-    } catch (error) {
-      console.error('Error populating location data:', error);
-      setError('Errore durante il caricamento dei dati delle località');
-      toast({
-        title: 'Errore',
-        description: 'Si è verificato un errore durante il caricamento dei dati delle località.',
-        variant: 'destructive',
-      });
-    } finally {
-      setPopulatingData(false);
-    }
-  };
-
   const loadProvinces = async () => {
     setIsLoading(prev => ({ ...prev, provinces: true }));
     setError(null);
@@ -139,7 +94,6 @@ export const useAddressData = (initialProvince: string = '') => {
     if (!provinceCode) return;
     
     setIsLoading(prev => ({ ...prev, municipalities: true }));
-    // Non settiamo più l'errore a null qui, in modo da non mostrare errori se i dati vengono comunque caricati
     
     try {
       const { data, error } = await supabase
@@ -148,12 +102,10 @@ export const useAddressData = (initialProvince: string = '') => {
         .eq('province_code', provinceCode)
         .order('name');
 
-      // Se abbiamo comunque ottenuto dei dati, consideriamo l'operazione come riuscita
-      // anche se c'è stato un errore tecnico
       if (data && data.length > 0) {
         console.log(`Loaded ${data.length} municipalities for province ${provinceCode}`);
         setMunicipalities(data);
-        setError(null); // Puliamo l'errore se abbiamo comunque dati
+        setError(null); // Clear any previous error
       } else if (error) {
         console.error('Error loading municipalities:', error);
         setError(`Errore durante il caricamento dei comuni per la provincia ${provinceCode}`);
@@ -161,7 +113,7 @@ export const useAddressData = (initialProvince: string = '') => {
       } else {
         console.log(`No municipalities found for province ${provinceCode}`);
         setMunicipalities([]);
-        setError(null); // Non ci sono errori, semplicemente nessun dato
+        setError(null); // No errors, just no data
       }
     } catch (error) {
       console.error('Failed to load municipalities:', error);
@@ -193,7 +145,35 @@ export const useAddressData = (initialProvince: string = '') => {
     populatingData,
     error,
     checkDatabaseStatus,
-    populateLocationData,
+    populateLocationData: async () => {
+      setPopulatingData(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('populate-italian-locations');
+        
+        if (error) throw error;
+        
+        toast({
+          title: 'Dati caricati con successo',
+          description: `Sono state caricate province e comuni.`,
+        });
+        
+        await checkDatabaseStatus();
+        
+        if (databaseStatus === 'loaded') {
+          await loadProvinces();
+        }
+      } catch (error) {
+        console.error('Error populating location data:', error);
+        setError('Errore durante il caricamento dei dati delle località');
+        toast({
+          title: 'Errore',
+          description: 'Si è verificato un errore durante il caricamento dei dati delle località.',
+          variant: 'destructive',
+        });
+      } finally {
+        setPopulatingData(false);
+      }
+    },
     loadProvinces,
     loadMunicipalities,
     updatePostalCodes

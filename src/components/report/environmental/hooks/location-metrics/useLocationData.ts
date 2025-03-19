@@ -3,12 +3,16 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CompanyLocation } from '@/components/report/company-information/CompanyGeneralInfo';
 import { LocationEnvironmentalMetrics } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
+import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useLocationData = (
   companyId: string | undefined, 
   formValues: any, 
-  setFormValues: React.Dispatch<React.SetStateAction<any>>
+  setFormValues: React.Dispatch<React.SetStateAction<any>>,
+  reportId?: string
 ) => {
+  const { toast } = useToast();
   const [locations, setLocations] = useState<CompanyLocation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
@@ -53,7 +57,13 @@ export const useLocationData = (
           const allLocations = [mainLocation, ...(data || [])];
           setLocations(allLocations);
           
-          initializeLocationMetrics(allLocations, formValues, setFormValues);
+          if (reportId) {
+            // Load location metrics from database
+            await loadLocationMetricsFromDatabase(reportId, allLocations);
+          } else {
+            // Fallback to initializing from form values
+            initializeLocationMetrics(allLocations, formValues, setFormValues);
+          }
           
           if (!selectedLocationId && allLocations.length > 0) {
             setSelectedLocationId(allLocations[0].id || 'main-location');
@@ -61,13 +71,66 @@ export const useLocationData = (
         }
       } catch (error) {
         console.error('Error loading company locations:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare le sedi dell'azienda",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     loadLocations();
-  }, [companyId]);
+  }, [companyId, reportId]);
+
+  // Load location metrics from database
+  const loadLocationMetricsFromDatabase = async (reportId: string, locationData: CompanyLocation[]) => {
+    try {
+      const { data, error } = await supabase
+        .from('location_metrics')
+        .select('*')
+        .eq('report_id', reportId);
+        
+      if (error) {
+        console.error("Error loading location metrics:", error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare i dati ambientali delle sedi",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        console.log("Loaded location metrics from database:", data.length);
+        
+        // Format the data for the form
+        const locationMetrics = data.map(item => ({
+          location_id: item.location_id,
+          location_name: item.location_name,
+          location_type: item.location_type,
+          metrics: item.metrics ? JSON.parse(item.metrics) : {}
+        }));
+        
+        // Update the form values
+        setFormValues((prev: any) => ({
+          ...prev,
+          environmentalMetrics: {
+            ...prev.environmentalMetrics,
+            locationMetrics: locationMetrics
+          }
+        }));
+      } else {
+        // Initialize from the location data
+        initializeLocationMetrics(locationData, formValues, setFormValues);
+      }
+    } catch (error) {
+      console.error("Error loading location metrics from database:", error);
+      // Fallback to initializing from location data
+      initializeLocationMetrics(locationData, formValues, setFormValues);
+    }
+  };
 
   // Helper function to initialize location metrics
   const initializeLocationMetrics = (
@@ -97,6 +160,44 @@ export const useLocationData = (
           locationMetrics: updatedLocationMetrics
         }
       }));
+      
+      // If report ID is provided, save to database
+      if (reportId) {
+        saveLocationMetricsToDatabase(reportId, updatedLocationMetrics);
+      }
+    }
+  };
+  
+  // Save location metrics to database
+  const saveLocationMetricsToDatabase = async (reportId: string, locationMetrics: LocationEnvironmentalMetrics[]) => {
+    try {
+      // Prepare the data for insertion
+      const dataToInsert = locationMetrics.map(lm => ({
+        report_id: reportId,
+        location_id: lm.location_id,
+        location_name: lm.location_name,
+        location_type: lm.location_type,
+        metrics: safeJsonStringify(lm.metrics),
+        updated_at: new Date().toISOString()
+      }));
+      
+      // Insert or update the location metrics
+      const { error } = await supabase
+        .from('location_metrics')
+        .upsert(dataToInsert, { onConflict: 'report_id,location_id' });
+        
+      if (error) {
+        throw error;
+      }
+      
+      console.log("Location metrics saved to database successfully");
+    } catch (error) {
+      console.error("Error saving location metrics to database:", error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare i dati ambientali delle sedi",
+        variant: "destructive"
+      });
     }
   };
 
@@ -105,7 +206,9 @@ export const useLocationData = (
     hasMultipleLocations,
     isLoading,
     selectedLocationId,
-    setSelectedLocationId
+    setSelectedLocationId,
+    saveLocationMetrics: (reportId: string, locationMetrics: LocationEnvironmentalMetrics[]) => 
+      saveLocationMetricsToDatabase(reportId, locationMetrics)
   };
 };
 
