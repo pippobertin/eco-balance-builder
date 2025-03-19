@@ -2,9 +2,8 @@
 import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { VehicleEmissionInfo } from '../scope3-components';
+import { Trash2, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Calculation {
   id: string;
@@ -37,58 +36,90 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
   getPeriodLabel,
   hasVehicleDetails
 }) => {
-  // Log calculation details to help with debugging
-  console.log("Rendering EmissionTableRow with calculation:", calculation);
+  // Get the category label
+  const categoryLabel = getCategoryLabel(calculation);
   
-  // Make sure we have the period from details
-  const period = calculation.details?.periodType || '';
+  // Format the date
+  const formattedDate = formatDate(calculation.date);
+  
+  // Prepare details text
+  let detailsText = '';
+  
+  try {
+    if (calculation.details) {
+      const { period, fuelType, energyProvider, renewablePercentage, wasteType, transportType } = calculation.details;
+      
+      const detailParts = [];
+      
+      if (period) {
+        detailParts.push(`Periodo: ${getPeriodLabel(period)}`);
+      }
+      
+      if (formattedDate) {
+        detailParts.push(`Data: ${formattedDate}`);
+      }
+      
+      if (fuelType) {
+        detailParts.push(`Combustibile: ${fuelType}`);
+      }
+      
+      if (energyProvider) {
+        detailParts.push(`Fornitore: ${energyProvider}`);
+      }
+      
+      if (typeof renewablePercentage === 'number') {
+        detailParts.push(`% Rinnovabile: ${renewablePercentage}%`);
+      }
+      
+      if (wasteType) {
+        detailParts.push(`Tipo rifiuto: ${wasteType}`);
+      }
+      
+      if (transportType) {
+        detailParts.push(`Trasporto: ${transportType}`);
+      }
+      
+      if (hasVehicleDetails(calculation)) {
+        const { vehicleType, vehicleFuelType, vehicleEnergyClass } = calculation.details;
+        if (vehicleType) detailParts.push(`Veicolo: ${vehicleType}`);
+        if (vehicleFuelType) detailParts.push(`Carburante: ${vehicleFuelType}`);
+        if (vehicleEnergyClass) detailParts.push(`Classe: ${vehicleEnergyClass}`);
+      }
+      
+      detailsText = detailParts.join(' | ');
+    }
+  } catch (e) {
+    console.error('Error formatting details:', e);
+    detailsText = 'Errore nei dettagli';
+  }
   
   return (
-    <>
-      <TableRow>
-        <TableCell className="font-medium">{getCategoryLabel(calculation)}</TableCell>
-        <TableCell>{formatDate(calculation.date)}</TableCell>
-        <TableCell>{getPeriodLabel(period)}</TableCell>
-        <TableCell>
-          {formatNumber(calculation.quantity)} {calculation.unit}
-        </TableCell>
-        <TableCell className="text-right font-semibold">
-          {formatNumber(calculation.emissions)}
-        </TableCell>
-        <TableCell>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => onRemoveCalculation(calculation.id)} 
-            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </TableCell>
-      </TableRow>
-      
-      {hasVehicleDetails(calculation) && (
-        <TableRow>
-          <TableCell colSpan={6} className="bg-gray-50 p-0 border-t-0">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="vehicle-details" className="border-0">
-                <AccordionTrigger className="py-2 px-4 text-sm text-blue-600 hover:text-blue-800 hover:no-underline">
-                  Dettagli veicolo
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-2">
-                  <VehicleEmissionInfo 
-                    vehicleType={calculation.details?.vehicleDetails?.vehicleType || ''}
-                    vehicleFuelType={calculation.details?.vehicleDetails?.vehicleFuelType || 'DIESEL'}
-                    vehicleEnergyClass={calculation.details?.vehicleDetails?.vehicleEnergyClass || ''}
-                    showCard={false}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </TableCell>
-        </TableRow>
-      )}
-    </>
+    <TableRow>
+      <TableCell className="font-medium">{categoryLabel}</TableCell>
+      <TableCell className="text-sm text-gray-600">{detailsText}</TableCell>
+      <TableCell className="text-right">{formatNumber(calculation.quantity)}</TableCell>
+      <TableCell className="text-right">{calculation.unit}</TableCell>
+      <TableCell className="text-right font-medium">{formatNumber(calculation.emissions)}</TableCell>
+      <TableCell>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-red-600"
+                onClick={() => onRemoveCalculation(calculation.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Rimuovi calcolo</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </TableCell>
+    </TableRow>
   );
 };
 

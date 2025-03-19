@@ -1,59 +1,13 @@
 
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
-import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
-import { useReport } from '@/hooks/use-report-context';
+import { useToast } from '@/hooks/use-toast';
 
 export const useEmissionsSave = () => {
-  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const { setNeedsSaving } = useReport();
+  const { toast } = useToast();
 
-  // Function to save calculation logs to database
-  const saveCalculationLogs = async (reportId: string, logs: EmissionCalculationLogs) => {
-    try {
-      console.log('Saving calculation logs:', logs);
-      const { data, error } = await supabase
-        .from('emissions_logs')
-        .select('*')
-        .eq('report_id', reportId)
-        .maybeSingle();
-
-      if (error) {
-        throw error;
-      }
-
-      const logsJson = safeJsonStringify(logs);
-      console.log('Stringified logs:', logsJson);
-
-      if (data) {
-        // Update existing logs
-        await supabase
-          .from('emissions_logs')
-          .update({
-            calculation_logs: logsJson,
-            updated_at: new Date().toISOString()
-          })
-          .eq('report_id', reportId);
-      } else {
-        // Insert new logs
-        await supabase
-          .from('emissions_logs')
-          .insert({
-            report_id: reportId,
-            calculation_logs: logsJson,
-            updated_at: new Date().toISOString()
-          });
-      }
-    } catch (error) {
-      console.error('Error saving calculation logs:', error);
-      throw error;
-    }
-  };
-
-  // Function to save emissions data to both the report and a separate table
   const saveEmissions = async (
     reportId: string,
     scope1: number,
@@ -61,84 +15,109 @@ export const useEmissionsSave = () => {
     scope3: number,
     calculationLogs: EmissionCalculationLogs
   ) => {
-    if (!reportId) {
-      console.error('Cannot save emissions: reportId is undefined');
-      setIsSaving(false);
-      return null;
-    }
-
     setIsSaving(true);
     
     try {
-      const total = scope1 + scope2 + scope3;
-      console.log(`Saving emissions - Scope1: ${scope1}, Scope2: ${scope2}, Scope3: ${scope3}, Total: ${total}`);
+      console.log('Saving emissions data for report:', reportId);
+      console.log('Emissions values:', { scope1, scope2, scope3, total: scope1 + scope2 + scope3 });
+      console.log('Calculation logs before save:', {
+        scope1Count: calculationLogs.scope1Calculations?.length || 0,
+        scope2Count: calculationLogs.scope2Calculations?.length || 0,
+        scope3Count: calculationLogs.scope3Calculations?.length || 0
+      });
       
-      // Check if a record exists
-      const { data, error: fetchError } = await supabase
-        .from('emissions_data')
-        .select('*')
-        .eq('report_id', reportId)
-        .maybeSingle();
-        
-      if (fetchError) throw fetchError;
-      
-      // Update emissions data table - using numeric values as per database schema
-      const emissionsData = {
-        scope1_emissions: scope1,
-        scope2_emissions: scope2,
-        scope3_emissions: scope3,
-        total_emissions: total,
-        updated_at: new Date().toISOString()
+      // Make sure we have valid arrays for each scope
+      const validatedCalculations: EmissionCalculationLogs = {
+        scope1Calculations: Array.isArray(calculationLogs.scope1Calculations) 
+          ? calculationLogs.scope1Calculations : [],
+        scope2Calculations: Array.isArray(calculationLogs.scope2Calculations)
+          ? calculationLogs.scope2Calculations : [],
+        scope3Calculations: Array.isArray(calculationLogs.scope3Calculations)
+          ? calculationLogs.scope3Calculations : []
       };
       
-      let updateError;
+      // Calculate total emissions
+      const total = scope1 + scope2 + scope3;
       
-      if (data) {
-        // Update existing record
-        const { error } = await supabase
-          .from('emissions_data')
-          .update(emissionsData)
-          .eq('report_id', reportId);
-          
-        updateError = error;
-      } else {
-        // Insert new record
-        const { error } = await supabase
-          .from('emissions_data')
-          .insert({
-            ...emissionsData,
-            report_id: reportId
-          });
-          
-        updateError = error;
+      // Check if emissions data exists for this report
+      const { data: existingData, error: checkError } = await supabase
+        .from('emissions')
+        .select('id')
+        .eq('report_id', reportId)
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') { // Not found error code
+        throw new Error(checkError.message);
       }
-
-      if (updateError) throw updateError;
-
-      console.log('Emissions data saved successfully');
-
-      // Also save the calculation logs
-      await saveCalculationLogs(reportId, calculationLogs);
-
-      // Update the needsSaving state
-      setNeedsSaving(false);
-
+      
+      let result;
+      
+      // If data exists, update it
+      if (existingData) {
+        const { data, error } = await supabase
+          .from('emissions')
+          .update({
+            scope1_emissions: scope1,
+            scope2_emissions: scope2,
+            scope3_emissions: scope3,
+            total_emissions: total,
+            calculation_logs: JSON.stringify(validatedCalculations),
+            updated_at: new Date().toISOString()
+          })
+          .eq('report_id', reportId)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        result = data;
+      } else {
+        // If no data exists, create a new record
+        const { data, error } = await supabase
+          .from('emissions')
+          .insert({
+            report_id: reportId,
+            scope1_emissions: scope1,
+            scope2_emissions: scope2,
+            scope3_emissions: scope3,
+            total_emissions: total,
+            calculation_logs: JSON.stringify(validatedCalculations),
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        result = data;
+      }
+      
+      console.log('Emissions data saved successfully:', result);
+      
+      // Create the normalized result
+      const normalizedResult = {
+        scope1: scope1,
+        scope2: scope2,
+        scope3: scope3,
+        total: total
+      };
+      
       toast({
-        title: 'Emissioni salvate',
-        description: 'I calcoli delle emissioni sono stati salvati con successo',
+        title: "Emissioni salvate",
+        description: "I dati delle emissioni sono stati salvati con successo",
       });
-
-      setIsSaving(false);
-      return { scope1, scope2, scope3, total };
-    } catch (error) {
-      console.error('Error saving emissions:', error);
-      setIsSaving(false);
+      
+      return normalizedResult;
+    } catch (error: any) {
+      console.error('Error saving emissions data:', error);
+      
       toast({
-        title: 'Errore',
-        description: 'Impossibile salvare i calcoli delle emissioni',
-        variant: 'destructive'
+        title: "Errore",
+        description: `Impossibile salvare i dati delle emissioni: ${error.message}`,
+        variant: "destructive"
       });
+      
       return null;
+    } finally {
+      setIsSaving(false);
     }
   };
 

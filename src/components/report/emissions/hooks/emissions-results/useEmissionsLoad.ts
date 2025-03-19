@@ -1,80 +1,100 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { EmissionsData } from './types';
+import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 
 export const useEmissionsLoad = (reportId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Function to load emissions data from database
+  // Load emissions data from the database
   const loadEmissionsData = async (reportId: string) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      console.log(`Loading emissions data for report: ${reportId}`);
+      console.log('Loading emissions data for report:', reportId);
+      
       const { data, error } = await supabase
-        .from('emissions_data')
+        .from('emissions')
         .select('*')
         .eq('report_id', reportId)
-        .maybeSingle();
-
+        .single();
+      
       if (error) {
         console.error('Error loading emissions data:', error);
+        setError(error.message);
         return null;
       }
-
-      // If data exists, return it
+      
       if (data) {
         console.log('Emissions data loaded successfully:', data);
-        return data;
-      } else {
-        console.log('No emissions data found for report:', reportId);
-        return null;
+        
+        // Make sure calculation_logs is parsed properly
+        try {
+          if (data.calculation_logs && typeof data.calculation_logs === 'string') {
+            data.calculation_logs = JSON.parse(data.calculation_logs);
+          }
+        } catch (e) {
+          console.error('Error parsing calculation logs:', e);
+          data.calculation_logs = {
+            scope1Calculations: [],
+            scope2Calculations: [],
+            scope3Calculations: []
+          };
+        }
       }
-    } catch (error) {
-      console.error('Error in loadEmissionsData:', error);
+      
+      return data;
+    } catch (error: any) {
+      console.error('Unexpected error loading emissions data:', error);
+      setError(error.message);
       return null;
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Function to create initial emissions entry
+  
+  // Create initial emissions data if none exists
   const createInitialEmissionsData = async (reportId: string) => {
-    if (!reportId) {
-      console.error('Cannot create initial emissions data: reportId is undefined');
-      return null;
-    }
-    
     try {
       console.log('Creating initial emissions data for report:', reportId);
-      // Create an initial entry in the database
-      const emissionsData: EmissionsData = {
-        report_id: reportId, // This is now required
+      
+      const initialData = {
+        report_id: reportId,
         scope1_emissions: 0,
         scope2_emissions: 0,
         scope3_emissions: 0,
         total_emissions: 0,
-        updated_at: new Date().toISOString()
+        calculation_logs: JSON.stringify({
+          scope1Calculations: [],
+          scope2Calculations: [],
+          scope3Calculations: []
+        }),
+        created_at: new Date().toISOString()
       };
       
-      const { error: insertError } = await supabase
-        .from('emissions_data')
-        .insert(emissionsData);
-        
-      if (insertError) {
-        console.error('Error creating initial emissions data:', insertError);
+      const { error } = await supabase
+        .from('emissions')
+        .insert(initialData);
+      
+      if (error) {
+        console.error('Error creating initial emissions data:', error);
+        setError(error.message);
         return null;
       }
       
-      return emissionsData;
-    } catch (error) {
-      console.error('Error creating initial emissions data:', error);
+      return initialData;
+    } catch (error: any) {
+      console.error('Unexpected error creating initial emissions data:', error);
+      setError(error.message);
       return null;
     }
   };
 
   return {
     isLoading,
+    error,
     loadEmissionsData,
     createInitialEmissionsData
   };

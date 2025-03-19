@@ -1,86 +1,32 @@
 
-import { AlertCircle, CheckCircle } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useReport } from '@/hooks/use-report-context';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
+import { it } from 'date-fns/locale';
+import { Clock } from 'lucide-react';
 
 interface AutoSaveIndicatorProps {
-  className?: string;
+  needsSaving: boolean;
+  lastSaved: Date | null;
 }
 
-const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ className = "" }) => {
-  const { needsSaving, lastSaved } = useReport();
-  const [displayText, setDisplayText] = useState<string | null>(null);
-  const [updateTimer, setUpdateTimer] = useState<number | null>(null);
-  
-  // Update the displayed time every minute
-  useEffect(() => {
-    // Initial formatting
-    if (lastSaved) {
-      setDisplayText(formatLastSaved(lastSaved));
-    }
-    
-    // Setup timer to update the text every minute
-    const timer = window.setInterval(() => {
-      if (lastSaved) {
-        setDisplayText(formatLastSaved(lastSaved));
-      }
-    }, 10000); // Update every 10 seconds for more responsive UI
-    
-    setUpdateTimer(timer);
-    
-    return () => {
-      if (updateTimer) {
-        window.clearInterval(updateTimer);
-      }
-    };
+const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ needsSaving, lastSaved }) => {
+  const displayText = useMemo(() => {
+    if (!lastSaved) return "Non salvato";
+    return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
   }, [lastSaved]);
-  
-  // Format the last saved time
-  const formatLastSaved = (savedTime: Date) => {
-    if (!savedTime) return null;
-    
-    const now = new Date();
-    const savedDate = new Date(savedTime);
-    const diffInMinutes = Math.floor((now.getTime() - savedDate.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) {
-      return "ora";
-    } else if (diffInMinutes < 60) {
-      return `${diffInMinutes} min fa`;
-    } else {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `${hours} ore fa`;
-    }
-  };
-  
-  // Debug log to check states
-  console.log("AutoSaveIndicator state:", { needsSaving, lastSaved, displayText });
-  
+
+  // Log the state for debugging
+  console.info("AutoSaveIndicator state:", { needsSaving, lastSaved, displayText });
+
   return (
-    <AnimatePresence mode="wait">
-      {needsSaving ? (
-        <motion.div
-          key="saving"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`flex items-center text-amber-500 text-sm ${className}`}>
-          <AlertCircle className="h-4 w-4 mr-1" />
-          <span>Salvataggio in corso...</span>
-        </motion.div>
-      ) : lastSaved && (
-        <motion.div
-          key="saved"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`flex items-center text-emerald-500 text-sm ${className}`}>
-          <CheckCircle className="h-4 w-4 mr-1" />
-          <span>Salvato {displayText}</span>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div className={`flex items-center text-sm gap-1 px-2 py-1 rounded-md ${
+      needsSaving ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50'
+    }`}>
+      <Clock className="h-3.5 w-3.5" />
+      <span>
+        {needsSaving ? 'Salvataggio in corso...' : `Salvato ${displayText}`}
+      </span>
+    </div>
   );
 };
 
