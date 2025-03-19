@@ -1,12 +1,12 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
-import { calculateScope2Emissions } from '@/lib/emissions-calculator';
+import { EmissionsInput, EmissionsResults } from '../../types';
+import { calculateScope3Emissions } from '@/lib/emissions-calculator';
 
 /**
- * Perform Scope 2 emissions calculation
+ * Perform waste calculations for Scope 3
  */
-export const performScope2Calculation = (
+export const performWasteCalculation = (
   inputs: EmissionsInput,
   results: EmissionsResults
 ): { 
@@ -17,36 +17,32 @@ export const performScope2Calculation = (
   let details = '';
   let source = '';
 
-  if (inputs.energyType && inputs.energyQuantity && inputs.energyQuantity !== '') {
-    const quantity = parseFloat(inputs.energyQuantity);
+  if (inputs.wasteType && inputs.wasteQuantity && inputs.wasteQuantity !== '') {
+    const quantity = parseFloat(inputs.wasteQuantity);
     if (!isNaN(quantity) && quantity > 0) {
-      const renewablePercentage = inputs.renewablePercentage ? parseFloat(inputs.renewablePercentage.toString()) : 0;
-      
-      const emissionsKg = calculateScope2Emissions(
-        inputs.energyType, 
-        quantity.toString(), 
-        renewablePercentage
+      const emissionsKg = calculateScope3Emissions(
+        inputs.wasteType, 
+        quantity,
+        'kg'
       );
       const emissionsTonnes = emissionsKg / 1000;
       
       // Update results
       const updatedResults = {
         ...results,
-        scope2: emissionsTonnes
+        scope3: emissionsTonnes
       };
       
       // Save calculation details
       const calculationDetails = {
-        energyType: inputs.energyType,
+        wasteType: inputs.wasteType,
         quantity,
-        unit: 'kWh',
-        renewablePercentage,
-        provider: inputs.energyProvider,
+        unit: 'kg',
         periodType: inputs.periodType,
         emissionsKg,
         emissionsTonnes,
         calculationDate: new Date().toISOString(),
-        source: getEmissionFactorSource(inputs.energyType)
+        source: getEmissionFactorSource(inputs.wasteType)
       };
       
       // Convert the source object to string

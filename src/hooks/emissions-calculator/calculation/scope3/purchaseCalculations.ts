@@ -1,52 +1,49 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
-import { calculateScope2Emissions } from '@/lib/emissions-calculator';
+import { EmissionsInput, EmissionsResults } from '../../types';
+import { calculateScope3Emissions } from '@/lib/emissions-calculator';
 
 /**
- * Perform Scope 2 emissions calculation
+ * Perform purchase calculations for Scope 3
  */
-export const performScope2Calculation = (
+export const performPurchaseCalculation = (
   inputs: EmissionsInput,
   results: EmissionsResults
 ): { 
   updatedResults: EmissionsResults; 
-  details: string;
+  details: string; 
   source?: string;
 } => {
   let details = '';
   let source = '';
 
-  if (inputs.energyType && inputs.energyQuantity && inputs.energyQuantity !== '') {
-    const quantity = parseFloat(inputs.energyQuantity);
+  if (inputs.purchaseType && inputs.purchaseQuantity && inputs.purchaseQuantity !== '') {
+    const quantity = parseFloat(inputs.purchaseQuantity);
     if (!isNaN(quantity) && quantity > 0) {
-      const renewablePercentage = inputs.renewablePercentage ? parseFloat(inputs.renewablePercentage.toString()) : 0;
-      
-      const emissionsKg = calculateScope2Emissions(
-        inputs.energyType, 
-        quantity.toString(), 
-        renewablePercentage
+      const emissionsKg = calculateScope3Emissions(
+        inputs.purchaseType, 
+        quantity,
+        inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità'
       );
       const emissionsTonnes = emissionsKg / 1000;
       
       // Update results
       const updatedResults = {
         ...results,
-        scope2: emissionsTonnes
+        scope3: emissionsTonnes
       };
       
       // Save calculation details
       const calculationDetails = {
-        energyType: inputs.energyType,
+        purchaseType: inputs.purchaseType,
+        description: inputs.purchaseDescription || '',
         quantity,
-        unit: 'kWh',
-        renewablePercentage,
-        provider: inputs.energyProvider,
+        unit: inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità',
         periodType: inputs.periodType,
         emissionsKg,
         emissionsTonnes,
         calculationDate: new Date().toISOString(),
-        source: getEmissionFactorSource(inputs.energyType)
+        source: getEmissionFactorSource(inputs.purchaseType)
       };
       
       // Convert the source object to string
