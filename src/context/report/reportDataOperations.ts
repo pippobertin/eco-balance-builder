@@ -1,107 +1,118 @@
-
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Report, ReportData } from '@/context/types';
-import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
+import { ReportData, Report } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
+import { prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
 
-export const saveReportData = async (reportId: string, reportData: ReportData) => {
-  try {
-    // Format environmental metrics for database
-    const environmentalMetrics = prepareJsonForDb(reportData.environmentalMetrics || {});
-    
-    // Format social metrics for database
-    const socialMetrics = prepareJsonForDb(reportData.socialMetrics || {});
-    
-    // Format conduct metrics for database 
-    const conductMetrics = prepareJsonForDb(reportData.conductMetrics || {});
-    
-    // Format business partners metrics for database
-    const businessPartnersMetrics = prepareJsonForDb(reportData.businessPartnersMetrics || {});
-    
-    // Format materiality analysis for database
-    const materialityAnalysis = prepareJsonForDb(reportData.materialityAnalysis || {});
-    
-    // Prepare narrative PAT metrics
-    const narrativePATMetrics = reportData.narrativePATMetrics ? 
-      prepareJsonForDb(reportData.narrativePATMetrics) : null;
-    
-    // Update report in the database
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        environmental_metrics: environmentalMetrics,
-        social_metrics: socialMetrics,
-        conduct_metrics: conductMetrics,
-        materiality_analysis: materialityAnalysis,
-        narrative_pat_metrics: narrativePATMetrics,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) {
-      console.error("Error saving report data:", error);
-      throw error;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Error in saveReportData:", error);
-    throw error;
-  }
-};
+export const useReportDataOperations = () => {
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-export const loadReportData = async (report: Report): Promise<ReportData> => {
-  try {
-    // Initialize default data
-    const reportData: ReportData = {
-      environmentalMetrics: {},
-      socialMetrics: {},
-      conductMetrics: {},
-      businessPartnersMetrics: {},
-      materialityAnalysis: {
-        issues: [],
-        stakeholders: []
-      }
-    };
-    
-    // Parse JSON data from the report
-    if (report.environmental_metrics) {
-      reportData.environmentalMetrics = safeJsonParse(
-        safeJsonStringify(report.environmental_metrics), 
-        reportData.environmentalMetrics
-      );
+  // Save report data to database
+  const saveReportData = useCallback(async (reportId: string, data: ReportData): Promise<boolean> => {
+    if (!reportId) {
+      console.error('Cannot save report: reportId is undefined');
+      return false;
     }
+
+    setIsSaving(true);
     
-    if (report.social_metrics) {
-      reportData.socialMetrics = safeJsonParse(
-        safeJsonStringify(report.social_metrics), 
-        reportData.socialMetrics
-      );
+    try {
+      // Prepare data for database by converting nested objects to JSON strings
+      const preparedData = prepareJsonForDb(data);
+      
+      // Update report data
+      const { error } = await supabase
+        .from('reports')
+        .update({
+          ...preparedData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      setLastSaved(new Date());
+      return true;
+    } catch (error) {
+      console.error('Error saving report data:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile salvare i dati del report',
+        variant: 'destructive'
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
     }
-    
-    if (report.conduct_metrics) {
-      reportData.conductMetrics = safeJsonParse(
-        safeJsonStringify(report.conduct_metrics), 
-        reportData.conductMetrics
-      );
+  }, [toast]);
+
+  // Update specific report field
+  const updateReportField = useCallback(async (
+    reportId: string, 
+    field: keyof Report, 
+    value: any
+  ): Promise<boolean> => {
+    if (!reportId) {
+      console.error('Cannot update report field: reportId is undefined');
+      return false;
     }
-    
-    if (report.materiality_analysis) {
-      reportData.materialityAnalysis = safeJsonParse(
-        safeJsonStringify(report.materiality_analysis), 
-        reportData.materialityAnalysis
-      );
+
+    try {
+      // Prepare value for database if it's an object
+      const preparedValue = typeof value === 'object' ? JSON.stringify(value) : value;
+      
+      // Update specific field
+      const { error } = await supabase
+        .from('reports')
+        .update({
+          [field]: preparedValue,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error(`Error updating report field ${field}:`, error);
+      return false;
     }
-    
-    if (report.narrative_pat_metrics) {
-      reportData.narrativePATMetrics = safeJsonParse(
-        safeJsonStringify(report.narrative_pat_metrics), 
-        null
-      );
+  }, []);
+
+  // Delete report
+  const deleteReport = useCallback(async (reportId: string): Promise<boolean> => {
+    if (!reportId) {
+      console.error('Cannot delete report: reportId is undefined');
+      return false;
     }
-    
-    return reportData;
-  } catch (error) {
-    console.error("Error in loadReportData:", error);
-    throw error;
-  }
+
+    try {
+      const { error } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il report',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  }, [toast]);
+
+  return {
+    saveReportData,
+    updateReportField,
+    deleteReport,
+    isSaving,
+    lastSaved
+  };
 };

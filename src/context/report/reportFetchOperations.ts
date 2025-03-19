@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Report } from '@/context/types';
 import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
@@ -238,4 +237,16 @@ export const updateReportStatus = async (reportId: string, status: string) => {
     console.error('Error updating report status:', error);
     return false;
   }
+};
+
+export const useReportFetchOperations = () => {
+  // Implement this function to provide the fetch operations functionality
+  // This is a simplified implementation
+  return {
+    // Add the functionality that's being used elsewhere in the code
+    loadReportData: async (reportId: string) => {
+      // Implementation would go here
+    },
+    // Add other functions as needed
+  };
 };

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { EmissionsRecord, EmissionCalculationRecord, EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
+import { EmissionCalculationLogs, EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
 import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useExistingEmissions = (reportId: string | undefined) => {
@@ -17,7 +17,7 @@ export const useExistingEmissions = (reportId: string | undefined) => {
     total: 0
   });
   
-  const [existingCalculations, setExistingCalculations] = useState<EmissionsRecord>({
+  const [existingCalculations, setExistingCalculations] = useState<EmissionCalculationLogs>({
     scope1Calculations: [],
     scope2Calculations: [],
     scope3Calculations: []
@@ -59,21 +59,26 @@ export const useExistingEmissions = (reportId: string | undefined) => {
       // Update state with emissions data
       if (emissionsData) {
         setExistingEmissions({
-          scope1: parseFloat(emissionsData.scope1_emissions) || 0,
-          scope2: parseFloat(emissionsData.scope2_emissions) || 0,
-          scope3: parseFloat(emissionsData.scope3_emissions) || 0,
-          total: parseFloat(emissionsData.total_emissions) || 0
+          scope1: parseFloat(emissionsData.scope1_emissions as string) || 0,
+          scope2: parseFloat(emissionsData.scope2_emissions as string) || 0,
+          scope3: parseFloat(emissionsData.scope3_emissions as string) || 0,
+          total: parseFloat(emissionsData.total_emissions as string) || 0
         });
       }
 
       // Update state with calculation logs
       if (logsData && logsData.calculation_logs) {
         // Parse the JSON data
-        const calculations = safeJsonParse<EmissionCalculationLogs>(logsData.calculation_logs, {
-          scope1Calculations: [],
-          scope2Calculations: [],
-          scope3Calculations: []
-        });
+        const calculations = safeJsonParse<EmissionCalculationLogs>(
+          typeof logsData.calculation_logs === 'string' 
+            ? logsData.calculation_logs 
+            : JSON.stringify(logsData.calculation_logs),
+          {
+            scope1Calculations: [],
+            scope2Calculations: [],
+            scope3Calculations: []
+          }
+        );
         
         setExistingCalculations(calculations);
       }

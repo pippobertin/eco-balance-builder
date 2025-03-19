@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,9 +5,7 @@ import { MaterialityIssue, Stakeholder, IROSelections } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
-// Define the interface for the context type
-interface MaterialityContextType {
-  // Issues
+export interface MaterialityContextType {
   materialityIssues: MaterialityIssue[];
   setMaterialityIssues: React.Dispatch<React.SetStateAction<MaterialityIssue[]>>;
   selectedIssueIds: Set<string>;
@@ -17,14 +14,12 @@ interface MaterialityContextType {
   updateIssue: (issueId: string, updates: Partial<MaterialityIssue>) => void;
   removeIssue: (issueId: string) => void;
   
-  // Stakeholders
   stakeholders: Stakeholder[];
   setStakeholders: React.Dispatch<React.SetStateAction<Stakeholder[]>>;
   addStakeholder: (stakeholder: Omit<Stakeholder, 'id'>) => void;
   updateStakeholder: (stakeholderId: string, updates: Partial<Stakeholder>) => void;
   removeStakeholder: (stakeholderId: string) => void;
   
-  // General
   isLoading: boolean;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,8 +29,7 @@ interface MaterialityContextType {
 
 export const MaterialityContext = createContext<MaterialityContextType | null>(null);
 
-// Default materiality issues for new reports
-const materialityIssuesDefaults: MaterialityIssue[] = [];
+export const materialityIssuesDefaults: MaterialityIssue[] = [];
 
 export const MaterialityProvider: React.FC<{
   children: React.ReactNode;
@@ -46,11 +40,9 @@ export const MaterialityProvider: React.FC<{
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
-  // Materiality issues state
   const [materialityIssues, setMaterialityIssues] = useState<MaterialityIssue[]>([]);
   const [selectedIssueIds, setSelectedIssueIds] = useState<Set<string>>(new Set());
   
-  // Stakeholders state
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   
   useEffect(() => {
@@ -63,7 +55,6 @@ export const MaterialityProvider: React.FC<{
     setIsLoading(true);
     
     try {
-      // Load materiality issues from database
       const { data: issuesData, error: issuesError } = await supabase
         .from('materiality_issues')
         .select('*')
@@ -74,7 +65,6 @@ export const MaterialityProvider: React.FC<{
         throw issuesError;
       }
       
-      // Load stakeholders from database
       const { data: stakeholdersData, error: stakeholdersError } = await supabase
         .from('stakeholders')
         .select('*')
@@ -85,7 +75,6 @@ export const MaterialityProvider: React.FC<{
         throw stakeholdersError;
       }
       
-      // Transform issues data
       let issues: MaterialityIssue[] = [];
       if (issuesData && issuesData.length > 0) {
         issues = issuesData.map(item => {
@@ -111,7 +100,6 @@ export const MaterialityProvider: React.FC<{
           };
         });
         
-        // Initialize selected issue IDs
         const selectedIds = new Set<string>();
         issues.forEach(issue => {
           if (issue.isMaterial) {
@@ -120,11 +108,9 @@ export const MaterialityProvider: React.FC<{
         });
         setSelectedIssueIds(selectedIds);
       } else {
-        // Initialize with default data if no issues found
         issues = materialityIssuesDefaults;
       }
       
-      // Transform stakeholders data
       let stakeholdersArray: Stakeholder[] = [];
       if (stakeholdersData && stakeholdersData.length > 0) {
         stakeholdersArray = stakeholdersData.map(item => ({
@@ -143,7 +129,6 @@ export const MaterialityProvider: React.FC<{
         }));
       }
       
-      // Update state
       setMaterialityIssues(issues);
       setStakeholders(stakeholdersArray);
       setLastSaved(new Date());
@@ -166,7 +151,7 @@ export const MaterialityProvider: React.FC<{
     try {
       const { error } = await supabase
         .from('materiality_issues')
-        .upsert({
+        .update({
           report_id: reportId,
           issue_id: issue.id,
           name: issue.name,
@@ -174,12 +159,35 @@ export const MaterialityProvider: React.FC<{
           impact_relevance: issue.impactRelevance.toString(),
           financial_relevance: issue.financialRelevance.toString(),
           is_material: issue.isMaterial,
-          stakeholder_relevance: issue.stakeholderRelevance.toString(),
+          stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
           iro_selections: safeJsonStringify(issue.iroSelections),
           updated_at: new Date().toISOString()
-        }, { onConflict: 'report_id,issue_id' });
+        })
+        .eq('report_id', reportId)
+        .eq('issue_id', issue.id);
       
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505' || error.code === '42P01') {
+          const { error: insertError } = await supabase
+            .from('materiality_issues')
+            .insert({
+              report_id: reportId,
+              issue_id: issue.id,
+              name: issue.name,
+              description: issue.description,
+              impact_relevance: issue.impactRelevance.toString(),
+              financial_relevance: issue.financialRelevance.toString(),
+              is_material: issue.isMaterial,
+              stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
+              iro_selections: safeJsonStringify(issue.iroSelections),
+              updated_at: new Date().toISOString()
+            });
+          
+          if (insertError) throw insertError;
+        } else {
+          throw error;
+        }
+      }
       
       return true;
     } catch (error) {
@@ -192,12 +200,10 @@ export const MaterialityProvider: React.FC<{
     if (!reportId) return false;
     
     try {
-      // Save each issue individually
       const results = await Promise.all(
         issues.map(issue => saveIssue(issue, reportId))
       );
       
-      // Check if all issues were saved successfully
       const success = results.every(result => result === true);
       
       if (success) {
@@ -249,12 +255,10 @@ export const MaterialityProvider: React.FC<{
     if (!reportId) return false;
     
     try {
-      // Save each stakeholder individually
       const results = await Promise.all(
         stakeholdersArray.map(stakeholder => saveStakeholder(stakeholder, reportId))
       );
       
-      // Check if all stakeholders were saved successfully
       const success = results.every(result => result === true);
       
       if (success) {
@@ -270,7 +274,6 @@ export const MaterialityProvider: React.FC<{
     }
   };
   
-  // Callback to add a new issue
   const addIssue = useCallback((issue: Omit<MaterialityIssue, 'id'>) => {
     const newIssue: MaterialityIssue = {
       ...issue,
@@ -280,13 +283,11 @@ export const MaterialityProvider: React.FC<{
     setMaterialityIssues(prev => [...prev, newIssue]);
     setHasUnsavedChanges(true);
     
-    // Save the new issue to the database
     if (reportId) {
       saveIssue(newIssue, reportId);
     }
   }, [reportId]);
   
-  // Callback to update an existing issue
   const updateIssue = useCallback((issueId: string, updates: Partial<MaterialityIssue>) => {
     setMaterialityIssues(prev => 
       prev.map(issue => 
@@ -295,7 +296,6 @@ export const MaterialityProvider: React.FC<{
     );
     setHasUnsavedChanges(true);
     
-    // Save the updated issue to the database
     if (reportId) {
       const updatedIssue = materialityIssues.find(issue => issue.id === issueId);
       if (updatedIssue) {
@@ -304,12 +304,10 @@ export const MaterialityProvider: React.FC<{
     }
   }, [materialityIssues, reportId]);
   
-  // Callback to remove an issue
   const removeIssue = useCallback((issueId: string) => {
     setMaterialityIssues(prev => prev.filter(issue => issue.id !== issueId));
     setHasUnsavedChanges(true);
     
-    // Remove the issue from the database
     if (reportId) {
       supabase
         .from('materiality_issues')
@@ -324,7 +322,6 @@ export const MaterialityProvider: React.FC<{
     }
   }, [reportId]);
   
-  // Callback to add a new stakeholder
   const addStakeholder = useCallback((stakeholder: Omit<Stakeholder, 'id'>) => {
     const newStakeholder: Stakeholder = {
       ...stakeholder,
@@ -334,13 +331,11 @@ export const MaterialityProvider: React.FC<{
     setStakeholders(prev => [...prev, newStakeholder]);
     setHasUnsavedChanges(true);
     
-    // Save the new stakeholder to the database
     if (reportId) {
       saveStakeholder(newStakeholder, reportId);
     }
   }, [reportId]);
   
-  // Callback to update an existing stakeholder
   const updateStakeholder = useCallback((stakeholderId: string, updates: Partial<Stakeholder>) => {
     setStakeholders(prev => 
       prev.map(stakeholder => 
@@ -349,7 +344,6 @@ export const MaterialityProvider: React.FC<{
     );
     setHasUnsavedChanges(true);
     
-    // Save the updated stakeholder to the database
     if (reportId) {
       const updatedStakeholder = stakeholders.find(stakeholder => stakeholder.id === stakeholderId);
       if (updatedStakeholder) {
@@ -358,12 +352,10 @@ export const MaterialityProvider: React.FC<{
     }
   }, [stakeholders, reportId]);
   
-  // Callback to remove a stakeholder
   const removeStakeholder = useCallback((stakeholderId: string) => {
     setStakeholders(prev => prev.filter(stakeholder => stakeholder.id !== stakeholderId));
     setHasUnsavedChanges(true);
     
-    // Remove the stakeholder from the database
     if (reportId) {
       supabase
         .from('stakeholders')
@@ -378,7 +370,6 @@ export const MaterialityProvider: React.FC<{
     }
   }, [reportId]);
   
-  // Save all materiality data
   const saveAllMaterialityData = useCallback(async () => {
     if (!reportId) return false;
     
@@ -417,7 +408,6 @@ export const MaterialityProvider: React.FC<{
   }, [materialityIssues, stakeholders, reportId, toast]);
   
   const value = {
-    // Issues
     materialityIssues,
     setMaterialityIssues,
     selectedIssueIds,
@@ -426,14 +416,12 @@ export const MaterialityProvider: React.FC<{
     updateIssue,
     removeIssue,
     
-    // Stakeholders
     stakeholders,
     setStakeholders,
     addStakeholder,
     updateStakeholder,
     removeStakeholder,
     
-    // General
     isLoading,
     hasUnsavedChanges,
     setHasUnsavedChanges,

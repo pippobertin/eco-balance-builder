@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { EmissionsRecord, RecordEntry } from '@/hooks/emissions-calculator/types';
+import { EmissionCalculationLogs, EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
 import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsResults = (reportId: string | undefined) => {
@@ -69,7 +69,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
   };
 
   // Function to save calculation logs to database
-  const saveCalculationLogs = async (reportId: string, logs: EmissionsRecord) => {
+  const saveCalculationLogs = async (reportId: string, logs: EmissionCalculationLogs) => {
     try {
       const { data, error } = await supabase
         .from('emissions_logs')
@@ -114,7 +114,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     scope1: number,
     scope2: number,
     scope3: number,
-    calculationLogs: EmissionsRecord
+    calculationLogs: EmissionCalculationLogs
   ) => {
     if (!reportId) {
       console.error('Cannot save emissions: reportId is undefined');
@@ -126,17 +126,17 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     try {
       const total = scope1 + scope2 + scope3;
       
-      // Update emissions data table
+      // Update emissions data table - convert numbers to strings for db
       const { error: emissionsError } = await supabase
         .from('emissions_data')
-        .upsert({
-          report_id: reportId,
+        .update({
           scope1_emissions: scope1.toString(),
           scope2_emissions: scope2.toString(),
           scope3_emissions: scope3.toString(),
           total_emissions: total.toString(),
           updated_at: new Date().toISOString()
-        }, { onConflict: 'report_id' });
+        })
+        .eq('report_id', reportId);
 
       if (emissionsError) throw emissionsError;
 
