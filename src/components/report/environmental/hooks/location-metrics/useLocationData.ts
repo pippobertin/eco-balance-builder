@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CompanyLocation } from '@/components/report/company-information/CompanyGeneralInfo';
 import { LocationEnvironmentalMetrics } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
-import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
+import { safeJsonStringify, safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useLocationData = (
   companyId: string | undefined, 
@@ -110,7 +110,7 @@ export const useLocationData = (
           location_id: item.location_id,
           location_name: item.location_name,
           location_type: item.location_type,
-          metrics: item.metrics ? JSON.parse(item.metrics) : {}
+          metrics: safeJsonParse(item.metrics, {})
         }));
         
         // Update the form values

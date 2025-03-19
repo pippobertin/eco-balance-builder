@@ -152,6 +152,88 @@ export type Database = {
           },
         ]
       }
+      emissions_data: {
+        Row: {
+          created_at: string
+          id: string
+          report_id: string
+          scope1_details: Json | null
+          scope1_emissions: number | null
+          scope2_details: Json | null
+          scope2_emissions: number | null
+          scope3_details: Json | null
+          scope3_emissions: number | null
+          total_emissions: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          report_id: string
+          scope1_details?: Json | null
+          scope1_emissions?: number | null
+          scope2_details?: Json | null
+          scope2_emissions?: number | null
+          scope3_details?: Json | null
+          scope3_emissions?: number | null
+          total_emissions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          report_id?: string
+          scope1_details?: Json | null
+          scope1_emissions?: number | null
+          scope2_details?: Json | null
+          scope2_emissions?: number | null
+          scope3_details?: Json | null
+          scope3_emissions?: number | null
+          total_emissions?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emissions_data_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emissions_logs: {
+        Row: {
+          calculation_logs: Json
+          created_at: string
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          calculation_logs?: Json
+          created_at?: string
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          calculation_logs?: Json
+          created_at?: string
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emissions_logs_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_companies: {
         Row: {
           address_city: string | null
@@ -198,6 +280,100 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          location_id: string
+          location_name: string
+          location_type: string | null
+          metrics: Json | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_id: string
+          location_name: string
+          location_type?: string | null
+          metrics?: Json | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_id?: string
+          location_name?: string
+          location_type?: string | null
+          metrics?: Json | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_metrics_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiality_issues: {
+        Row: {
+          created_at: string
+          description: string | null
+          financial_relevance: number | null
+          id: string
+          impact_relevance: number | null
+          iro_selections: Json | null
+          is_material: boolean | null
+          issue_id: string
+          name: string
+          report_id: string
+          stakeholder_relevance: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          financial_relevance?: number | null
+          id?: string
+          impact_relevance?: number | null
+          iro_selections?: Json | null
+          is_material?: boolean | null
+          issue_id: string
+          name: string
+          report_id: string
+          stakeholder_relevance?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          financial_relevance?: number | null
+          id?: string
+          impact_relevance?: number | null
+          iro_selections?: Json | null
+          is_material?: boolean | null
+          issue_id?: string
+          name?: string
+          report_id?: string
+          stakeholder_relevance?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiality_issues_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
             referencedColumns: ["id"]
           },
         ]
@@ -345,6 +521,71 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholders: {
+        Row: {
+          category: string | null
+          contact_info: string | null
+          created_at: string
+          email: string | null
+          id: string
+          influence: number | null
+          interest: number | null
+          name: string
+          notes: string | null
+          priority: string | null
+          report_id: string
+          stakeholder_id: string
+          survey_response: Json | null
+          survey_status: string | null
+          survey_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          contact_info?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          influence?: number | null
+          interest?: number | null
+          name: string
+          notes?: string | null
+          priority?: string | null
+          report_id: string
+          stakeholder_id: string
+          survey_response?: Json | null
+          survey_status?: string | null
+          survey_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          contact_info?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          influence?: number | null
+          interest?: number | null
+          name?: string
+          notes?: string | null
+          priority?: string | null
+          report_id?: string
+          stakeholder_id?: string
+          survey_response?: Json | null
+          survey_status?: string | null
+          survey_token?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholders_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
             referencedColumns: ["id"]
           },
         ]
