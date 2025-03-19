@@ -126,7 +126,6 @@ const Report = () => {
         <div className="container mx-auto px-4 md:px-6">
           <ReportHeader 
             currentCompany={currentCompany} 
-            handleSaveReport={handleSaveReport}
             needsSaving={needsSaving}
           />
 

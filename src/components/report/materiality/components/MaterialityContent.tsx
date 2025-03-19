@@ -9,10 +9,13 @@ import { useMaterialityContext } from '../context/MaterialityContext';
 import IROSummary from './IROSummary';
 import ThemesCategoryTabs from './ThemesCategoryTabs';
 import { MaterialityIssue } from '../types';
+import { useReport } from '@/hooks/use-report-context';
+import { AlertCircle } from 'lucide-react';
 
 const MaterialityContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('issues');
   const { toast } = useToast();
+  const { needsSaving } = useReport();
   const { 
     issues, 
     handleIssueChange: originalHandleIssueChange, 
@@ -135,7 +138,14 @@ const MaterialityContent: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {needsSaving && (
+        <div className="absolute right-0 top-0 flex items-center text-amber-500 text-sm">
+          <AlertCircle className="h-4 w-4 mr-1" />
+          <span>Salvataggio in corso...</span>
+        </div>
+      )}
+      
       <MaterialityHeader title="Analisi di Materialità" />
       
       <MaterialityTabs activeTab={activeTab} setActiveTab={setActiveTab} />

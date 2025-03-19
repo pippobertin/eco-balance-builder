@@ -35,7 +35,7 @@ export const useAutoSaveMateriality = ({ materialityData }: UseAutoSaveMateriali
         // First, update the report data in context
         updateReportData({ materialityAnalysis: materialityData });
         
-        // Set a timeout to auto-save after data changes
+        // Set a shorter timeout to auto-save after data changes
         saveTimeoutRef.current = window.setTimeout(() => {
           console.log("Auto-saving materiality data changes...");
           saveCurrentReport().then(() => {
@@ -43,7 +43,7 @@ export const useAutoSaveMateriality = ({ materialityData }: UseAutoSaveMateriali
           }).catch(error => {
             console.error("Error auto-saving materiality data:", error);
           });
-        }, 3000);
+        }, 1500); // Reduced from 3000 to 1500ms for quicker saves
       }
     } catch (error) {
       console.error("Error in materiality data processing:", error);

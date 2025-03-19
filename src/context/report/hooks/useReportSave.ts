@@ -36,10 +36,8 @@ export const useReportSave = (
           console.log("Report saved to database successfully");
           setNeedsSaving(false);
           setLastSaved(new Date());
-          toast({
-            title: "Salvataggio completato",
-            description: "Report salvato con successo",
-          });
+          // Only show toast for manual saves, not auto-saves
+          // Auto-saves happen automatically without notification
         } else {
           console.error("Failed to save report data");
           toast({

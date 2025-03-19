@@ -1,7 +1,6 @@
 
 import { useEffect, useRef } from 'react';
 import { Report, ReportData } from '@/context/types';
-import { debounce } from '@/integrations/supabase/client';
 
 export const useReportAutoSave = (
   needsSaving: boolean,
@@ -22,11 +21,11 @@ export const useReportAutoSave = (
         clearTimeout(autoSaveTimerRef.current);
       }
       
-      // Set a new timer for auto-save (60 seconds)
+      // Set a new timer for auto-save (much shorter - 3 seconds)
       autoSaveTimerRef.current = setTimeout(async () => {
         console.log("Auto-saving report...");
         await saveCurrentReport();
-      }, 60000); // Auto-save after 60 seconds of inactivity
+      }, 3000); // Auto-save after 3 seconds of inactivity
     }
     
     // Clean up timer on unmount
