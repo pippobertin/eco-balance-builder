@@ -1,5 +1,6 @@
 
 import { PeriodType } from '@/lib/emissions-types';
+import { hasValidVehicleDetails } from '@/lib/vehicle-emissions';
 
 export const formatDate = (dateString: string) => {
   try {
@@ -74,9 +75,5 @@ export const getCategoryLabel = (calculation: Calculation, scope: string) => {
 };
 
 export const hasVehicleDetails = (calculation: Calculation, scope: string) => {
-  return scope === 'scope3' && 
-         calculation.details?.vehicleDetails && 
-         calculation.details.vehicleDetails.vehicleType &&
-         calculation.details.vehicleDetails.vehicleFuelType &&
-         calculation.details.vehicleDetails.vehicleEnergyClass;
+  return scope === 'scope3' && hasValidVehicleDetails(calculation);
 };
