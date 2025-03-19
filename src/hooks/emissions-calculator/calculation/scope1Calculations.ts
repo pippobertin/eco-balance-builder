@@ -45,8 +45,13 @@ export const performScope1Calculation = (
         source: getEmissionFactorSource(inputs.fuelType)
       };
       
+      // Convert the source object to string
+      const sourceInfo = calculationDetails.source;
+      if (sourceInfo) {
+        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+      }
+      
       details = JSON.stringify(calculationDetails);
-      source = calculationDetails.source;
       
       return { updatedResults, details, source };
     }

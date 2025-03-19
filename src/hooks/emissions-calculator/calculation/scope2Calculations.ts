@@ -20,7 +20,7 @@ export const performScope2Calculation = (
   if (inputs.energyType && inputs.energyQuantity && inputs.energyQuantity !== '') {
     const quantity = parseFloat(inputs.energyQuantity);
     if (!isNaN(quantity) && quantity > 0) {
-      const renewablePercentage = inputs.renewablePercentage || 0;
+      const renewablePercentage = inputs.renewablePercentage ? parseFloat(inputs.renewablePercentage.toString()) : 0;
       
       const emissionsKg = calculateScope2Emissions(
         inputs.energyType, 
@@ -49,8 +49,13 @@ export const performScope2Calculation = (
         source: getEmissionFactorSource(inputs.energyType)
       };
       
+      // Convert the source object to string
+      const sourceInfo = calculationDetails.source;
+      if (sourceInfo) {
+        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+      }
+      
       details = JSON.stringify(calculationDetails);
-      source = calculationDetails.source;
       
       return { updatedResults, details, source };
     }

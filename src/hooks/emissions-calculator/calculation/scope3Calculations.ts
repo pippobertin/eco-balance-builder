@@ -1,7 +1,7 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
-import { calculateTransportEmissions, calculateWasteEmissions, calculatePurchaseEmissions } from '@/lib/emissions-calculator';
+import { calculateScope3Emissions } from '@/lib/emissions-calculator';
 import { calculateVehicleEmissions } from '@/lib/vehicle-emissions';
 
 /**
@@ -69,8 +69,13 @@ export const performTransportCalculation = (
             source: getEmissionFactorSource(inputs.vehicleFuelType)
           };
           
+          // Convert the source object to string
+          const sourceInfo = calculationDetails.source;
+          if (sourceInfo) {
+            source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+          }
+          
           details = JSON.stringify(calculationDetails);
-          source = calculationDetails.source;
           
           return { updatedResults, details, source };
         } else {
@@ -83,9 +88,10 @@ export const performTransportCalculation = (
       const distance = parseFloat(inputs.transportDistance);
       
       if (!isNaN(distance) && distance > 0) {
-        const emissionsKg = calculateTransportEmissions(
+        const emissionsKg = calculateScope3Emissions(
           inputs.transportType || 'BUSINESS_TRAVEL_CAR', 
-          distance
+          distance,
+          'km'
         );
         const emissionsTonnes = emissionsKg / 1000;
         
@@ -107,8 +113,13 @@ export const performTransportCalculation = (
           source: getEmissionFactorSource(inputs.transportType || 'BUSINESS_TRAVEL_CAR')
         };
         
+        // Convert the source object to string
+        const sourceInfo = calculationDetails.source;
+        if (sourceInfo) {
+          source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+        }
+        
         details = JSON.stringify(calculationDetails);
-        source = calculationDetails.source;
         
         return { updatedResults, details, source };
       }
@@ -119,9 +130,10 @@ export const performTransportCalculation = (
     const distance = parseFloat(inputs.transportDistance);
     
     if (!isNaN(distance) && distance > 0) {
-      const emissionsKg = calculateTransportEmissions(
+      const emissionsKg = calculateScope3Emissions(
         inputs.transportType, 
-        distance
+        distance,
+        'km'
       );
       const emissionsTonnes = emissionsKg / 1000;
       
@@ -143,8 +155,13 @@ export const performTransportCalculation = (
         source: getEmissionFactorSource(inputs.transportType)
       };
       
+      // Convert the source object to string
+      const sourceInfo = calculationDetails.source;
+      if (sourceInfo) {
+        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+      }
+      
       details = JSON.stringify(calculationDetails);
-      source = calculationDetails.source;
       
       return { updatedResults, details, source };
     }
@@ -170,9 +187,10 @@ export const performWasteCalculation = (
   if (inputs.wasteType && inputs.wasteQuantity && inputs.wasteQuantity !== '') {
     const quantity = parseFloat(inputs.wasteQuantity);
     if (!isNaN(quantity) && quantity > 0) {
-      const emissionsKg = calculateWasteEmissions(
+      const emissionsKg = calculateScope3Emissions(
         inputs.wasteType, 
-        quantity
+        quantity,
+        'kg'
       );
       const emissionsTonnes = emissionsKg / 1000;
       
@@ -194,8 +212,13 @@ export const performWasteCalculation = (
         source: getEmissionFactorSource(inputs.wasteType)
       };
       
+      // Convert the source object to string
+      const sourceInfo = calculationDetails.source;
+      if (sourceInfo) {
+        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+      }
+      
       details = JSON.stringify(calculationDetails);
-      source = calculationDetails.source;
       
       return { updatedResults, details, source };
     }
@@ -221,9 +244,10 @@ export const performPurchaseCalculation = (
   if (inputs.purchaseType && inputs.purchaseQuantity && inputs.purchaseQuantity !== '') {
     const quantity = parseFloat(inputs.purchaseQuantity);
     if (!isNaN(quantity) && quantity > 0) {
-      const emissionsKg = calculatePurchaseEmissions(
+      const emissionsKg = calculateScope3Emissions(
         inputs.purchaseType, 
-        quantity
+        quantity,
+        inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità'
       );
       const emissionsTonnes = emissionsKg / 1000;
       
@@ -246,8 +270,13 @@ export const performPurchaseCalculation = (
         source: getEmissionFactorSource(inputs.purchaseType)
       };
       
+      // Convert the source object to string
+      const sourceInfo = calculationDetails.source;
+      if (sourceInfo) {
+        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+      }
+      
       details = JSON.stringify(calculationDetails);
-      source = calculationDetails.source;
       
       return { updatedResults, details, source };
     }
