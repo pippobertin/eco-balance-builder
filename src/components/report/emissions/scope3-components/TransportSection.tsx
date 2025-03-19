@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { 
   Select, 
@@ -10,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TransportType, FuelType } from '@/lib/emissions-types';
-import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import VehicleEmissionInfo from './VehicleEmissionInfo';
 
@@ -132,7 +131,7 @@ const TransportSection: React.FC<TransportSectionProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <InfoCircledIcon className="h-5 w-5 text-blue-600" />
+                  <Info className="h-5 w-5 text-blue-600" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-sm p-4 bg-white shadow-lg rounded-md">
                   <div className="space-y-2">
@@ -220,3 +219,4 @@ const TransportSection: React.FC<TransportSectionProps> = ({
 };
 
 export default TransportSection;
+
