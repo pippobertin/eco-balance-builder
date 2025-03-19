@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,17 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   const getActiveTabContent = () => {
     switch (activeTab) {
       case 'scope1':
-        return <Scope1Form scope1Source={inputs.scope1Source || 'fuel'} setScope1Source={value => updateInput('scope1Source', value)} fuelType={inputs.fuelType || 'DIESEL'} setFuelType={value => updateInput('fuelType', value)} fuelQuantity={inputs.fuelQuantity || ''} setFuelQuantity={value => updateInput('fuelQuantity', value)} fuelUnit={inputs.fuelUnit || 'L'} setFuelUnit={value => updateInput('fuelUnit', value)} periodType={inputs.periodType || PeriodType.ANNUAL} setPeriodType={value => updateInput('periodType', value)} />;
+        return <Scope1Form 
+                 scope1Source={inputs.scope1Source || 'fuel'} 
+                 setScope1Source={value => updateInput('scope1Source', value)} 
+                 fuelType={inputs.fuelType || 'DIESEL'} 
+                 setFuelType={value => updateInput('fuelType', value)} 
+                 fuelQuantity={inputs.fuelQuantity || ''} 
+                 setFuelQuantity={value => updateInput('fuelQuantity', value)} 
+                 fuelUnit={inputs.fuelUnit || 'L'} 
+                 setFuelUnit={value => updateInput('fuelUnit', value)} 
+                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 setPeriodType={value => updateInput('periodType', value)} />;
       case 'scope2':
         return <Scope2Form 
                  energyType={inputs.energyType || 'ELECTRICITY_IT'} 

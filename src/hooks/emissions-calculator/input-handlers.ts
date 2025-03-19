@@ -1,4 +1,3 @@
-
 import { EmissionsInput } from './types';
 import { PeriodType, EmissionFactorSource } from '@/lib/emissions-types';
 
@@ -20,6 +19,9 @@ export const createDefaultInputs = (): EmissionsInput => {
     purchaseType: 'PURCHASED_GOODS',
     purchaseQuantity: '',
     purchaseDescription: '',
+    vehicleType: '',
+    vehicleFuelType: 'DIESEL',
+    vehicleEnergyClass: '',
     periodType: PeriodType.ANNUAL,
     calculationMethod: EmissionFactorSource.DEFRA
   };

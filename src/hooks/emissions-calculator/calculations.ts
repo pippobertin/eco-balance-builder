@@ -99,7 +99,7 @@ export const performEmissionsCalculation = (
         const emissionsTonnes = emissionsKg / 1000;
         results.scope3 = emissionsTonnes;
         
-        // Save calculation details
+        // Save calculation details, now including vehicle information
         const calculationDetails = {
           activityType: inputs.transportType,
           quantity: distance,
@@ -110,7 +110,13 @@ export const performEmissionsCalculation = (
           emissionsKg,
           emissionsTonnes,
           calculationDate: new Date().toISOString(),
-          source: getEmissionFactorSource(inputs.transportType)
+          source: getEmissionFactorSource(inputs.transportType),
+          // Add vehicle details to the calculation details
+          vehicleDetails: {
+            vehicleType: inputs.vehicleType || '',
+            vehicleFuelType: inputs.vehicleFuelType || 'DIESEL',
+            vehicleEnergyClass: inputs.vehicleEnergyClass || ''
+          }
         };
         
         details.scope3Details = JSON.stringify(calculationDetails);
@@ -151,7 +157,7 @@ export const performEmissionsCalculation = (
         const emissionsTonnes = emissionsKg / 1000;
         results.scope3 = emissionsTonnes;
         
-        // Save calculation details
+        // Save calculation details, now including purchase description
         const calculationDetails = {
           activityType: inputs.purchaseType,
           quantity,
@@ -160,7 +166,8 @@ export const performEmissionsCalculation = (
           emissionsKg,
           emissionsTonnes,
           calculationDate: new Date().toISOString(),
-          source: getEmissionFactorSource(inputs.purchaseType)
+          source: getEmissionFactorSource(inputs.purchaseType),
+          description: inputs.purchaseDescription || ''
         };
         
         details.scope3Details = JSON.stringify(calculationDetails);
