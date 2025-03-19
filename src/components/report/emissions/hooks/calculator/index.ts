@@ -24,7 +24,8 @@ export const useCalculator = (
     setCalculatedEmissions,
     calculationLogs,
     setCalculationLogs,
-    isLoading
+    isLoading,
+    isLoadingExisting
   } = useCalculatorState(reportId);
   
   // Get actions from actions hook
@@ -49,6 +50,7 @@ export const useCalculator = (
     activeTab,
     setActiveTab,
     calculatedEmissions,
+    setCalculatedEmissions,
     inputs,
     updateInput,
     calculateEmissions,
@@ -59,6 +61,7 @@ export const useCalculator = (
     handleSubmitCalculation,
     isSaving,
     isLoading,
+    isLoadingExisting,
     lastSaved
   };
 };

@@ -7,4 +7,4 @@ export type {
   EmissionsDetails,
   EmissionCalculationRecord,
   EmissionCalculationLogs
-} from './emissions-calculator';
+} from './emissions-calculator/types';

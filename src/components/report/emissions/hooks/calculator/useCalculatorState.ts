@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useReport } from '@/hooks/use-report-context';
 import { CalculatorState } from './types';
-import { EmissionCalculationLogs } from '@/hooks/emissions-calculator';
+import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useExistingEmissions } from '../useExistingEmissions';
 
 export const useCalculatorState = (reportId: string | undefined): CalculatorState => {
@@ -65,6 +65,7 @@ export const useCalculatorState = (reportId: string | undefined): CalculatorStat
     calculationLogs,
     setCalculationLogs,
     isLoading,
+    isLoadingExisting: isLoading, // Add isLoadingExisting for GHGEmissionsCalculator
     isSaving: false, // Will be updated in the main hook
     lastSaved: null, // Will be updated in the main hook
   };
