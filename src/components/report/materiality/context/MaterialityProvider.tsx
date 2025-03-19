@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, createContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,6 +83,10 @@ export const MaterialityProvider: React.FC<{
           const financialRelevance = parseFloat(item.financial_relevance as string) || 0;
           const stakeholderRelevance = parseFloat(item.stakeholder_relevance as string) || 0;
           
+          const iroSelectionsString = typeof item.iro_selections === 'string' 
+            ? item.iro_selections 
+            : JSON.stringify(item.iro_selections);
+            
           return {
             id: item.issue_id,
             name: item.name,
@@ -90,17 +95,15 @@ export const MaterialityProvider: React.FC<{
             financialRelevance,
             isMaterial: item.is_material || false,
             stakeholderRelevance,
-            iroSelections: safeJsonParse(
-              typeof item.iro_selections === 'string' 
-                ? item.iro_selections 
-                : JSON.stringify(item.iro_selections), 
+            iroSelections: safeJsonParse<IROSelections>(
+              iroSelectionsString, 
               {
                 selectedPositiveImpacts: [],
                 selectedNegativeImpacts: [],
                 selectedRisks: [],
                 selectedOpportunities: [],
                 selectedActions: []
-              } as IROSelections
+              }
             )
           };
         });
@@ -118,25 +121,29 @@ export const MaterialityProvider: React.FC<{
       
       let stakeholdersArray: Stakeholder[] = [];
       if (stakeholdersData && stakeholdersData.length > 0) {
-        stakeholdersArray = stakeholdersData.map(item => ({
-          id: item.stakeholder_id,
-          name: item.name,
-          category: item.category || '',
-          influence: parseInt(item.influence as string) || 0,
-          interest: parseInt(item.interest as string) || 0,
-          contactInfo: item.contact_info || '',
-          email: item.email || '',
-          notes: item.notes || '',
-          priority: item.priority || 'medium',
-          surveyStatus: (item.survey_status as "pending" | "sent" | "completed") || 'pending',
-          surveyToken: item.survey_token || '',
-          surveyResponse: safeJsonParse(
-            typeof item.survey_response === 'string' 
-              ? item.survey_response 
-              : JSON.stringify(item.survey_response), 
-            null
-          )
-        }));
+        stakeholdersArray = stakeholdersData.map(item => {
+          const influence = parseInt(item.influence as string) || 0;
+          const interest = parseInt(item.interest as string) || 0;
+          
+          const surveyResponseString = typeof item.survey_response === 'string' 
+            ? item.survey_response 
+            : JSON.stringify(item.survey_response);
+            
+          return {
+            id: item.stakeholder_id,
+            name: item.name,
+            category: item.category || '',
+            influence,
+            interest,
+            contactInfo: item.contact_info || '',
+            email: item.email || '',
+            notes: item.notes || '',
+            priority: item.priority || 'medium',
+            surveyStatus: (item.survey_status as "pending" | "sent" | "completed") || 'pending',
+            surveyToken: item.survey_token || '',
+            surveyResponse: safeJsonParse(surveyResponseString, null)
+          };
+        });
       }
       
       setMaterialityIssues(issues);
@@ -187,6 +194,7 @@ export const MaterialityProvider: React.FC<{
       let result;
       
       if (data) {
+        // Update existing issue
         const { error: updateError } = await supabase
           .from('materiality_issues')
           .update(issueData)
@@ -196,6 +204,7 @@ export const MaterialityProvider: React.FC<{
         if (updateError) throw updateError;
         result = true;
       } else {
+        // Insert new issue
         const { error: insertError } = await supabase
           .from('materiality_issues')
           .insert(issueData);
@@ -270,6 +279,7 @@ export const MaterialityProvider: React.FC<{
       let result;
       
       if (data) {
+        // Update existing stakeholder
         const { error: updateError } = await supabase
           .from('stakeholders')
           .update(stakeholderData)
@@ -279,6 +289,7 @@ export const MaterialityProvider: React.FC<{
         if (updateError) throw updateError;
         result = true;
       } else {
+        // Insert new stakeholder
         const { error: insertError } = await supabase
           .from('stakeholders')
           .insert(stakeholderData);

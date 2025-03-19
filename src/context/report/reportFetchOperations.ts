@@ -1,252 +1,120 @@
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Report } from '@/context/types';
-import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
+import { Company, Report, Subsidiary } from '@/context/types';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
-// Function to create a new report
-export const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => {
-  try {
-    const { data, error } = await supabase
-      .from('reports')
-      .insert([
-        {
-          company_id: report.company_id,
-          report_year: report.report_year,
-          report_type: report.report_type,
-          is_consolidated: report.is_consolidated,
-          status: report.status || 'draft',
-        }
-      ])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    return data.id;
-  } catch (error) {
-    console.error('Error creating report:', error);
-    throw error;
-  }
-};
-
-// Function to delete a report
-export const deleteReport = async (reportId: string) => {
-  try {
-    const { error } = await supabase
-      .from('reports')
-      .delete()
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error deleting report:', error);
-    return false;
-  }
-};
-
-// Function to fetch all reports for a company
-export const fetchReports = async (companyId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('reports')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching reports:', error);
-    return [];
-  }
-};
-
-// Function to fetch a specific report
-export const fetchReport = async (reportId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('reports')
-      .select('*')
-      .eq('id', reportId)
-      .single();
-    
-    if (error) throw error;
-    
-    return data;
-  } catch (error) {
-    console.error('Error fetching report:', error);
-    return null;
-  }
-};
-
-// Function to fetch subsidiaries for a report
-export const fetchSubsidiaries = async (reportId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('subsidiaries')
-      .select('*')
-      .eq('report_id', reportId);
-    
-    if (error) throw error;
-    
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching subsidiaries:', error);
-    return [];
-  }
-};
-
-// Function to save subsidiaries for a report
-export const saveSubsidiaries = async (subsidiaries: any[], reportId: string) => {
-  try {
-    // First delete existing subsidiaries
-    const { error: deleteError } = await supabase
-      .from('subsidiaries')
-      .delete()
-      .eq('report_id', reportId);
-    
-    if (deleteError) throw deleteError;
-    
-    // Then insert new subsidiaries
-    if (subsidiaries.length > 0) {
-      const subsidiariesToInsert = subsidiaries.map(subsidiary => ({
-        report_id: reportId,
-        name: subsidiary.name,
-        location: subsidiary.location
-      }));
-      
-      const { error: insertError } = await supabase
-        .from('subsidiaries')
-        .insert(subsidiariesToInsert);
-      
-      if (insertError) throw insertError;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving subsidiaries:', error);
-    return false;
-  }
-};
-
-// Function to update a report's environmental metrics
-export const updateReportEnvironmentalMetrics = async (reportId: string, metrics: any) => {
-  try {
-    const environmentalMetrics = prepareJsonForDb(metrics);
-    
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        environmental_metrics: environmentalMetrics,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating environmental metrics:', error);
-    return false;
-  }
-};
-
-// Function to update a report's social metrics
-export const updateReportSocialMetrics = async (reportId: string, metrics: any) => {
-  try {
-    const socialMetrics = prepareJsonForDb(metrics);
-    
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        social_metrics: socialMetrics,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating social metrics:', error);
-    return false;
-  }
-};
-
-// Function to update a report's conduct metrics
-export const updateReportConductMetrics = async (reportId: string, metrics: any) => {
-  try {
-    const conductMetrics = prepareJsonForDb(metrics);
-    
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        conduct_metrics: conductMetrics,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating conduct metrics:', error);
-    return false;
-  }
-};
-
-// Function to update a report's materiality analysis
-export const updateReportMaterialityAnalysis = async (reportId: string, analysis: any) => {
-  try {
-    const materialityAnalysis = prepareJsonForDb(analysis);
-    
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        materiality_analysis: materialityAnalysis,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating materiality analysis:', error);
-    return false;
-  }
-};
-
-// Function to update a report's status
-export const updateReportStatus = async (reportId: string, status: string) => {
-  try {
-    const { error } = await supabase
-      .from('reports')
-      .update({
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', reportId);
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating report status:', error);
-    return false;
-  }
-};
-
+// Define the hook
 export const useReportFetchOperations = () => {
-  // Implement this function to provide the fetch operations functionality
-  // This is a simplified implementation
+  const [loading, setLoading] = useState(false);
+
+  // Load reports by company ID
+  const loadReports = async (companyId: string): Promise<Report[]> => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('company_id', companyId);
+
+      if (error) {
+        console.error("Error loading reports:", error);
+        return [];
+      }
+
+      return data as Report[];
+    } catch (error) {
+      console.error("Error loading reports:", error);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load report by ID
+  const loadReport = async (reportId: string): Promise<{report: Report | null, subsidiaries?: Subsidiary[]}> => {
+    setLoading(true);
+    try {
+      // Fetch the report data
+      const { data: reportData, error: reportError } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (reportError) {
+        console.error("Error fetching report:", reportError);
+        return { report: null };
+      }
+
+      // Fetch associated subsidiaries
+      const { data: subsidiariesData, error: subsidiariesError } = await supabase
+        .from('subsidiaries')
+        .select('*')
+        .eq('report_id', reportId);
+
+      if (subsidiariesError) {
+        console.error("Error fetching subsidiaries:", subsidiariesError);
+        return { report: null };
+      }
+
+      // Parse JSON fields in report data
+      const parsedReportData = {
+        ...reportData,
+        environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
+        social_metrics: safeJsonParse(reportData.social_metrics, {}),
+        conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
+        narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {}),
+        materiality_analysis: safeJsonParse(reportData.materiality_analysis, {})
+      } as Report;
+
+      return { 
+        report: parsedReportData,
+        subsidiaries: subsidiariesData as Subsidiary[]
+      };
+    } catch (error) {
+      console.error("Error loading report:", error);
+      return { report: null };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadReportData = async (reportId: string): Promise<void> => {
+    setLoading(true);
+    try {
+      // Fetch the report data
+      const { data: reportData, error: reportError } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (reportError) {
+        console.error("Error fetching report:", reportError);
+        return;
+      }
+
+      // Parse JSON fields in report data
+      const parsedReportData = {
+        ...reportData,
+        environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
+        social_metrics: safeJsonParse(reportData.social_metrics, {}),
+        conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
+        narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {}),
+        materiality_analysis: safeJsonParse(reportData.materiality_analysis, {})
+      } as Report;
+
+    } catch (error) {
+      console.error("Error loading report:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ensure the hook returns the correct functions including loadReports and loadReport
   return {
-    // Add the functionality that's being used elsewhere in the code
-    loadReportData: async (reportId: string) => {
-      // Implementation would go here
-    },
-    // Add other functions as needed
+    loadReportData,
+    loadReports,
+    loadReport
   };
 };

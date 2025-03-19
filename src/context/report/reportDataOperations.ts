@@ -108,11 +108,50 @@ export const useReportDataOperations = () => {
     }
   }, [toast]);
 
+  // Save subsidiaries
+  const saveSubsidiaries = useCallback(async (subsidiaries: any): Promise<boolean> => {
+    if (!subsidiaries) {
+      console.error('Cannot save subsidiaries: subsidiaries is undefined');
+      return false;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      // Prepare subsidiaries data for database by converting nested objects to JSON strings
+      const preparedSubsidiaries = prepareJsonForDb(subsidiaries);
+      
+      // Update subsidiaries data
+      const { error } = await supabase
+        .from('subsidiaries')
+        .update({
+          ...preparedSubsidiaries,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      setLastSaved(new Date());
+      return true;
+    } catch (error) {
+      console.error('Error saving subsidiaries data:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile salvare i dati delle aziende',
+        variant: 'destructive'
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [toast]);
+
   return {
     saveReportData,
     updateReportField,
     deleteReport,
     isSaving,
-    lastSaved
+    lastSaved,
+    saveSubsidiaries
   };
 };

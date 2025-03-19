@@ -69,10 +69,12 @@ export const useExistingEmissions = (reportId: string | undefined) => {
       // Update state with calculation logs
       if (logsData && logsData.calculation_logs) {
         // Parse the JSON data
+        const calculationLogsString = typeof logsData.calculation_logs === 'string' 
+          ? logsData.calculation_logs 
+          : JSON.stringify(logsData.calculation_logs);
+          
         const calculations = safeJsonParse<EmissionCalculationLogs>(
-          typeof logsData.calculation_logs === 'string' 
-            ? logsData.calculation_logs 
-            : JSON.stringify(logsData.calculation_logs),
+          calculationLogsString,
           {
             scope1Calculations: [],
             scope2Calculations: [],

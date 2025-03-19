@@ -22,6 +22,7 @@ export const useReportOperations = () => {
     createReport: writeOperations.createReport,
     loadReport: fetchOperations.loadReport,
     saveReportData: dataOperations.saveReportData,
-    deleteReport: dataOperations.deleteReport
+    deleteReport: dataOperations.deleteReport,
+    saveSubsidiaries: dataOperations.saveSubsidiaries
   };
 };
