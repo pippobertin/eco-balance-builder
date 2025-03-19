@@ -15,6 +15,9 @@ export const useReportDataOperations = () => {
         throw new Error('User must be logged in to save report data');
       }
       
+      console.log("About to save report data with ID:", reportId);
+      console.log("Report data to save:", JSON.stringify(reportData));
+      
       return await withRetry(async () => {
         // Check if user has access to this report
         let query = supabase
@@ -27,27 +30,32 @@ export const useReportDataOperations = () => {
           query = query.eq('companies.created_by', user.id);
         }
         
-        const { data, error: accessError } = await query.single();
+        const { data, error: accessError } = await query.maybeSingle();
         
         if (accessError || !data) {
+          console.error("Access error or no data:", accessError?.message || "No data found");
           throw new Error('You do not have permission to save this report');
         }
         
-        // Convert complex objects to strings to match JSON type in database
+        // Ensure we're sending pure JSON objects
         const { error } = await supabase
           .from('reports')
           .update({
-            environmental_metrics: JSON.stringify(reportData.environmentalMetrics),
-            social_metrics: JSON.stringify(reportData.socialMetrics),
-            conduct_metrics: JSON.stringify(reportData.conductMetrics),
-            materiality_analysis: JSON.stringify(reportData.materialityAnalysis),
-            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics),
+            environmental_metrics: reportData.environmentalMetrics || {},
+            social_metrics: reportData.socialMetrics || {},
+            conduct_metrics: reportData.conductMetrics || {},
+            materiality_analysis: reportData.materialityAnalysis || { issues: [], stakeholders: [] },
+            narrative_pat_metrics: reportData.narrativePATMetrics || {},
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Error saving report data:", error.message);
+          throw error;
+        }
         
+        console.log("Report data saved successfully with ID:", reportId);
         return true;
       });
     } catch (error: any) {

@@ -126,15 +126,15 @@ export const useReportFetchOperations = () => {
           // Create a proper Report object that includes the company property
           const { companies, ...reportData } = data;
           
-          // Parse JSON fields properly - Convert to string first to ensure safe parsing
+          // Safely handle the data parsing, whether it's already an object or still a string
           const parsedReport = {
             ...reportData,
             company: companies,
-            environmental_metrics: safeJsonParse(JSON.stringify(reportData.environmental_metrics), {}),
-            social_metrics: safeJsonParse(JSON.stringify(reportData.social_metrics), {}),
-            conduct_metrics: safeJsonParse(JSON.stringify(reportData.conduct_metrics), {}),
-            materiality_analysis: safeJsonParse(JSON.stringify(reportData.materiality_analysis), { issues: [], stakeholders: [] }),
-            narrative_pat_metrics: safeJsonParse(JSON.stringify(reportData.narrative_pat_metrics), {})
+            environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
+            social_metrics: safeJsonParse(reportData.social_metrics, {}),
+            conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
+            materiality_analysis: safeJsonParse(reportData.materiality_analysis, { issues: [], stakeholders: [] }),
+            narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {})
           };
           
           console.log("Loaded report data:", JSON.stringify(parsedReport));
