@@ -48,14 +48,26 @@ export const useEmissionsCalculator = (
   );
   
   // Get remove calculation functionality
-  const { removeCalculation } = useRemoveCalculation(
-    details,
-    calculationLogs,
-    setCalculationLogs,
-    setResults,
-    onResultsChange,
-    onCalculationLogChange
-  );
+  // No arguments needed for the hook itself
+  const { removeCalculation } = useRemoveCalculation();
+  
+  // Wrapper function to handle removing a calculation
+  const handleRemoveCalculation = (calculationId: string) => {
+    const { updatedLogs, updatedResults } = removeCalculation(calculationId, calculationLogs);
+    
+    // Update state
+    setCalculationLogs(updatedLogs);
+    setResults(updatedResults);
+    
+    // Call callbacks
+    if (onResultsChange) {
+      onResultsChange(updatedResults, details);
+    }
+    
+    if (onCalculationLogChange) {
+      onCalculationLogChange(updatedLogs);
+    }
+  };
   
   return {
     inputs,
@@ -65,6 +77,6 @@ export const useEmissionsCalculator = (
     calculationLogs,
     calculateEmissions,
     resetCalculation,
-    removeCalculation
+    removeCalculation: handleRemoveCalculation
   };
 };
