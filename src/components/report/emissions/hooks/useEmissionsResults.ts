@@ -77,6 +77,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
   // Function to save calculation logs to database
   const saveCalculationLogs = async (reportId: string, logs: EmissionCalculationLogs) => {
     try {
+      console.log('Saving calculation logs:', logs);
       const { data, error } = await supabase
         .from('emissions_logs')
         .select('*')
@@ -88,6 +89,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       }
 
       const logsJson = safeJsonStringify(logs);
+      console.log('Stringified logs:', logsJson);
 
       if (data) {
         // Update existing logs
@@ -131,6 +133,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     
     try {
       const total = scope1 + scope2 + scope3;
+      console.log(`Saving emissions - Scope1: ${scope1}, Scope2: ${scope2}, Scope3: ${scope3}, Total: ${total}`);
       
       // Check if a record exists
       const { data, error: fetchError } = await supabase
@@ -173,6 +176,8 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       }
 
       if (updateError) throw updateError;
+
+      console.log('Emissions data saved successfully');
 
       // Also save the calculation logs
       await saveCalculationLogs(reportId, calculationLogs);

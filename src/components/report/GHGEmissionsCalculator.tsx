@@ -28,7 +28,8 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     updateInput,
     calculateEmissions,
     calculationLogs,
-    handleRemoveCalculation
+    handleRemoveCalculation,
+    handleSubmitCalculation
   } = useCalculator(formValues, setFormValues, onResetClick);
   
   const getActiveTabContent = () => {
@@ -87,6 +88,18 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
   
+  // Handle calculate button click - this calculates for current tab only
+  const handleCalculateClick = () => {
+    console.log('Calculate button clicked for tab:', activeTab);
+    calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
+  };
+  
+  // Handle save button click - this saves to database
+  const handleSaveClick = () => {
+    console.log('Save button clicked');
+    handleSubmitCalculation();
+  };
+  
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
@@ -108,13 +121,22 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       </Tabs>
       
       <div className="mt-6 flex justify-between items-center">
-        <Button 
-          onClick={() => calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3')}
-          className="flex items-center"
-        >
-          <Calculator className="mr-2 h-4 w-4" />
-          Calcola Emissioni
-        </Button>
+        <div className="space-x-2">
+          <Button 
+            onClick={handleCalculateClick}
+            className="flex items-center"
+          >
+            <Calculator className="mr-2 h-4 w-4" />
+            Calcola Emissioni
+          </Button>
+          
+          <Button 
+            onClick={handleSaveClick}
+            variant="outline"
+          >
+            Salva Emissioni
+          </Button>
+        </div>
         
         <EmissionsResults calculatedEmissions={calculatedEmissions} />
       </div>
