@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useEmissionsCalculator, EmissionsInput, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
+import { useEmissionsCalculator, EmissionsInput, EmissionCalculationLogs, EmissionsDetails, EmissionCalculationRecord } from '@/hooks/emissions-calculator';
 import { useEmissionsResults } from './emissions-results';
 import { useExistingEmissions } from './useExistingEmissions';
 import { useReport } from '@/hooks/use-report-context';
@@ -175,12 +175,33 @@ export const useCalculator = (
       setCalculationLogs(prevLogs => {
         let updatedLogs: EmissionCalculationLogs;
         
+        // Create a properly formatted EmissionCalculationRecord from the details
+        const detailsObj = scope === 'scope1' ? 
+          JSON.parse(newDetails.scope1Details || '{}') : 
+          scope === 'scope2' ? 
+            JSON.parse(newDetails.scope2Details || '{}') : 
+            JSON.parse(newDetails.scope3Details || '{}');
+        
+        // Convert the details to the correct EmissionCalculationRecord format
+        const calculationRecord: EmissionCalculationRecord = {
+          id: detailsObj.id || generateId(),
+          date: detailsObj.date || new Date().toISOString(),
+          source: detailsObj.source || scope,
+          scope: scope,
+          description: detailsObj.description || `${scope} calculation`,
+          quantity: detailsObj.quantity || 0,
+          unit: detailsObj.unit || '',
+          emissions: scope === 'scope1' ? newResults.scope1 : 
+                    scope === 'scope2' ? newResults.scope2 : newResults.scope3,
+          details: detailsObj
+        };
+        
         if (scope === 'scope1') {
           updatedLogs = {
             ...prevLogs,
             scope1Calculations: [
               ...prevLogs.scope1Calculations,
-              newDetails
+              calculationRecord
             ]
           };
         } else if (scope === 'scope2') {
@@ -188,7 +209,7 @@ export const useCalculator = (
             ...prevLogs,
             scope2Calculations: [
               ...prevLogs.scope2Calculations,
-              newDetails
+              calculationRecord
             ]
           };
         } else { // scope3
@@ -196,7 +217,7 @@ export const useCalculator = (
             ...prevLogs,
             scope3Calculations: [
               ...prevLogs.scope3Calculations,
-              newDetails
+              calculationRecord
             ]
           };
         }
@@ -221,6 +242,12 @@ export const useCalculator = (
     
     // Don't save immediately - this will be done when the user clicks the submit button
     console.log('Updated calculated emissions:', newResults);
+  };
+  
+  // Helper function to generate a unique ID (simplified version)
+  const generateId = () => {
+    return Math.random().toString(36).substring(2, 15) + 
+           Math.random().toString(36).substring(2, 15);
   };
   
   return {
