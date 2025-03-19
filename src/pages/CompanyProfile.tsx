@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -8,9 +9,8 @@ import { ArrowLeft, Building, CheckCircle2, Loader2 } from 'lucide-react';
 import { useReport } from '@/context/ReportContext';
 import CompanyGeneralInfo from '@/components/report/company-information/CompanyGeneralInfo';
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
-import { useCompanyInfo } from '@/components/report/company-information/useCompanyInfo';
+import { useCompanyInfo } from '@/components/report/company-information/hooks';
 import { useToast } from '@/hooks/use-toast';
-import { AddressData } from '@/components/report/company-information/components/address/types';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
