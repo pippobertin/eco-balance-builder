@@ -4,8 +4,10 @@ import { useEmissionsLoad } from './useEmissionsLoad';
 import { useEmissionsSave } from './useEmissionsSave';
 import { EmissionsResults } from './types';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useEmissionsResults = (reportId: string | undefined) => {
+  const { setNeedsSaving, setLastSaved } = useReport();
   const [scope1Emissions, setScope1Emissions] = useState<number>(0);
   const [scope2Emissions, setScope2Emissions] = useState<number>(0);
   const [scope3Emissions, setScope3Emissions] = useState<number>(0);
@@ -13,7 +15,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
 
   // Load hooks
   const { isLoading, loadEmissionsData, createInitialEmissionsData } = useEmissionsLoad(reportId);
-  const { isSaving, saveEmissions } = useEmissionsSave();
+  const { isSaving, saveEmissions: saveEmissionsToDb } = useEmissionsSave();
 
   // Load existing emissions data when component mounts
   useEffect(() => {
@@ -40,7 +42,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
   };
 
   // Function to save emissions with calculation logs
-  const saveEmissionsWithLogs = async (
+  const saveEmissions = async (
     reportId: string,
     scope1: number,
     scope2: number,
@@ -52,7 +54,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       return null;
     }
     
-    const result = await saveEmissions(reportId, scope1, scope2, scope3, calculationLogs);
+    // Set needsSaving to true before saving
+    setNeedsSaving(true);
+    
+    const result = await saveEmissionsToDb(reportId, scope1, scope2, scope3, calculationLogs);
     
     if (result) {
       // Update local state
@@ -60,6 +65,11 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       setScope2Emissions(result.scope2);
       setScope3Emissions(result.scope3);
       setTotalEmissions(result.total);
+      
+      // Update report context state
+      setNeedsSaving(false);
+      setLastSaved(new Date());
+      
       return result;
     }
     
@@ -81,7 +91,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     totalEmissions,
     isLoading,
     isSaving,
-    saveEmissions: saveEmissionsWithLogs,
+    saveEmissions,
     resetEmissions
   };
 };

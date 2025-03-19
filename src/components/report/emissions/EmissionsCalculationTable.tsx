@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Trash2, Calculator } from 'lucide-react';
 import { EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
@@ -35,6 +35,13 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
   calculations,
   onRemoveCalculation
 }) => {
+  useEffect(() => {
+    console.log(`EmissionsCalculationTable for ${scope} rendered with ${calculations?.length || 0} calculations`);
+    if (calculations?.length > 0) {
+      console.log(`First calculation in ${scope}:`, calculations[0]);
+    }
+  }, [calculations, scope]);
+
   if (!calculations || calculations.length === 0) {
     return (
       <div className="border rounded-md p-4 mb-4">

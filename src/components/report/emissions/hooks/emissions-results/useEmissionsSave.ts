@@ -4,10 +4,12 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useEmissionsSave = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const { setNeedsSaving, setLastSaved } = useReport();
 
   // Function to save calculation logs to database
   const saveCalculationLogs = async (reportId: string, logs: EmissionCalculationLogs) => {
@@ -118,22 +120,26 @@ export const useEmissionsSave = () => {
       // Also save the calculation logs
       await saveCalculationLogs(reportId, calculationLogs);
 
+      // Update the report context to indicate that saving is complete
+      setNeedsSaving(false);
+      setLastSaved(new Date());
+
       toast({
         title: 'Emissioni salvate',
         description: 'I calcoli delle emissioni sono stati salvati con successo',
       });
 
+      setIsSaving(false);
       return { scope1, scope2, scope3, total };
     } catch (error) {
       console.error('Error saving emissions:', error);
+      setIsSaving(false);
       toast({
         title: 'Errore',
         description: 'Impossibile salvare i calcoli delle emissioni',
         variant: 'destructive'
       });
       return null;
-    } finally {
-      setIsSaving(false);
     }
   };
 

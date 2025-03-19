@@ -46,7 +46,7 @@ export const useCalculator = (
   } = useEmissionsCalculator();
   
   // Load existing emissions data
-  const { existingEmissions, existingCalculations } = useExistingEmissions(reportId);
+  const { existingEmissions, existingCalculations, isLoading: isLoadingExisting } = useExistingEmissions(reportId);
   
   // Load existing emissions when available
   useEffect(() => {
@@ -57,7 +57,19 @@ export const useCalculator = (
     
     if (existingCalculations) {
       console.log('Loading existing calculations:', existingCalculations);
-      setCalculationLogs(existingCalculations);
+      
+      // Ensure we have valid arrays for each scope
+      const validatedCalculations: EmissionCalculationLogs = {
+        scope1Calculations: Array.isArray(existingCalculations.scope1Calculations) 
+          ? existingCalculations.scope1Calculations : [],
+        scope2Calculations: Array.isArray(existingCalculations.scope2Calculations)
+          ? existingCalculations.scope2Calculations : [],
+        scope3Calculations: Array.isArray(existingCalculations.scope3Calculations)
+          ? existingCalculations.scope3Calculations : []
+      };
+      
+      console.log('Validated calculation logs:', validatedCalculations);
+      setCalculationLogs(validatedCalculations);
     }
   }, [existingEmissions, existingCalculations]);
   
@@ -67,12 +79,23 @@ export const useCalculator = (
     if (reportId) {
       console.log('Report ID:', reportId);
       console.log('Current calculation logs:', calculationLogs);
+      
+      // Make sure we have valid logs before saving
+      const validatedCalculations: EmissionCalculationLogs = {
+        scope1Calculations: Array.isArray(calculationLogs.scope1Calculations) 
+          ? calculationLogs.scope1Calculations : [],
+        scope2Calculations: Array.isArray(calculationLogs.scope2Calculations)
+          ? calculationLogs.scope2Calculations : [],
+        scope3Calculations: Array.isArray(calculationLogs.scope3Calculations)
+          ? calculationLogs.scope3Calculations : []
+      };
+      
       saveEmissions(
         reportId,
         calculatedEmissions.scope1,
         calculatedEmissions.scope2,
         calculatedEmissions.scope3,
-        calculationLogs
+        validatedCalculations
       );
     } else {
       console.error('Cannot submit calculation: reportId is undefined');
@@ -84,6 +107,42 @@ export const useCalculator = (
     console.log('Removing calculation:', calculationId);
     // Call removeCalculation function with just the ID
     removeCalculation(calculationId);
+    
+    // Also update our local state by filtering out the removed calculation
+    setCalculationLogs(prevLogs => {
+      return {
+        scope1Calculations: prevLogs.scope1Calculations.filter(calc => calc.id !== calculationId),
+        scope2Calculations: prevLogs.scope2Calculations.filter(calc => calc.id !== calculationId),
+        scope3Calculations: prevLogs.scope3Calculations.filter(calc => calc.id !== calculationId)
+      };
+    });
+    
+    // After removing, recalculate totals
+    updateEmissionTotals();
+  };
+  
+  // Calculate totals from the calculation logs
+  const updateEmissionTotals = () => {
+    const scope1Total = calculationLogs.scope1Calculations.reduce(
+      (sum, calc) => sum + Number(calc.emissions), 0
+    );
+    
+    const scope2Total = calculationLogs.scope2Calculations.reduce(
+      (sum, calc) => sum + Number(calc.emissions), 0
+    );
+    
+    const scope3Total = calculationLogs.scope3Calculations.reduce(
+      (sum, calc) => sum + Number(calc.emissions), 0
+    );
+    
+    const total = scope1Total + scope2Total + scope3Total;
+    
+    setCalculatedEmissions({
+      scope1: scope1Total,
+      scope2: scope2Total,
+      scope3: scope3Total,
+      total
+    });
   };
 
   // This function calculates emissions for the current tab and updates the state
@@ -129,6 +188,7 @@ export const useCalculator = (
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,
-    isSaving
+    isSaving,
+    isLoadingExisting
   };
 };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calculator, Save } from 'lucide-react';
@@ -30,8 +30,17 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     calculationLogs,
     handleRemoveCalculation,
     handleSubmitCalculation,
-    isSaving
+    isSaving,
+    isLoadingExisting
   } = useCalculator(formValues, setFormValues, onResetClick);
+  
+  useEffect(() => {
+    // Debug log to see if calculation logs are populated correctly
+    console.log("GHGEmissionsCalculator: Current calculation logs:", calculationLogs);
+    console.log("Scope1 calculations:", calculationLogs.scope1Calculations?.length || 0);
+    console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
+    console.log("Scope3 calculations:", calculationLogs.scope3Calculations?.length || 0);
+  }, [calculationLogs]);
   
   const getActiveTabContent = () => {
     switch (activeTab) {
@@ -101,6 +110,16 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     handleSubmitCalculation();
   };
   
+  if (isLoadingExisting) {
+    return (
+      <div className="border rounded-md p-4 bg-white/80">
+        <div className="flex justify-center py-8">
+          <p className="text-gray-500">Caricamento dati delle emissioni...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
@@ -148,26 +167,30 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       <div className="mt-8 space-y-6">
         <h3 className="text-lg font-semibold mb-4">Riepilogo calcoli emissioni</h3>
         
-        <EmissionsCalculationTable 
-          scope="scope1"
-          scopeLabel="Scope 1 - Emissioni Dirette"
-          calculations={calculationLogs.scope1Calculations}
-          onRemoveCalculation={handleRemoveCalculation}
-        />
-        
-        <EmissionsCalculationTable 
-          scope="scope2"
-          scopeLabel="Scope 2 - Energia"
-          calculations={calculationLogs.scope2Calculations}
-          onRemoveCalculation={handleRemoveCalculation}
-        />
-        
-        <EmissionsCalculationTable 
-          scope="scope3"
-          scopeLabel="Scope 3 - Altre Emissioni"
-          calculations={calculationLogs.scope3Calculations}
-          onRemoveCalculation={handleRemoveCalculation}
-        />
+        {calculationLogs && (
+          <>
+            <EmissionsCalculationTable 
+              scope="scope1"
+              scopeLabel="Scope 1 - Emissioni Dirette"
+              calculations={calculationLogs.scope1Calculations || []}
+              onRemoveCalculation={handleRemoveCalculation}
+            />
+            
+            <EmissionsCalculationTable 
+              scope="scope2"
+              scopeLabel="Scope 2 - Energia"
+              calculations={calculationLogs.scope2Calculations || []}
+              onRemoveCalculation={handleRemoveCalculation}
+            />
+            
+            <EmissionsCalculationTable 
+              scope="scope3"
+              scopeLabel="Scope 3 - Altre Emissioni"
+              calculations={calculationLogs.scope3Calculations || []}
+              onRemoveCalculation={handleRemoveCalculation}
+            />
+          </>
+        )}
       </div>
     </div>
   );
