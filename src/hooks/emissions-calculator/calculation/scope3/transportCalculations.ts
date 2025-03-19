@@ -34,13 +34,14 @@ export const performTransportCalculation = (
           unit: inputs.vehicleFuelConsumptionUnit || 'l_100km'
         });
         
-        const emissionsResult = calculateVehicleEmissions({
-          vehicleType: inputs.vehicleType,
-          fuelType: inputs.vehicleFuelType,
-          fuelConsumption,
+        const emissionsResult = calculateVehicleEmissions(
+          inputs.vehicleType,
+          inputs.vehicleEnergyClass || '',
+          inputs.vehicleFuelType,
           distance,
-          consumptionUnit: inputs.vehicleFuelConsumptionUnit || 'l_100km'
-        });
+          fuelConsumption,
+          inputs.vehicleFuelConsumptionUnit as 'l_100km' | 'km_l' || 'l_100km'
+        );
         
         if (emissionsResult && emissionsResult.emissionsKg > 0) {
           console.log("Vehicle emissions calculated:", emissionsResult);
