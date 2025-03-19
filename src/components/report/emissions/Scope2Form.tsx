@@ -20,7 +20,26 @@ interface Scope2FormProps {
   setRenewablePercentage: (value: number) => void;
   periodType: PeriodType;
   setPeriodType: (value: PeriodType) => void;
+  energyProvider?: string;
+  setEnergyProvider?: (value: string) => void;
 }
+
+// Italian energy providers list
+const ITALIAN_ENERGY_PROVIDERS = [
+  { value: "enel", label: "Enel" },
+  { value: "eni", label: "Eni Plenitude" },
+  { value: "a2a", label: "A2A" },
+  { value: "edison", label: "Edison" },
+  { value: "hera", label: "Hera" },
+  { value: "iren", label: "Iren" },
+  { value: "acea", label: "Acea" },
+  { value: "sorgenia", label: "Sorgenia" },
+  { value: "axpo", label: "Axpo" },
+  { value: "engie", label: "Engie" },
+  { value: "illumia", label: "Illumia" },
+  { value: "dolomiti", label: "Dolomiti Energia" },
+  { value: "altro", label: "Altro" }
+];
 
 const Scope2Form: React.FC<Scope2FormProps> = ({
   energyType,
@@ -30,7 +49,9 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
   renewablePercentage,
   setRenewablePercentage,
   periodType,
-  setPeriodType
+  setPeriodType,
+  energyProvider = "",
+  setEnergyProvider = () => {}
 }) => {
   return (
     <div className="space-y-4">
@@ -54,6 +75,25 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
         </div>
         
         <div>
+          <Label>Fornitore di energia</Label>
+          <Select 
+            value={energyProvider} 
+            onValueChange={setEnergyProvider}
+          >
+            <SelectTrigger className="w-full bg-white">
+              <SelectValue placeholder="Seleziona fornitore" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {ITALIAN_ENERGY_PROVIDERS.map(provider => (
+                <SelectItem key={provider.value} value={provider.value}>{provider.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
           <Label>Percentuale di energia rinnovabile (%)</Label>
           <Input 
             type="number" 
@@ -65,9 +105,7 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
             className="bg-white"
           />
         </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
         <div>
           <Label>Quantità di energia consumata (kWh)</Label>
           <Input 
@@ -78,7 +116,9 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
             className="bg-white"
           />
         </div>
-        
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label>Periodo di riferimento</Label>
           <Select 
@@ -92,8 +132,6 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
               <SelectItem value={PeriodType.ANNUAL}>Annuale</SelectItem>
               <SelectItem value={PeriodType.QUARTERLY}>Trimestrale</SelectItem>
               <SelectItem value={PeriodType.MONTHLY}>Mensile</SelectItem>
-              <SelectItem value={PeriodType.WEEKLY}>Settimanale</SelectItem>
-              <SelectItem value={PeriodType.DAILY}>Giornaliero</SelectItem>
             </SelectContent>
           </Select>
         </div>

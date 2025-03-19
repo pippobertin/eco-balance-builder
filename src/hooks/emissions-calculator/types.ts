@@ -27,6 +27,7 @@ export interface EmissionsInput {
   energyType?: EnergyType;
   energyQuantity?: string;
   renewablePercentage?: number;
+  energyProvider?: string;
   
   // Scope 3 inputs
   scope3Category?: string;
@@ -36,6 +37,11 @@ export interface EmissionsInput {
   wasteQuantity?: string;
   purchaseType?: PurchaseType;
   purchaseQuantity?: string;
+  
+  // Vehicle details for Scope 3 transport
+  vehicleType?: string;
+  vehicleFuelType?: FuelType;
+  vehicleEnergyClass?: string;
   
   // Common inputs
   periodType?: PeriodType;

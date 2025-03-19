@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -44,9 +45,41 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       case 'scope1':
         return <Scope1Form scope1Source={inputs.scope1Source || 'fuel'} setScope1Source={value => updateInput('scope1Source', value)} fuelType={inputs.fuelType || 'DIESEL'} setFuelType={value => updateInput('fuelType', value)} fuelQuantity={inputs.fuelQuantity || ''} setFuelQuantity={value => updateInput('fuelQuantity', value)} fuelUnit={inputs.fuelUnit || 'L'} setFuelUnit={value => updateInput('fuelUnit', value)} periodType={inputs.periodType || PeriodType.ANNUAL} setPeriodType={value => updateInput('periodType', value)} />;
       case 'scope2':
-        return <Scope2Form energyType={inputs.energyType || 'ELECTRICITY_IT'} setEnergyType={value => updateInput('energyType', value)} energyQuantity={inputs.energyQuantity || ''} setEnergyQuantity={value => updateInput('energyQuantity', value)} renewablePercentage={inputs.renewablePercentage || 0} setRenewablePercentage={value => updateInput('renewablePercentage', value)} periodType={inputs.periodType || PeriodType.ANNUAL} setPeriodType={value => updateInput('periodType', value)} />;
+        return <Scope2Form 
+                 energyType={inputs.energyType || 'ELECTRICITY_IT'} 
+                 setEnergyType={value => updateInput('energyType', value)} 
+                 energyQuantity={inputs.energyQuantity || ''} 
+                 setEnergyQuantity={value => updateInput('energyQuantity', value)} 
+                 renewablePercentage={inputs.renewablePercentage || 0} 
+                 setRenewablePercentage={value => updateInput('renewablePercentage', value)} 
+                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 setPeriodType={value => updateInput('periodType', value)}
+                 energyProvider={inputs.energyProvider || ''}
+                 setEnergyProvider={value => updateInput('energyProvider', value)} />;
       case 'scope3':
-        return <Scope3Form scope3Category={inputs.scope3Category || 'transport'} setScope3Category={value => updateInput('scope3Category', value)} transportType={inputs.transportType || 'BUSINESS_TRAVEL_CAR'} setTransportType={value => updateInput('transportType', value)} transportDistance={inputs.transportDistance || ''} setTransportDistance={value => updateInput('transportDistance', value)} wasteType={inputs.wasteType || 'WASTE_LANDFILL'} setWasteType={value => updateInput('wasteType', value)} wasteQuantity={inputs.wasteQuantity || ''} setWasteQuantity={value => updateInput('wasteQuantity', value)} purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'} setPurchaseType={value => updateInput('purchaseType', value)} purchaseQuantity={inputs.purchaseQuantity || ''} setPurchaseQuantity={value => updateInput('purchaseQuantity', value)} periodType={inputs.periodType || PeriodType.ANNUAL} setPeriodType={value => updateInput('periodType', value)} />;
+        return <Scope3Form 
+                 scope3Category={inputs.scope3Category || 'transport'} 
+                 setScope3Category={value => updateInput('scope3Category', value)} 
+                 transportType={inputs.transportType || 'BUSINESS_TRAVEL_CAR'} 
+                 setTransportType={value => updateInput('transportType', value)} 
+                 transportDistance={inputs.transportDistance || ''} 
+                 setTransportDistance={value => updateInput('transportDistance', value)} 
+                 wasteType={inputs.wasteType || 'WASTE_LANDFILL'} 
+                 setWasteType={value => updateInput('wasteType', value)} 
+                 wasteQuantity={inputs.wasteQuantity || ''} 
+                 setWasteQuantity={value => updateInput('wasteQuantity', value)} 
+                 purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'} 
+                 setPurchaseType={value => updateInput('purchaseType', value)} 
+                 purchaseQuantity={inputs.purchaseQuantity || ''} 
+                 setPurchaseQuantity={value => updateInput('purchaseQuantity', value)} 
+                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 setPeriodType={value => updateInput('periodType', value)}
+                 vehicleType={inputs.vehicleType || ''}
+                 setVehicleType={value => updateInput('vehicleType', value)}
+                 vehicleFuelType={inputs.vehicleFuelType || 'DIESEL'}
+                 setVehicleFuelType={value => updateInput('vehicleFuelType', value)}
+                 vehicleEnergyClass={inputs.vehicleEnergyClass || ''}
+                 setVehicleEnergyClass={value => updateInput('vehicleEnergyClass', value)} />;
       default:
         return null;
     }
