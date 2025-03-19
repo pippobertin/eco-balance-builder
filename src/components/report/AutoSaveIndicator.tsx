@@ -25,7 +25,7 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ className = "" })
       if (lastSaved) {
         setDisplayText(formatLastSaved(lastSaved));
       }
-    }, 60000); // Update every minute
+    }, 10000); // Update every 10 seconds for more responsive UI
     
     setUpdateTimer(timer);
     
@@ -54,8 +54,11 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ className = "" })
     }
   };
   
+  // Debug log to check states
+  console.log("AutoSaveIndicator state:", { needsSaving, lastSaved, displayText });
+  
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {needsSaving ? (
         <motion.div
           key="saving"

@@ -7,11 +7,12 @@ import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useReport } from '@/hooks/use-report-context';
 
 export const useEmissionsResults = (reportId: string | undefined) => {
-  const { setNeedsSaving, setLastSaved } = useReport();
+  const { setNeedsSaving } = useReport();
   const [scope1Emissions, setScope1Emissions] = useState<number>(0);
   const [scope2Emissions, setScope2Emissions] = useState<number>(0);
   const [scope3Emissions, setScope3Emissions] = useState<number>(0);
   const [totalEmissions, setTotalEmissions] = useState<number>(0);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load hooks
   const { isLoading, loadEmissionsData, createInitialEmissionsData } = useEmissionsLoad(reportId);
@@ -66,7 +67,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       setScope3Emissions(result.scope3);
       setTotalEmissions(result.total);
       
-      // Update report context state
+      // Update local state
       setNeedsSaving(false);
       setLastSaved(new Date());
       
@@ -92,7 +93,8 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     isLoading,
     isSaving,
     saveEmissions,
-    resetEmissions
+    resetEmissions,
+    lastSaved
   };
 };
 

@@ -9,7 +9,7 @@ import { useReport } from '@/hooks/use-report-context';
 export const useEmissionsSave = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const { setNeedsSaving, setLastSaved } = useReport();
+  const { setNeedsSaving } = useReport();
 
   // Function to save calculation logs to database
   const saveCalculationLogs = async (reportId: string, logs: EmissionCalculationLogs) => {
@@ -120,9 +120,8 @@ export const useEmissionsSave = () => {
       // Also save the calculation logs
       await saveCalculationLogs(reportId, calculationLogs);
 
-      // Update the report context to indicate that saving is complete
+      // Update the needsSaving state
       setNeedsSaving(false);
-      setLastSaved(new Date());
 
       toast({
         title: 'Emissioni salvate',
