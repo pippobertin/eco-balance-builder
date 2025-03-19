@@ -69,8 +69,8 @@ export const useCalculatorActions = (
   const handleRemoveCalculation = (calculationId: string) => {
     console.log('Removing calculation:', calculationId);
     
-    // Call removeCalculation function with both required arguments
-    removeCalculationHook(calculationId, calculationLogs);
+    // Call removeCalculation function with only the calculationId argument
+    removeCalculationHook(calculationId);
     
     // Also update our local state by filtering out the removed calculation
     setCalculationLogs(prevLogs => {

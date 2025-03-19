@@ -48,7 +48,6 @@ export const useEmissionsCalculator = (
   );
   
   // Get remove calculation functionality
-  // No arguments needed for the hook itself
   const { removeCalculation } = useRemoveCalculation();
   
   // Wrapper function to handle removing a calculation
