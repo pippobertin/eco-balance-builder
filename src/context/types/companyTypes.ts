@@ -20,6 +20,14 @@ export interface Company {
   profile_vision?: string;
   profile_value_chain?: string;
   profile_value_creation_factors?: string;
+  is_part_of_group?: boolean;
+  has_multiple_locations?: boolean;
+  address_street_type?: string;
+  address_street?: string;
+  address_number?: string;
+  address_postal_code?: string;
+  address_city?: string;
+  address_province?: string;
 }
 
 // Define subsidiary company
