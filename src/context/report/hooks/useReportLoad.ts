@@ -4,6 +4,7 @@ import { useReportOperations } from '../reportOperations';
 import { useCompanyOperations } from '@/context/companyOperations';
 import { useToast } from '@/hooks/use-toast';
 import { localStorageUtils } from '../localStorageUtils';
+import { safeJsonParse } from '@/integrations/supabase/client';
 
 export const useReportLoad = (
   setCompanies: React.Dispatch<React.SetStateAction<Company[]>>,
@@ -22,7 +23,6 @@ export const useReportLoad = (
     setLoading(true);
     try {
       console.info("Initial companies fetch in useReportLoad");
-      // Fetch companies from Supabase
       const companies = await fetchCompanies();
       console.info("Companies loaded in useReportLoad:", companies.length);
       setCompanies(companies);
@@ -42,7 +42,6 @@ export const useReportLoad = (
   const loadCompanyById = async (companyId: string): Promise<Company | null> => {
     setLoading(true);
     try {
-      // Fetch company from Supabase
       const company = await fetchCompanyById(companyId);
       return company;
     } catch (error: any) {
@@ -84,22 +83,22 @@ export const useReportLoad = (
   const loadReport = async (reportId: string): Promise<{report: Report | null, subsidiaries?: any[]}> => {
     setLoading(true);
     try {
+      console.log("Loading report data for report ID:", reportId);
       const result = await fetchReport(reportId);
       
       if (result.report) {
         setCurrentReport(result.report);
         
-        // Clear previous report data before loading the new one
-        setReportData(defaultReportData);
-        
         // Extract metrics data from the loaded report
         const newReportData: ReportData = {
-          environmentalMetrics: result.report.environmental_metrics || {},
-          socialMetrics: result.report.social_metrics || {},
-          conductMetrics: result.report.conduct_metrics || {},
-          materialityAnalysis: result.report.materiality_analysis || { issues: [], stakeholders: [] },
-          narrativePATMetrics: result.report.narrative_pat_metrics || {}
+          environmentalMetrics: safeJsonParse(result.report.environmental_metrics, {}),
+          socialMetrics: safeJsonParse(result.report.social_metrics, {}),
+          conductMetrics: safeJsonParse(result.report.conduct_metrics, {}),
+          materialityAnalysis: safeJsonParse(result.report.materiality_analysis, { issues: [], stakeholders: [] }),
+          narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {})
         };
+        
+        console.log("Setting report data from loaded report:", JSON.stringify(newReportData));
         
         // Update report data state
         setReportData(newReportData);
@@ -113,6 +112,8 @@ export const useReportLoad = (
           setCurrentCompany(result.report.company);
           localStorageUtils.saveCurrentCompanyId(result.report.company_id);
         }
+      } else {
+        console.error("No report data found for report ID:", reportId);
       }
       
       return result;

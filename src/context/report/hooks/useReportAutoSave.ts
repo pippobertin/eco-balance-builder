@@ -21,9 +21,9 @@ export const useReportAutoSave = (
         clearTimeout(autoSaveTimerRef.current);
       }
       
-      // Set a new timer for auto-save (much shorter - 3 seconds)
+      // Set a new timer for auto-save (shorter - 3 seconds)
       autoSaveTimerRef.current = setTimeout(async () => {
-        console.log("Auto-saving report...");
+        console.log("Auto-saving report data:", JSON.stringify(reportData));
         await saveCurrentReport();
       }, 3000); // Auto-save after 3 seconds of inactivity
     }

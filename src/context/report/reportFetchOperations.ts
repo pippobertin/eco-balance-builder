@@ -1,5 +1,5 @@
 
-import { supabase, withRetry } from '@/integrations/supabase/client';
+import { supabase, withRetry, safeJsonParse } from '@/integrations/supabase/client';
 import { Report, Subsidiary } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -125,14 +125,23 @@ export const useReportFetchOperations = () => {
         if (data) {
           // Create a proper Report object that includes the company property
           const { companies, ...reportData } = data;
-          const reportWithCompany: Report = {
+          
+          // Parse JSON fields properly
+          const parsedReport = {
             ...reportData,
-            company: companies
-          } as Report;
+            company: companies,
+            environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
+            social_metrics: safeJsonParse(reportData.social_metrics, {}),
+            conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
+            materiality_analysis: safeJsonParse(reportData.materiality_analysis, { issues: [], stakeholders: [] }),
+            narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {})
+          };
+          
+          console.log("Loaded report data:", JSON.stringify(parsedReport));
           
           // Load subsidiaries if the report is consolidated
           let subsidiaries = undefined;
-          if (reportWithCompany.is_consolidated) {
+          if (parsedReport.is_consolidated) {
             const { data: subsData, error: subsError } = await supabase
               .from('subsidiaries')
               .select('*')
@@ -147,7 +156,7 @@ export const useReportFetchOperations = () => {
             }
           }
 
-          return { report: reportWithCompany, subsidiaries };
+          return { report: parsedReport as Report, subsidiaries };
         }
 
         return { report: null };
