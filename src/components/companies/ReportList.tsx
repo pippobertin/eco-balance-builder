@@ -9,9 +9,10 @@ import { useReport } from '@/context/ReportContext';
 interface ReportListProps {
   reports: Report[];
   onDelete: (report: Report, e: React.MouseEvent) => void;
+  onSelectReport?: (report: Report) => Promise<void> | void;
 }
 
-const ReportList = ({ reports, onDelete }: ReportListProps) => {
+const ReportList = ({ reports, onDelete, onSelectReport }: ReportListProps) => {
   const navigate = useNavigate();
   const { loadReport, setCurrentCompany, companies } = useReport();
 
@@ -19,7 +20,11 @@ const ReportList = ({ reports, onDelete }: ReportListProps) => {
     const company = companies.find(c => c.id === report.company_id) || null;
     setCurrentCompany(company);
     
-    await loadReport(report.id);
+    if (onSelectReport) {
+      await onSelectReport(report);
+    } else {
+      await loadReport(report.id);
+    }
     
     navigate('/report');
   };
@@ -28,7 +33,11 @@ const ReportList = ({ reports, onDelete }: ReportListProps) => {
     const company = companies.find(c => c.id === report.company_id) || null;
     setCurrentCompany(company);
     
-    await loadReport(report.id);
+    if (onSelectReport) {
+      await onSelectReport(report);
+    } else {
+      await loadReport(report.id);
+    }
     
     navigate('/dashboard');
   };

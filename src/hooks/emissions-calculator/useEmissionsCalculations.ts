@@ -32,7 +32,11 @@ export const useEmissionsCalculations = () => {
           scope3: typeof result.results.scope3 === 'number' ? result.results.scope3 : 0,
           total: typeof result.results.total === 'number' ? result.results.total : 0
         },
-        details: result.details || {}
+        details: {
+          scope1Details: result.details.scope1Details || '',
+          scope2Details: result.details.scope2Details || '',
+          scope3Details: result.details.scope3Details || ''
+        }
       };
       
       return validatedResult;
@@ -41,7 +45,11 @@ export const useEmissionsCalculations = () => {
       // Return a safe fallback result
       return {
         results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-        details: {}
+        details: { 
+          scope1Details: 'Error in calculation', 
+          scope2Details: 'Error in calculation', 
+          scope3Details: 'Error in calculation' 
+        }
       };
     }
   }, []);
