@@ -23,7 +23,7 @@ export const performScope2Calculation = (
       // Ensure renewable percentage is a number
       const renewablePercentage = typeof inputs.renewablePercentage === 'number' ? 
         inputs.renewablePercentage : 
-        (inputs.renewablePercentage ? parseFloat(inputs.renewablePercentage.toString()) : 0);
+        (inputs.renewablePercentage ? parseFloat(String(inputs.renewablePercentage)) : 0);
       
       const emissionsKg = calculateScope2Emissions(
         inputs.energyType, 
