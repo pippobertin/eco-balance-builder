@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
@@ -89,7 +90,7 @@ export const useReportLoad = (
       if (result.report) {
         setCurrentReport(result.report);
         
-        // Extract metrics data from the loaded report
+        // Extract metrics data from the loaded report with improved parsing
         const newReportData: ReportData = {
           environmentalMetrics: safeJsonParse(result.report.environmental_metrics, {}),
           socialMetrics: safeJsonParse(result.report.social_metrics, {}),

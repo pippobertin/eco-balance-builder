@@ -39,11 +39,11 @@ export const useExistingEmissions = (
         totalScope2Emissions || 
         totalScope3Emissions
       ) {
-        // Parse the values to numbers
-        const scope1 = parseFloat(totalScope1Emissions || '0');
-        const scope2 = parseFloat(totalScope2Emissions || '0');
-        const scope3 = parseFloat(totalScope3Emissions || '0');
-        const total = parseFloat(totalScopeEmissions || '0');
+        // Parse the values to numbers, handling different types
+        const scope1 = parseFloat(totalScope1Emissions?.toString() || '0');
+        const scope2 = parseFloat(totalScope2Emissions?.toString() || '0');
+        const scope3 = parseFloat(totalScope3Emissions?.toString() || '0');
+        const total = parseFloat(totalScopeEmissions?.toString() || '0');
         
         // Update the calculated emissions state if available
         if (setCalculatedEmissions) {
@@ -65,12 +65,12 @@ export const useExistingEmissions = (
           console.log("Parsing logs in useExistingEmissions");
           let parsedLogs: EmissionCalculationLogs;
           
-          if (typeof emissionCalculationLogs === 'string') {
-            parsedLogs = JSON.parse(emissionCalculationLogs);
-          } else {
-            // It's already an object
-            parsedLogs = emissionCalculationLogs as EmissionCalculationLogs;
-          }
+          // Handle the case where logs could be a string, object, or other type
+          parsedLogs = safeJsonParse(emissionCalculationLogs, {
+            scope1Calculations: [],
+            scope2Calculations: [],
+            scope3Calculations: []
+          });
           
           // Ensure the structure is complete
           if (!parsedLogs.scope1Calculations) parsedLogs.scope1Calculations = [];

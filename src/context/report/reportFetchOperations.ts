@@ -126,7 +126,7 @@ export const useReportFetchOperations = () => {
           // Create a proper Report object that includes the company property
           const { companies, ...reportData } = data;
           
-          // Safely handle the data parsing, whether it's already an object or still a string
+          // Safely handle the data parsing with improved type handling
           const parsedReport = {
             ...reportData,
             company: companies,

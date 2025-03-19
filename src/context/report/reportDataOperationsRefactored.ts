@@ -16,7 +16,6 @@ export const useReportDataOperations = () => {
       }
       
       console.log("About to save report data with ID:", reportId);
-      console.log("Report data to save:", JSON.stringify(reportData));
       
       return await withRetry(async () => {
         // Check if user has access to this report
@@ -37,15 +36,16 @@ export const useReportDataOperations = () => {
           throw new Error('You do not have permission to save this report');
         }
         
-        // Ensure we're sending pure JSON objects
+        // Convert complex objects to plain JSON strings before saving
         const { error } = await supabase
           .from('reports')
           .update({
-            environmental_metrics: reportData.environmentalMetrics || {},
-            social_metrics: reportData.socialMetrics || {},
-            conduct_metrics: reportData.conductMetrics || {},
-            materiality_analysis: reportData.materialityAnalysis || { issues: [], stakeholders: [] },
-            narrative_pat_metrics: reportData.narrativePATMetrics || {},
+            // Convert all complex objects to stringified JSON 
+            environmental_metrics: JSON.parse(JSON.stringify(reportData.environmentalMetrics || {})),
+            social_metrics: JSON.parse(JSON.stringify(reportData.socialMetrics || {})),
+            conduct_metrics: JSON.parse(JSON.stringify(reportData.conductMetrics || {})),
+            materiality_analysis: JSON.parse(JSON.stringify(reportData.materialityAnalysis || { issues: [], stakeholders: [] })),
+            narrative_pat_metrics: JSON.parse(JSON.stringify(reportData.narrativePATMetrics || {})),
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);
