@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { useEmissionsRecords } from '../useEmissionsRecords';
 import { useCalculationProcessor } from './useCalculationProcessor';
+import { performEmissionsCalculation } from './performCalculation';
 
 /**
  * Hook for calculating emissions
@@ -27,23 +28,17 @@ export const useCalculateEmissions = (
     calculateTotalsFromLogs
   } = useEmissionsRecords();
   
-  // Get calculation processor with fixed parameter order
-  const { 
-    performCalculation,
-    processCalculationResults
-  } = useCalculationProcessor(
-    setResults,
-    setDetails,
-    setCalculationLogs,
-    onResultsChange,
-    onCalculationLogChange
-  );
-  
   /**
    * Calculate emissions for a specific scope
    */
   const calculateEmissions = useCallback((scope?: 'scope1' | 'scope2' | 'scope3') => {
-    const { results: newResults, details: newDetails } = performCalculation(inputs, scope);
+    console.log('Starting calculation for scope:', scope);
+    console.log('Current inputs:', inputs);
+    
+    // Perform the calculation using the performEmissionsCalculation function
+    const { results: newResults, details: newDetails } = performEmissionsCalculation(inputs, scope);
+    console.log('Calculation results:', newResults);
+    console.log('Calculation details:', newDetails);
     
     // Create updated logs
     let updatedLogs = { ...calculationLogs };
@@ -55,9 +50,13 @@ export const useCalculateEmissions = (
                           scope === 'scope2' ? newResults.scope2 : newResults.scope3;
       
       if (emissionValue > 0) {
-        const detailsObj = scope === 'scope1' ? JSON.parse(newDetails.scope1Details || '{}') : 
-                          scope === 'scope2' ? JSON.parse(newDetails.scope2Details || '{}') : 
-                          JSON.parse(newDetails.scope3Details || '{}');
+        console.log(`Found positive emissions for ${scope}:`, emissionValue);
+        
+        const detailsObj = scope === 'scope1' ? 
+                          (newDetails.scope1Details ? JSON.parse(newDetails.scope1Details) : {}) : 
+                          scope === 'scope2' ? 
+                          (newDetails.scope2Details ? JSON.parse(newDetails.scope2Details) : {}) : 
+                          (newDetails.scope3Details ? JSON.parse(newDetails.scope3Details) : {});
         
         const newRecord = createCalculationRecord(
           scope, 
@@ -65,6 +64,8 @@ export const useCalculateEmissions = (
           emissionValue,
           detailsObj
         );
+        
+        console.log('Created new calculation record:', newRecord);
         
         updatedLogs = { ...calculationLogs };
         if (scope === 'scope1') {
@@ -77,28 +78,38 @@ export const useCalculateEmissions = (
         
         // Update calculation logs
         setCalculationLogs(updatedLogs);
+        console.log('Updated calculation logs:', updatedLogs);
         
         // Callback for log changes
         if (onCalculationLogChange) {
           onCalculationLogChange(updatedLogs);
         }
+      } else {
+        console.warn(`No emissions calculated for ${scope}`);
       }
     }
     
-    // Calculate new totals from logs
-    const updatedResults = calculateTotalsFromLogs(updatedLogs);
+    // Update results
+    setResults(newResults);
     
-    // Process calculation results
-    return processCalculationResults(updatedResults, newDetails, updatedLogs);
+    // Update details
+    setDetails(newDetails);
+    
+    // Callback for results changes
+    if (onResultsChange) {
+      onResultsChange(newResults, newDetails);
+    }
+    
+    return { results: newResults, details: newDetails };
   }, [
     inputs, 
     calculationLogs, 
-    performCalculation, 
     createCalculationRecord, 
-    calculateTotalsFromLogs, 
     setCalculationLogs, 
-    onCalculationLogChange, 
-    processCalculationResults
+    onCalculationLogChange,
+    setResults,
+    setDetails,
+    onResultsChange
   ]);
   
   return {

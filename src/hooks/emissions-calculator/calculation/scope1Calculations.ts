@@ -27,10 +27,18 @@ export const performScope1Calculation = (
       );
       const emissionsTonnes = emissionsKg / 1000;
       
-      // Update results
+      console.log('Scope 1 calculation results:', {
+        fuelType: inputs.fuelType,
+        quantity,
+        emissionsKg,
+        emissionsTonnes
+      });
+      
+      // Update results - IMPORTANT: Add to existing value, not replace
       const updatedResults = {
         ...results,
-        scope1: emissionsTonnes
+        scope1: results.scope1 + emissionsTonnes,
+        total: results.total + emissionsTonnes
       };
       
       // Save calculation details

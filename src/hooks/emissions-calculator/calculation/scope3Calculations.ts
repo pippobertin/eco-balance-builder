@@ -18,6 +18,8 @@ export const performScope3Calculation = (
   // Determine which category of Scope 3 we're calculating
   const category = inputs.scope3Category || 'transport';
   
+  console.log('Performing Scope 3 calculation for category:', category);
+  
   if (category === 'transport') {
     return performTransportCalculation(inputs, results);
   } else if (category === 'waste') {

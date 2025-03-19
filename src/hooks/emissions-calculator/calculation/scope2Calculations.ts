@@ -33,10 +33,19 @@ export const performScope2Calculation = (
       );
       const emissionsTonnes = emissionsKg / 1000;
       
-      // Update results
+      console.log('Scope 2 calculation results:', {
+        energyType: inputs.energyType,
+        quantity,
+        renewablePercentage,
+        emissionsKg,
+        emissionsTonnes
+      });
+      
+      // Update results - IMPORTANT: Add to existing value, not replace
       const updatedResults = {
         ...results,
-        scope2: emissionsTonnes
+        scope2: results.scope2 + emissionsTonnes,
+        total: results.total + emissionsTonnes
       };
       
       // Save calculation details

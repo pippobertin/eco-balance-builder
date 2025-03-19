@@ -27,10 +27,18 @@ export const performPurchaseCalculation = (
       );
       const emissionsTonnes = emissionsKg / 1000;
       
-      // Update results
+      console.log('Purchase calculation results:', {
+        purchaseType: inputs.purchaseType,
+        quantity,
+        emissionsKg,
+        emissionsTonnes
+      });
+      
+      // Update results - IMPORTANT: Add to existing value, not replace
       const updatedResults = {
         ...results,
-        scope3: emissionsTonnes
+        scope3: results.scope3 + emissionsTonnes,
+        total: results.total + emissionsTonnes
       };
       
       // Save calculation details

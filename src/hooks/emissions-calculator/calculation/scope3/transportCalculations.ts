@@ -2,7 +2,7 @@
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../../types';
 import { calculateScope3Emissions } from '@/lib/emissions-calculator';
-import { calculateVehicleEmissions } from '@/lib/vehicle-emissions';
+import { calculateVehicleEmissions, createVehicleDetailsRecord } from '@/lib/vehicle-emissions';
 
 /**
  * Perform transport calculations for Scope 3
@@ -17,6 +17,14 @@ export const performTransportCalculation = (
 } => {
   let details = '';
   let source = '';
+  
+  console.log('Transport calculation inputs:', {
+    vehicleType: inputs.vehicleType,
+    vehicleFuelType: inputs.vehicleFuelType,
+    transportType: inputs.transportType,
+    vehicleFuelConsumption: inputs.vehicleFuelConsumption,
+    transportDistance: inputs.transportDistance
+  });
   
   // Check if we're calculating vehicle-based emissions
   if (inputs.vehicleType && inputs.vehicleFuelType && inputs.transportType) {
@@ -48,13 +56,24 @@ export const performTransportCalculation = (
         if (emissionsResult) {
           const emissionsTonnes = emissionsResult.emissionsKg / 1000;
           
-          // Update results
+          // Update results - IMPORTANT: Add to existing value, not replace
           const updatedResults = {
             ...results,
-            scope3: results.scope3 + emissionsTonnes
+            scope3: results.scope3 + emissionsTonnes,
+            total: results.total + emissionsTonnes
           };
           
           // Save calculation details
+          const vehicleDetails = createVehicleDetailsRecord(
+            inputs.vehicleType,
+            inputs.vehicleFuelType,
+            inputs.vehicleEnergyClass || '',
+            fuelConsumption,
+            inputs.vehicleFuelConsumptionUnit || 'l_100km',
+            emissionsResult.fuelConsumed,
+            emissionsResult.consumptionFactorUsed
+          );
+          
           const calculationDetails = {
             transportType: inputs.transportType,
             vehicleType: inputs.vehicleType,
@@ -67,20 +86,12 @@ export const performTransportCalculation = (
             emissionsKg: emissionsResult.emissionsKg,
             emissionsTonnes,
             calculationDate: new Date().toISOString(),
-            source: getEmissionFactorSource(inputs.vehicleFuelType),
-            vehicleDetails: {
-              vehicleType: inputs.vehicleType,
-              vehicleFuelType: inputs.vehicleFuelType,
-              vehicleEnergyClass: inputs.vehicleEnergyClass || '',
-              emissionFactor: emissionsResult.emissionFactor
-            }
+            source: emissionsResult.source || getEmissionFactorSource(inputs.vehicleFuelType),
+            vehicleDetails
           };
           
           // Convert the source object to string
-          const sourceInfo = calculationDetails.source;
-          if (sourceInfo) {
-            source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
-          }
+          source = emissionsResult.source || '';
           
           details = JSON.stringify(calculationDetails);
           
@@ -102,10 +113,18 @@ export const performTransportCalculation = (
         );
         const emissionsTonnes = emissionsKg / 1000;
         
-        // Update results
+        console.log('Transport calculation results (simplified):', {
+          transportType: inputs.transportType,
+          distance,
+          emissionsKg,
+          emissionsTonnes
+        });
+        
+        // Update results - IMPORTANT: Add to existing value, not replace
         const updatedResults = {
           ...results,
-          scope3: results.scope3 + emissionsTonnes
+          scope3: results.scope3 + emissionsTonnes,
+          total: results.total + emissionsTonnes
         };
         
         // Save calculation details
@@ -149,10 +168,18 @@ export const performTransportCalculation = (
       );
       const emissionsTonnes = emissionsKg / 1000;
       
-      // Update results
+      console.log('Transport calculation results (standard):', {
+        transportType: inputs.transportType,
+        distance,
+        emissionsKg,
+        emissionsTonnes
+      });
+      
+      // Update results - IMPORTANT: Add to existing value, not replace
       const updatedResults = {
         ...results,
-        scope3: results.scope3 + emissionsTonnes
+        scope3: results.scope3 + emissionsTonnes,
+        total: results.total + emissionsTonnes
       };
       
       // Save calculation details

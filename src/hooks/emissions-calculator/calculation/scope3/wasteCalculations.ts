@@ -27,10 +27,18 @@ export const performWasteCalculation = (
       );
       const emissionsTonnes = emissionsKg / 1000;
       
-      // Update results
+      console.log('Waste calculation results:', {
+        wasteType: inputs.wasteType,
+        quantity,
+        emissionsKg,
+        emissionsTonnes
+      });
+      
+      // Update results - IMPORTANT: Add to existing value, not replace
       const updatedResults = {
         ...results,
-        scope3: emissionsTonnes
+        scope3: results.scope3 + emissionsTonnes,
+        total: results.total + emissionsTonnes
       };
       
       // Save calculation details

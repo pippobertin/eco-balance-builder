@@ -23,6 +23,15 @@ export const calculateVehicleEmissions = (
   emissionFactor: number;
   source: string;
 } => {
+  console.log('Starting vehicle emissions calculation with:', {
+    vehicleType,
+    vehicleEnergyClass,
+    vehicleFuelType,
+    distance,
+    fuelConsumption,
+    fuelConsumptionUnit
+  });
+
   // Get emission factor from vehicle database in g CO2e/km
   const emissionFactor = getVehicleEmissionFactor(
     vehicleType,
@@ -35,6 +44,8 @@ export const calculateVehicleEmissions = (
     vehicleEnergyClass,
     vehicleFuelType
   );
+
+  console.log('Retrieved emission factor:', emissionFactor, 'Source:', source);
 
   // Ensure the emission factor is a valid number
   const validEmissionFactor = Number(emissionFactor) || 0;
@@ -61,6 +72,7 @@ export const calculateVehicleEmissions = (
     if (vehicleFuelType === 'ELECTRIC') {
       // For electric vehicles, still use the emission factor per km
       emissionsKg = (validEmissionFactor * distance) / 1000;
+      console.log('Electric vehicle emissions calculation:', emissionsKg);
     } else {
       // For fuel-based vehicles, use combination of distance-based and consumption-based calculation
       // Fuel-specific emission factor (kg CO2e/L) - simplified values
@@ -78,23 +90,30 @@ export const calculateVehicleEmissions = (
       
       // Calculate emissions based on fuel consumed
       emissionsKg = fuelConsumed * fuelSpecificFactor;
+      console.log('Fuel-based emissions calculation:', {
+        fuelConsumed,
+        fuelSpecificFactor,
+        emissionsKg
+      });
 
       // Check if emissions calculation is valid
       if (isNaN(emissionsKg) || !isFinite(emissionsKg) || emissionsKg === 0) {
         // Fallback to distance-based calculation if consumption-based calculation fails
         emissionsKg = (validEmissionFactor * distance) / 1000;
+        console.log('Fallback to distance-based calculation:', emissionsKg);
       }
     }
   } else {
     // Standard calculation without consumption data
     emissionsKg = (validEmissionFactor * distance) / 1000;
+    console.log('Standard distance-based calculation:', emissionsKg);
   }
 
   // Ensure emissions is a positive valid number
   emissionsKg = Math.max(0, isNaN(emissionsKg) ? 0 : emissionsKg);
 
   // Log for debugging
-  console.log('Vehicle emissions calculation:', {
+  console.log('Vehicle emissions calculation results:', {
     vehicleType,
     vehicleEnergyClass,
     vehicleFuelType,
