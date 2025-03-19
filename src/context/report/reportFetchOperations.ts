@@ -32,7 +32,7 @@ export const useReportFetchOperations = () => {
   };
 
   // Load report by ID
-  const loadReport = async (reportId: string): Promise<{report: Report | null, subsidiaries?: Subsidiary[]}> => {
+  const loadReport = async (reportId: string): Promise<{report: Report | null, subsidiaries?: any[]}> => {
     setLoading(true);
     try {
       // Fetch the report data

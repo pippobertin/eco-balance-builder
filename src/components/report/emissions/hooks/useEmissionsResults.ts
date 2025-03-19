@@ -61,7 +61,7 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         
         const { error: insertError } = await supabase
           .from('emissions_data')
-          .insert(emissionsData);
+          .insert([emissionsData]);
           
         if (insertError) {
           console.error('Error creating initial emissions data:', insertError);
@@ -102,11 +102,11 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         // Insert new logs
         await supabase
           .from('emissions_logs')
-          .insert({
+          .insert([{
             report_id: reportId,
             calculation_logs: logsJson,
             updated_at: new Date().toISOString()
-          });
+          }]);
       }
     } catch (error) {
       console.error('Error saving calculation logs:', error);
@@ -134,10 +134,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       
       // Update emissions data table - convert numbers to strings for db
       const emissionsData = {
-        scope1_emissions: scope1.toString(),
-        scope2_emissions: scope2.toString(),
-        scope3_emissions: scope3.toString(),
-        total_emissions: total.toString(),
+        scope1_emissions: String(scope1),
+        scope2_emissions: String(scope2),
+        scope3_emissions: String(scope3),
+        total_emissions: String(total),
         updated_at: new Date().toISOString()
       };
       

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -184,10 +183,10 @@ export const MaterialityProvider: React.FC<{
         issue_id: issue.id,
         name: issue.name,
         description: issue.description,
-        impact_relevance: issue.impactRelevance.toString(),
-        financial_relevance: issue.financialRelevance.toString(),
+        impact_relevance: String(issue.impactRelevance),
+        financial_relevance: String(issue.financialRelevance),
         is_material: issue.isMaterial,
-        stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
+        stakeholder_relevance: String(issue.stakeholderRelevance || 0),
         iro_selections: safeJsonStringify(issue.iroSelections),
         updated_at: new Date().toISOString()
       };
@@ -195,20 +194,20 @@ export const MaterialityProvider: React.FC<{
       let result;
       
       if (data) {
-        // Update existing issue
+        // Update existing issue - use a type assertion to handle the number/string issue
         const { error: updateError } = await supabase
           .from('materiality_issues')
-          .update(issueData)
+          .update(issueData as any)
           .eq('report_id', reportId)
           .eq('issue_id', issue.id);
         
         if (updateError) throw updateError;
         result = true;
       } else {
-        // Insert new issue
+        // Insert new issue - use a type assertion to handle the number/string issue
         const { error: insertError } = await supabase
           .from('materiality_issues')
-          .insert(issueData);
+          .insert([issueData as any]);
         
         if (insertError) throw insertError;
         result = true;
@@ -266,8 +265,8 @@ export const MaterialityProvider: React.FC<{
         stakeholder_id: stakeholder.id,
         name: stakeholder.name,
         category: stakeholder.category,
-        influence: stakeholder.influence.toString(),
-        interest: stakeholder.interest.toString(),
+        influence: String(stakeholder.influence),
+        interest: String(stakeholder.interest),
         contact_info: stakeholder.contactInfo,
         email: stakeholder.email,
         notes: stakeholder.notes,
@@ -281,20 +280,20 @@ export const MaterialityProvider: React.FC<{
       let result;
       
       if (data) {
-        // Update existing stakeholder
+        // Update existing stakeholder - use a type assertion to handle the number/string issue
         const { error: updateError } = await supabase
           .from('stakeholders')
-          .update(stakeholderData)
+          .update(stakeholderData as any)
           .eq('report_id', reportId)
           .eq('stakeholder_id', stakeholder.id);
         
         if (updateError) throw updateError;
         result = true;
       } else {
-        // Insert new stakeholder
+        // Insert new stakeholder - use a type assertion to handle the number/string issue
         const { error: insertError } = await supabase
           .from('stakeholders')
-          .insert(stakeholderData);
+          .insert([stakeholderData as any]);
         
         if (insertError) throw insertError;
         result = true;

@@ -1,28 +1,24 @@
 
-import { useReportFetchOperations } from './reportFetchOperations';
-import { useReportWriteOperations } from './reportWriteOperations';
 import { useReportDataOperations } from './reportDataOperations';
-import { useCompanyOperations } from '../companyOperations';
+import { useReportFetchOperations } from './reportFetchOperations';
 
+// Combine both sets of operations into a single hook
 export const useReportOperations = () => {
-  // Use updated imports for the operations
-  const fetchOperations = useReportFetchOperations();
-  const writeOperations = useReportWriteOperations();
-  const dataOperations = useReportDataOperations();
-  const companyOperations = useCompanyOperations();
+  const dataOps = useReportDataOperations();
+  const fetchOps = useReportFetchOperations();
 
   return {
-    // Company operations
-    loadCompanies: companyOperations.loadCompanies,
-    createCompany: companyOperations.createCompany,
-    loadCompanyById: companyOperations.loadCompanyById,
+    // Data operations
+    saveReportData: dataOps.saveReportData,
+    updateReportField: dataOps.updateReportField,
+    deleteReport: dataOps.deleteReport,
+    saveSubsidiaries: dataOps.saveSubsidiaries,
+    isSaving: dataOps.isSaving,
+    lastSaved: dataOps.lastSaved,
     
-    // Report operations
-    loadReports: fetchOperations.loadReports,
-    createReport: writeOperations.createReport,
-    loadReport: fetchOperations.loadReport,
-    saveReportData: dataOperations.saveReportData,
-    deleteReport: dataOperations.deleteReport,
-    saveSubsidiaries: dataOperations.saveSubsidiaries
+    // Fetch operations
+    loadReportData: fetchOps.loadReportData,
+    loadReports: fetchOps.loadReports,
+    loadReport: fetchOps.loadReport
   };
 };
