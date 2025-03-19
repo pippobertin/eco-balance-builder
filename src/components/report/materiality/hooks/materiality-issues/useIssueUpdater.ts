@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import { MaterialityIssue } from '../../types';
-import { isHeaderTheme } from '../../utils/materialityUtils';
+import { isHeaderTheme, emptyIROSelections } from '../../utils/materialityUtils';
 
 /**
  * Hook for handling issue updates and changes

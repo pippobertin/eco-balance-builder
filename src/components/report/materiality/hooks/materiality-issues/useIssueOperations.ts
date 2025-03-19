@@ -1,7 +1,6 @@
 
 import { MaterialityIssue } from '../../types';
-import { predefinedIssues } from '../../utils/materialityUtils';
-import { isHeaderTheme } from '../../utils/materialityUtils';
+import { predefinedIssues, isHeaderTheme, emptyIROSelections } from '../../utils/materialityUtils';
 
 /**
  * Hook for issue operations like adding and removing issues
@@ -35,7 +34,8 @@ export const useIssueOperations = (
             description: predefinedIssue.description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Set as material by default (CRITICAL: must be true, not truthy)
+            isMaterial: true, // Set as material by default (CRITICAL: must be true, not truthy)
+            iroSelections: emptyIROSelections
           }
         ];
         
@@ -56,7 +56,8 @@ export const useIssueOperations = (
             description,
             impactRelevance: 50,
             financialRelevance: 50,
-            isMaterial: true // Set as material by default (CRITICAL: must be true, not truthy)
+            isMaterial: true, // Set as material by default (CRITICAL: must be true, not truthy)
+            iroSelections: emptyIROSelections
           }
         ];
         

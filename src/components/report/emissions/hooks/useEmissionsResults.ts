@@ -52,10 +52,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         // Create an initial entry in the database
         const emissionsData = {
           report_id: reportId,
-          scope1_emissions: "0",
-          scope2_emissions: "0",
-          scope3_emissions: "0",
-          total_emissions: "0",
+          scope1_emissions: 0,
+          scope2_emissions: 0,
+          scope3_emissions: 0,
+          total_emissions: 0,
           updated_at: new Date().toISOString()
         };
         
@@ -141,12 +141,12 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         
       if (fetchError) throw fetchError;
       
-      // Update emissions data table - convert to strings for db
+      // Update emissions data table - convert to numbers for db
       const emissionsData = {
-        scope1_emissions: scope1.toString(),
-        scope2_emissions: scope2.toString(),
-        scope3_emissions: scope3.toString(),
-        total_emissions: total.toString(),
+        scope1_emissions: scope1,
+        scope2_emissions: scope2,
+        scope3_emissions: scope3,
+        total_emissions: total,
         updated_at: new Date().toISOString()
       };
       

@@ -1,11 +1,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MaterialityIssue, Stakeholder } from '../types';
+import { MaterialityIssue, Stakeholder, SurveyTemplate, IROSelections } from '../types';
 import { MaterialityContextType, MaterialityProviderProps } from './types';
 import { supabase } from '@/integrations/supabase/client';
-import { calculateAverageMatrix, defaultMaterialityIssues } from '../utils/materialityUtils';
+import { calculateAverageMatrix, defaultMaterialityIssues, emptyIROSelections } from '../utils/materialityUtils';
 import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
-import { useReport } from '@/hooks/use-report-context';
 import { useToast } from '@/hooks/use-toast';
 
 const MaterialityContext = createContext<MaterialityContextType | undefined>(undefined);
@@ -69,7 +68,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
       if (esgError) throw esgError;
 
       // Update state with mappings from DB fields to our model fields
-      if (issuesData) {
+      if (issuesData && issuesData.length > 0) {
         const mappedIssues: MaterialityIssue[] = issuesData.map(item => ({
           id: item.id,
           name: item.name,
@@ -78,14 +77,16 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
           financialRelevance: Number(item.financial_relevance) || 0,
           isMaterial: Boolean(item.is_material),
           stakeholderRelevance: Number(item.stakeholder_relevance) || 0,
-          iroSelections: item.iro_selections ? safeJsonParse(String(item.iro_selections), {}) : undefined
+          iroSelections: item.iro_selections ? 
+            safeJsonParse(String(item.iro_selections), emptyIROSelections) : 
+            emptyIROSelections
         }));
         setIssues(mappedIssues);
       } else {
         setIssues(defaultMaterialityIssues);
       }
 
-      if (stakeholdersData) {
+      if (stakeholdersData && stakeholdersData.length > 0) {
         const mappedStakeholders: Stakeholder[] = stakeholdersData.map(item => ({
           id: item.id,
           name: item.name,
@@ -98,7 +99,9 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
           priority: item.priority || '',
           surveyStatus: item.survey_status as 'pending' | 'sent' | 'completed' || 'pending',
           surveyToken: item.survey_token || '',
-          surveyResponse: item.survey_response ? safeJsonParse(String(item.survey_response), undefined) : undefined
+          surveyResponse: item.survey_response ? 
+            safeJsonParse(String(item.survey_response), undefined) : 
+            undefined
         }));
         setStakeholders(mappedStakeholders);
       } else {
@@ -106,7 +109,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
       }
 
       if (esgData?.materiality_analysis) {
-        const materialityAnalysis = safeJsonParse(String(esgData.materiality_analysis), {});
+        const materialityAnalysis = safeJsonParse(String(esgData.materiality_analysis), { esgScore: 0 });
         setEsgScore(Number(materialityAnalysis.esgScore) || null);
       } else {
         setEsgScore(null);
@@ -181,6 +184,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
         const issueToSave = {
           report_id: reportId,
           id: id,
+          issue_id: id, // Add issue_id field for database
           name: issue.name,
           description: issue.description || '',
           impact_relevance: Number(issue.impactRelevance) || 0,
@@ -240,6 +244,7 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
         const stakeholderToSave = {
           report_id: reportId,
           id: id,
+          stakeholder_id: id, // Add stakeholder_id field for database
           name: stakeholder.name,
           category: stakeholder.category || '',
           influence: Number(stakeholder.influence) || 0,
@@ -297,7 +302,8 @@ export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ childr
       description,
       impactRelevance: 0,
       financialRelevance: 0,
-      isMaterial: false
+      isMaterial: false,
+      iroSelections: emptyIROSelections
     };
     setIssues(prev => [...prev, newIssue]);
   };
@@ -469,10 +475,3 @@ export const useMateriality = () => {
   }
   return context;
 };
-
-interface SurveyTemplate {
-  title: string;
-  description: string;
-  issues: MaterialityIssue[];
-  additionalComments: boolean;
-}

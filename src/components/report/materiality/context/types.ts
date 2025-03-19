@@ -1,5 +1,5 @@
 
-import { MaterialityIssue, Stakeholder, SurveyTemplate } from '../types';
+import { MaterialityIssue, Stakeholder, SurveyTemplate, IROSelections } from '../types';
 
 export interface MaterialityContextType {
   // Issues
