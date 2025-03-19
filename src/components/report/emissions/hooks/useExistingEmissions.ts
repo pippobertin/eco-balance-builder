@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { EmissionsInput, EmissionsResults, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
-import { safeJsonParse } from '@/integrations/supabase/client';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useExistingEmissions = (
   formValues: any,
@@ -40,10 +40,10 @@ export const useExistingEmissions = (
         totalScope3Emissions
       ) {
         // Parse the values to numbers, handling different types
-        const scope1 = parseFloat(totalScope1Emissions?.toString() || '0');
-        const scope2 = parseFloat(totalScope2Emissions?.toString() || '0');
-        const scope3 = parseFloat(totalScope3Emissions?.toString() || '0');
-        const total = parseFloat(totalScopeEmissions?.toString() || '0');
+        const scope1 = parseFloat(String(totalScope1Emissions || '0'));
+        const scope2 = parseFloat(String(totalScope2Emissions || '0'));
+        const scope3 = parseFloat(String(totalScope3Emissions || '0'));
+        const total = parseFloat(String(totalScopeEmissions || '0'));
         
         // Update the calculated emissions state if available
         if (setCalculatedEmissions) {

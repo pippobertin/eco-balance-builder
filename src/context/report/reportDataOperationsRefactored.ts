@@ -36,16 +36,23 @@ export const useReportDataOperations = () => {
           throw new Error('You do not have permission to save this report');
         }
         
-        // Convert complex objects to plain JSON strings before saving
+        // Stringifizza i dati complessi prima del salvataggio
+        console.log("Saving report data to Supabase, payload:", {
+          environmental_metrics: reportData.environmentalMetrics,
+          social_metrics: reportData.socialMetrics,
+          conduct_metrics: reportData.conductMetrics,
+          materiality_analysis: reportData.materialityAnalysis,
+          narrative_pat_metrics: reportData.narrativePATMetrics
+        });
+        
         const { error } = await supabase
           .from('reports')
           .update({
-            // Convert all complex objects to stringified JSON 
-            environmental_metrics: JSON.parse(JSON.stringify(reportData.environmentalMetrics || {})),
-            social_metrics: JSON.parse(JSON.stringify(reportData.socialMetrics || {})),
-            conduct_metrics: JSON.parse(JSON.stringify(reportData.conductMetrics || {})),
-            materiality_analysis: JSON.parse(JSON.stringify(reportData.materialityAnalysis || { issues: [], stakeholders: [] })),
-            narrative_pat_metrics: JSON.parse(JSON.stringify(reportData.narrativePATMetrics || {})),
+            environmental_metrics: JSON.stringify(reportData.environmentalMetrics || {}),
+            social_metrics: JSON.stringify(reportData.socialMetrics || {}),
+            conduct_metrics: JSON.stringify(reportData.conductMetrics || {}),
+            materiality_analysis: JSON.stringify(reportData.materialityAnalysis || { issues: [], stakeholders: [] }),
+            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics || {}),
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);

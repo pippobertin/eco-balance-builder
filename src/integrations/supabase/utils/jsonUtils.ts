@@ -9,18 +9,17 @@ export const safeJsonParse = <T>(jsonString: string | null | undefined | object 
   if (jsonString === null || jsonString === undefined) return defaultValue;
   
   try {
-    // If it's already an object, return it directly
+    // Se è già un oggetto, ritornalo direttamente
     if (typeof jsonString === 'object') {
       return jsonString as T;
     }
     
-    // If it's a primitive type, first convert to string then parse
-    // This handles numbers, booleans, etc.
+    // Se è un tipo primitivo (numero, booleano), convertilo prima in stringa
     if (typeof jsonString === 'number' || typeof jsonString === 'boolean') {
       return JSON.parse(JSON.stringify(jsonString)) as T;
     }
     
-    // Otherwise parse it
+    // Altrimenti fai il parsing
     return JSON.parse(jsonString as string) as T;
   } catch (error) {
     console.error("Error parsing JSON:", error);

@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
 import { useCompanyOperations } from '@/context/companyOperations';
 import { useToast } from '@/hooks/use-toast';
 import { localStorageUtils } from '../localStorageUtils';
-import { safeJsonParse } from '@/integrations/supabase/client';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useReportLoad = (
   setCompanies: React.Dispatch<React.SetStateAction<Company[]>>,
