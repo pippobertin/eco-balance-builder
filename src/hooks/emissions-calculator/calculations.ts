@@ -6,6 +6,7 @@ import {
   calculateScope2Emissions, 
   calculateScope3Emissions 
 } from '@/lib/emissions-calculator';
+import { getVehicleEmissionFactor, getVehicleEmissionFactorSource } from '@/lib/vehicle-emissions-factors';
 
 export const performEmissionsCalculation = (
   inputs: EmissionsInput,
@@ -91,11 +92,36 @@ export const performEmissionsCalculation = (
     if (inputs.scope3Category === 'transport' && inputs.transportType && inputs.transportDistance && inputs.transportDistance !== '') {
       const distance = parseFloat(inputs.transportDistance);
       if (!isNaN(distance) && distance > 0) {
-        const emissionsKg = calculateScope3Emissions(
-          inputs.transportType,
-          distance,
-          'km'
-        );
+        let emissionsKg;
+        let emissionSource;
+        
+        // Check if we have vehicle details to use the vehicle emissions factors
+        if (inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType) {
+          // Get emission factor from vehicle database in g CO2e/km
+          const emissionFactor = getVehicleEmissionFactor(
+            inputs.vehicleType,
+            inputs.vehicleEnergyClass,
+            inputs.vehicleFuelType
+          );
+          
+          // Calculate emissions based on distance and vehicle-specific emission factor
+          // Convert g CO2e/km to kg CO2e for the total distance
+          emissionsKg = (emissionFactor * distance) / 1000;
+          emissionSource = getVehicleEmissionFactorSource(
+            inputs.vehicleType,
+            inputs.vehicleEnergyClass,
+            inputs.vehicleFuelType
+          );
+        } else {
+          // Fallback to standard transport emission factors if vehicle details not provided
+          emissionsKg = calculateScope3Emissions(
+            inputs.transportType,
+            distance,
+            'km'
+          );
+          emissionSource = getEmissionFactorSource(inputs.transportType);
+        }
+        
         const emissionsTonnes = emissionsKg / 1000;
         results.scope3 = emissionsTonnes;
         
@@ -110,12 +136,14 @@ export const performEmissionsCalculation = (
           emissionsKg,
           emissionsTonnes,
           calculationDate: new Date().toISOString(),
-          source: getEmissionFactorSource(inputs.transportType),
+          source: emissionSource,
           // Add vehicle details to the calculation details
           vehicleDetails: {
             vehicleType: inputs.vehicleType || '',
             vehicleFuelType: inputs.vehicleFuelType || 'DIESEL',
-            vehicleEnergyClass: inputs.vehicleEnergyClass || ''
+            vehicleEnergyClass: inputs.vehicleEnergyClass || '',
+            emissionFactor: inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType ? 
+              getVehicleEmissionFactor(inputs.vehicleType, inputs.vehicleEnergyClass, inputs.vehicleFuelType) : null
           }
         };
         

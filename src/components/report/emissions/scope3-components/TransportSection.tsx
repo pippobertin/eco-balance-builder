@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { 
   Select, 
   SelectContent, 
@@ -9,6 +10,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TransportType, FuelType } from '@/lib/emissions-types';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import VehicleEmissionInfo from './VehicleEmissionInfo';
 
 // Vehicle types
 const VEHICLE_TYPES = [
@@ -61,9 +65,30 @@ const TransportSection: React.FC<TransportSectionProps> = ({
 }) => {
   // Check if we're in a transport category that requires vehicle details
   const showVehicleDetails = transportType === 'FREIGHT_ROAD' || transportType === 'BUSINESS_TRAVEL_CAR';
+  
+  // Check if all vehicle details are provided
+  const hasCompleteVehicleDetails = vehicleType && vehicleFuelType && vehicleEnergyClass;
+  
+  // Set default values if transport type changes
+  useEffect(() => {
+    if (showVehicleDetails && !vehicleType) {
+      if (transportType === 'BUSINESS_TRAVEL_CAR') {
+        setVehicleType('car_medium');
+      } else if (transportType === 'FREIGHT_ROAD') {
+        setVehicleType('truck_medium');
+      }
+      
+      if (!vehicleEnergyClass) {
+        setVehicleEnergyClass('euro6');
+      }
+      
+      if (!vehicleFuelType) {
+        setVehicleFuelType('DIESEL');
+      }
+    }
+  }, [transportType, showVehicleDetails, vehicleType, vehicleEnergyClass, vehicleFuelType]);
 
   return (
-    
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -102,7 +127,26 @@ const TransportSection: React.FC<TransportSectionProps> = ({
       
       {showVehicleDetails && (
         <div className="border rounded-md p-3 bg-blue-50 space-y-4">
-          <h4 className="font-medium text-blue-700">Dettagli veicolo</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-blue-700">Dettagli veicolo</h4>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <InfoCircledIcon className="h-5 w-5 text-blue-600" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm p-4 bg-white shadow-lg rounded-md">
+                  <div className="space-y-2">
+                    <p className="font-medium">Fattori di emissione specifici per veicolo</p>
+                    <p className="text-sm text-gray-600">
+                      I fattori di emissione utilizzati sono basati sulla combinazione di tipo di veicolo, 
+                      classe Euro e carburante, secondo i dati ADEME e EEA.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label>Tipo di veicolo</Label>
@@ -143,7 +187,7 @@ const TransportSection: React.FC<TransportSectionProps> = ({
             </div>
             
             <div>
-              <Label>Classe energetica</Label>
+              <Label>Classe Euro</Label>
               <Select 
                 value={vehicleEnergyClass} 
                 onValueChange={setVehicleEnergyClass}
@@ -159,6 +203,16 @@ const TransportSection: React.FC<TransportSectionProps> = ({
               </Select>
             </div>
           </div>
+          
+          {hasCompleteVehicleDetails && (
+            <div className="mt-2">
+              <VehicleEmissionInfo 
+                vehicleType={vehicleType}
+                vehicleFuelType={vehicleFuelType}
+                vehicleEnergyClass={vehicleEnergyClass}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
