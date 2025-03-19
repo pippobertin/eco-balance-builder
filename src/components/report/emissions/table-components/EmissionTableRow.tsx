@@ -38,7 +38,7 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
   hasVehicleDetails
 }) => {
   return (
-    <React.Fragment>
+    <>
       <TableRow>
         <TableCell className="font-medium">{getCategoryLabel(calculation)}</TableCell>
         <TableCell>{formatDate(calculation.date)}</TableCell>
@@ -82,7 +82,7 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
           </TableCell>
         </TableRow>
       )}
-    </React.Fragment>
+    </>
   );
 };
 
