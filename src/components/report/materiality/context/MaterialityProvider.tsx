@@ -1,492 +1,320 @@
-import React, { useState, useEffect, createContext, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { MaterialityContextType, MaterialityIssue, Stakeholder } from '../types';
 import { supabase } from '@/integrations/supabase/client';
-import { MaterialityIssue, Stakeholder, IROSelections } from '../types';
-import { v4 as uuidv4 } from 'uuid';
 import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
+import { calculateAverageMatrix, defaultMaterialityIssues } from '../utils/materialityUtils';
+import { useReport } from '@/hooks/use-report-context';
+import { useToast } from '@/hooks/use-toast';
 
-export interface MaterialityContextType {
-  materialityIssues: MaterialityIssue[];
-  setMaterialityIssues: React.Dispatch<React.SetStateAction<MaterialityIssue[]>>;
-  selectedIssueIds: Set<string>;
-  setSelectedIssueIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-  addIssue: (issue: Omit<MaterialityIssue, 'id'>) => void;
-  updateIssue: (issueId: string, updates: Partial<MaterialityIssue>) => void;
-  removeIssue: (issueId: string) => void;
-  
-  stakeholders: Stakeholder[];
-  setStakeholders: React.Dispatch<React.SetStateAction<Stakeholder[]>>;
-  addStakeholder: (stakeholder: Omit<Stakeholder, 'id'>) => void;
-  updateStakeholder: (stakeholderId: string, updates: Partial<Stakeholder>) => void;
-  removeStakeholder: (stakeholderId: string) => void;
-  
-  isLoading: boolean;
-  hasUnsavedChanges: boolean;
-  setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
-  lastSaved: Date | null;
-  saveAllMaterialityData: () => Promise<boolean>;
-}
+const MaterialityContext = createContext<MaterialityContextType | undefined>(undefined);
 
-export const MaterialityContext = createContext<MaterialityContextType | null>(null);
-
-export const materialityIssuesDefaults: MaterialityIssue[] = [];
-
-export const MaterialityProvider: React.FC<{
-  children: React.ReactNode;
-  reportId: string | null;
-}> = ({ children, reportId }) => {
+export const MaterialityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  
-  const [materialityIssues, setMaterialityIssues] = useState<MaterialityIssue[]>([]);
-  const [selectedIssueIds, setSelectedIssueIds] = useState<Set<string>>(new Set());
-  
+
+  const [issues, setIssues] = useState<MaterialityIssue[]>([]);
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
-  
+  const [esgScore, setEsgScore] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     if (reportId) {
-      loadMaterialityData(reportId);
+      loadDataFromDatabase(reportId);
+    } else {
+      setIssues(defaultMaterialityIssues);
     }
   }, [reportId]);
-  
-  const loadMaterialityData = async (reportId: string) => {
+
+  // Load data from database
+  const loadDataFromDatabase = async (reportId: string) => {
     setIsLoading(true);
-    
     try {
+      // Load issues
       const { data: issuesData, error: issuesError } = await supabase
         .from('materiality_issues')
         .select('*')
         .eq('report_id', reportId);
-      
-      if (issuesError) {
-        console.error("Error loading materiality issues:", issuesError);
-        throw issuesError;
-      }
-      
+
+      if (issuesError) throw issuesError;
+
+      // Load stakeholders
       const { data: stakeholdersData, error: stakeholdersError } = await supabase
         .from('stakeholders')
         .select('*')
         .eq('report_id', reportId);
-      
-      if (stakeholdersError) {
-        console.error("Error loading stakeholders:", stakeholdersError);
-        throw stakeholdersError;
-      }
-      
-      let issues: MaterialityIssue[] = [];
-      if (issuesData && issuesData.length > 0) {
-        issues = issuesData.map(item => {
-          const impactRelevance = parseFloat(item.impact_relevance as string) || 0;
-          const financialRelevance = parseFloat(item.financial_relevance as string) || 0;
-          const stakeholderRelevance = parseFloat(item.stakeholder_relevance as string) || 0;
-          
-          const iroSelectionsString = typeof item.iro_selections === 'string' 
-            ? item.iro_selections 
-            : JSON.stringify(item.iro_selections);
-            
-          return {
-            id: item.issue_id,
-            name: item.name,
-            description: item.description || '',
-            impactRelevance,
-            financialRelevance,
-            isMaterial: item.is_material || false,
-            stakeholderRelevance,
-            iroSelections: safeJsonParse<IROSelections>(
-              iroSelectionsString, 
-              {
-                selectedPositiveImpacts: [],
-                selectedNegativeImpacts: [],
-                selectedRisks: [],
-                selectedOpportunities: [],
-                selectedActions: []
-              }
-            )
-          };
-        });
-        
-        const selectedIds = new Set<string>();
-        issues.forEach(issue => {
-          if (issue.isMaterial) {
-            selectedIds.add(issue.id);
-          }
-        });
-        setSelectedIssueIds(selectedIds);
+
+      if (stakeholdersError) throw stakeholdersError;
+
+      // Load ESG score
+      const { data: esgData, error: esgError } = await supabase
+        .from('reports')
+        .select('materiality_analysis')
+        .eq('id', reportId)
+        .single();
+
+      if (esgError) throw esgError;
+
+      // Update state
+      if (issuesData) {
+        setIssues(issuesData as MaterialityIssue[]);
       } else {
-        issues = materialityIssuesDefaults;
+        setIssues(defaultMaterialityIssues);
       }
-      
-      let stakeholdersArray: Stakeholder[] = [];
-      if (stakeholdersData && stakeholdersData.length > 0) {
-        stakeholdersArray = stakeholdersData.map(item => {
-          const influence = parseInt(item.influence as string) || 0;
-          const interest = parseInt(item.interest as string) || 0;
-          
-          const surveyResponseString = typeof item.survey_response === 'string' 
-            ? item.survey_response 
-            : JSON.stringify(item.survey_response);
-            
-          return {
-            id: item.stakeholder_id,
-            name: item.name,
-            category: item.category || '',
-            influence,
-            interest,
-            contactInfo: item.contact_info || '',
-            email: item.email || '',
-            notes: item.notes || '',
-            priority: item.priority || 'medium',
-            surveyStatus: (item.survey_status as "pending" | "sent" | "completed") || 'pending',
-            surveyToken: item.survey_token || '',
-            surveyResponse: safeJsonParse(surveyResponseString, null)
-          };
-        });
+
+      if (stakeholdersData) {
+        setStakeholders(stakeholdersData as Stakeholder[]);
+      } else {
+        setStakeholders([]);
       }
-      
-      setMaterialityIssues(issues);
-      setStakeholders(stakeholdersArray);
-      setLastSaved(new Date());
-      setHasUnsavedChanges(false);
+
+      if (esgData?.materiality_analysis) {
+        const materialityAnalysis = safeJsonParse(esgData.materiality_analysis, {});
+        setEsgScore(Number(materialityAnalysis.esgScore) || null);
+      } else {
+        setEsgScore(null);
+      }
     } catch (error) {
-      console.error("Error loading materiality data:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare i dati dell'analisi di materialità",
-        variant: "destructive"
-      });
+      console.error('Error loading data from database:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const saveIssue = async (issue: MaterialityIssue, reportId: string) => {
-    if (!reportId) return false;
-    
+
+  // Save data to database
+  const saveDataToDatabase = async () => {
+    setIsSaving(true);
     try {
-      const { data, error: checkError } = await supabase
-        .from('materiality_issues')
-        .select('issue_id')
-        .eq('report_id', reportId)
-        .eq('issue_id', issue.id)
-        .maybeSingle();
-      
-      if (checkError) {
-        console.error("Error checking if issue exists:", checkError);
-        return false;
-      }
-      
-      // Convert numeric values to strings for the database
-      const issueData = {
-        report_id: reportId,
-        issue_id: issue.id,
-        name: issue.name,
-        description: issue.description,
-        impact_relevance: String(issue.impactRelevance),
-        financial_relevance: String(issue.financialRelevance),
-        is_material: issue.isMaterial,
-        stakeholder_relevance: String(issue.stakeholderRelevance || 0),
-        iro_selections: safeJsonStringify(issue.iroSelections),
-        updated_at: new Date().toISOString()
-      };
-      
-      let result;
-      
-      if (data) {
-        // Update existing issue - use a type assertion to handle the number/string issue
-        const { error: updateError } = await supabase
-          .from('materiality_issues')
-          .update(issueData as any)
-          .eq('report_id', reportId)
-          .eq('issue_id', issue.id);
-        
-        if (updateError) throw updateError;
-        result = true;
-      } else {
-        // Insert new issue - use a type assertion to handle the number/string issue
-        const { error: insertError } = await supabase
-          .from('materiality_issues')
-          .insert([issueData as any]);
-        
-        if (insertError) throw insertError;
-        result = true;
-      }
-      
-      return result;
-    } catch (error) {
-      console.error("Error saving issue:", error);
-      return false;
-    }
-  };
-  
-  const saveIssues = async (issues: MaterialityIssue[]) => {
-    if (!reportId) return false;
-    
-    try {
-      const results = await Promise.all(
-        issues.map(issue => saveIssue(issue, reportId))
-      );
-      
-      const success = results.every(result => result === true);
-      
-      if (success) {
-        setLastSaved(new Date());
-        setHasUnsavedChanges(false);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.error("Error saving issues:", error);
-      return false;
-    }
-  };
-  
-  const saveStakeholder = async (stakeholder: Stakeholder, reportId: string) => {
-    if (!reportId) return false;
-    
-    try {
-      const { data, error: checkError } = await supabase
-        .from('stakeholders')
-        .select('stakeholder_id')
-        .eq('report_id', reportId)
-        .eq('stakeholder_id', stakeholder.id)
-        .maybeSingle();
-      
-      if (checkError) {
-        console.error("Error checking if stakeholder exists:", checkError);
-        return false;
-      }
-      
-      // Convert numeric values to strings for the database
-      const stakeholderData = {
-        report_id: reportId,
-        stakeholder_id: stakeholder.id,
-        name: stakeholder.name,
-        category: stakeholder.category,
-        influence: String(stakeholder.influence),
-        interest: String(stakeholder.interest),
-        contact_info: stakeholder.contactInfo,
-        email: stakeholder.email,
-        notes: stakeholder.notes,
-        priority: stakeholder.priority,
-        survey_status: stakeholder.surveyStatus,
-        survey_token: stakeholder.surveyToken,
-        survey_response: safeJsonStringify(stakeholder.surveyResponse),
-        updated_at: new Date().toISOString()
-      };
-      
-      let result;
-      
-      if (data) {
-        // Update existing stakeholder - use a type assertion to handle the number/string issue
-        const { error: updateError } = await supabase
-          .from('stakeholders')
-          .update(stakeholderData as any)
-          .eq('report_id', reportId)
-          .eq('stakeholder_id', stakeholder.id);
-        
-        if (updateError) throw updateError;
-        result = true;
-      } else {
-        // Insert new stakeholder - use a type assertion to handle the number/string issue
-        const { error: insertError } = await supabase
-          .from('stakeholders')
-          .insert([stakeholderData as any]);
-        
-        if (insertError) throw insertError;
-        result = true;
-      }
-      
-      return result;
-    } catch (error) {
-      console.error("Error saving stakeholder:", error);
-      return false;
-    }
-  };
-  
-  const saveStakeholders = async (stakeholdersArray: Stakeholder[]) => {
-    if (!reportId) return false;
-    
-    try {
-      const results = await Promise.all(
-        stakeholdersArray.map(stakeholder => saveStakeholder(stakeholder, reportId))
-      );
-      
-      const success = results.every(result => result === true);
-      
-      if (success) {
-        setLastSaved(new Date());
-        setHasUnsavedChanges(false);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.error("Error saving stakeholders:", error);
-      return false;
-    }
-  };
-  
-  const addIssue = useCallback((issue: Omit<MaterialityIssue, 'id'>) => {
-    const newIssue: MaterialityIssue = {
-      ...issue,
-      id: uuidv4(),
-    };
-    
-    setMaterialityIssues(prev => [...prev, newIssue]);
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      saveIssue(newIssue, reportId);
-    }
-  }, [reportId]);
-  
-  const updateIssue = useCallback((issueId: string, updates: Partial<MaterialityIssue>) => {
-    setMaterialityIssues(prev => 
-      prev.map(issue => 
-        issue.id === issueId ? { ...issue, ...updates } : issue
-      )
-    );
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      const updatedIssue = materialityIssues.find(issue => issue.id === issueId);
-      if (updatedIssue) {
-        saveIssue({ ...updatedIssue, ...updates }, reportId);
-      }
-    }
-  }, [materialityIssues, reportId]);
-  
-  const removeIssue = useCallback((issueId: string) => {
-    setMaterialityIssues(prev => prev.filter(issue => issue.id !== issueId));
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      supabase
-        .from('materiality_issues')
-        .delete()
-        .eq('report_id', reportId)
-        .eq('issue_id', issueId)
-        .then(({ error }) => {
-          if (error) {
-            console.error("Error deleting issue:", error);
-          }
-        });
-    }
-  }, [reportId]);
-  
-  const addStakeholder = useCallback((stakeholder: Omit<Stakeholder, 'id'>) => {
-    const newStakeholder: Stakeholder = {
-      ...stakeholder,
-      id: uuidv4(),
-    };
-    
-    setStakeholders(prev => [...prev, newStakeholder]);
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      saveStakeholder(newStakeholder, reportId);
-    }
-  }, [reportId]);
-  
-  const updateStakeholder = useCallback((stakeholderId: string, updates: Partial<Stakeholder>) => {
-    setStakeholders(prev => 
-      prev.map(stakeholder => 
-        stakeholder.id === stakeholderId ? { ...stakeholder, ...updates } : stakeholder
-      )
-    );
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      const updatedStakeholder = stakeholders.find(stakeholder => stakeholder.id === stakeholderId);
-      if (updatedStakeholder) {
-        saveStakeholder({ ...updatedStakeholder, ...updates }, reportId);
-      }
-    }
-  }, [stakeholders, reportId]);
-  
-  const removeStakeholder = useCallback((stakeholderId: string) => {
-    setStakeholders(prev => prev.filter(stakeholder => stakeholder.id !== stakeholderId));
-    setHasUnsavedChanges(true);
-    
-    if (reportId) {
-      supabase
-        .from('stakeholders')
-        .delete()
-        .eq('report_id', reportId)
-        .eq('stakeholder_id', stakeholderId)
-        .then(({ error }) => {
-          if (error) {
-            console.error("Error deleting stakeholder:", error);
-          }
-        });
-    }
-  }, [reportId]);
-  
-  const saveAllMaterialityData = useCallback(async () => {
-    if (!reportId) return false;
-    
-    setIsLoading(true);
-    try {
-      const issuesSaved = await saveIssues(materialityIssues);
-      const stakeholdersSaved = await saveStakeholders(stakeholders);
-      
+      if (!reportId) throw new Error('Report ID is missing');
+
+      // Save issues
+      const issuesSaved = await saveIssuesToDatabase(issues, reportId);
+
+      // Save stakeholders
+      const stakeholdersSaved = await saveStakeholdersToDatabase(stakeholders, reportId);
+
+      // Save ESG score
+      const { error: updateError } = await supabase
+        .from('reports')
+        .update({
+          materiality_analysis: safeJsonStringify({ esgScore: esgScore || 0 })
+        })
+        .eq('id', reportId);
+
+      if (updateError) throw updateError;
+
       if (issuesSaved && stakeholdersSaved) {
         toast({
-          title: "Dati salvati",
-          description: "I dati dell'analisi di materialità sono stati salvati con successo",
+          title: 'Successo',
+          description: 'Dati salvati con successo',
         });
-        setLastSaved(new Date());
-        setHasUnsavedChanges(false);
-        return true;
-      } else {
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante il salvataggio dei dati",
-          variant: "destructive"
-        });
-        return false;
       }
     } catch (error) {
-      console.error("Error saving materiality data:", error);
+      console.error('Error saving data to database:', error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio dei dati",
-        variant: "destructive"
+        title: 'Errore',
+        description: 'Impossibile salvare i dati',
+        variant: 'destructive'
       });
-      return false;
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
-  }, [materialityIssues, stakeholders, reportId, toast]);
-
-  const value = {
-    materialityIssues,
-    setMaterialityIssues,
-    selectedIssueIds,
-    setSelectedIssueIds,
-    addIssue,
-    updateIssue,
-    removeIssue,
-    
-    stakeholders,
-    setStakeholders,
-    addStakeholder,
-    updateStakeholder,
-    removeStakeholder,
-    
-    isLoading,
-    hasUnsavedChanges,
-    setHasUnsavedChanges,
-    lastSaved,
-    saveAllMaterialityData
   };
-  
+
+  // When saving issues to database, convert numeric values properly
+const saveIssuesToDatabase = async (issues: MaterialityIssue[], reportId: string) => {
+  try {
+    if (!issues.length || !reportId) return;
+
+    // For each issue, save to database
+    for (const issue of issues) {
+      const { id, ...issueData } = issue;
+      
+      // Check if the issue already exists in the database
+      const { data, error: checkError } = await supabase
+        .from('materiality_issues')
+        .select('id')
+        .eq('report_id', reportId)
+        .eq('issue_id', issue.issue_id)
+        .maybeSingle();
+        
+      if (checkError) throw checkError;
+      
+      // Prepare issue data with proper numeric values
+      const issueToSave = {
+        report_id: reportId,
+        issue_id: issue.issue_id,
+        name: issue.name,
+        description: issue.description || '',
+        impact_relevance: Number(issue.impact_relevance) || 0,
+        financial_relevance: Number(issue.financial_relevance) || 0,
+        is_material: Boolean(issue.is_material),
+        stakeholder_relevance: Number(issue.stakeholder_relevance) || 0,
+        iro_selections: issue.iro_selections ? safeJsonStringify(issue.iro_selections) : null,
+        updated_at: new Date().toISOString()
+      };
+      
+      if (data) {
+        // Update existing issue
+        const { error: updateError } = await supabase
+          .from('materiality_issues')
+          .update(issueToSave)
+          .eq('report_id', reportId)
+          .eq('issue_id', issue.issue_id);
+        
+        if (updateError) throw updateError;
+      } else {
+        // Insert new issue
+        const { error: insertError } = await supabase
+          .from('materiality_issues')
+          .insert(issueToSave);
+          
+        if (insertError) throw insertError;
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving issues to database:', error);
+    return false;
+  }
+};
+
+// When saving stakeholders to database, convert numeric values properly
+const saveStakeholdersToDatabase = async (stakeholders: Stakeholder[], reportId: string) => {
+  try {
+    if (!stakeholders.length || !reportId) return;
+    
+    // For each stakeholder, save to database
+    for (const stakeholder of stakeholders) {
+      const { id, ...stakeholderData } = stakeholder;
+      
+      // Check if the stakeholder already exists
+      const { data, error: checkError } = await supabase
+        .from('stakeholders')
+        .select('id')
+        .eq('report_id', reportId)
+        .eq('stakeholder_id', stakeholder.stakeholder_id)
+        .maybeSingle();
+        
+      if (checkError) throw checkError;
+      
+      // Prepare stakeholder data with proper numeric values
+      const stakeholderToSave = {
+        report_id: reportId,
+        stakeholder_id: stakeholder.stakeholder_id,
+        name: stakeholder.name,
+        category: stakeholder.category || '',
+        influence: Number(stakeholder.influence) || 0,
+        interest: Number(stakeholder.interest) || 0,
+        contact_info: stakeholder.contact_info || '',
+        email: stakeholder.email || '',
+        notes: stakeholder.notes || '',
+        priority: stakeholder.priority || '',
+        survey_status: stakeholder.survey_status || 'pending',
+        survey_token: stakeholder.survey_token || '',
+        survey_response: stakeholder.survey_response ? safeJsonStringify(stakeholder.survey_response) : null,
+        updated_at: new Date().toISOString()
+      };
+      
+      if (data) {
+        // Update existing stakeholder
+        const { error: updateError } = await supabase
+          .from('stakeholders')
+          .update(stakeholderToSave)
+          .eq('report_id', reportId)
+          .eq('stakeholder_id', stakeholder.stakeholder_id);
+          
+        if (updateError) throw updateError;
+      } else {
+        // Insert new stakeholder
+        const { error: insertError } = await supabase
+          .from('stakeholders')
+          .insert(stakeholderToSave);
+          
+        if (insertError) throw insertError;
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving stakeholders to database:', error);
+    return false;
+  }
+};
+
+  // Update issue
+  const updateIssue = (issueId: string, field: keyof MaterialityIssue, value: any) => {
+    setIssues(prev =>
+      prev.map(issue =>
+        issue.issue_id === issueId ? { ...issue, [field]: value } : issue
+      )
+    );
+  };
+
+  // Add issue
+  const addIssue = (newIssue: Omit<MaterialityIssue, 'id'>) => {
+    setIssues(prev => [...prev, { ...newIssue, id: Math.random().toString() }]);
+  };
+
+  // Delete issue
+  const deleteIssue = (issueId: string) => {
+    setIssues(prev => prev.filter(issue => issue.issue_id !== issueId));
+  };
+
+  // Update stakeholder
+  const updateStakeholder = (stakeholderId: string, field: keyof Stakeholder, value: any) => {
+    setStakeholders(prev =>
+      prev.map(stakeholder =>
+        stakeholder.stakeholder_id === stakeholderId ? { ...stakeholder, [field]: value } : stakeholder
+      )
+    );
+  };
+
+  // Add stakeholder
+  const addStakeholder = (newStakeholder: Omit<Stakeholder, 'id'>) => {
+    setStakeholders(prev => [...prev, { ...newStakeholder, id: Math.random().toString() }]);
+  };
+
+  // Delete stakeholder
+  const deleteStakeholder = (stakeholderId: string) => {
+    setStakeholders(prev => prev.filter(stakeholder => stakeholder.stakeholder_id !== stakeholderId));
+  };
+
+  // Calculate materiality matrix
+  const calculateMaterialityMatrix = () => {
+    return calculateAverageMatrix(issues);
+  };
+
+  const value: MaterialityContextType = {
+    issues,
+    stakeholders,
+    esgScore,
+    setEsgScore,
+    isLoading,
+    isSaving,
+    updateIssue,
+    addIssue,
+    deleteIssue,
+    updateStakeholder,
+    addStakeholder,
+    deleteStakeholder,
+    calculateMaterialityMatrix,
+    saveDataToDatabase
+  };
+
   return (
     <MaterialityContext.Provider value={value}>
       {children}
     </MaterialityContext.Provider>
   );
+};
+
+export const useMateriality = () => {
+  const context = useContext(MaterialityContext);
+  if (context === undefined) {
+    throw new Error('useMateriality must be used within a MaterialityProvider');
+  }
+  return context;
 };

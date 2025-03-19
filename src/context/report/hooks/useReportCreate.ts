@@ -16,7 +16,7 @@ export const useReportCreate = (
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { createCompany } = useCompanyOperations();
-  const { createReport: createNewReport } = useReportOperations();
+  const reportOps = useReportOperations();
 
   // Create company
   const handleCreateCompany = async (company: Omit<Company, 'id'>): Promise<string | null> => {
@@ -35,7 +35,7 @@ export const useReportCreate = (
   // Create report
   const handleCreateReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     setLoading(true);
-    const reportId = await createNewReport(report);
+    const reportId = await reportOps.createReport(report);
     
     if (reportId) {
       // Load the new report data

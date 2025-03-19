@@ -61,11 +61,21 @@ export const useReportFetchOperations = () => {
       // Parse JSON fields in report data
       const parsedReportData = {
         ...reportData,
-        environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
-        social_metrics: safeJsonParse(reportData.social_metrics, {}),
-        conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
-        narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {}),
-        materiality_analysis: safeJsonParse(reportData.materiality_analysis, {})
+        environmental_metrics: typeof reportData.environmental_metrics === 'string' 
+          ? safeJsonParse(reportData.environmental_metrics, {})
+          : reportData.environmental_metrics,
+        social_metrics: typeof reportData.social_metrics === 'string'
+          ? safeJsonParse(reportData.social_metrics, {})
+          : reportData.social_metrics,
+        conduct_metrics: typeof reportData.conduct_metrics === 'string'
+          ? safeJsonParse(reportData.conduct_metrics, {})
+          : reportData.conduct_metrics,
+        narrative_pat_metrics: typeof reportData.narrative_pat_metrics === 'string'
+          ? safeJsonParse(reportData.narrative_pat_metrics, {})
+          : reportData.narrative_pat_metrics,
+        materiality_analysis: typeof reportData.materiality_analysis === 'string'
+          ? safeJsonParse(reportData.materiality_analysis, {})
+          : reportData.materiality_analysis
       } as Report;
 
       return { 
@@ -98,11 +108,21 @@ export const useReportFetchOperations = () => {
       // Parse JSON fields in report data
       const parsedReportData = {
         ...reportData,
-        environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
-        social_metrics: safeJsonParse(reportData.social_metrics, {}),
-        conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
-        narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {}),
-        materiality_analysis: safeJsonParse(reportData.materiality_analysis, {})
+        environmental_metrics: typeof reportData.environmental_metrics === 'string'
+          ? safeJsonParse(reportData.environmental_metrics, {})
+          : reportData.environmental_metrics,
+        social_metrics: typeof reportData.social_metrics === 'string'
+          ? safeJsonParse(reportData.social_metrics, {})
+          : reportData.social_metrics,
+        conduct_metrics: typeof reportData.conduct_metrics === 'string'
+          ? safeJsonParse(reportData.conduct_metrics, {})
+          : reportData.conduct_metrics,
+        narrative_pat_metrics: typeof reportData.narrative_pat_metrics === 'string'
+          ? safeJsonParse(reportData.narrative_pat_metrics, {})
+          : reportData.narrative_pat_metrics,
+        materiality_analysis: typeof reportData.materiality_analysis === 'string'
+          ? safeJsonParse(reportData.materiality_analysis, {})
+          : reportData.materiality_analysis
       } as Report;
 
     } catch (error) {
