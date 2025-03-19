@@ -30,28 +30,37 @@ export const performEmissionsCalculation = (
   
   // Perform calculation for the requested scope or all scopes
   if (!scope || scope === 'scope1') {
+    console.log('Calculating scope1 with initial results:', results);
     const scope1Result = performScope1Calculation(inputs, results);
     results = scope1Result.updatedResults;
     details.scope1Details = scope1Result.details;
-    console.log('Scope 1 calculation completed. Results:', results);
+    console.log('Scope 1 calculation completed. Updated results:', results);
   }
   
   if (!scope || scope === 'scope2') {
+    console.log('Calculating scope2 with results after scope1:', results);
     const scope2Result = performScope2Calculation(inputs, results);
     results = scope2Result.updatedResults;
     details.scope2Details = scope2Result.details;
-    console.log('Scope 2 calculation completed. Results:', results);
+    console.log('Scope 2 calculation completed. Updated results:', results);
   }
   
   if (!scope || scope === 'scope3') {
+    console.log('Calculating scope3 with results after scope1+2:', results);
     const scope3Result = performScope3Calculation(inputs, results);
     results = scope3Result.updatedResults;
     details.scope3Details = scope3Result.details;
-    console.log('Scope 3 calculation completed. Results:', results);
+    console.log('Scope 3 calculation completed. Updated results:', results);
   }
   
   // Calculate total emissions (should already be accurate from incremental updates)
   results.total = results.scope1 + results.scope2 + results.scope3;
+  
+  // Make sure all values are numbers
+  results.scope1 = Number(results.scope1) || 0;
+  results.scope2 = Number(results.scope2) || 0;
+  results.scope3 = Number(results.scope3) || 0;
+  results.total = Number(results.total) || 0;
   
   console.log('Final calculation results:', results);
   

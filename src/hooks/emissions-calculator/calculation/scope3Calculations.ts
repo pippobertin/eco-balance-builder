@@ -32,7 +32,15 @@ export const performScope3Calculation = (
     return { updatedResults: results, details: '' };
   }
   
-  console.log('Scope 3 calculation completed. Updated results:', calculationResult.updatedResults);
+  // Log the detailed results to help with debugging
+  console.log('Scope 3 calculation result:', {
+    category,
+    initialScope3: results.scope3,
+    updatedScope3: calculationResult.updatedResults.scope3,
+    details: calculationResult.details,
+    source: calculationResult.source
+  });
+  
   return calculationResult;
 };
 

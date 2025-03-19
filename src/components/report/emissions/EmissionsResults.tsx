@@ -14,15 +14,19 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
   calculatedEmissions
 }) => {
   // Ensure we have numeric values, defaulting to 0 for any non-numeric values
-  const scope1 = typeof calculatedEmissions.scope1 === 'number' ? calculatedEmissions.scope1 : 0;
-  const scope2 = typeof calculatedEmissions.scope2 === 'number' ? calculatedEmissions.scope2 : 0;
-  const scope3 = typeof calculatedEmissions.scope3 === 'number' ? calculatedEmissions.scope3 : 0;
-  const total = typeof calculatedEmissions.total === 'number' ? calculatedEmissions.total : 0;
+  const scope1 = typeof calculatedEmissions.scope1 === 'number' && !isNaN(calculatedEmissions.scope1) ? calculatedEmissions.scope1 : 0;
+  const scope2 = typeof calculatedEmissions.scope2 === 'number' && !isNaN(calculatedEmissions.scope2) ? calculatedEmissions.scope2 : 0;
+  const scope3 = typeof calculatedEmissions.scope3 === 'number' && !isNaN(calculatedEmissions.scope3) ? calculatedEmissions.scope3 : 0;
+  const total = typeof calculatedEmissions.total === 'number' && !isNaN(calculatedEmissions.total) ? calculatedEmissions.total : 0;
 
   // Log the values to help with debugging
   console.log('EmissionsResults rendering with values:', { 
     scope1, scope2, scope3, total,
-    rawValues: calculatedEmissions
+    rawValues: calculatedEmissions,
+    typeScope1: typeof calculatedEmissions.scope1,
+    typeScope2: typeof calculatedEmissions.scope2,
+    typeScope3: typeof calculatedEmissions.scope3,
+    typeTotal: typeof calculatedEmissions.total
   });
 
   return (
