@@ -36,6 +36,9 @@ export const calculateVehicleEmissions = (
     vehicleFuelType
   );
 
+  // Assicuriamoci che il fattore di emissione sia un numero valido
+  const validEmissionFactor = emissionFactor || 0;
+
   let emissionsKg = 0;
   let fuelConsumed = 0;
   let consumptionFactorUsed = 0;
@@ -57,7 +60,7 @@ export const calculateVehicleEmissions = (
     // Calculate emissions based on the theoretical fuel consumption
     if (vehicleFuelType === 'ELECTRIC') {
       // For electric vehicles, still use the emission factor per km
-      emissionsKg = (emissionFactor * distance) / 1000;
+      emissionsKg = (validEmissionFactor * distance) / 1000;
     } else {
       // For fuel-based vehicles, use combination of distance-based and consumption-based calculation
       // Fuel-specific emission factor (kg CO2e/L) - simplified values
@@ -75,17 +78,40 @@ export const calculateVehicleEmissions = (
       
       // Calculate emissions based on fuel consumed
       emissionsKg = fuelConsumed * fuelSpecificFactor;
+
+      // Verificare che le emissioni siano un valore valido
+      if (isNaN(emissionsKg) || !isFinite(emissionsKg)) {
+        // Fallback al calcolo basato sulla distanza se il calcolo basato sul consumo fallisce
+        emissionsKg = (validEmissionFactor * distance) / 1000;
+      }
     }
   } else {
     // Standard calculation without consumption data
-    emissionsKg = (emissionFactor * distance) / 1000;
+    emissionsKg = (validEmissionFactor * distance) / 1000;
   }
+
+  // Assicuriamoci che le emissioni siano un numero positivo valido
+  emissionsKg = Math.max(0, emissionsKg);
+
+  // Log per debug
+  console.log('Calcolo emissioni veicolo:', {
+    vehicleType,
+    vehicleEnergyClass,
+    vehicleFuelType,
+    distance,
+    emissionFactor: validEmissionFactor,
+    fuelConsumption,
+    fuelConsumptionUnit,
+    fuelConsumed,
+    consumptionFactorUsed,
+    emissionsKg
+  });
 
   return {
     emissionsKg,
     fuelConsumed,
     consumptionFactorUsed,
-    emissionFactor,
+    emissionFactor: validEmissionFactor,
     source
   };
 };

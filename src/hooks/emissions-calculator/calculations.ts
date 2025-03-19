@@ -1,3 +1,4 @@
+
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults, EmissionsDetails } from './types';
 import { 
@@ -98,6 +99,18 @@ export const performEmissionsCalculation = (
         let emissionSource;
         let vehicleDetails = null;
         
+        console.log('Calcolo Scope 3 per trasporto:', {
+          transportType: inputs.transportType,
+          distance,
+          vehicleDetails: {
+            vehicleType: inputs.vehicleType,
+            vehicleEnergyClass: inputs.vehicleEnergyClass,
+            vehicleFuelType: inputs.vehicleFuelType,
+            fuelConsumption: inputs.vehicleFuelConsumption,
+            fuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit
+          }
+        });
+        
         // Check if we have vehicle details to use the vehicle emissions factors
         if (inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType) {
           // Use the vehicle emissions utility
@@ -114,6 +127,13 @@ export const performEmissionsCalculation = (
           
           emissionsKg = vehicleEmissions.emissionsKg;
           emissionSource = vehicleEmissions.source;
+          
+          console.log('Risultato calcolo emissioni veicolo:', {
+            emissionsKg,
+            emissionsSource: emissionSource,
+            fuelConsumed: vehicleEmissions.fuelConsumed,
+            consumptionFactorUsed: vehicleEmissions.consumptionFactorUsed
+          });
           
           // Create vehicle details record
           vehicleDetails = createVehicleDetailsRecord(
@@ -133,10 +153,28 @@ export const performEmissionsCalculation = (
             'km'
           );
           emissionSource = getEmissionFactorSource(inputs.transportType);
+          
+          console.log('Fallback al calcolo emissioni di trasporto standard:', {
+            emissionsKg,
+            emissionsSource: emissionSource
+          });
         }
         
+        // Assicuriamoci che emissionsKg sia un valore valido
+        if (isNaN(emissionsKg) || !isFinite(emissionsKg)) {
+          console.warn('Valore di emissione non valido, impostazione a 0');
+          emissionsKg = 0;
+        }
+        
+        // Converti da kg a tonnellate e aggiorna i risultati
         const emissionsTonnes = emissionsKg / 1000;
         results.scope3 = emissionsTonnes;
+        
+        console.log('Emissioni finali calcolate:', {
+          emissionsKg,
+          emissionsTonnes,
+          scope3Total: results.scope3
+        });
         
         // Save calculation details
         const calculationDetails = {
@@ -212,6 +250,13 @@ export const performEmissionsCalculation = (
   
   // Calculate total emissions
   results.total = results.scope1 + results.scope2 + results.scope3;
+  
+  console.log('Risultati finali del calcolo delle emissioni:', {
+    scope1: results.scope1,
+    scope2: results.scope2,
+    scope3: results.scope3,
+    total: results.total
+  });
   
   return { results, details };
 };
