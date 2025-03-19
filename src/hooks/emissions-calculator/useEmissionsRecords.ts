@@ -37,6 +37,29 @@ export const useEmissionsRecords = () => {
   }, []);
   
   /**
+   * Remove a calculation record from logs
+   */
+  const removeRecord = useCallback((
+    logs: EmissionCalculationLogs,
+    scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations',
+    recordId: string
+  ): EmissionCalculationLogs => {
+    // Create a deep copy of the logs to avoid mutating the original object
+    const updatedLogs = {
+      scope1Calculations: [...(logs.scope1Calculations || [])],
+      scope2Calculations: [...(logs.scope2Calculations || [])],
+      scope3Calculations: [...(logs.scope3Calculations || [])]
+    };
+    
+    // Filter out the record with the specified ID
+    updatedLogs[scopeKey] = updatedLogs[scopeKey].filter(
+      record => record.id !== recordId
+    );
+    
+    return updatedLogs;
+  }, []);
+  
+  /**
    * Calculate total emissions from calculation logs
    */
   const calculateTotalsFromLogs = useCallback((logs: EmissionCalculationLogs): EmissionsResults => {
@@ -64,6 +87,7 @@ export const useEmissionsRecords = () => {
   
   return {
     createCalculationRecord,
+    removeRecord,
     calculateTotalsFromLogs
   };
 };
