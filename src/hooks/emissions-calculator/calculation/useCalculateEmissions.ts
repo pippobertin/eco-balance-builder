@@ -8,7 +8,6 @@ import {
   EmissionCalculationRecord
 } from '../types';
 import { useEmissionsRecords } from '../useEmissionsRecords';
-import { useCalculationProcessor } from './useCalculationProcessor';
 import { performEmissionsCalculation } from './performCalculation';
 
 /**

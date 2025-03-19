@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { EmissionsInput, EmissionsResults, EmissionsDetails } from './types';
-import { performEmissionsCalculation } from './calculations';
+import { performEmissionsCalculation } from './calculation/performCalculation';
 
 /**
  * Hook for emissions calculation logic
