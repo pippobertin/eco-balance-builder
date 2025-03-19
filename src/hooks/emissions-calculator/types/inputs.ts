@@ -41,6 +41,8 @@ export interface Scope3Input {
   vehicleType?: string;
   vehicleFuelType?: FuelType;
   vehicleEnergyClass?: string;
+  vehicleFuelConsumption?: string;
+  vehicleFuelConsumptionUnit?: string; // 'l_100km' or 'km_l'
 }
 
 export interface CommonInput {

@@ -8,6 +8,8 @@ interface VehicleEmissionInfoProps {
   vehicleType: string;
   vehicleFuelType: FuelType;
   vehicleEnergyClass: string;
+  vehicleFuelConsumption?: string;
+  vehicleFuelConsumptionUnit?: string;
   showCard?: boolean;
 }
 
@@ -15,6 +17,8 @@ const VehicleEmissionInfo: React.FC<VehicleEmissionInfoProps> = ({
   vehicleType,
   vehicleFuelType,
   vehicleEnergyClass,
+  vehicleFuelConsumption,
+  vehicleFuelConsumptionUnit = 'l_100km',
   showCard = true
 }) => {
   const hasAllDetails = vehicleType && vehicleFuelType && vehicleEnergyClass;
@@ -66,6 +70,11 @@ const VehicleEmissionInfo: React.FC<VehicleEmissionInfoProps> = ({
   const readableFuelType = fuelTypeMap[vehicleFuelType] || vehicleFuelType;
   const readableEuroClass = vehicleEnergyClass.toUpperCase().replace("EURO", "Euro ");
   
+  // Format consumption for display
+  const formattedConsumption = vehicleFuelConsumption ? 
+    `${vehicleFuelConsumption} ${vehicleFuelConsumptionUnit === 'l_100km' ? 'L/100km' : 'km/L'}` : 
+    "Non specificato";
+  
   const content = (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-1 text-sm">
@@ -80,6 +89,9 @@ const VehicleEmissionInfo: React.FC<VehicleEmissionInfoProps> = ({
         
         <span className="text-gray-500">Classe:</span>
         <span>{readableEuroClass}</span>
+        
+        <span className="text-gray-500">Consumo:</span>
+        <span>{formattedConsumption}</span>
       </div>
       
       {emissionSource && (

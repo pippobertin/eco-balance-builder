@@ -94,6 +94,8 @@ export const performEmissionsCalculation = (
       if (!isNaN(distance) && distance > 0) {
         let emissionsKg;
         let emissionSource;
+        let fuelConsumed = 0;
+        let consumptionFactor = 0;
         
         // Check if we have vehicle details to use the vehicle emissions factors
         if (inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType) {
@@ -106,7 +108,55 @@ export const performEmissionsCalculation = (
           
           // Calculate emissions based on distance and vehicle-specific emission factor
           // Convert g CO2e/km to kg CO2e for the total distance
-          emissionsKg = (emissionFactor * distance) / 1000;
+          
+          // Apply fuel consumption if available
+          if (inputs.vehicleFuelConsumption && inputs.vehicleFuelConsumptionUnit) {
+            const consumption = parseFloat(inputs.vehicleFuelConsumption);
+            
+            if (!isNaN(consumption) && consumption > 0) {
+              // Convert consumption to L/100km for calculation
+              if (inputs.vehicleFuelConsumptionUnit === 'km_l') {
+                // From km/L to L/100km
+                consumptionFactor = 100 / consumption;
+              } else {
+                // Already in L/100km
+                consumptionFactor = consumption;
+              }
+              
+              // Calculate total fuel consumed for the journey in liters
+              fuelConsumed = (distance * consumptionFactor) / 100;
+              
+              // Calculate emissions based on the theoretical fuel consumption
+              if (inputs.vehicleFuelType === 'ELECTRIC') {
+                // For electric vehicles, still use the emission factor per km
+                emissionsKg = (emissionFactor * distance) / 1000;
+              } else {
+                // For fuel-based vehicles, use combination of distance-based and consumption-based calculation
+                // Fuel-specific emission factor (kg CO2e/L) - simplified values
+                const fuelEmissionFactors: Record<string, number> = {
+                  'DIESEL': 2.68,
+                  'GASOLINE': 2.31,
+                  'LPG': 1.51,
+                  'NATURAL_GAS': 2.02,
+                  'BIOFUEL': 1.13,
+                  'HYBRID': 1.90, // Average between gasoline and electric
+                  'ELECTRIC': 0 // Electric doesn't use fuel in the same way
+                };
+                
+                const fuelSpecificFactor = fuelEmissionFactors[inputs.vehicleFuelType] || 2.31; // Default to gasoline if not found
+                
+                // Calculate emissions based on fuel consumed
+                emissionsKg = fuelConsumed * fuelSpecificFactor;
+              }
+            } else {
+              // Fallback to standard calculation if consumption is invalid
+              emissionsKg = (emissionFactor * distance) / 1000;
+            }
+          } else {
+            // Standard calculation without consumption data
+            emissionsKg = (emissionFactor * distance) / 1000;
+          }
+          
           emissionSource = getVehicleEmissionFactorSource(
             inputs.vehicleType,
             inputs.vehicleEnergyClass,
@@ -125,7 +175,7 @@ export const performEmissionsCalculation = (
         const emissionsTonnes = emissionsKg / 1000;
         results.scope3 = emissionsTonnes;
         
-        // Save calculation details, now including vehicle information
+        // Save calculation details, now including vehicle information and fuel consumption
         const calculationDetails = {
           activityType: inputs.transportType,
           quantity: distance,
@@ -142,6 +192,10 @@ export const performEmissionsCalculation = (
             vehicleType: inputs.vehicleType || '',
             vehicleFuelType: inputs.vehicleFuelType || 'DIESEL',
             vehicleEnergyClass: inputs.vehicleEnergyClass || '',
+            fuelConsumption: inputs.vehicleFuelConsumption ? parseFloat(inputs.vehicleFuelConsumption) : null,
+            fuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit || 'l_100km',
+            totalFuelConsumed: fuelConsumed > 0 ? fuelConsumed : null,
+            consumptionFactorUsed: consumptionFactor > 0 ? consumptionFactor : null,
             emissionFactor: inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType ? 
               getVehicleEmissionFactor(inputs.vehicleType, inputs.vehicleEnergyClass, inputs.vehicleFuelType) : null
           }

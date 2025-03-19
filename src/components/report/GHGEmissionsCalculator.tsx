@@ -94,7 +94,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                  vehicleFuelType={inputs.vehicleFuelType || 'DIESEL'}
                  setVehicleFuelType={value => updateInput('vehicleFuelType', value)}
                  vehicleEnergyClass={inputs.vehicleEnergyClass || ''}
-                 setVehicleEnergyClass={value => updateInput('vehicleEnergyClass', value)} />;
+                 setVehicleEnergyClass={value => updateInput('vehicleEnergyClass', value)}
+                 vehicleFuelConsumption={inputs.vehicleFuelConsumption || ''}
+                 setVehicleFuelConsumption={value => updateInput('vehicleFuelConsumption', value)}
+                 vehicleFuelConsumptionUnit={inputs.vehicleFuelConsumptionUnit || 'l_100km'}
+                 setVehicleFuelConsumptionUnit={value => updateInput('vehicleFuelConsumptionUnit', value)}
+                 />;
       default:
         return null;
     }

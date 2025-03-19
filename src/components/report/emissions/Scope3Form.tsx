@@ -32,13 +32,17 @@ interface Scope3FormProps {
   // Common props
   periodType: PeriodType;
   setPeriodType: (value: PeriodType) => void;
-  // New transport related props
+  // Vehicle props
   vehicleType?: string;
   setVehicleType?: (value: string) => void;
   vehicleFuelType?: FuelType;
   setVehicleFuelType?: (value: FuelType) => void;
   vehicleEnergyClass?: string;
   setVehicleEnergyClass?: (value: string) => void;
+  vehicleFuelConsumption?: string;
+  setVehicleFuelConsumption?: (value: string) => void;
+  vehicleFuelConsumptionUnit?: string;
+  setVehicleFuelConsumptionUnit?: (value: string) => void;
 }
 
 const Scope3Form: React.FC<Scope3FormProps> = ({
@@ -65,7 +69,11 @@ const Scope3Form: React.FC<Scope3FormProps> = ({
   vehicleFuelType = "DIESEL",
   setVehicleFuelType = () => {},
   vehicleEnergyClass = "",
-  setVehicleEnergyClass = () => {}
+  setVehicleEnergyClass = () => {},
+  vehicleFuelConsumption = "",
+  setVehicleFuelConsumption = () => {},
+  vehicleFuelConsumptionUnit = "l_100km",
+  setVehicleFuelConsumptionUnit = () => {}
 }) => {
   return (
     <div className="space-y-4">
@@ -86,6 +94,10 @@ const Scope3Form: React.FC<Scope3FormProps> = ({
           setVehicleFuelType={setVehicleFuelType}
           vehicleEnergyClass={vehicleEnergyClass}
           setVehicleEnergyClass={setVehicleEnergyClass}
+          vehicleFuelConsumption={vehicleFuelConsumption}
+          setVehicleFuelConsumption={setVehicleFuelConsumption}
+          vehicleFuelConsumptionUnit={vehicleFuelConsumptionUnit}
+          setVehicleFuelConsumptionUnit={setVehicleFuelConsumptionUnit}
         />
       )}
       

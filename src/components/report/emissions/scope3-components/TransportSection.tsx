@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { 
   Select, 
   SelectContent, 
@@ -9,9 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TransportType, FuelType } from '@/lib/emissions-types';
-import { Info } from 'lucide-react';
+import { Info, ArrowLeftRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import VehicleEmissionInfo from './VehicleEmissionInfo';
+import { Button } from "@/components/ui/button";
 
 // Vehicle types
 const VEHICLE_TYPES = [
@@ -48,6 +50,10 @@ interface TransportSectionProps {
   setVehicleFuelType: (value: FuelType) => void;
   vehicleEnergyClass: string;
   setVehicleEnergyClass: (value: string) => void;
+  vehicleFuelConsumption?: string;
+  setVehicleFuelConsumption?: (value: string) => void;
+  vehicleFuelConsumptionUnit?: string;
+  setVehicleFuelConsumptionUnit?: (value: string) => void;
 }
 
 const TransportSection: React.FC<TransportSectionProps> = ({
@@ -60,13 +66,20 @@ const TransportSection: React.FC<TransportSectionProps> = ({
   vehicleFuelType,
   setVehicleFuelType,
   vehicleEnergyClass,
-  setVehicleEnergyClass
+  setVehicleEnergyClass,
+  vehicleFuelConsumption = "",
+  setVehicleFuelConsumption = () => {},
+  vehicleFuelConsumptionUnit = "l_100km",
+  setVehicleFuelConsumptionUnit = () => {}
 }) => {
   // Check if we're in a transport category that requires vehicle details
   const showVehicleDetails = transportType === 'FREIGHT_ROAD' || transportType === 'BUSINESS_TRAVEL_CAR';
   
   // Check if all vehicle details are provided
   const hasCompleteVehicleDetails = vehicleType && vehicleFuelType && vehicleEnergyClass;
+  
+  // Local state for consumption display conversion
+  const [displayConsumption, setDisplayConsumption] = useState(vehicleFuelConsumption);
   
   // Set default values if transport type changes
   useEffect(() => {
@@ -84,8 +97,47 @@ const TransportSection: React.FC<TransportSectionProps> = ({
       if (!vehicleFuelType) {
         setVehicleFuelType('DIESEL');
       }
+      
+      if (!vehicleFuelConsumptionUnit) {
+        setVehicleFuelConsumptionUnit('l_100km');
+      }
     }
-  }, [transportType, showVehicleDetails, vehicleType, vehicleEnergyClass, vehicleFuelType]);
+  }, [transportType, showVehicleDetails, vehicleType, vehicleEnergyClass, vehicleFuelType, vehicleFuelConsumptionUnit]);
+
+  // Update display consumption when unit or value changes
+  useEffect(() => {
+    setDisplayConsumption(vehicleFuelConsumption);
+  }, [vehicleFuelConsumption, vehicleFuelConsumptionUnit]);
+
+  // Handle toggling between l/100km and km/l
+  const toggleConsumptionUnit = () => {
+    // Convert the current value to the new unit
+    if (vehicleFuelConsumption && !isNaN(Number(vehicleFuelConsumption))) {
+      const currentValue = parseFloat(vehicleFuelConsumption);
+      
+      if (vehicleFuelConsumptionUnit === 'l_100km' && currentValue > 0) {
+        // Convert from l/100km to km/l
+        const newValue = (100 / currentValue).toFixed(2);
+        setVehicleFuelConsumption(newValue);
+        setVehicleFuelConsumptionUnit('km_l');
+      } else if (vehicleFuelConsumptionUnit === 'km_l' && currentValue > 0) {
+        // Convert from km/l to l/100km
+        const newValue = (100 / currentValue).toFixed(2);
+        setVehicleFuelConsumption(newValue);
+        setVehicleFuelConsumptionUnit('l_100km');
+      }
+    } else {
+      // Just toggle the unit if no valid value
+      setVehicleFuelConsumptionUnit(
+        vehicleFuelConsumptionUnit === 'l_100km' ? 'km_l' : 'l_100km'
+      );
+    }
+  };
+
+  // Handle consumption change
+  const handleConsumptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVehicleFuelConsumption(e.target.value);
+  };
 
   return (
     <div className="space-y-4">
@@ -203,6 +255,40 @@ const TransportSection: React.FC<TransportSectionProps> = ({
             </div>
           </div>
           
+          <div className="border-t pt-3 mt-3 border-blue-200">
+            <div className="flex items-end gap-2">
+              <div className="flex-grow">
+                <Label>Consumo carburante</Label>
+                <div className="flex">
+                  <Input 
+                    type="number" 
+                    value={displayConsumption} 
+                    onChange={handleConsumptionChange}
+                    placeholder={vehicleFuelConsumptionUnit === 'l_100km' ? "Litri per 100 km" : "Km per litro"}
+                    className="bg-white rounded-r-none"
+                  />
+                  <Button
+                    type="button"
+                    onClick={toggleConsumptionUnit}
+                    className="rounded-l-none bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-1 text-xs">
+                        {vehicleFuelConsumptionUnit === 'l_100km' ? 'L/100km' : 'km/L'}
+                      </span>
+                      <ArrowLeftRight className="h-3 w-3" />
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              {vehicleFuelConsumptionUnit === 'l_100km' 
+                ? "Inserisci il consumo in litri per 100 km percorsi" 
+                : "Inserisci i km percorsi con un litro di carburante"}
+            </p>
+          </div>
+          
           {hasCompleteVehicleDetails && (
             <div className="mt-2">
               <VehicleEmissionInfo 
@@ -219,4 +305,3 @@ const TransportSection: React.FC<TransportSectionProps> = ({
 };
 
 export default TransportSection;
-
