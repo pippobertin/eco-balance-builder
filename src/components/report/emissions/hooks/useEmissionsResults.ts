@@ -18,6 +18,7 @@ export const useEmissionsResults = (
   
   const handleCalculationResults = (results: EmissionsResults, details: EmissionsDetails) => {
     // Update form values with the new calculation results
+    // Store as strings to ensure consistent handling
     updateFormValues('totalScope1Emissions', results.scope1.toFixed(2));
     updateFormValues('scope1CalculationDetails', details.scope1Details);
     updateFormValues('totalScope2Emissions', results.scope2.toFixed(2));
@@ -29,7 +30,10 @@ export const useEmissionsResults = (
 
   const handleCalculationLogs = (logs: EmissionCalculationLogs) => {
     setCalculationLogs(logs);
-    updateFormValues('emissionCalculationLogs', JSON.stringify(logs));
+    // Ensure logs are properly stringified for storage
+    const logsString = JSON.stringify(logs);
+    console.log("Storing calculation logs as string:", logsString.substring(0, 100) + "...");
+    updateFormValues('emissionCalculationLogs', logsString);
   };
 
   // Function to explicitly reset all emissions values

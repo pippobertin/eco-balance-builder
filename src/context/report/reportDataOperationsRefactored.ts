@@ -36,23 +36,30 @@ export const useReportDataOperations = () => {
           throw new Error('You do not have permission to save this report');
         }
         
-        // Stringifizza i dati complessi prima del salvataggio
-        console.log("Saving report data to Supabase, payload:", {
-          environmental_metrics: reportData.environmentalMetrics,
-          social_metrics: reportData.socialMetrics,
-          conduct_metrics: reportData.conductMetrics,
-          materiality_analysis: reportData.materialityAnalysis,
-          narrative_pat_metrics: reportData.narrativePATMetrics
+        // Properly stringify all complex data before saving
+        console.log("Saving report data to Supabase, data structure:", {
+          environmentalMetrics: typeof reportData.environmentalMetrics,
+          socialMetrics: typeof reportData.socialMetrics,
+          conductMetrics: typeof reportData.conductMetrics,
+          materialityAnalysis: typeof reportData.materialityAnalysis,
+          narrativePATMetrics: typeof reportData.narrativePATMetrics
         });
+        
+        // Clean the data and convert objects to string
+        const cleanEnvironmentalMetrics = reportData.environmentalMetrics || {};
+        const cleanSocialMetrics = reportData.socialMetrics || {};
+        const cleanConductMetrics = reportData.conductMetrics || {};
+        const cleanMaterialityAnalysis = reportData.materialityAnalysis || { issues: [], stakeholders: [] };
+        const cleanNarrativePATMetrics = reportData.narrativePATMetrics || {};
         
         const { error } = await supabase
           .from('reports')
           .update({
-            environmental_metrics: JSON.stringify(reportData.environmentalMetrics || {}),
-            social_metrics: JSON.stringify(reportData.socialMetrics || {}),
-            conduct_metrics: JSON.stringify(reportData.conductMetrics || {}),
-            materiality_analysis: JSON.stringify(reportData.materialityAnalysis || { issues: [], stakeholders: [] }),
-            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics || {}),
+            environmental_metrics: JSON.stringify(cleanEnvironmentalMetrics),
+            social_metrics: JSON.stringify(cleanSocialMetrics),
+            conduct_metrics: JSON.stringify(cleanConductMetrics),
+            materiality_analysis: JSON.stringify(cleanMaterialityAnalysis),
+            narrative_pat_metrics: JSON.stringify(cleanNarrativePATMetrics),
             updated_at: new Date().toISOString()
           })
           .eq('id', reportId);

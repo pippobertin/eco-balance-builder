@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { EmissionsInput, EmissionsResults, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
 import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
@@ -39,7 +38,7 @@ export const useExistingEmissions = (
         totalScope2Emissions || 
         totalScope3Emissions
       ) {
-        // Parse the values to numbers, handling different types
+        // Ensure values are parsed as numbers regardless of their original type
         const scope1 = parseFloat(String(totalScope1Emissions || '0'));
         const scope2 = parseFloat(String(totalScope2Emissions || '0'));
         const scope3 = parseFloat(String(totalScope3Emissions || '0'));
@@ -63,21 +62,29 @@ export const useExistingEmissions = (
       if (emissionCalculationLogs && setCalculationLogs) {
         try {
           console.log("Parsing logs in useExistingEmissions");
+          console.log("Type of emissionCalculationLogs:", typeof emissionCalculationLogs);
+          
+          // Handle different potential data types for logs
           let parsedLogs: EmissionCalculationLogs;
           
-          // Handle the case where logs could be a string, object, or other type
-          parsedLogs = safeJsonParse(emissionCalculationLogs, {
-            scope1Calculations: [],
-            scope2Calculations: [],
-            scope3Calculations: []
-          });
+          if (typeof emissionCalculationLogs === 'string') {
+            // If it's a string, parse it
+            parsedLogs = JSON.parse(emissionCalculationLogs);
+          } else {
+            // Otherwise use safeJsonParse to handle any type
+            parsedLogs = safeJsonParse(emissionCalculationLogs, {
+              scope1Calculations: [],
+              scope2Calculations: [],
+              scope3Calculations: []
+            });
+          }
           
           // Ensure the structure is complete
           if (!parsedLogs.scope1Calculations) parsedLogs.scope1Calculations = [];
           if (!parsedLogs.scope2Calculations) parsedLogs.scope2Calculations = [];
           if (!parsedLogs.scope3Calculations) parsedLogs.scope3Calculations = [];
           
-          console.log("Loaded calculation logs:", JSON.stringify(parsedLogs));
+          console.log("Loaded calculation logs:", JSON.stringify(parsedLogs).substring(0, 100) + "...");
           
           // Set calculation logs state if available
           setCalculationLogs(parsedLogs);

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
@@ -90,6 +91,12 @@ export const useReportLoad = (
         setCurrentReport(result.report);
         
         // Extract metrics data from the loaded report with improved parsing
+        // Make sure we're parsing JSON strings correctly, not treating them as objects
+        console.log("Raw environmental_metrics type:", typeof result.report.environmental_metrics);
+        console.log("Raw social_metrics type:", typeof result.report.social_metrics);
+        console.log("Raw conduct_metrics type:", typeof result.report.conduct_metrics);
+        console.log("Raw materiality_analysis type:", typeof result.report.materiality_analysis);
+        
         const newReportData: ReportData = {
           environmentalMetrics: safeJsonParse(result.report.environmental_metrics, {}),
           socialMetrics: safeJsonParse(result.report.social_metrics, {}),
@@ -98,7 +105,12 @@ export const useReportLoad = (
           narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {})
         };
         
-        console.log("Setting report data from loaded report:", JSON.stringify(newReportData));
+        console.log("Parsed report data:", {
+          environmentalMetrics: typeof newReportData.environmentalMetrics,
+          socialMetrics: typeof newReportData.socialMetrics,
+          conductMetrics: typeof newReportData.conductMetrics,
+          materialityAnalysis: typeof newReportData.materialityAnalysis
+        });
         
         // Update report data state
         setReportData(newReportData);
@@ -108,7 +120,7 @@ export const useReportLoad = (
         
         // If the report has a company, set it as the current company
         if (result.report.company) {
-          console.info("Report has company data:", result.report.company.name);
+          console.log("Report has company data:", result.report.company.name);
           setCurrentCompany(result.report.company);
           localStorageUtils.saveCurrentCompanyId(result.report.company_id);
         }
