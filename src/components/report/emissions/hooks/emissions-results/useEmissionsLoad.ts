@@ -15,8 +15,9 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
     try {
       console.log('Loading emissions data for report:', reportId);
       
+      // Use the emissions_logs table instead of emissions
       const { data, error } = await supabase
-        .from('emissions')
+        .from('emissions_logs')
         .select('*')
         .eq('report_id', reportId)
         .single();
@@ -62,10 +63,6 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
       
       const initialData = {
         report_id: reportId,
-        scope1_emissions: 0,
-        scope2_emissions: 0,
-        scope3_emissions: 0,
-        total_emissions: 0,
         calculation_logs: JSON.stringify({
           scope1Calculations: [],
           scope2Calculations: [],
@@ -74,8 +71,9 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         created_at: new Date().toISOString()
       };
       
+      // Insert into emissions_logs table
       const { error } = await supabase
-        .from('emissions')
+        .from('emissions_logs')
         .insert(initialData);
       
       if (error) {

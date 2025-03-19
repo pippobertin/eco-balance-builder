@@ -30,11 +30,26 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     const data = await loadEmissionsData(reportId);
     
     if (data) {
-      // Update local state with loaded data
-      setScope1Emissions(Number(data.scope1_emissions) || 0);
-      setScope2Emissions(Number(data.scope2_emissions) || 0);
-      setScope3Emissions(Number(data.scope3_emissions) || 0);
-      setTotalEmissions(Number(data.total_emissions) || 0);
+      // Calculate totals from calculation_logs entries
+      const calculationLogs = data.calculation_logs || { 
+        scope1Calculations: [], 
+        scope2Calculations: [], 
+        scope3Calculations: [] 
+      };
+      
+      // Sum up emissions from calculations
+      const scope1 = calculationLogs.scope1Calculations?.reduce(
+        (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
+      const scope2 = calculationLogs.scope2Calculations?.reduce(
+        (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
+      const scope3 = calculationLogs.scope3Calculations?.reduce(
+        (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
+      
+      // Update local state with calculated totals
+      setScope1Emissions(scope1);
+      setScope2Emissions(scope2);
+      setScope3Emissions(scope3);
+      setTotalEmissions(scope1 + scope2 + scope3);
     } else {
       // Initialize with zeros and create initial entry
       resetEmissions();

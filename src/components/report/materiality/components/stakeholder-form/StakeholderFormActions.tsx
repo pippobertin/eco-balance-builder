@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from 'lucide-react';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useReport } from '@/hooks/use-report-context';
 
 interface StakeholderFormActionsProps {
   isValid: boolean;
@@ -15,9 +16,15 @@ const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
   onCancel,
   onSubmit
 }) => {
+  // Get needsSaving and lastSaved from the report context
+  const { needsSaving, lastSaved } = useReport();
+  
   return (
     <div className="flex justify-between items-center space-x-4">
-      <AutoSaveIndicator />
+      <AutoSaveIndicator 
+        needsSaving={needsSaving} 
+        lastSaved={lastSaved} 
+      />
       
       <div className="flex space-x-4">
         <Button 

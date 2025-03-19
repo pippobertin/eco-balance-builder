@@ -7,9 +7,14 @@ import { Clock } from 'lucide-react';
 interface AutoSaveIndicatorProps {
   needsSaving: boolean;
   lastSaved: Date | null;
+  className?: string; // Add className prop
 }
 
-const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ needsSaving, lastSaved }) => {
+const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ 
+  needsSaving, 
+  lastSaved,
+  className = '' // Default to empty string
+}) => {
   const displayText = useMemo(() => {
     if (!lastSaved) return "Non salvato";
     return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
@@ -21,7 +26,7 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ needsSaving, last
   return (
     <div className={`flex items-center text-sm gap-1 px-2 py-1 rounded-md ${
       needsSaving ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50'
-    }`}>
+    } ${className}`}>
       <Clock className="h-3.5 w-3.5" />
       <span>
         {needsSaving ? 'Salvataggio in corso...' : `Salvato ${displayText}`}

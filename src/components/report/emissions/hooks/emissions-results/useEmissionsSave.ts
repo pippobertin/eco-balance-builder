@@ -41,7 +41,7 @@ export const useEmissionsSave = () => {
       
       // Check if emissions data exists for this report
       const { data: existingData, error: checkError } = await supabase
-        .from('emissions')
+        .from('emissions_logs')
         .select('id')
         .eq('report_id', reportId)
         .single();
@@ -55,13 +55,9 @@ export const useEmissionsSave = () => {
       // If data exists, update it
       if (existingData) {
         const { data, error } = await supabase
-          .from('emissions')
+          .from('emissions_logs')
           .update({
-            scope1_emissions: scope1,
-            scope2_emissions: scope2,
-            scope3_emissions: scope3,
-            total_emissions: total,
-            calculation_logs: JSON.stringify(validatedCalculations),
+            calculation_logs: validatedCalculations,
             updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
@@ -73,14 +69,10 @@ export const useEmissionsSave = () => {
       } else {
         // If no data exists, create a new record
         const { data, error } = await supabase
-          .from('emissions')
+          .from('emissions_logs')
           .insert({
             report_id: reportId,
-            scope1_emissions: scope1,
-            scope2_emissions: scope2,
-            scope3_emissions: scope3,
-            total_emissions: total,
-            calculation_logs: JSON.stringify(validatedCalculations),
+            calculation_logs: validatedCalculations,
             created_at: new Date().toISOString()
           })
           .select()

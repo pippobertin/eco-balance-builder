@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { useEmissionsLoad } from '../emissions-results/useEmissionsLoad';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
+import { useEmissionsLoad } from './emissions-results/useEmissionsLoad';
 
 export const useExistingEmissions = (reportId: string | undefined) => {
   const [existingEmissions, setExistingEmissions] = useState<{
@@ -22,15 +22,7 @@ export const useExistingEmissions = (reportId: string | undefined) => {
         const emissionsData = await loadEmissionsData(reportId);
         
         if (emissionsData) {
-          // Set the emissions values
-          setExistingEmissions({
-            scope1: Number(emissionsData.scope1_emissions) || 0,
-            scope2: Number(emissionsData.scope2_emissions) || 0,
-            scope3: Number(emissionsData.scope3_emissions) || 0,
-            total: Number(emissionsData.total_emissions) || 0
-          });
-          
-          // Set the calculation logs
+          // Calculate totals from the calculation logs
           let calculationLogs: EmissionCalculationLogs = {
             scope1Calculations: [],
             scope2Calculations: [],
@@ -54,6 +46,23 @@ export const useExistingEmissions = (reportId: string | undefined) => {
                 ? calculationLogs.scope2Calculations : [];
               calculationLogs.scope3Calculations = Array.isArray(calculationLogs.scope3Calculations) 
                 ? calculationLogs.scope3Calculations : [];
+              
+              // Calculate totals from the calculations
+              const scope1 = calculationLogs.scope1Calculations.reduce(
+                (sum, calc) => sum + Number(calc.emissions || 0), 0);
+              const scope2 = calculationLogs.scope2Calculations.reduce(
+                (sum, calc) => sum + Number(calc.emissions || 0), 0);
+              const scope3 = calculationLogs.scope3Calculations.reduce(
+                (sum, calc) => sum + Number(calc.emissions || 0), 0);
+              const total = scope1 + scope2 + scope3;
+              
+              // Set the emissions values
+              setExistingEmissions({
+                scope1,
+                scope2,
+                scope3,
+                total
+              });
               
               console.log('Loaded calculation logs:', {
                 scope1Count: calculationLogs.scope1Calculations.length,
