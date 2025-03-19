@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Button } from '@/components/ui/button';
@@ -14,31 +15,45 @@ const CompaniesContainer = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(currentCompany);
   
-  console.log("CompaniesContainer rendered with companies:", companies);
-  console.log("Current company:", currentCompany);
+  console.log("CompaniesContainer rendered with companies:", companies.length);
+  console.log("Current company:", currentCompany?.name);
   
   const isUpdatingRef = React.useRef(false);
   
   const handleSelectCompany = useCallback((company: Company) => {
     if (isUpdatingRef.current) return;
     
-    if (selectedCompany?.id === company.id) return;
+    console.log("CompaniesContainer: Selecting company:", company.name);
+    if (selectedCompany?.id === company.id) {
+      console.log("CompaniesContainer: Same company already selected, skipping update");
+      return;
+    }
     
     isUpdatingRef.current = true;
     
-    setSelectedCompany(company);
-    
-    setCurrentCompany(company);
-    
-    setTimeout(() => {
-      isUpdatingRef.current = false;
-    }, 0);
+    try {
+      // First update local state
+      setSelectedCompany(company);
+      
+      // Then update global context
+      console.log("CompaniesContainer: Updating current company in context");
+      setCurrentCompany(company);
+    } catch (error) {
+      console.error("Error selecting company:", error);
+    } finally {
+      // Reset flag after a small delay to ensure state updates have processed
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
   }, [selectedCompany, setCurrentCompany]);
   
+  // Sync local state with context
   useEffect(() => {
     if (isUpdatingRef.current) return;
     
     if (currentCompany && (!selectedCompany || currentCompany.id !== selectedCompany.id)) {
+      console.log("CompaniesContainer: Syncing selected company with context", currentCompany.name);
       setSelectedCompany(currentCompany);
     }
   }, [currentCompany, selectedCompany]);

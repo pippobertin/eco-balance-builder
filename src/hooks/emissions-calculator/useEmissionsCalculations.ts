@@ -17,13 +17,33 @@ export const useEmissionsCalculations = () => {
     inputs: EmissionsInput,
     scope?: 'scope1' | 'scope2' | 'scope3'
   ): { results: EmissionsResults; details: EmissionsDetails } => {
-    console.log('Performing emissions calculation for scope:', scope || 'all');
-    console.log('Calculation inputs:', inputs);
-    
-    const result = performEmissionsCalculation(inputs, scope);
-    console.log('Calculation result:', result);
-    
-    return result;
+    try {
+      console.log('Performing emissions calculation for scope:', scope || 'all');
+      console.log('Calculation inputs:', inputs);
+      
+      const result = performEmissionsCalculation(inputs, scope);
+      console.log('Calculation result:', result);
+      
+      // Ensure the result is properly structured and has numeric values
+      const validatedResult = {
+        results: {
+          scope1: typeof result.results.scope1 === 'number' ? result.results.scope1 : 0,
+          scope2: typeof result.results.scope2 === 'number' ? result.results.scope2 : 0,
+          scope3: typeof result.results.scope3 === 'number' ? result.results.scope3 : 0,
+          total: typeof result.results.total === 'number' ? result.results.total : 0
+        },
+        details: result.details || {}
+      };
+      
+      return validatedResult;
+    } catch (error) {
+      console.error('Error in emissions calculation:', error);
+      // Return a safe fallback result
+      return {
+        results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+        details: {}
+      };
+    }
   }, []);
   
   return {

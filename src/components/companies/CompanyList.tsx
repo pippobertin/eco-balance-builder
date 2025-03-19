@@ -16,12 +16,17 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
   
   // Create a memoized selection handler
   const handleSelectCompany = useCallback((company: Company) => {
+    console.log("CompanyList: Selecting company:", company.name);
     // Only trigger the callback if this is a new selection
     if (!selectedCompany || selectedCompany.id !== company.id) {
       onSelectCompany(company);
       
-      // Navigate to company profile page
-      navigate('/company-profile');
+      // Allow the company selection to complete before navigating
+      setTimeout(() => {
+        console.log("CompanyList: Navigating to company profile");
+        // Navigate to company profile page
+        navigate('/company-profile');
+      }, 50);
     }
   }, [onSelectCompany, selectedCompany, navigate]);
   

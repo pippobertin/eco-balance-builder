@@ -10,6 +10,7 @@ import ReportList from './ReportList';
 import { useReportContext } from './hooks/useReportContext';
 import { useAuth } from '@/context/AuthContext';
 import { debounce } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReportsSectionProps {
   setReportToDelete: (report: Report) => void;
@@ -17,11 +18,12 @@ interface ReportsSectionProps {
 }
 
 const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSectionProps) => {
-  const { reports, loadReports, currentCompany } = useReport();
+  const { reports, loadReports, currentCompany, loadReport, setCurrentReport } = useReport();
   const { isAddReportDialogOpen, setIsAddReportDialogOpen } = useReportContext();
   const { user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [accessError, setAccessError] = useState(false);
+  const { toast } = useToast();
   const loadingRef = useRef(false);
   const lastCompanyIdRef = useRef<string | null>(null);
   
@@ -56,15 +58,20 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
     } catch (error) {
       console.error("Error loading reports:", error);
       setAccessError(true);
+      toast({
+        title: "Errore di caricamento",
+        description: "Impossibile caricare i report per questa azienda",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
       
       // Reset loading flag after a delay to prevent rapid successive calls
       setTimeout(() => {
         loadingRef.current = false;
-      }, 300);
+      }, 500);
     }
-  }, [currentCompany, isAdmin, user, loadReports]);
+  }, [currentCompany, isAdmin, user, loadReports, toast]);
   
   // Debounce the load function to prevent multiple rapid calls
   const debouncedLoadReports = useCallback(
@@ -76,6 +83,7 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
   
   useEffect(() => {
     if (currentCompany && currentCompany.id) {
+      console.log("Company changed, loading reports for:", currentCompany.name);
       debouncedLoadReports();
     }
   }, [currentCompany, debouncedLoadReports]);
@@ -85,6 +93,37 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
     setReportToDelete(report);
     setIsDeleteDialogOpen(true);
   };
+  
+  // Handle report selection with error handling
+  const handleSelectReport = useCallback(async (report: Report) => {
+    console.log("Selecting report:", report.id);
+    try {
+      setIsLoading(true);
+      // Load the full report data
+      const result = await loadReport(report.id);
+      
+      if (result && result.report) {
+        console.log("Report loaded successfully:", result.report.id);
+        // The report is now set as currentReport in the context by loadReport
+      } else {
+        console.error("Failed to load report details");
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare i dettagli del report",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error selecting report:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un problema durante il caricamento del report",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadReport, toast]);
 
   return (
     <GlassmorphicCard className="h-full">
@@ -135,7 +174,11 @@ const ReportsSection = ({ setReportToDelete, setIsDeleteDialogOpen }: ReportsSec
           <p className="text-sm">Crea il tuo primo report di sostenibilità.</p>
         </div>
       ) : (
-        <ReportList reports={reports} onDelete={openDeleteDialog} />
+        <ReportList 
+          reports={reports} 
+          onDelete={openDeleteDialog} 
+          onSelectReport={handleSelectReport}
+        />
       )}
       
       <AddReportDialog
