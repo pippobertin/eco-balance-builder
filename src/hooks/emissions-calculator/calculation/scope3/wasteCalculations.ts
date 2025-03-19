@@ -38,7 +38,9 @@ export const performWasteCalculation = (
           wasteType: inputs.wasteType,
           quantity,
           emissionsKg,
-          emissionsTonnes
+          emissionsTonnes,
+          originalScope3: results.scope3,
+          newScope3Value: results.scope3 + emissionsTonnes
         });
         
         // Update results - IMPORTANT: Add to existing value, not replace
@@ -57,6 +59,7 @@ export const performWasteCalculation = (
         // Save calculation details
         const calculationDetails = {
           wasteType: inputs.wasteType,
+          activityType: inputs.wasteType, // Add this for table display
           quantity,
           unit: 'kg',
           periodType: inputs.periodType,
@@ -69,7 +72,8 @@ export const performWasteCalculation = (
         // Convert the source object to string
         const sourceInfo = calculationDetails.source;
         if (sourceInfo) {
-          source = typeof sourceInfo === 'string' ? sourceInfo : JSON.stringify(sourceInfo);
+          source = typeof sourceInfo === 'string' ? sourceInfo : 
+                 (typeof sourceInfo === 'object' && sourceInfo.name ? sourceInfo.name : 'DEFRA');
         }
         
         details = JSON.stringify(calculationDetails);

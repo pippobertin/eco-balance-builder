@@ -42,16 +42,32 @@ export const useCalculateEmissions = (
     console.log('Starting calculation for scope:', scope);
     console.log('Current inputs:', JSON.stringify(inputs));
     
+    // Initialize results with zeros if not provided
+    const initialResults: EmissionsResults = {
+      scope1: 0,
+      scope2: 0,
+      scope3: 0,
+      total: 0
+    };
+    
     // Perform the calculation using the performEmissionsCalculation function
     const { results: newResults, details: newDetails } = performEmissionsCalculation(inputs, scope);
     console.log('Calculation results:', newResults);
     console.log('Calculation details:', newDetails);
     
+    // Ensure logs have the correct structure
+    const safeScope1Calculations = Array.isArray(calculationLogs.scope1Calculations) ? 
+      [...calculationLogs.scope1Calculations] : [];
+    const safeScope2Calculations = Array.isArray(calculationLogs.scope2Calculations) ? 
+      [...calculationLogs.scope2Calculations] : [];
+    const safeScope3Calculations = Array.isArray(calculationLogs.scope3Calculations) ? 
+      [...calculationLogs.scope3Calculations] : [];
+    
     // Create updated logs
     let updatedLogs: EmissionCalculationLogs = { 
-      scope1Calculations: Array.isArray(calculationLogs.scope1Calculations) ? [...calculationLogs.scope1Calculations] : [],
-      scope2Calculations: Array.isArray(calculationLogs.scope2Calculations) ? [...calculationLogs.scope2Calculations] : [],
-      scope3Calculations: Array.isArray(calculationLogs.scope3Calculations) ? [...calculationLogs.scope3Calculations] : []
+      scope1Calculations: safeScope1Calculations,
+      scope2Calculations: safeScope2Calculations,
+      scope3Calculations: safeScope3Calculations
     };
     
     // Update calculation logs if we have a new calculation
@@ -70,7 +86,17 @@ export const useCalculateEmissions = (
           const detailsStr = scope === 'scope1' ? newDetails.scope1Details : 
                            scope === 'scope2' ? newDetails.scope2Details : newDetails.scope3Details;
           
-          const detailsObj = detailsStr ? JSON.parse(detailsStr) : {};
+          console.log(`Details string for ${scope}:`, detailsStr);
+          
+          let detailsObj = {};
+          if (detailsStr) {
+            try {
+              detailsObj = JSON.parse(detailsStr);
+              console.log(`Parsed details object for ${scope}:`, detailsObj);
+            } catch (e) {
+              console.error(`Error parsing details for ${scope}:`, e);
+            }
+          }
           
           // Create a new record with the details
           const newRecord: EmissionCalculationRecord = {
@@ -80,7 +106,7 @@ export const useCalculateEmissions = (
             source: detailsObj.source || '',
             description: scope === 'scope1' ? `${detailsObj.fuelType || 'Fuel'} emission` : 
                         scope === 'scope2' ? `${detailsObj.energyType || 'Energy'} emission` :
-                        `${detailsObj.wasteType || detailsObj.purchaseType || detailsObj.transportType || 'Scope 3'} emission`,
+                        `${detailsObj.wasteType || detailsObj.purchaseType || detailsObj.transportType || detailsObj.activityType || 'Scope 3'} emission`,
             quantity: detailsObj.quantity || 0,
             unit: detailsObj.unit || '',
             emissions: emissionValue,

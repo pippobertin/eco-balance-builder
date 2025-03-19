@@ -37,6 +37,9 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
   getPeriodLabel,
   hasVehicleDetails
 }) => {
+  // Log calculation details to help with debugging
+  console.log("Rendering EmissionTableRow with calculation:", calculation);
+  
   return (
     <>
       <TableRow>

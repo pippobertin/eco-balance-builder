@@ -23,7 +23,9 @@ export const formatNumber = (num: number, precision = 2) => {
   });
 };
 
-export const getPeriodLabel = (period?: PeriodType) => {
+export const getPeriodLabel = (period?: PeriodType | string) => {
+  if (!period) return 'Non specificato';
+  
   switch (period) {
     case PeriodType.ANNUAL:
       return 'Annuale';
@@ -53,12 +55,21 @@ export interface Calculation {
 }
 
 export const getCategoryLabel = (calculation: Calculation, scope: string) => {
+  console.log('Getting category label for calculation:', {
+    scope,
+    calculationDetails: calculation.details
+  });
+  
   if (scope === 'scope1') {
     return calculation.details?.fuelType ? `Combustibile: ${calculation.details?.fuelType.replace(/_/g, ' ')}` : 'Combustibile';
   } else if (scope === 'scope2') {
     return calculation.details?.energyType ? `Energia: ${calculation.details?.energyType.replace(/_/g, ' ')}` : 'Energia';
   } else if (scope === 'scope3') {
-    const detailType = calculation.details?.activityType || '';
+    // Try to get the activity type from details
+    const activityType = calculation.details?.activityType || calculation.details?.wasteType || 
+                          calculation.details?.purchaseType || calculation.details?.transportType || '';
+    
+    console.log('Scope 3 activity type:', activityType);
     
     // Se ci sono dettagli del veicolo, mostra informazioni più specifiche
     if (hasValidVehicleDetails(calculation)) {
@@ -68,26 +79,26 @@ export const getCategoryLabel = (calculation: Calculation, scope: string) => {
       
       // Mappa dei tipi di veicolo per una visualizzazione più leggibile
       const vehicleTypeMap: Record<string, string> = {
-        car_small: "Auto piccola",
-        car_medium: "Auto media",
-        car_large: "Auto grande",
-        van_small: "Furgone piccolo",
-        van_medium: "Furgone medio",
-        truck_small: "Camion piccolo",
-        truck_medium: "Camion medio",
-        truck_large: "Camion pesante",
-        truck_articulated: "Autoarticolato"
+        'car_small': "Auto piccola",
+        'car_medium': "Auto media",
+        'car_large': "Auto grande",
+        'van_small': "Furgone piccolo",
+        'van_medium': "Furgone medio",
+        'truck_small': "Camion piccolo",
+        'truck_medium': "Camion medio",
+        'truck_large': "Camion pesante",
+        'truck_articulated': "Autoarticolato"
       };
       
       // Mappa dei tipi di carburante per una visualizzazione più leggibile
       const fuelTypeMap: Record<string, string> = {
-        DIESEL: "Diesel",
-        GASOLINE: "Benzina",
-        LPG: "GPL",
-        NATURAL_GAS: "Metano",
-        BIOFUEL: "Biocarburante",
-        HYBRID: "Ibrido",
-        ELECTRIC: "Elettrico"
+        'DIESEL': "Diesel",
+        'GASOLINE': "Benzina",
+        'LPG': "GPL",
+        'NATURAL_GAS': "Metano",
+        'BIOFUEL': "Biocarburante",
+        'HYBRID': "Ibrido",
+        'ELECTRIC': "Elettrico"
       };
       
       const readableVehicleType = vehicleTypeMap[vehicleType] || vehicleType;
@@ -96,15 +107,15 @@ export const getCategoryLabel = (calculation: Calculation, scope: string) => {
       return `Trasporto: ${readableVehicleType} (${readableFuelType})`;
     }
     
-    if (detailType.includes('FREIGHT') || detailType.includes('BUSINESS_TRAVEL')) {
-      return `Trasporto: ${detailType.replace(/_/g, ' ')}`;
-    } else if (detailType.includes('WASTE')) {
-      return `Rifiuti: ${detailType.replace(/_/g, ' ')}`;
-    } else if (detailType.includes('PURCHASED')) {
-      return `Acquisti: ${detailType.replace(/_/g, ' ')}${calculation.details?.description ? ` - ${calculation.details.description}` : ''}`;
+    if (activityType.includes('FREIGHT') || activityType.includes('BUSINESS_TRAVEL')) {
+      return `Trasporto: ${activityType.replace(/_/g, ' ')}`;
+    } else if (activityType.includes('WASTE')) {
+      return `Rifiuti: ${activityType.replace(/_/g, ' ')}`;
+    } else if (activityType.includes('PURCHASED')) {
+      return `Acquisti: ${activityType.replace(/_/g, ' ')}${calculation.details?.description ? ` - ${calculation.details.description}` : ''}`;
     }
     
-    return detailType.replace(/_/g, ' ');
+    return activityType.replace(/_/g, ' ') || 'Non specificato';
   }
   
   return 'Non specificato';

@@ -17,6 +17,13 @@ export const performPurchaseCalculation = (
   let details = '';
   let source = '';
 
+  console.log('Starting purchase calculation with inputs:', {
+    purchaseType: inputs.purchaseType,
+    purchaseQuantity: inputs.purchaseQuantity,
+    purchaseDescription: inputs.purchaseDescription,
+    initialScope3: results.scope3
+  });
+
   if (inputs.purchaseType && inputs.purchaseQuantity && inputs.purchaseQuantity !== '') {
     const quantity = parseFloat(inputs.purchaseQuantity);
     if (!isNaN(quantity) && quantity > 0) {
@@ -31,7 +38,9 @@ export const performPurchaseCalculation = (
         purchaseType: inputs.purchaseType,
         quantity,
         emissionsKg,
-        emissionsTonnes
+        emissionsTonnes,
+        originalScope3: results.scope3,
+        newScope3Value: results.scope3 + emissionsTonnes
       });
       
       // Update results - IMPORTANT: Add to existing value, not replace
@@ -44,6 +53,7 @@ export const performPurchaseCalculation = (
       // Save calculation details
       const calculationDetails = {
         purchaseType: inputs.purchaseType,
+        activityType: inputs.purchaseType, // Add this for table display
         description: inputs.purchaseDescription || '',
         quantity,
         unit: inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità',
@@ -57,10 +67,16 @@ export const performPurchaseCalculation = (
       // Convert the source object to string
       const sourceInfo = calculationDetails.source;
       if (sourceInfo) {
-        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+        source = typeof sourceInfo === 'string' ? sourceInfo : 
+               (typeof sourceInfo === 'object' && sourceInfo.name ? sourceInfo.name : 'DEFRA');
       }
       
       details = JSON.stringify(calculationDetails);
+      
+      console.log('Purchase calculation details:', {
+        details,
+        updatedResults
+      });
       
       return { updatedResults, details, source };
     }
