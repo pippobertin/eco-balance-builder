@@ -52,10 +52,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         // Create an initial entry in the database
         const emissionsData = {
           report_id: reportId,
-          scope1_emissions: 0, // Use numeric type as per database schema
-          scope2_emissions: 0, // Use numeric type as per database schema
-          scope3_emissions: 0, // Use numeric type as per database schema
-          total_emissions: 0,  // Use numeric type as per database schema
+          scope1_emissions: "0", // Use string for database as per expected type
+          scope2_emissions: "0", // Use string for database as per expected type
+          scope3_emissions: "0", // Use string for database as per expected type
+          total_emissions: "0",  // Use string for database as per expected type
           updated_at: new Date().toISOString()
         };
         
@@ -141,12 +141,12 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         
       if (fetchError) throw fetchError;
       
-      // Update emissions data table using numeric values as per database schema
+      // Update emissions data table - convert numbers to strings for database
       const emissionsData = {
-        scope1_emissions: scope1,
-        scope2_emissions: scope2,
-        scope3_emissions: scope3,
-        total_emissions: total,
+        scope1_emissions: scope1.toString(),
+        scope2_emissions: scope2.toString(),
+        scope3_emissions: scope3.toString(),
+        total_emissions: total.toString(),
         updated_at: new Date().toISOString()
       };
       
