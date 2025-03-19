@@ -19,6 +19,7 @@ export const createDefaultInputs = (): EmissionsInput => {
     wasteQuantity: '',
     purchaseType: 'PURCHASED_GOODS',
     purchaseQuantity: '',
+    purchaseDescription: '',
     periodType: PeriodType.ANNUAL,
     calculationMethod: EmissionFactorSource.DEFRA
   };
@@ -32,6 +33,7 @@ export const resetQuantityInputs = (currentInputs: EmissionsInput): EmissionsInp
     energyQuantity: '',
     transportDistance: '',
     wasteQuantity: '',
-    purchaseQuantity: ''
+    purchaseQuantity: '',
+    purchaseDescription: ''
   };
 };

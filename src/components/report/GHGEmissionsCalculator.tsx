@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import EmissionsResults from './emissions/EmissionsResults';
 import CalculatorHeader from './emissions/CalculatorHeader';
 import EmissionsCalculationTable from './emissions/EmissionsCalculationTable';
 import AutoSaveIndicator from './AutoSaveIndicator';
+
 const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   formValues,
   setFormValues,
@@ -33,6 +33,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     isSaving,
     isLoadingExisting
   } = useCalculator(formValues, setFormValues, onResetClick);
+
   useEffect(() => {
     // Debug log to see if calculation logs are populated correctly
     console.log("GHGEmissionsCalculator: Current calculation logs:", calculationLogs);
@@ -40,6 +41,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
     console.log("Scope3 calculations:", calculationLogs.scope3Calculations?.length || 0);
   }, [calculationLogs]);
+
   const getActiveTabContent = () => {
     switch (activeTab) {
       case 'scope1':
@@ -71,7 +73,9 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
                  purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'} 
                  setPurchaseType={value => updateInput('purchaseType', value)} 
                  purchaseQuantity={inputs.purchaseQuantity || ''} 
-                 setPurchaseQuantity={value => updateInput('purchaseQuantity', value)} 
+                 setPurchaseQuantity={value => updateInput('purchaseQuantity', value)}
+                 purchaseDescription={inputs.purchaseDescription || ''}
+                 setPurchaseDescription={value => updateInput('purchaseDescription', value)}
                  periodType={inputs.periodType || PeriodType.ANNUAL} 
                  setPeriodType={value => updateInput('periodType', value)}
                  vehicleType={inputs.vehicleType || ''}
@@ -85,20 +89,18 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
-  // Handle calculate button click - this calculates for current tab only
   const handleCalculateClick = () => {
     console.log('Calculate button clicked for tab:', activeTab);
     calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
   };
 
-  // Handle save button click - this saves to database
   const handleSaveClick = () => {
     console.log('Save button clicked');
     handleSubmitCalculation();
   };
 
-  // Check if we have any calculation logs to display
   const hasCalculationLogs = calculationLogs && (Array.isArray(calculationLogs.scope1Calculations) && calculationLogs.scope1Calculations.length > 0 || Array.isArray(calculationLogs.scope2Calculations) && calculationLogs.scope2Calculations.length > 0 || Array.isArray(calculationLogs.scope3Calculations) && calculationLogs.scope3Calculations.length > 0);
+
   if (isLoadingExisting) {
     return <div className="border rounded-md p-4 bg-white/80">
         <div className="flex justify-center py-8">
@@ -106,6 +108,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         </div>
       </div>;
   }
+
   return <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA} setCalculationMethod={value => updateInput('calculationMethod', value)} />
       
@@ -137,7 +140,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         <EmissionsResults calculatedEmissions={calculatedEmissions} />
       </div>
       
-      {/* Tabelle di riepilogo per ogni scope */}
       <div className="mt-8 space-y-6">
         <h3 className="text-lg font-semibold mb-4">Riepilogo calcoli emissioni</h3>
         
@@ -151,4 +153,5 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       </div>
     </div>;
 };
+
 export default GHGEmissionsCalculator;

@@ -1,4 +1,3 @@
-
 // Enum for emission scopes
 export enum EmissionScope {
   SCOPE1 = 'Scope 1',
@@ -97,7 +96,9 @@ export type FuelType =
   'BIOMASS_WOOD' | 
   'BIOFUEL' | 
   'COAL' | 
-  'FUEL_OIL';
+  'FUEL_OIL' |
+  'HYBRID' |
+  'ELECTRIC';
 
 // Type for energy types (Scope 2)
 export type EnergyType = 

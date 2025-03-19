@@ -35,6 +35,7 @@ export interface Scope3Input {
   wasteQuantity?: string;
   purchaseType?: PurchaseType;
   purchaseQuantity?: string;
+  purchaseDescription?: string; // New field for purchase description
   
   // Vehicle details for Scope 3 transport
   vehicleType?: string;
