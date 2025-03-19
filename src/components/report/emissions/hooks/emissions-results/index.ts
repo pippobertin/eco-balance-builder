@@ -5,6 +5,7 @@ import { useEmissionsSave } from './useEmissionsSave';
 import { EmissionsResults } from './types';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useReport } from '@/hooks/use-report-context';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsResults = (reportId: string | undefined) => {
   const { setNeedsSaving } = useReport();
@@ -31,18 +32,33 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     
     if (data) {
       // Calculate totals from calculation_logs entries
-      const calculationLogs = data.calculation_logs || { 
+      const defaultLogs: EmissionCalculationLogs = { 
         scope1Calculations: [], 
         scope2Calculations: [], 
         scope3Calculations: [] 
       };
       
+      // Parse the calculation logs safely
+      const calculationLogs = typeof data.calculation_logs === 'string' 
+        ? safeJsonParse(data.calculation_logs, defaultLogs)
+        : (data.calculation_logs as EmissionCalculationLogs || defaultLogs);
+      
+      // Ensure the parsed object has the expected structure
+      const validatedLogs: EmissionCalculationLogs = {
+        scope1Calculations: Array.isArray(calculationLogs.scope1Calculations) 
+          ? calculationLogs.scope1Calculations : [],
+        scope2Calculations: Array.isArray(calculationLogs.scope2Calculations) 
+          ? calculationLogs.scope2Calculations : [],
+        scope3Calculations: Array.isArray(calculationLogs.scope3Calculations) 
+          ? calculationLogs.scope3Calculations : []
+      };
+      
       // Sum up emissions from calculations
-      const scope1 = calculationLogs.scope1Calculations?.reduce(
+      const scope1 = validatedLogs.scope1Calculations?.reduce(
         (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
-      const scope2 = calculationLogs.scope2Calculations?.reduce(
+      const scope2 = validatedLogs.scope2Calculations?.reduce(
         (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
-      const scope3 = calculationLogs.scope3Calculations?.reduce(
+      const scope3 = validatedLogs.scope3Calculations?.reduce(
         (sum: number, calc: any) => sum + Number(calc.emissions || 0), 0) || 0;
       
       // Update local state with calculated totals

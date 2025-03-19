@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsLoad = (reportId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +16,7 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
     try {
       console.log('Loading emissions data for report:', reportId);
       
-      // Use the emissions_logs table instead of emissions
+      // Use the emissions_logs table
       const { data, error } = await supabase
         .from('emissions_logs')
         .select('*')
@@ -31,18 +32,33 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
       if (data) {
         console.log('Emissions data loaded successfully:', data);
         
-        // Make sure calculation_logs is parsed properly
-        try {
-          if (data.calculation_logs && typeof data.calculation_logs === 'string') {
-            data.calculation_logs = JSON.parse(data.calculation_logs);
+        // Prepare default empty logs structure
+        const defaultLogs: EmissionCalculationLogs = {
+          scope1Calculations: [],
+          scope2Calculations: [],
+          scope3Calculations: []
+        };
+        
+        // Parse calculation_logs if it's a string
+        if (data.calculation_logs) {
+          if (typeof data.calculation_logs === 'string') {
+            data.calculation_logs = safeJsonParse(data.calculation_logs, defaultLogs);
           }
-        } catch (e) {
-          console.error('Error parsing calculation logs:', e);
+          
+          // Ensure the parsed object has the expected structure
+          const parsed = data.calculation_logs as any;
+          
+          // Validate and normalize the structure
           data.calculation_logs = {
-            scope1Calculations: [],
-            scope2Calculations: [],
-            scope3Calculations: []
+            scope1Calculations: Array.isArray(parsed.scope1Calculations) 
+              ? parsed.scope1Calculations : [],
+            scope2Calculations: Array.isArray(parsed.scope2Calculations)
+              ? parsed.scope2Calculations : [],
+            scope3Calculations: Array.isArray(parsed.scope3Calculations)
+              ? parsed.scope3Calculations : []
           };
+        } else {
+          data.calculation_logs = defaultLogs;
         }
       }
       
@@ -61,13 +77,15 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
     try {
       console.log('Creating initial emissions data for report:', reportId);
       
+      const initialLogs: EmissionCalculationLogs = {
+        scope1Calculations: [],
+        scope2Calculations: [],
+        scope3Calculations: []
+      };
+      
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify({
-          scope1Calculations: [],
-          scope2Calculations: [],
-          scope3Calculations: []
-        }),
+        calculation_logs: JSON.stringify(initialLogs),
         created_at: new Date().toISOString()
       };
       

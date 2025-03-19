@@ -6,6 +6,7 @@ import { FileBarChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Company } from '@/context/types';
 import AutoSaveIndicator from './AutoSaveIndicator';
+import { useReport } from '@/hooks/use-report-context';
 
 interface ReportHeaderProps {
   currentCompany: Company | null;
@@ -17,6 +18,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
   needsSaving = false
 }) => {
   const navigate = useNavigate();
+  const { lastSaved } = useReport(); // Get lastSaved from context
 
   const viewDashboard = () => {
     navigate('/dashboard');
@@ -40,7 +42,11 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
       </div>
       
       <div className="flex gap-3 items-center">
-        <AutoSaveIndicator className="mr-2" />
+        <AutoSaveIndicator 
+          needsSaving={needsSaving} 
+          lastSaved={lastSaved} 
+          className="mr-2" 
+        />
         
         <Button 
           variant="outline" 

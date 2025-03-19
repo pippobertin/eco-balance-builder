@@ -7,7 +7,7 @@ import { Clock } from 'lucide-react';
 interface AutoSaveIndicatorProps {
   needsSaving: boolean;
   lastSaved: Date | null;
-  className?: string; // Add className prop
+  className?: string;
 }
 
 const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ 

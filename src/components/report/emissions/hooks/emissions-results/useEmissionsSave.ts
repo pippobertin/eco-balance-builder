@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useToast } from '@/hooks/use-toast';
+import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsSave = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -52,12 +53,15 @@ export const useEmissionsSave = () => {
       
       let result;
       
+      // Convert calculation logs to JSON string for database storage
+      const calculationLogsJson = safeJsonStringify(validatedCalculations);
+      
       // If data exists, update it
       if (existingData) {
         const { data, error } = await supabase
           .from('emissions_logs')
           .update({
-            calculation_logs: validatedCalculations,
+            calculation_logs: calculationLogsJson,
             updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
@@ -72,7 +76,7 @@ export const useEmissionsSave = () => {
           .from('emissions_logs')
           .insert({
             report_id: reportId,
-            calculation_logs: validatedCalculations,
+            calculation_logs: calculationLogsJson,
             created_at: new Date().toISOString()
           })
           .select()

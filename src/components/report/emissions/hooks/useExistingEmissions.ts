@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useEmissionsLoad } from './emissions-results/useEmissionsLoad';
+import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useExistingEmissions = (reportId: string | undefined) => {
   const [existingEmissions, setExistingEmissions] = useState<{
@@ -23,29 +24,33 @@ export const useExistingEmissions = (reportId: string | undefined) => {
         
         if (emissionsData) {
           // Calculate totals from the calculation logs
-          let calculationLogs: EmissionCalculationLogs = {
+          const defaultLogs: EmissionCalculationLogs = {
             scope1Calculations: [],
             scope2Calculations: [],
             scope3Calculations: []
           };
           
           // Parse calculation logs if available
+          let calculationLogs: EmissionCalculationLogs = defaultLogs;
+          
           if (emissionsData.calculation_logs) {
             try {
               // Handle both string and object formats
               if (typeof emissionsData.calculation_logs === 'string') {
-                calculationLogs = JSON.parse(emissionsData.calculation_logs);
+                calculationLogs = safeJsonParse(emissionsData.calculation_logs, defaultLogs);
               } else if (typeof emissionsData.calculation_logs === 'object') {
-                calculationLogs = emissionsData.calculation_logs;
+                const parsed = emissionsData.calculation_logs as any;
+                
+                // Ensure all calculation arrays exist
+                calculationLogs = {
+                  scope1Calculations: Array.isArray(parsed.scope1Calculations) 
+                    ? parsed.scope1Calculations : [],
+                  scope2Calculations: Array.isArray(parsed.scope2Calculations) 
+                    ? parsed.scope2Calculations : [],
+                  scope3Calculations: Array.isArray(parsed.scope3Calculations) 
+                    ? parsed.scope3Calculations : []
+                };
               }
-              
-              // Ensure all calculation arrays exist
-              calculationLogs.scope1Calculations = Array.isArray(calculationLogs.scope1Calculations) 
-                ? calculationLogs.scope1Calculations : [];
-              calculationLogs.scope2Calculations = Array.isArray(calculationLogs.scope2Calculations) 
-                ? calculationLogs.scope2Calculations : [];
-              calculationLogs.scope3Calculations = Array.isArray(calculationLogs.scope3Calculations) 
-                ? calculationLogs.scope3Calculations : [];
               
               // Calculate totals from the calculations
               const scope1 = calculationLogs.scope1Calculations.reduce(
