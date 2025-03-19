@@ -1,3 +1,4 @@
+
 import { useEmissionsCalculator } from '@/hooks/emissions-calculator';
 import { EmissionCalculationRecord, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
 import { useEmissionsResults } from '../emissions-results';
@@ -68,9 +69,8 @@ export const useCalculatorActions = (
   const handleRemoveCalculation = (calculationId: string) => {
     console.log('Removing calculation:', calculationId);
     
-    // Call removeCalculation function with the ID and logs
-    // The hook now expects 2 arguments: calculationId and logs
-    removeCalculationHook(calculationId);
+    // Call removeCalculation function with both required arguments
+    removeCalculationHook(calculationId, calculationLogs);
     
     // Also update our local state by filtering out the removed calculation
     setCalculationLogs(prevLogs => {

@@ -1,13 +1,9 @@
 
 import { useCallback } from 'react';
-import { 
-  EmissionCalculationRecord,
-  EmissionCalculationLogs,
-  EmissionsResults
-} from './types';
+import { EmissionCalculationRecord, EmissionCalculationLogs, EmissionsResults } from './types';
 
 /**
- * Hook for managing emissions calculation records
+ * Hook for managing emissions records
  */
 export const useEmissionsRecords = () => {
   /**
@@ -37,44 +33,28 @@ export const useEmissionsRecords = () => {
   }, []);
   
   /**
-   * Remove a calculation record from logs
-   */
-  const removeRecord = useCallback((
-    logs: EmissionCalculationLogs,
-    scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations',
-    recordId: string
-  ): EmissionCalculationLogs => {
-    // Create a deep copy of the logs to avoid mutating the original object
-    const updatedLogs = {
-      scope1Calculations: [...(logs.scope1Calculations || [])],
-      scope2Calculations: [...(logs.scope2Calculations || [])],
-      scope3Calculations: [...(logs.scope3Calculations || [])]
-    };
-    
-    // Filter out the record with the specified ID
-    updatedLogs[scopeKey] = updatedLogs[scopeKey].filter(
-      record => record.id !== recordId
-    );
-    
-    return updatedLogs;
-  }, []);
-  
-  /**
-   * Calculate total emissions from calculation logs
+   * Calculate total emissions from logs
    */
   const calculateTotalsFromLogs = useCallback((logs: EmissionCalculationLogs): EmissionsResults => {
+    // Calculate scope1 total
     const scope1Total = logs.scope1Calculations.reduce(
-      (sum, calc) => sum + Number(calc.emissions), 0
+      (total, calc) => total + (typeof calc.emissions === 'number' ? calc.emissions : 0),
+      0
     );
     
+    // Calculate scope2 total
     const scope2Total = logs.scope2Calculations.reduce(
-      (sum, calc) => sum + Number(calc.emissions), 0
+      (total, calc) => total + (typeof calc.emissions === 'number' ? calc.emissions : 0),
+      0
     );
     
+    // Calculate scope3 total
     const scope3Total = logs.scope3Calculations.reduce(
-      (sum, calc) => sum + Number(calc.emissions), 0
+      (total, calc) => total + (typeof calc.emissions === 'number' ? calc.emissions : 0),
+      0
     );
     
+    // Calculate grand total
     const total = scope1Total + scope2Total + scope3Total;
     
     return {
@@ -85,9 +65,20 @@ export const useEmissionsRecords = () => {
     };
   }, []);
   
-  return {
-    createCalculationRecord,
-    removeRecord,
-    calculateTotalsFromLogs
-  };
+  /**
+   * Remove a record from calculation logs
+   */
+  const removeRecord = useCallback((
+    logs: EmissionCalculationLogs,
+    scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations',
+    calculationId: string
+  ): EmissionCalculationLogs => {
+    // Create a new logs object with the calculation removed
+    return {
+      ...logs,
+      [scopeKey]: logs[scopeKey].filter(calc => calc.id !== calculationId)
+    };
+  }, []);
+  
+  return { createCalculationRecord, calculateTotalsFromLogs, removeRecord };
 };
