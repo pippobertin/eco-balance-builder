@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useEmissionsCalculator, EmissionsInput, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
-import { useEmissionsResults } from './useEmissionsResults';
+import { useEmissionsResults } from './emissions-results';
 import { useExistingEmissions } from './useExistingEmissions';
 import { useReport } from '@/hooks/use-report-context';
 
