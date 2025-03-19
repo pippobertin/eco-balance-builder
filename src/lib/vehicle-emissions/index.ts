@@ -36,8 +36,8 @@ export const calculateVehicleEmissions = (
     vehicleFuelType
   );
 
-  // Assicuriamoci che il fattore di emissione sia un numero valido
-  const validEmissionFactor = emissionFactor || 0;
+  // Ensure the emission factor is a valid number
+  const validEmissionFactor = Number(emissionFactor) || 0;
 
   let emissionsKg = 0;
   let fuelConsumed = 0;
@@ -79,9 +79,9 @@ export const calculateVehicleEmissions = (
       // Calculate emissions based on fuel consumed
       emissionsKg = fuelConsumed * fuelSpecificFactor;
 
-      // Verificare che le emissioni siano un valore valido
-      if (isNaN(emissionsKg) || !isFinite(emissionsKg)) {
-        // Fallback al calcolo basato sulla distanza se il calcolo basato sul consumo fallisce
+      // Check if emissions calculation is valid
+      if (isNaN(emissionsKg) || !isFinite(emissionsKg) || emissionsKg === 0) {
+        // Fallback to distance-based calculation if consumption-based calculation fails
         emissionsKg = (validEmissionFactor * distance) / 1000;
       }
     }
@@ -90,11 +90,11 @@ export const calculateVehicleEmissions = (
     emissionsKg = (validEmissionFactor * distance) / 1000;
   }
 
-  // Assicuriamoci che le emissioni siano un numero positivo valido
-  emissionsKg = Math.max(0, emissionsKg);
+  // Ensure emissions is a positive valid number
+  emissionsKg = Math.max(0, isNaN(emissionsKg) ? 0 : emissionsKg);
 
-  // Log per debug
-  console.log('Calcolo emissioni veicolo:', {
+  // Log for debugging
+  console.log('Vehicle emissions calculation:', {
     vehicleType,
     vehicleEnergyClass,
     vehicleFuelType,

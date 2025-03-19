@@ -43,15 +43,15 @@ export const performTransportCalculation = (
           inputs.vehicleFuelConsumptionUnit as 'l_100km' | 'km_l' || 'l_100km'
         );
         
-        if (emissionsResult && emissionsResult.emissionsKg > 0) {
-          console.log("Vehicle emissions calculated:", emissionsResult);
-          
+        console.log("Vehicle emissions calculated:", emissionsResult);
+        
+        if (emissionsResult) {
           const emissionsTonnes = emissionsResult.emissionsKg / 1000;
           
           // Update results
           const updatedResults = {
             ...results,
-            scope3: emissionsTonnes
+            scope3: results.scope3 + emissionsTonnes
           };
           
           // Save calculation details
@@ -67,7 +67,13 @@ export const performTransportCalculation = (
             emissionsKg: emissionsResult.emissionsKg,
             emissionsTonnes,
             calculationDate: new Date().toISOString(),
-            source: getEmissionFactorSource(inputs.vehicleFuelType)
+            source: getEmissionFactorSource(inputs.vehicleFuelType),
+            vehicleDetails: {
+              vehicleType: inputs.vehicleType,
+              vehicleFuelType: inputs.vehicleFuelType,
+              vehicleEnergyClass: inputs.vehicleEnergyClass || '',
+              emissionFactor: emissionsResult.emissionFactor
+            }
           };
           
           // Convert the source object to string
@@ -80,7 +86,7 @@ export const performTransportCalculation = (
           
           return { updatedResults, details, source };
         } else {
-          console.warn("Vehicle emissions calculation returned zero or invalid result:", emissionsResult);
+          console.warn("Vehicle emissions calculation returned null or undefined result");
         }
       }
     } 
@@ -99,7 +105,7 @@ export const performTransportCalculation = (
         // Update results
         const updatedResults = {
           ...results,
-          scope3: emissionsTonnes
+          scope3: results.scope3 + emissionsTonnes
         };
         
         // Save calculation details
@@ -111,7 +117,12 @@ export const performTransportCalculation = (
           emissionsKg,
           emissionsTonnes,
           calculationDate: new Date().toISOString(),
-          source: getEmissionFactorSource(inputs.transportType || 'BUSINESS_TRAVEL_CAR')
+          source: getEmissionFactorSource(inputs.transportType || 'BUSINESS_TRAVEL_CAR'),
+          vehicleDetails: inputs.vehicleType ? {
+            vehicleType: inputs.vehicleType,
+            vehicleFuelType: inputs.vehicleFuelType,
+            vehicleEnergyClass: inputs.vehicleEnergyClass || '',
+          } : undefined
         };
         
         // Convert the source object to string
@@ -141,7 +152,7 @@ export const performTransportCalculation = (
       // Update results
       const updatedResults = {
         ...results,
-        scope3: emissionsTonnes
+        scope3: results.scope3 + emissionsTonnes
       };
       
       // Save calculation details
