@@ -11,7 +11,7 @@ export const useReportSave = (
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
   const [loading, setLoading] = useState(false);
-  const { saveReportData, saveSubsidiaries: saveSubsidiariesData } = useReportOperations();
+  const { saveReportData, saveSubsidiaries } = useReportOperations();
   const { toast } = useToast();
 
   // Save current report
@@ -68,8 +68,8 @@ export const useReportSave = (
   };
 
   // Save subsidiaries
-  const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<void> => {
-    if (!reportId) {
+  const saveSubsidiariesHandler = async (subsidiaries: Subsidiary[]): Promise<void> => {
+    if (!currentReport?.id) {
       console.log("No report ID provided for saving subsidiaries");
       return;
     }
@@ -77,8 +77,8 @@ export const useReportSave = (
     setLoading(true);
     
     try {
-      console.log(`Saving ${subsidiaries.length} subsidiaries for report ${reportId}`);
-      await saveSubsidiariesData(subsidiaries, reportId);
+      console.log(`Saving ${subsidiaries.length} subsidiaries for report ${currentReport.id}`);
+      await saveSubsidiaries(subsidiaries, currentReport.id);
       toast({
         title: "Successo",
         description: "Controllate salvate con successo",
@@ -98,6 +98,6 @@ export const useReportSave = (
   return {
     loading,
     saveCurrentReport,
-    saveSubsidiaries
+    saveSubsidiaries: saveSubsidiariesHandler
   };
 };

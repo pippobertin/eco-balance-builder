@@ -58,11 +58,16 @@ export const useExistingEmissions = (reportId: string | undefined) => {
 
       // Update state with emissions data
       if (emissionsData) {
+        const scope1 = parseFloat(emissionsData.scope1_emissions as string) || 0;
+        const scope2 = parseFloat(emissionsData.scope2_emissions as string) || 0;
+        const scope3 = parseFloat(emissionsData.scope3_emissions as string) || 0;
+        const total = parseFloat(emissionsData.total_emissions as string) || 0;
+        
         setExistingEmissions({
-          scope1: parseFloat(emissionsData.scope1_emissions as string) || 0,
-          scope2: parseFloat(emissionsData.scope2_emissions as string) || 0,
-          scope3: parseFloat(emissionsData.scope3_emissions as string) || 0,
-          total: parseFloat(emissionsData.total_emissions as string) || 0
+          scope1,
+          scope2,
+          scope3,
+          total
         });
       }
 

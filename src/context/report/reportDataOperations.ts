@@ -1,157 +1,157 @@
-import { useState, useCallback } from 'react';
+
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ReportData, Report } from '@/context/types';
-import { useToast } from '@/hooks/use-toast';
+import { ReportData, Subsidiary } from '@/context/types';
 import { prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
+import { Report } from '@/context/types';
 
 export const useReportDataOperations = () => {
-  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Save report data to database
-  const saveReportData = useCallback(async (reportId: string, data: ReportData): Promise<boolean> => {
-    if (!reportId) {
-      console.error('Cannot save report: reportId is undefined');
-      return false;
-    }
-
+  // Save report data
+  const saveReportData = async (reportId: string, data: ReportData): Promise<boolean> => {
     setIsSaving(true);
-    
+
     try {
-      // Prepare data for database by converting nested objects to JSON strings
-      const preparedData = prepareJsonForDb(data);
+      console.log("Saving report data to database...", { reportId });
       
-      // Update report data
+      // Convert data for database storage - need to prepare JSON fields
+      const dataForDb = prepareJsonForDb({
+        environmental_metrics: data.environmentalMetrics || {},
+        social_metrics: data.socialMetrics || {},
+        conduct_metrics: data.conductMetrics || {},
+        materiality_analysis: data.materialityAnalysis || {},
+        narrative_pat_metrics: data.narrativePATMetrics || {},
+        updated_at: new Date().toISOString()
+      });
+
+      // Update the report data
       const { error } = await supabase
         .from('reports')
-        .update({
-          ...preparedData,
-          updated_at: new Date().toISOString()
-        })
+        .update(dataForDb)
         .eq('id', reportId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating report:", error);
+        return false;
+      }
 
+      // Update last saved timestamp
       setLastSaved(new Date());
       return true;
     } catch (error) {
-      console.error('Error saving report data:', error);
-      toast({
-        title: 'Errore',
-        description: 'Impossibile salvare i dati del report',
-        variant: 'destructive'
-      });
+      console.error("Error in saveReportData:", error);
       return false;
     } finally {
       setIsSaving(false);
     }
-  }, [toast]);
+  };
 
-  // Update specific report field
-  const updateReportField = useCallback(async (
-    reportId: string, 
-    field: keyof Report, 
-    value: any
-  ): Promise<boolean> => {
-    if (!reportId) {
-      console.error('Cannot update report field: reportId is undefined');
-      return false;
-    }
-
+  // Update a single field in the report
+  const updateReportField = async (reportId: string, field: keyof Report, value: any): Promise<boolean> => {
     try {
-      // Prepare value for database if it's an object
-      const preparedValue = typeof value === 'object' ? JSON.stringify(value) : value;
+      console.log(`Updating report field: ${String(field)}`, { reportId });
       
-      // Update specific field
+      // Prepare update object
+      const updateData: Record<string, any> = {
+        [field]: value,
+        updated_at: new Date().toISOString()
+      };
+
+      // Update the specific field
       const { error } = await supabase
         .from('reports')
-        .update({
-          [field]: preparedValue,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', reportId);
 
-      if (error) throw error;
+      if (error) {
+        console.error(`Error updating report field ${String(field)}:`, error);
+        return false;
+      }
 
       return true;
     } catch (error) {
-      console.error(`Error updating report field ${field}:`, error);
+      console.error(`Error in updateReportField for ${String(field)}:`, error);
       return false;
     }
-  }, []);
+  };
 
   // Delete report
-  const deleteReport = useCallback(async (reportId: string): Promise<boolean> => {
-    if (!reportId) {
-      console.error('Cannot delete report: reportId is undefined');
-      return false;
-    }
-
+  const deleteReport = async (reportId: string): Promise<boolean> => {
     try {
+      // First delete all subsidiaries for this report
+      const { error: subsidiariesError } = await supabase
+        .from('subsidiaries')
+        .delete()
+        .eq('report_id', reportId);
+
+      if (subsidiariesError) {
+        console.error("Error deleting subsidiaries:", subsidiariesError);
+      }
+
+      // Then delete the report itself
       const { error } = await supabase
         .from('reports')
         .delete()
         .eq('id', reportId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       return true;
     } catch (error) {
-      console.error('Error deleting report:', error);
-      toast({
-        title: 'Errore',
-        description: 'Impossibile eliminare il report',
-        variant: 'destructive'
-      });
+      console.error("Error deleting report:", error);
       return false;
     }
-  }, [toast]);
+  };
 
   // Save subsidiaries
-  const saveSubsidiaries = useCallback(async (subsidiaries: any): Promise<boolean> => {
-    if (!subsidiaries) {
-      console.error('Cannot save subsidiaries: subsidiaries is undefined');
-      return false;
-    }
-
-    setIsSaving(true);
-    
+  const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<boolean> => {
     try {
-      // Prepare subsidiaries data for database by converting nested objects to JSON strings
-      const preparedSubsidiaries = prepareJsonForDb(subsidiaries);
-      
-      // Update subsidiaries data
-      const { error } = await supabase
+      // First, delete all existing subsidiaries for this report
+      const { error: deleteError } = await supabase
         .from('subsidiaries')
-        .update({
-          ...preparedSubsidiaries,
-          updated_at: new Date().toISOString()
-        });
+        .delete()
+        .eq('report_id', reportId);
 
-      if (error) throw error;
+      if (deleteError) {
+        console.error("Error deleting existing subsidiaries:", deleteError);
+        return false;
+      }
 
-      setLastSaved(new Date());
+      // Then, insert the new subsidiaries
+      if (subsidiaries.length > 0) {
+        const subsidiariesData = subsidiaries.map(sub => ({
+          report_id: reportId,
+          name: sub.name,
+          location: sub.location
+        }));
+
+        const { error: insertError } = await supabase
+          .from('subsidiaries')
+          .insert(subsidiariesData);
+
+        if (insertError) {
+          console.error("Error inserting subsidiaries:", insertError);
+          return false;
+        }
+      }
+
       return true;
     } catch (error) {
-      console.error('Error saving subsidiaries data:', error);
-      toast({
-        title: 'Errore',
-        description: 'Impossibile salvare i dati delle aziende',
-        variant: 'destructive'
-      });
+      console.error("Error saving subsidiaries:", error);
       return false;
-    } finally {
-      setIsSaving(false);
     }
-  }, [toast]);
+  };
 
   return {
     saveReportData,
     updateReportField,
     deleteReport,
+    saveSubsidiaries,
     isSaving,
-    lastSaved,
-    saveSubsidiaries
+    lastSaved
   };
 };

@@ -178,6 +178,7 @@ export const MaterialityProvider: React.FC<{
         return false;
       }
       
+      // Convert numeric values to strings for the database
       const issueData = {
         report_id: reportId,
         issue_id: issue.id,
@@ -259,6 +260,7 @@ export const MaterialityProvider: React.FC<{
         return false;
       }
       
+      // Convert numeric values to strings for the database
       const stakeholderData = {
         report_id: reportId,
         stakeholder_id: stakeholder.id,
@@ -460,7 +462,7 @@ export const MaterialityProvider: React.FC<{
       setIsLoading(false);
     }
   }, [materialityIssues, stakeholders, reportId, toast]);
-  
+
   const value = {
     materialityIssues,
     setMaterialityIssues,

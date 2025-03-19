@@ -50,16 +50,22 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         resetEmissions();
         
         // Create an initial entry in the database
-        await supabase
+        const emissionsData = {
+          report_id: reportId,
+          scope1_emissions: '0',
+          scope2_emissions: '0',
+          scope3_emissions: '0',
+          total_emissions: '0',
+          updated_at: new Date().toISOString()
+        };
+        
+        const { error: insertError } = await supabase
           .from('emissions_data')
-          .insert({
-            report_id: reportId,
-            scope1_emissions: '0',
-            scope2_emissions: '0',
-            scope3_emissions: '0',
-            total_emissions: '0',
-            updated_at: new Date().toISOString()
-          });
+          .insert(emissionsData);
+          
+        if (insertError) {
+          console.error('Error creating initial emissions data:', insertError);
+        }
       }
     } catch (error) {
       console.error('Error in loadEmissionsData:', error);
@@ -127,15 +133,17 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       const total = scope1 + scope2 + scope3;
       
       // Update emissions data table - convert numbers to strings for db
+      const emissionsData = {
+        scope1_emissions: scope1.toString(),
+        scope2_emissions: scope2.toString(),
+        scope3_emissions: scope3.toString(),
+        total_emissions: total.toString(),
+        updated_at: new Date().toISOString()
+      };
+      
       const { error: emissionsError } = await supabase
         .from('emissions_data')
-        .update({
-          scope1_emissions: scope1.toString(),
-          scope2_emissions: scope2.toString(),
-          scope3_emissions: scope3.toString(),
-          total_emissions: total.toString(),
-          updated_at: new Date().toISOString()
-        })
+        .update(emissionsData)
         .eq('report_id', reportId);
 
       if (emissionsError) throw emissionsError;
