@@ -11,7 +11,7 @@ export interface EmissionsResults {
 }
 
 export interface EmissionsData {
-  report_id?: string;
+  report_id: string; // Changed from optional to required
   scope1_emissions: number;
   scope2_emissions: number;
   scope3_emissions: number;

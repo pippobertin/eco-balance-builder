@@ -40,11 +40,16 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
 
   // Function to create initial emissions entry
   const createInitialEmissionsData = async (reportId: string) => {
+    if (!reportId) {
+      console.error('Cannot create initial emissions data: reportId is undefined');
+      return null;
+    }
+    
     try {
       console.log('Creating initial emissions data for report:', reportId);
       // Create an initial entry in the database
       const emissionsData: EmissionsData = {
-        report_id: reportId,
+        report_id: reportId, // This is now required
         scope1_emissions: 0,
         scope2_emissions: 0,
         scope3_emissions: 0,
