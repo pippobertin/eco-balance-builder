@@ -1,6 +1,6 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsDetails, EmissionsResults } from '../types';
+import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
 import { calculateScope2Emissions } from '@/lib/emissions-calculator';
 
 /**
@@ -20,11 +20,12 @@ export const performScope2Calculation = (
   if (inputs.energyType && inputs.energyQuantity && inputs.energyQuantity !== '') {
     const quantity = parseFloat(inputs.energyQuantity);
     if (!isNaN(quantity) && quantity > 0) {
+      const renewablePercentage = inputs.renewablePercentage || 0;
+      
       const emissionsKg = calculateScope2Emissions(
         inputs.energyType, 
         quantity, 
-        'kWh', 
-        inputs.renewablePercentage !== undefined ? inputs.renewablePercentage / 100 : undefined
+        renewablePercentage
       );
       const emissionsTonnes = emissionsKg / 1000;
       
@@ -39,7 +40,8 @@ export const performScope2Calculation = (
         energyType: inputs.energyType,
         quantity,
         unit: 'kWh',
-        renewablePercentage: inputs.renewablePercentage,
+        renewablePercentage,
+        provider: inputs.energyProvider,
         periodType: inputs.periodType,
         emissionsKg,
         emissionsTonnes,

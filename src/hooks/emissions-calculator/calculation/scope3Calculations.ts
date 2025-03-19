@@ -1,14 +1,11 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsResults } from '../types';
-import { calculateScope3Emissions } from '@/lib/emissions-calculator';
-import { 
-  calculateVehicleEmissions, 
-  createVehicleDetailsRecord 
-} from '@/lib/vehicle-emissions';
+import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
+import { calculateTransportEmissions, calculateWasteEmissions, calculatePurchaseEmissions } from '@/lib/emissions-calculator';
+import { calculateVehicleEmissions } from '@/lib/vehicle-emissions';
 
 /**
- * Handle transport-related Scope 3 emissions calculations
+ * Perform transport calculations for Scope 3
  */
 export const performTransportCalculation = (
   inputs: EmissionsInput,
@@ -18,124 +15,146 @@ export const performTransportCalculation = (
   details: string;
   source?: string;
 } => {
-  if (!inputs.transportDistance || inputs.transportDistance === '') {
-    return { updatedResults: results, details: '' };
-  }
-
-  const distance = parseFloat(inputs.transportDistance);
-  if (isNaN(distance) || distance <= 0) {
-    return { updatedResults: results, details: '' };
-  }
-
-  console.log('Calcolo Scope 3 per trasporto:', {
-    transportType: inputs.transportType,
-    distance,
-    vehicleDetails: {
-      vehicleType: inputs.vehicleType,
-      vehicleEnergyClass: inputs.vehicleEnergyClass,
-      vehicleFuelType: inputs.vehicleFuelType,
-      fuelConsumption: inputs.vehicleFuelConsumption,
-      fuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit
+  let details = '';
+  let source = '';
+  
+  // Check if we're calculating vehicle-based emissions
+  if (inputs.vehicleType && inputs.vehicleFuelType && inputs.transportType) {
+    // Vehicle emissions calculation (with fuel consumption)
+    if (inputs.vehicleFuelConsumption && inputs.transportDistance) {
+      const fuelConsumption = parseFloat(inputs.vehicleFuelConsumption);
+      const distance = parseFloat(inputs.transportDistance);
+      
+      if (!isNaN(fuelConsumption) && !isNaN(distance) && fuelConsumption > 0 && distance > 0) {
+        console.log("Calculating vehicle emissions for:", {
+          vehicleType: inputs.vehicleType,
+          fuelType: inputs.vehicleFuelType,
+          fuelConsumption,
+          distance,
+          unit: inputs.vehicleFuelConsumptionUnit || 'l_100km'
+        });
+        
+        const emissionsResult = calculateVehicleEmissions({
+          vehicleType: inputs.vehicleType,
+          fuelType: inputs.vehicleFuelType,
+          fuelConsumption,
+          distance,
+          consumptionUnit: inputs.vehicleFuelConsumptionUnit || 'l_100km'
+        });
+        
+        if (emissionsResult && emissionsResult.emissionsKg > 0) {
+          console.log("Vehicle emissions calculated:", emissionsResult);
+          
+          const emissionsTonnes = emissionsResult.emissionsKg / 1000;
+          
+          // Update results
+          const updatedResults = {
+            ...results,
+            scope3: emissionsTonnes
+          };
+          
+          // Save calculation details
+          const calculationDetails = {
+            transportType: inputs.transportType,
+            vehicleType: inputs.vehicleType,
+            vehicleFuelType: inputs.vehicleFuelType,
+            fuelConsumption,
+            consumptionUnit: inputs.vehicleFuelConsumptionUnit || 'l_100km',
+            distance,
+            distanceUnit: 'km',
+            periodType: inputs.periodType,
+            emissionsKg: emissionsResult.emissionsKg,
+            emissionsTonnes,
+            calculationDate: new Date().toISOString(),
+            source: getEmissionFactorSource(inputs.vehicleFuelType)
+          };
+          
+          details = JSON.stringify(calculationDetails);
+          source = calculationDetails.source;
+          
+          return { updatedResults, details, source };
+        } else {
+          console.warn("Vehicle emissions calculation returned zero or invalid result:", emissionsResult);
+        }
+      }
+    } 
+    // If we don't have fuel consumption but have distance, use simplified transport calculation
+    else if (inputs.transportDistance) {
+      const distance = parseFloat(inputs.transportDistance);
+      
+      if (!isNaN(distance) && distance > 0) {
+        const emissionsKg = calculateTransportEmissions(
+          inputs.transportType || 'BUSINESS_TRAVEL_CAR', 
+          distance
+        );
+        const emissionsTonnes = emissionsKg / 1000;
+        
+        // Update results
+        const updatedResults = {
+          ...results,
+          scope3: emissionsTonnes
+        };
+        
+        // Save calculation details
+        const calculationDetails = {
+          transportType: inputs.transportType,
+          distance,
+          distanceUnit: 'km',
+          periodType: inputs.periodType,
+          emissionsKg,
+          emissionsTonnes,
+          calculationDate: new Date().toISOString(),
+          source: getEmissionFactorSource(inputs.transportType || 'BUSINESS_TRAVEL_CAR')
+        };
+        
+        details = JSON.stringify(calculationDetails);
+        source = calculationDetails.source;
+        
+        return { updatedResults, details, source };
+      }
     }
-  });
-  
-  let emissionsKg;
-  let emissionSource;
-  let vehicleDetails = null;
-  
-  // Check if we have vehicle details to use the vehicle emissions factors
-  if (inputs.vehicleType && inputs.vehicleEnergyClass && inputs.vehicleFuelType) {
-    // Use the vehicle emissions utility
-    const fuelConsumption = inputs.vehicleFuelConsumption ? parseFloat(inputs.vehicleFuelConsumption) : null;
+  } 
+  // Standard transport emissions (no vehicle details)
+  else if (inputs.transportType && inputs.transportDistance) {
+    const distance = parseFloat(inputs.transportDistance);
     
-    const vehicleEmissions = calculateVehicleEmissions(
-      inputs.vehicleType,
-      inputs.vehicleEnergyClass,
-      inputs.vehicleFuelType,
-      distance,
-      fuelConsumption && !isNaN(fuelConsumption) ? fuelConsumption : undefined,
-      inputs.vehicleFuelConsumptionUnit as 'l_100km' | 'km_l'
-    );
-    
-    emissionsKg = vehicleEmissions.emissionsKg;
-    emissionSource = vehicleEmissions.source;
-    
-    console.log('Risultato calcolo emissioni veicolo:', {
-      emissionsKg,
-      emissionsSource: emissionSource,
-      fuelConsumed: vehicleEmissions.fuelConsumed,
-      consumptionFactorUsed: vehicleEmissions.consumptionFactorUsed
-    });
-    
-    // Create vehicle details record
-    vehicleDetails = createVehicleDetailsRecord(
-      inputs.vehicleType,
-      inputs.vehicleFuelType,
-      inputs.vehicleEnergyClass,
-      fuelConsumption && !isNaN(fuelConsumption) ? fuelConsumption : null,
-      inputs.vehicleFuelConsumptionUnit || 'l_100km',
-      vehicleEmissions.fuelConsumed > 0 ? vehicleEmissions.fuelConsumed : null,
-      vehicleEmissions.consumptionFactorUsed > 0 ? vehicleEmissions.consumptionFactorUsed : null
-    );
-  } else {
-    // Fallback to standard transport emission factors if vehicle details not provided
-    emissionsKg = calculateScope3Emissions(
-      inputs.transportType || 'BUSINESS_TRAVEL_CAR',
-      distance,
-      'km'
-    );
-    emissionSource = getEmissionFactorSource(inputs.transportType || 'BUSINESS_TRAVEL_CAR');
-    
-    console.log('Fallback al calcolo emissioni di trasporto standard:', {
-      emissionsKg,
-      emissionsSource: emissionSource
-    });
+    if (!isNaN(distance) && distance > 0) {
+      const emissionsKg = calculateTransportEmissions(
+        inputs.transportType, 
+        distance
+      );
+      const emissionsTonnes = emissionsKg / 1000;
+      
+      // Update results
+      const updatedResults = {
+        ...results,
+        scope3: emissionsTonnes
+      };
+      
+      // Save calculation details
+      const calculationDetails = {
+        transportType: inputs.transportType,
+        distance,
+        distanceUnit: 'km',
+        periodType: inputs.periodType,
+        emissionsKg,
+        emissionsTonnes,
+        calculationDate: new Date().toISOString(),
+        source: getEmissionFactorSource(inputs.transportType)
+      };
+      
+      details = JSON.stringify(calculationDetails);
+      source = calculationDetails.source;
+      
+      return { updatedResults, details, source };
+    }
   }
   
-  // Ensure we have a valid emission value
-  if (isNaN(emissionsKg) || !isFinite(emissionsKg)) {
-    console.warn('Valore di emissione non valido, impostazione a 0');
-    emissionsKg = 0;
-  }
-  
-  // Convert from kg to tonnes and update results
-  const emissionsTonnes = emissionsKg / 1000;
-  const updatedResults = {
-    ...results,
-    scope3: emissionsTonnes
-  };
-  
-  console.log('Emissioni finali calcolate:', {
-    emissionsKg,
-    emissionsTonnes,
-    scope3Total: updatedResults.scope3
-  });
-  
-  // Save calculation details
-  const calculationDetails = {
-    activityType: inputs.transportType,
-    quantity: distance,
-    unit: 'km',
-    secondaryQuantity: 0,
-    secondaryUnit: 't',
-    periodType: inputs.periodType,
-    emissionsKg,
-    emissionsTonnes,
-    calculationDate: new Date().toISOString(),
-    source: emissionSource,
-    // Add vehicle details to the calculation details if available
-    vehicleDetails: vehicleDetails
-  };
-  
-  return { 
-    updatedResults, 
-    details: JSON.stringify(calculationDetails),
-    source: emissionSource
-  };
+  return { updatedResults: results, details };
 };
 
 /**
- * Handle waste-related Scope 3 emissions calculations
+ * Perform waste calculations for Scope 3
  */
 export const performWasteCalculation = (
   inputs: EmissionsInput,
@@ -145,98 +164,100 @@ export const performWasteCalculation = (
   details: string;
   source?: string;
 } => {
-  if (!inputs.wasteType || !inputs.wasteQuantity || inputs.wasteQuantity === '') {
-    return { updatedResults: results, details: '' };
-  }
+  let details = '';
+  let source = '';
 
-  const quantity = parseFloat(inputs.wasteQuantity);
-  if (isNaN(quantity) || quantity <= 0) {
-    return { updatedResults: results, details: '' };
+  if (inputs.wasteType && inputs.wasteQuantity && inputs.wasteQuantity !== '') {
+    const quantity = parseFloat(inputs.wasteQuantity);
+    if (!isNaN(quantity) && quantity > 0) {
+      const emissionsKg = calculateWasteEmissions(
+        inputs.wasteType, 
+        quantity
+      );
+      const emissionsTonnes = emissionsKg / 1000;
+      
+      // Update results
+      const updatedResults = {
+        ...results,
+        scope3: emissionsTonnes
+      };
+      
+      // Save calculation details
+      const calculationDetails = {
+        wasteType: inputs.wasteType,
+        quantity,
+        unit: 'kg',
+        periodType: inputs.periodType,
+        emissionsKg,
+        emissionsTonnes,
+        calculationDate: new Date().toISOString(),
+        source: getEmissionFactorSource(inputs.wasteType)
+      };
+      
+      details = JSON.stringify(calculationDetails);
+      source = calculationDetails.source;
+      
+      return { updatedResults, details, source };
+    }
   }
-
-  const emissionsKg = calculateScope3Emissions(
-    inputs.wasteType,
-    quantity,
-    'kg'
-  );
-  const emissionsTonnes = emissionsKg / 1000;
-  const updatedResults = {
-    ...results,
-    scope3: emissionsTonnes
-  };
   
-  // Save calculation details
-  const calculationDetails = {
-    activityType: inputs.wasteType,
-    quantity,
-    unit: 'kg',
-    periodType: inputs.periodType,
-    emissionsKg,
-    emissionsTonnes,
-    calculationDate: new Date().toISOString(),
-    source: getEmissionFactorSource(inputs.wasteType)
-  };
-  
-  return { 
-    updatedResults, 
-    details: JSON.stringify(calculationDetails),
-    source: calculationDetails.source
-  };
+  return { updatedResults: results, details };
 };
 
 /**
- * Handle purchase-related Scope 3 emissions calculations
+ * Perform purchase calculations for Scope 3
  */
 export const performPurchaseCalculation = (
   inputs: EmissionsInput,
   results: EmissionsResults
 ): { 
   updatedResults: EmissionsResults; 
-  details: string;
+  details: string; 
   source?: string;
 } => {
-  if (!inputs.purchaseType || !inputs.purchaseQuantity || inputs.purchaseQuantity === '') {
-    return { updatedResults: results, details: '' };
-  }
+  let details = '';
+  let source = '';
 
-  const quantity = parseFloat(inputs.purchaseQuantity);
-  if (isNaN(quantity) || quantity <= 0) {
-    return { updatedResults: results, details: '' };
+  if (inputs.purchaseType && inputs.purchaseQuantity && inputs.purchaseQuantity !== '') {
+    const quantity = parseFloat(inputs.purchaseQuantity);
+    if (!isNaN(quantity) && quantity > 0) {
+      const emissionsKg = calculatePurchaseEmissions(
+        inputs.purchaseType, 
+        quantity
+      );
+      const emissionsTonnes = emissionsKg / 1000;
+      
+      // Update results
+      const updatedResults = {
+        ...results,
+        scope3: emissionsTonnes
+      };
+      
+      // Save calculation details
+      const calculationDetails = {
+        purchaseType: inputs.purchaseType,
+        description: inputs.purchaseDescription || '',
+        quantity,
+        unit: inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità',
+        periodType: inputs.periodType,
+        emissionsKg,
+        emissionsTonnes,
+        calculationDate: new Date().toISOString(),
+        source: getEmissionFactorSource(inputs.purchaseType)
+      };
+      
+      details = JSON.stringify(calculationDetails);
+      source = calculationDetails.source;
+      
+      return { updatedResults, details, source };
+    }
   }
-
-  const emissionsKg = calculateScope3Emissions(
-    inputs.purchaseType,
-    quantity,
-    inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unit'
-  );
-  const emissionsTonnes = emissionsKg / 1000;
-  const updatedResults = {
-    ...results,
-    scope3: emissionsTonnes
-  };
   
-  // Save calculation details
-  const calculationDetails = {
-    activityType: inputs.purchaseType,
-    quantity,
-    unit: inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unit',
-    periodType: inputs.periodType,
-    emissionsKg,
-    emissionsTonnes,
-    calculationDate: new Date().toISOString(),
-    source: getEmissionFactorSource(inputs.purchaseType),
-    description: inputs.purchaseDescription || ''
-  };
-  
-  return { 
-    updatedResults, 
-    details: JSON.stringify(calculationDetails),
-    source: calculationDetails.source
-  };
+  return { updatedResults: results, details };
 };
 
 /**
- * Perform Scope 3 emissions calculation based on category
+ * Perform Scope 3 emissions calculation
  */
 export const performScope3Calculation = (
   inputs: EmissionsInput,
@@ -244,20 +265,19 @@ export const performScope3Calculation = (
 ): { 
   updatedResults: EmissionsResults; 
   details: string;
-  source?: string; 
+  source?: string;
 } => {
-  if (!inputs.scope3Category) {
-    return { updatedResults: results, details: '' };
+  // Determine which category of Scope 3 we're calculating
+  const category = inputs.scope3Category || 'transport';
+  
+  if (category === 'transport') {
+    return performTransportCalculation(inputs, results);
+  } else if (category === 'waste') {
+    return performWasteCalculation(inputs, results);
+  } else if (category === 'purchases') {
+    return performPurchaseCalculation(inputs, results);
   }
-
-  switch (inputs.scope3Category) {
-    case 'transport':
-      return performTransportCalculation(inputs, results);
-    case 'waste':
-      return performWasteCalculation(inputs, results);
-    case 'purchases':
-      return performPurchaseCalculation(inputs, results);
-    default:
-      return { updatedResults: results, details: '' };
-  }
+  
+  // Default return if no calculations performed
+  return { updatedResults: results, details: '' };
 };

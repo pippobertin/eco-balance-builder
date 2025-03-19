@@ -1,6 +1,6 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsDetails, EmissionsResults } from '../types';
+import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
 import { calculateScope1Emissions } from '@/lib/emissions-calculator';
 
 /**
