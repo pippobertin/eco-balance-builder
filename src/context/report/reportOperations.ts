@@ -1,7 +1,7 @@
 
-import { useReportFetchOperations } from './reportFetchOperationsRefactored';
-import { useReportWriteOperations } from './reportWriteOperationsRefactored';
-import { useReportDataOperations } from './reportDataOperationsRefactored';
+import { useReportFetchOperations } from './reportFetchOperations';
+import { useReportWriteOperations } from './reportWriteOperations';
+import { useReportDataOperations } from './reportDataOperations';
 import { useCompanyOperations } from '../companyOperations';
 
 export const useReportOperations = () => {

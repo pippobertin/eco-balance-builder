@@ -14,7 +14,7 @@ export const useReportSave = (
   const { saveReportData, saveSubsidiaries: saveSubsidiariesData } = useReportOperations();
   const { toast } = useToast();
 
-  // Save current report - updated to return void instead of Promise<void>
+  // Save current report
   const saveCurrentReport = async (): Promise<void> => {
     if (!currentReport) {
       console.log("No current report to save");

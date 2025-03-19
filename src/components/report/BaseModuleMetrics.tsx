@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowLeft, FileText, Target, Leaf, Users, Building2, Briefcase, Info } from 'lucide-react';
+import { ArrowLeft, FileText, Leaf, Users, Building2, Briefcase, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnvironmentalMetrics from './EnvironmentalMetrics';
 import SocialMetrics from './SocialMetrics';
@@ -73,14 +73,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       }
     }
   }, [initialSection, showNarrativeModule, showBusinessPartnersModule]);
-
-  const handleSave = () => {
-    toast({
-      title: "Metriche salvate",
-      description: "I dati del report sono stati salvati con successo."
-    });
-    onSave();
-  };
 
   const containerAnimation = {
     hidden: {
@@ -160,10 +152,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
         <Button variant="outline" onClick={onPrevious}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna indietro
-        </Button>
-        <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-400 text-white">
-          Salva report
-          <CheckCircle2 className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </motion.div>;
