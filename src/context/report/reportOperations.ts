@@ -5,23 +5,23 @@ import { useReportDataOperations } from './reportDataOperations';
 import { useCompanyOperations } from '../companyOperations';
 
 export const useReportOperations = () => {
-  const { loadReports, loadReport } = useReportFetchOperations();
-  const { createReport, deleteReport } = useReportWriteOperations();
-  const { saveReportData, saveSubsidiaries } = useReportDataOperations();
-  const { loadCompanies, createCompany, loadCompanyById } = useCompanyOperations();
+  // Use updated imports for the operations
+  const fetchOperations = useReportFetchOperations();
+  const writeOperations = useReportWriteOperations();
+  const dataOperations = useReportDataOperations();
+  const companyOperations = useCompanyOperations();
 
   return {
     // Company operations
-    loadCompanies,
-    createCompany,
-    loadCompanyById,
+    loadCompanies: companyOperations.loadCompanies,
+    createCompany: companyOperations.createCompany,
+    loadCompanyById: companyOperations.loadCompanyById,
     
     // Report operations
-    loadReports,
-    createReport,
-    loadReport,
-    saveReportData,
-    saveSubsidiaries,
-    deleteReport
+    loadReports: fetchOperations.loadReports,
+    createReport: writeOperations.createReport,
+    loadReport: fetchOperations.loadReport,
+    saveReportData: dataOperations.saveReportData,
+    deleteReport: dataOperations.deleteReport
   };
 };

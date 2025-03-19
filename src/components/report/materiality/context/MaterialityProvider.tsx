@@ -78,9 +78,9 @@ export const MaterialityProvider: React.FC<{
       let issues: MaterialityIssue[] = [];
       if (issuesData && issuesData.length > 0) {
         issues = issuesData.map(item => {
-          const impactRelevance = parseFloat(item.impact_relevance.toString()) || 0;
-          const financialRelevance = parseFloat(item.financial_relevance.toString()) || 0;
-          const stakeholderRelevance = parseFloat(item.stakeholder_relevance.toString()) || 0;
+          const impactRelevance = parseFloat(item.impact_relevance as string) || 0;
+          const financialRelevance = parseFloat(item.financial_relevance as string) || 0;
+          const stakeholderRelevance = parseFloat(item.stakeholder_relevance as string) || 0;
           
           return {
             id: item.issue_id,
@@ -90,13 +90,18 @@ export const MaterialityProvider: React.FC<{
             financialRelevance,
             isMaterial: item.is_material || false,
             stakeholderRelevance,
-            iroSelections: safeJsonParse(item.iro_selections.toString(), {
-              selectedPositiveImpacts: [],
-              selectedNegativeImpacts: [],
-              selectedRisks: [],
-              selectedOpportunities: [],
-              selectedActions: []
-            } as IROSelections)
+            iroSelections: safeJsonParse(
+              typeof item.iro_selections === 'string' 
+                ? item.iro_selections 
+                : JSON.stringify(item.iro_selections), 
+              {
+                selectedPositiveImpacts: [],
+                selectedNegativeImpacts: [],
+                selectedRisks: [],
+                selectedOpportunities: [],
+                selectedActions: []
+              } as IROSelections
+            )
           };
         });
         
@@ -117,15 +122,20 @@ export const MaterialityProvider: React.FC<{
           id: item.stakeholder_id,
           name: item.name,
           category: item.category || '',
-          influence: item.influence || 0,
-          interest: item.interest || 0,
+          influence: parseInt(item.influence as string) || 0,
+          interest: parseInt(item.interest as string) || 0,
           contactInfo: item.contact_info || '',
           email: item.email || '',
           notes: item.notes || '',
           priority: item.priority || 'medium',
           surveyStatus: (item.survey_status as "pending" | "sent" | "completed") || 'pending',
           surveyToken: item.survey_token || '',
-          surveyResponse: safeJsonParse(item.survey_response?.toString(), null)
+          surveyResponse: safeJsonParse(
+            typeof item.survey_response === 'string' 
+              ? item.survey_response 
+              : JSON.stringify(item.survey_response), 
+            null
+          )
         }));
       }
       
@@ -146,50 +156,55 @@ export const MaterialityProvider: React.FC<{
   };
   
   const saveIssue = async (issue: MaterialityIssue, reportId: string) => {
-    if (!reportId) return;
+    if (!reportId) return false;
     
     try {
-      const { error } = await supabase
+      const { data, error: checkError } = await supabase
         .from('materiality_issues')
-        .update({
-          report_id: reportId,
-          issue_id: issue.id,
-          name: issue.name,
-          description: issue.description,
-          impact_relevance: issue.impactRelevance.toString(),
-          financial_relevance: issue.financialRelevance.toString(),
-          is_material: issue.isMaterial,
-          stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
-          iro_selections: safeJsonStringify(issue.iroSelections),
-          updated_at: new Date().toISOString()
-        })
+        .select('issue_id')
         .eq('report_id', reportId)
-        .eq('issue_id', issue.id);
+        .eq('issue_id', issue.id)
+        .maybeSingle();
       
-      if (error) {
-        if (error.code === '23505' || error.code === '42P01') {
-          const { error: insertError } = await supabase
-            .from('materiality_issues')
-            .insert({
-              report_id: reportId,
-              issue_id: issue.id,
-              name: issue.name,
-              description: issue.description,
-              impact_relevance: issue.impactRelevance.toString(),
-              financial_relevance: issue.financialRelevance.toString(),
-              is_material: issue.isMaterial,
-              stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
-              iro_selections: safeJsonStringify(issue.iroSelections),
-              updated_at: new Date().toISOString()
-            });
-          
-          if (insertError) throw insertError;
-        } else {
-          throw error;
-        }
+      if (checkError) {
+        console.error("Error checking if issue exists:", checkError);
+        return false;
       }
       
-      return true;
+      const issueData = {
+        report_id: reportId,
+        issue_id: issue.id,
+        name: issue.name,
+        description: issue.description,
+        impact_relevance: issue.impactRelevance.toString(),
+        financial_relevance: issue.financialRelevance.toString(),
+        is_material: issue.isMaterial,
+        stakeholder_relevance: (issue.stakeholderRelevance || 0).toString(),
+        iro_selections: safeJsonStringify(issue.iroSelections),
+        updated_at: new Date().toISOString()
+      };
+      
+      let result;
+      
+      if (data) {
+        const { error: updateError } = await supabase
+          .from('materiality_issues')
+          .update(issueData)
+          .eq('report_id', reportId)
+          .eq('issue_id', issue.id);
+        
+        if (updateError) throw updateError;
+        result = true;
+      } else {
+        const { error: insertError } = await supabase
+          .from('materiality_issues')
+          .insert(issueData);
+        
+        if (insertError) throw insertError;
+        result = true;
+      }
+      
+      return result;
     } catch (error) {
       console.error("Error saving issue:", error);
       return false;
@@ -220,31 +235,59 @@ export const MaterialityProvider: React.FC<{
   };
   
   const saveStakeholder = async (stakeholder: Stakeholder, reportId: string) => {
-    if (!reportId) return;
+    if (!reportId) return false;
     
     try {
-      const { error } = await supabase
+      const { data, error: checkError } = await supabase
         .from('stakeholders')
-        .upsert({
-          report_id: reportId,
-          stakeholder_id: stakeholder.id,
-          name: stakeholder.name,
-          category: stakeholder.category,
-          influence: stakeholder.influence,
-          interest: stakeholder.interest,
-          contact_info: stakeholder.contactInfo,
-          email: stakeholder.email,
-          notes: stakeholder.notes,
-          priority: stakeholder.priority,
-          survey_status: stakeholder.surveyStatus,
-          survey_token: stakeholder.surveyToken,
-          survey_response: safeJsonStringify(stakeholder.surveyResponse),
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'report_id,stakeholder_id' });
+        .select('stakeholder_id')
+        .eq('report_id', reportId)
+        .eq('stakeholder_id', stakeholder.id)
+        .maybeSingle();
       
-      if (error) throw error;
+      if (checkError) {
+        console.error("Error checking if stakeholder exists:", checkError);
+        return false;
+      }
       
-      return true;
+      const stakeholderData = {
+        report_id: reportId,
+        stakeholder_id: stakeholder.id,
+        name: stakeholder.name,
+        category: stakeholder.category,
+        influence: stakeholder.influence.toString(),
+        interest: stakeholder.interest.toString(),
+        contact_info: stakeholder.contactInfo,
+        email: stakeholder.email,
+        notes: stakeholder.notes,
+        priority: stakeholder.priority,
+        survey_status: stakeholder.surveyStatus,
+        survey_token: stakeholder.surveyToken,
+        survey_response: safeJsonStringify(stakeholder.surveyResponse),
+        updated_at: new Date().toISOString()
+      };
+      
+      let result;
+      
+      if (data) {
+        const { error: updateError } = await supabase
+          .from('stakeholders')
+          .update(stakeholderData)
+          .eq('report_id', reportId)
+          .eq('stakeholder_id', stakeholder.id);
+        
+        if (updateError) throw updateError;
+        result = true;
+      } else {
+        const { error: insertError } = await supabase
+          .from('stakeholders')
+          .insert(stakeholderData);
+        
+        if (insertError) throw insertError;
+        result = true;
+      }
+      
+      return result;
     } catch (error) {
       console.error("Error saving stakeholder:", error);
       return false;

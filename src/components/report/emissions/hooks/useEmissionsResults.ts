@@ -40,10 +40,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       // If data exists, update the state
       if (data) {
         console.log('Emissions data loaded successfully:', data);
-        setScope1Emissions(parseFloat(data.scope1_emissions) || 0);
-        setScope2Emissions(parseFloat(data.scope2_emissions) || 0);
-        setScope3Emissions(parseFloat(data.scope3_emissions) || 0);
-        setTotalEmissions(parseFloat(data.total_emissions) || 0);
+        setScope1Emissions(parseFloat(data.scope1_emissions as string) || 0);
+        setScope2Emissions(parseFloat(data.scope2_emissions as string) || 0);
+        setScope3Emissions(parseFloat(data.scope3_emissions as string) || 0);
+        setTotalEmissions(parseFloat(data.total_emissions as string) || 0);
       } else {
         console.log('No emissions data found for report:', reportId);
         // Initialize with zeros
