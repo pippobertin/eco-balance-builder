@@ -19,16 +19,6 @@ const EmissionsResults: React.FC<EmissionsResultsProps> = ({
   const scope3 = typeof calculatedEmissions.scope3 === 'number' && !isNaN(calculatedEmissions.scope3) ? calculatedEmissions.scope3 : 0;
   const total = typeof calculatedEmissions.total === 'number' && !isNaN(calculatedEmissions.total) ? calculatedEmissions.total : 0;
 
-  // Log the values to help with debugging
-  console.log('EmissionsResults rendering with values:', { 
-    scope1, scope2, scope3, total,
-    rawValues: calculatedEmissions,
-    typeScope1: typeof calculatedEmissions.scope1,
-    typeScope2: typeof calculatedEmissions.scope2,
-    typeScope3: typeof calculatedEmissions.scope3,
-    typeTotal: typeof calculatedEmissions.total
-  });
-
   return (
     <div className="bg-white p-3 rounded-md border border-gray-200 shadow-sm">
       <h3 className="text-sm font-semibold mb-2">Risultati del calcolo (tonnellate CO2e):</h3>

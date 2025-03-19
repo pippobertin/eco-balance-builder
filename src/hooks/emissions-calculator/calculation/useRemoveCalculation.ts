@@ -1,47 +1,47 @@
 
 import { useCallback } from 'react';
-import { EmissionCalculationLogs } from '../types';
-import { useEmissionsRecords } from '../useEmissionsRecords';
+import { EmissionCalculationLogs, EmissionsResults } from '../types';
 
 /**
- * Hook for removing calculations from logs
+ * Hook for removing a calculation from the logs
  */
 export const useRemoveCalculation = () => {
-  const { removeRecord, calculateTotalsFromLogs } = useEmissionsRecords();
-  
   /**
-   * Remove a calculation from logs and recalculate totals
+   * Remove a calculation from logs and update totals
    */
   const removeCalculation = useCallback((
     calculationId: string,
-    logs: EmissionCalculationLogs
-  ): { updatedLogs: EmissionCalculationLogs; updatedResults: any } => {
-    console.log('Removing calculation:', calculationId);
+    calculationLogs: EmissionCalculationLogs
+  ): {
+    updatedLogs: EmissionCalculationLogs;
+    updatedResults: EmissionsResults;
+  } => {
+    console.log('useRemoveCalculation: Removing calculation with ID:', calculationId);
     
-    // Check each scope for the calculation ID
-    let scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
+    // Create a deep copy of logs to avoid mutation issues
+    const updatedLogs: EmissionCalculationLogs = {
+      scope1Calculations: calculationLogs.scope1Calculations.filter(calc => calc.id !== calculationId),
+      scope2Calculations: calculationLogs.scope2Calculations.filter(calc => calc.id !== calculationId),
+      scope3Calculations: calculationLogs.scope3Calculations.filter(calc => calc.id !== calculationId)
+    };
     
-    if (logs.scope1Calculations.some(calc => calc.id === calculationId)) {
-      scopeKey = 'scope1Calculations';
-    } else if (logs.scope2Calculations.some(calc => calc.id === calculationId)) {
-      scopeKey = 'scope2Calculations';
-    } else if (logs.scope3Calculations.some(calc => calc.id === calculationId)) {
-      scopeKey = 'scope3Calculations';
-    }
+    // Recalculate totals
+    const scope1Total = updatedLogs.scope1Calculations.reduce((sum, calc) => sum + (calc.emissions || 0), 0);
+    const scope2Total = updatedLogs.scope2Calculations.reduce((sum, calc) => sum + (calc.emissions || 0), 0);
+    const scope3Total = updatedLogs.scope3Calculations.reduce((sum, calc) => sum + (calc.emissions || 0), 0);
     
-    if (!scopeKey) {
-      console.error('Calculation not found:', calculationId);
-      return { updatedLogs: logs, updatedResults: calculateTotalsFromLogs(logs) };
-    }
+    const updatedResults: EmissionsResults = {
+      scope1: scope1Total,
+      scope2: scope2Total,
+      scope3: scope3Total,
+      total: scope1Total + scope2Total + scope3Total
+    };
     
-    // Remove the calculation record
-    const updatedLogs = removeRecord(logs, scopeKey, calculationId);
-    
-    // Calculate updated totals
-    const updatedResults = calculateTotalsFromLogs(updatedLogs);
+    console.log('useRemoveCalculation: Updated logs:', updatedLogs);
+    console.log('useRemoveCalculation: Updated results:', updatedResults);
     
     return { updatedLogs, updatedResults };
-  }, [removeRecord, calculateTotalsFromLogs]);
+  }, []);
   
   return { removeCalculation };
 };
