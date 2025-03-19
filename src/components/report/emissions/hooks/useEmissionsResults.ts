@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useFormValueUpdater } from './useFormValueUpdater';
 import { EmissionsResults, EmissionsDetails, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
+import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 /**
  * Hook for handling emissions calculation results
@@ -31,7 +32,7 @@ export const useEmissionsResults = (
   const handleCalculationLogs = (logs: EmissionCalculationLogs) => {
     setCalculationLogs(logs);
     // Ensure logs are properly stringified for storage
-    const logsString = JSON.stringify(logs);
+    const logsString = safeJsonStringify(logs);
     console.log("Storing calculation logs as string:", logsString.substring(0, 100) + "...");
     updateFormValues('emissionCalculationLogs', logsString);
   };
@@ -53,7 +54,7 @@ export const useEmissionsResults = (
       scope2Calculations: [],
       scope3Calculations: []
     };
-    updateFormValues('emissionCalculationLogs', JSON.stringify(emptyLogs));
+    updateFormValues('emissionCalculationLogs', safeJsonStringify(emptyLogs));
     setCalculationLogs(emptyLogs);
     
     // Clear localStorage cache related to emissions

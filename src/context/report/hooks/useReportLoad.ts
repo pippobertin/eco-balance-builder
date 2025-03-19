@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
@@ -91,12 +90,17 @@ export const useReportLoad = (
         setCurrentReport(result.report);
         
         // Extract metrics data from the loaded report with improved parsing
-        // Make sure we're parsing JSON strings correctly, not treating them as objects
-        console.log("Raw environmental_metrics type:", typeof result.report.environmental_metrics);
-        console.log("Raw social_metrics type:", typeof result.report.social_metrics);
-        console.log("Raw conduct_metrics type:", typeof result.report.conduct_metrics);
-        console.log("Raw materiality_analysis type:", typeof result.report.materiality_analysis);
+        console.log("Raw data types:");
+        console.log("- environmental_metrics type:", typeof result.report.environmental_metrics);
+        console.log("- environmental_metrics sample:", 
+          typeof result.report.environmental_metrics === 'string' 
+            ? result.report.environmental_metrics.substring(0, 100) + "..." 
+            : JSON.stringify(result.report.environmental_metrics).substring(0, 100) + "...");
+        console.log("- social_metrics type:", typeof result.report.social_metrics);
+        console.log("- conduct_metrics type:", typeof result.report.conduct_metrics);
+        console.log("- materiality_analysis type:", typeof result.report.materiality_analysis);
         
+        // Always use safeJsonParse to handle the different ways data might be stored
         const newReportData: ReportData = {
           environmentalMetrics: safeJsonParse(result.report.environmental_metrics, {}),
           socialMetrics: safeJsonParse(result.report.social_metrics, {}),
@@ -106,10 +110,18 @@ export const useReportLoad = (
         };
         
         console.log("Parsed report data:", {
-          environmentalMetrics: typeof newReportData.environmentalMetrics,
-          socialMetrics: typeof newReportData.socialMetrics,
-          conductMetrics: typeof newReportData.conductMetrics,
-          materialityAnalysis: typeof newReportData.materialityAnalysis
+          environmentalMetrics: Object.keys(newReportData.environmentalMetrics).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.environmentalMetrics).length + " keys" 
+            : "Empty object",
+          socialMetrics: Object.keys(newReportData.socialMetrics).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.socialMetrics).length + " keys" 
+            : "Empty object",
+          conductMetrics: Object.keys(newReportData.conductMetrics).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.conductMetrics).length + " keys" 
+            : "Empty object",
+          materialityAnalysis: Object.keys(newReportData.materialityAnalysis).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.materialityAnalysis).length + " keys" 
+            : "Empty object"
         });
         
         // Update report data state

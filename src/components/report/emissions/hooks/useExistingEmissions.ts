@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { EmissionsInput, EmissionsResults, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
 import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
@@ -29,7 +30,8 @@ export const useExistingEmissions = (
       console.log("Loading existing emissions data:", { 
         totalScope1Emissions, 
         totalScope2Emissions, 
-        totalScope3Emissions 
+        totalScope3Emissions,
+        emissionCalculationLogs: emissionCalculationLogs ? "Present" : "Not present"
       });
       
       // Only update if we have values and they are not already loaded
@@ -64,20 +66,12 @@ export const useExistingEmissions = (
           console.log("Parsing logs in useExistingEmissions");
           console.log("Type of emissionCalculationLogs:", typeof emissionCalculationLogs);
           
-          // Handle different potential data types for logs
-          let parsedLogs: EmissionCalculationLogs;
-          
-          if (typeof emissionCalculationLogs === 'string') {
-            // If it's a string, parse it
-            parsedLogs = JSON.parse(emissionCalculationLogs);
-          } else {
-            // Otherwise use safeJsonParse to handle any type
-            parsedLogs = safeJsonParse(emissionCalculationLogs, {
-              scope1Calculations: [],
-              scope2Calculations: [],
-              scope3Calculations: []
-            });
-          }
+          // Handle different potential data types for logs using our improved safeJsonParse
+          const parsedLogs = safeJsonParse<EmissionCalculationLogs>(emissionCalculationLogs, {
+            scope1Calculations: [],
+            scope2Calculations: [],
+            scope3Calculations: []
+          });
           
           // Ensure the structure is complete
           if (!parsedLogs.scope1Calculations) parsedLogs.scope1Calculations = [];
