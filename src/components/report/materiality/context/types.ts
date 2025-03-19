@@ -47,9 +47,5 @@ export interface MaterialityContextType {
 
 export interface MaterialityProviderProps {
   children: React.ReactNode;
-  formValues: any;
-  setFormValues: React.Dispatch<React.SetStateAction<any>>;
-  getStakeholderPriorityColor: (priority: string) => string;
-  getSurveyStatusColor: (status?: string) => string;
-  getSurveyStatusText: (status?: string) => string;
+  reportId: string | null;
 }

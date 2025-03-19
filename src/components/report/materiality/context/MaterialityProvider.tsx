@@ -1,16 +1,16 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MaterialityContextType, MaterialityIssue, Stakeholder } from '../types';
+import { MaterialityIssue, Stakeholder } from '../types';
+import { MaterialityContextType, MaterialityProviderProps } from './types';
 import { supabase } from '@/integrations/supabase/client';
-import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 import { calculateAverageMatrix, defaultMaterialityIssues } from '../utils/materialityUtils';
+import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 import { useReport } from '@/hooks/use-report-context';
 import { useToast } from '@/hooks/use-toast';
 
 const MaterialityContext = createContext<MaterialityContextType | undefined>(undefined);
 
-export const MaterialityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentReport } = useReport();
-  const reportId = currentReport?.id;
+export const MaterialityProvider: React.FC<MaterialityProviderProps> = ({ children, reportId }) => {
   const { toast } = useToast();
 
   const [issues, setIssues] = useState<MaterialityIssue[]>([]);
@@ -18,6 +18,18 @@ export const MaterialityProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [esgScore, setEsgScore] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Survey state
+  const [surveyTemplate, setSurveyTemplate] = useState<SurveyTemplate>({
+    title: 'Materiality Assessment Survey',
+    description: 'Please rate the following issues based on their importance to your organization.',
+    issues: [],
+    additionalComments: true
+  });
+  
+  const [surveyDialogOpen, setSurveyDialogOpen] = useState(false);
+  const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
+  const [forceResend, setForceResend] = useState(false);
 
   useEffect(() => {
     if (reportId) {
@@ -56,21 +68,45 @@ export const MaterialityProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       if (esgError) throw esgError;
 
-      // Update state
+      // Update state with mappings from DB fields to our model fields
       if (issuesData) {
-        setIssues(issuesData as MaterialityIssue[]);
+        const mappedIssues: MaterialityIssue[] = issuesData.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description || '',
+          impactRelevance: Number(item.impact_relevance) || 0,
+          financialRelevance: Number(item.financial_relevance) || 0,
+          isMaterial: Boolean(item.is_material),
+          stakeholderRelevance: Number(item.stakeholder_relevance) || 0,
+          iroSelections: item.iro_selections ? safeJsonParse(String(item.iro_selections), {}) : undefined
+        }));
+        setIssues(mappedIssues);
       } else {
         setIssues(defaultMaterialityIssues);
       }
 
       if (stakeholdersData) {
-        setStakeholders(stakeholdersData as Stakeholder[]);
+        const mappedStakeholders: Stakeholder[] = stakeholdersData.map(item => ({
+          id: item.id,
+          name: item.name,
+          category: item.category || '',
+          influence: Number(item.influence) || 0,
+          interest: Number(item.interest) || 0,
+          contactInfo: item.contact_info || '',
+          email: item.email || '',
+          notes: item.notes || '',
+          priority: item.priority || '',
+          surveyStatus: item.survey_status as 'pending' | 'sent' | 'completed' || 'pending',
+          surveyToken: item.survey_token || '',
+          surveyResponse: item.survey_response ? safeJsonParse(String(item.survey_response), undefined) : undefined
+        }));
+        setStakeholders(mappedStakeholders);
       } else {
         setStakeholders([]);
       }
 
       if (esgData?.materiality_analysis) {
-        const materialityAnalysis = safeJsonParse(esgData.materiality_analysis, {});
+        const materialityAnalysis = safeJsonParse(String(esgData.materiality_analysis), {});
         setEsgScore(Number(materialityAnalysis.esgScore) || null);
       } else {
         setEsgScore(null);
@@ -122,186 +158,301 @@ export const MaterialityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // When saving issues to database, convert numeric values properly
-const saveIssuesToDatabase = async (issues: MaterialityIssue[], reportId: string) => {
-  try {
-    if (!issues.length || !reportId) return;
+  // When saving issues to database, convert to DB field names
+  const saveIssuesToDatabase = async (issues: MaterialityIssue[], reportId: string) => {
+    try {
+      if (!issues.length || !reportId) return;
 
-    // For each issue, save to database
-    for (const issue of issues) {
-      const { id, ...issueData } = issue;
-      
-      // Check if the issue already exists in the database
-      const { data, error: checkError } = await supabase
-        .from('materiality_issues')
-        .select('id')
-        .eq('report_id', reportId)
-        .eq('issue_id', issue.issue_id)
-        .maybeSingle();
+      // For each issue, save to database
+      for (const issue of issues) {
+        const { id } = issue;
         
-      if (checkError) throw checkError;
-      
-      // Prepare issue data with proper numeric values
-      const issueToSave = {
-        report_id: reportId,
-        issue_id: issue.issue_id,
-        name: issue.name,
-        description: issue.description || '',
-        impact_relevance: Number(issue.impact_relevance) || 0,
-        financial_relevance: Number(issue.financial_relevance) || 0,
-        is_material: Boolean(issue.is_material),
-        stakeholder_relevance: Number(issue.stakeholder_relevance) || 0,
-        iro_selections: issue.iro_selections ? safeJsonStringify(issue.iro_selections) : null,
-        updated_at: new Date().toISOString()
-      };
-      
-      if (data) {
-        // Update existing issue
-        const { error: updateError } = await supabase
+        // Check if the issue already exists in the database
+        const { data, error: checkError } = await supabase
           .from('materiality_issues')
-          .update(issueToSave)
+          .select('id')
           .eq('report_id', reportId)
-          .eq('issue_id', issue.issue_id);
-        
-        if (updateError) throw updateError;
-      } else {
-        // Insert new issue
-        const { error: insertError } = await supabase
-          .from('materiality_issues')
-          .insert(issueToSave);
+          .eq('id', id)
+          .maybeSingle();
           
-        if (insertError) throw insertError;
+        if (checkError) throw checkError;
+        
+        // Prepare issue data with proper field names for DB
+        const issueToSave = {
+          report_id: reportId,
+          id: id,
+          name: issue.name,
+          description: issue.description || '',
+          impact_relevance: Number(issue.impactRelevance) || 0,
+          financial_relevance: Number(issue.financialRelevance) || 0,
+          is_material: Boolean(issue.isMaterial),
+          stakeholder_relevance: Number(issue.stakeholderRelevance) || 0,
+          iro_selections: issue.iroSelections ? safeJsonStringify(issue.iroSelections) : null,
+          updated_at: new Date().toISOString()
+        };
+        
+        if (data) {
+          // Update existing issue
+          const { error: updateError } = await supabase
+            .from('materiality_issues')
+            .update(issueToSave)
+            .eq('report_id', reportId)
+            .eq('id', id);
+        
+          if (updateError) throw updateError;
+        } else {
+          // Insert new issue
+          const { error: insertError } = await supabase
+            .from('materiality_issues')
+            .insert(issueToSave);
+            
+          if (insertError) throw insertError;
+        }
       }
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving issues to database:', error);
+      return false;
     }
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving issues to database:', error);
-    return false;
-  }
-};
+  };
 
-// When saving stakeholders to database, convert numeric values properly
-const saveStakeholdersToDatabase = async (stakeholders: Stakeholder[], reportId: string) => {
-  try {
-    if (!stakeholders.length || !reportId) return;
-    
-    // For each stakeholder, save to database
-    for (const stakeholder of stakeholders) {
-      const { id, ...stakeholderData } = stakeholder;
+  // When saving stakeholders to database, convert to DB field names
+  const saveStakeholdersToDatabase = async (stakeholders: Stakeholder[], reportId: string) => {
+    try {
+      if (!stakeholders.length || !reportId) return;
       
-      // Check if the stakeholder already exists
-      const { data, error: checkError } = await supabase
-        .from('stakeholders')
-        .select('id')
-        .eq('report_id', reportId)
-        .eq('stakeholder_id', stakeholder.stakeholder_id)
-        .maybeSingle();
+      // For each stakeholder, save to database
+      for (const stakeholder of stakeholders) {
+        const { id } = stakeholder;
         
-      if (checkError) throw checkError;
-      
-      // Prepare stakeholder data with proper numeric values
-      const stakeholderToSave = {
-        report_id: reportId,
-        stakeholder_id: stakeholder.stakeholder_id,
-        name: stakeholder.name,
-        category: stakeholder.category || '',
-        influence: Number(stakeholder.influence) || 0,
-        interest: Number(stakeholder.interest) || 0,
-        contact_info: stakeholder.contact_info || '',
-        email: stakeholder.email || '',
-        notes: stakeholder.notes || '',
-        priority: stakeholder.priority || '',
-        survey_status: stakeholder.survey_status || 'pending',
-        survey_token: stakeholder.survey_token || '',
-        survey_response: stakeholder.survey_response ? safeJsonStringify(stakeholder.survey_response) : null,
-        updated_at: new Date().toISOString()
-      };
-      
-      if (data) {
-        // Update existing stakeholder
-        const { error: updateError } = await supabase
+        // Check if the stakeholder already exists
+        const { data, error: checkError } = await supabase
           .from('stakeholders')
-          .update(stakeholderToSave)
+          .select('id')
           .eq('report_id', reportId)
-          .eq('stakeholder_id', stakeholder.stakeholder_id);
+          .eq('id', id)
+          .maybeSingle();
           
-        if (updateError) throw updateError;
-      } else {
-        // Insert new stakeholder
-        const { error: insertError } = await supabase
-          .from('stakeholders')
-          .insert(stakeholderToSave);
-          
-        if (insertError) throw insertError;
+        if (checkError) throw checkError;
+        
+        // Prepare stakeholder data with proper field names for DB
+        const stakeholderToSave = {
+          report_id: reportId,
+          id: id,
+          name: stakeholder.name,
+          category: stakeholder.category || '',
+          influence: Number(stakeholder.influence) || 0,
+          interest: Number(stakeholder.interest) || 0,
+          contact_info: stakeholder.contactInfo || '',
+          email: stakeholder.email || '',
+          notes: stakeholder.notes || '',
+          priority: stakeholder.priority || '',
+          survey_status: stakeholder.surveyStatus || 'pending',
+          survey_token: stakeholder.surveyToken || '',
+          survey_response: stakeholder.surveyResponse ? safeJsonStringify(stakeholder.surveyResponse) : null,
+          updated_at: new Date().toISOString()
+        };
+        
+        if (data) {
+          // Update existing stakeholder
+          const { error: updateError } = await supabase
+            .from('stakeholders')
+            .update(stakeholderToSave)
+            .eq('report_id', reportId)
+            .eq('id', id);
+            
+          if (updateError) throw updateError;
+        } else {
+          // Insert new stakeholder
+          const { error: insertError } = await supabase
+            .from('stakeholders')
+            .insert(stakeholderToSave);
+            
+          if (insertError) throw insertError;
+        }
       }
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving stakeholders to database:', error);
+      return false;
     }
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving stakeholders to database:', error);
-    return false;
-  }
-};
+  };
 
   // Update issue
-  const updateIssue = (issueId: string, field: keyof MaterialityIssue, value: any) => {
+  const handleIssueChange = (id: string, field: keyof MaterialityIssue, value: any) => {
     setIssues(prev =>
       prev.map(issue =>
-        issue.issue_id === issueId ? { ...issue, [field]: value } : issue
+        issue.id === id ? { ...issue, [field]: value } : issue
       )
     );
   };
 
   // Add issue
-  const addIssue = (newIssue: Omit<MaterialityIssue, 'id'>) => {
-    setIssues(prev => [...prev, { ...newIssue, id: Math.random().toString() }]);
+  const addCustomIssue = (name: string, description: string) => {
+    const newIssue: MaterialityIssue = {
+      id: `custom-${Date.now()}`,
+      name,
+      description,
+      impactRelevance: 0,
+      financialRelevance: 0,
+      isMaterial: false
+    };
+    setIssues(prev => [...prev, newIssue]);
   };
 
   // Delete issue
-  const deleteIssue = (issueId: string) => {
-    setIssues(prev => prev.filter(issue => issue.issue_id !== issueId));
+  const removeIssue = (id: string) => {
+    setIssues(prev => prev.filter(issue => issue.id !== id));
   };
 
   // Update stakeholder
-  const updateStakeholder = (stakeholderId: string, field: keyof Stakeholder, value: any) => {
+  const handleStakeholderChange = (id: string, field: keyof Stakeholder, value: any) => {
     setStakeholders(prev =>
       prev.map(stakeholder =>
-        stakeholder.stakeholder_id === stakeholderId ? { ...stakeholder, [field]: value } : stakeholder
+        stakeholder.id === id ? { ...stakeholder, [field]: value } : stakeholder
       )
     );
   };
 
   // Add stakeholder
-  const addStakeholder = (newStakeholder: Omit<Stakeholder, 'id'>) => {
-    setStakeholders(prev => [...prev, { ...newStakeholder, id: Math.random().toString() }]);
+  const addStakeholder = (newStakeholderData: Omit<Stakeholder, 'id' | 'priority' | 'surveyStatus'>) => {
+    const id = `stakeholder-${Date.now()}`;
+    // Calculate priority based on influence and interest
+    const priority = calculatePriority(newStakeholderData.influence, newStakeholderData.interest);
+    
+    const newStakeholder: Stakeholder = {
+      ...newStakeholderData,
+      id,
+      priority,
+      surveyStatus: 'pending'
+    };
+    
+    setStakeholders(prev => [...prev, newStakeholder]);
   };
 
   // Delete stakeholder
-  const deleteStakeholder = (stakeholderId: string) => {
-    setStakeholders(prev => prev.filter(stakeholder => stakeholder.stakeholder_id !== stakeholderId));
+  const removeStakeholder = (id: string) => {
+    setStakeholders(prev => prev.filter(stakeholder => stakeholder.id !== id));
   };
 
-  // Calculate materiality matrix
-  const calculateMaterialityMatrix = () => {
-    return calculateAverageMatrix(issues);
+  // Calculate priority based on influence and interest
+  const calculatePriority = (influence: number, interest: number): string => {
+    if (influence >= 3 && interest >= 3) return 'high';
+    if (influence >= 3 || interest >= 3) return 'medium';
+    return 'low';
   };
+
+  // Get stakeholder groups for survey dialog
+  const stakeholderGroups = {
+    pending: stakeholders.filter(s => s.surveyStatus === 'pending'),
+    sent: stakeholders.filter(s => s.surveyStatus === 'sent'),
+    completed: stakeholders.filter(s => s.surveyStatus === 'completed')
+  };
+
+  // Get survey progress
+  const surveyProgress = {
+    sent: stakeholders.filter(s => s.surveyStatus === 'sent' || s.surveyStatus === 'completed').length,
+    completed: stakeholders.filter(s => s.surveyStatus === 'completed').length,
+    total: stakeholders.length
+  };
+
+  // Open survey dialog
+  const openSurveyDialog = () => {
+    setSurveyTemplate(prev => ({
+      ...prev,
+      issues: issues.filter(issue => issue.isMaterial)
+    }));
+    setSurveyDialogOpen(true);
+  };
+
+  // Toggle force resend
+  const toggleForceResend = () => setForceResend(prev => !prev);
+
+  // Handle sending surveys
+  const handleSendSurveys = () => {
+    // This would be implemented based on your survey sending mechanism
+    console.log("Sending surveys to:", selectedStakeholders);
+    
+    // Update stakeholder status
+    setStakeholders(prev => 
+      prev.map(stakeholder => 
+        selectedStakeholders.includes(stakeholder.id) 
+          ? { 
+              ...stakeholder, 
+              surveyStatus: 'sent',
+              surveyToken: `token-${stakeholder.id}-${Date.now()}`
+            } 
+          : stakeholder
+      )
+    );
+    
+    setSurveyDialogOpen(false);
+    setSelectedStakeholders([]);
+    
+    toast({
+      title: "Sondaggi inviati",
+      description: `${selectedStakeholders.length} stakeholder hanno ricevuto il sondaggio.`
+    });
+  };
+
+  // Utility color functions
+  const getStakeholderPriorityColor = (priority: string): string => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getSurveyStatusColor = (status?: string): string => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'sent': return 'bg-blue-100 text-blue-800';
+      case 'pending': 
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getSurveyStatusText = (status?: string): string => {
+    switch (status) {
+      case 'completed': return 'Completato';
+      case 'sent': return 'Inviato';
+      case 'pending': 
+      default: return 'In attesa';
+    }
+  };
+
+  // Calculate material issues
+  const materialIssues = issues.filter(issue => issue.isMaterial);
 
   const value: MaterialityContextType = {
     issues,
+    handleIssueChange,
+    addCustomIssue,
+    removeIssue,
+    materialIssues,
     stakeholders,
-    esgScore,
-    setEsgScore,
-    isLoading,
-    isSaving,
-    updateIssue,
-    addIssue,
-    deleteIssue,
-    updateStakeholder,
     addStakeholder,
-    deleteStakeholder,
-    calculateMaterialityMatrix,
-    saveDataToDatabase
+    removeStakeholder,
+    handleStakeholderChange,
+    surveyTemplate,
+    setSurveyTemplate,
+    surveyDialogOpen,
+    setSurveyDialogOpen,
+    selectedStakeholders,
+    setSelectedStakeholders,
+    stakeholderGroups,
+    forceResend,
+    toggleForceResend,
+    surveyProgress,
+    openSurveyDialog,
+    handleSendSurveys,
+    getStakeholderPriorityColor,
+    getSurveyStatusColor,
+    getSurveyStatusText
   };
 
   return (
@@ -318,3 +469,10 @@ export const useMateriality = () => {
   }
   return context;
 };
+
+interface SurveyTemplate {
+  title: string;
+  description: string;
+  issues: MaterialityIssue[];
+  additionalComments: boolean;
+}
