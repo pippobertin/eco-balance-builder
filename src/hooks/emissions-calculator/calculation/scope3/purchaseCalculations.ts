@@ -21,6 +21,7 @@ export const performPurchaseCalculation = (
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
     purchaseDescription: inputs.purchaseDescription,
+    periodType: inputs.periodType,
     initialScope3: results.scope3
   });
 

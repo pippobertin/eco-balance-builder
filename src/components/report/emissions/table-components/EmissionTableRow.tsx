@@ -40,12 +40,15 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
   // Log calculation details to help with debugging
   console.log("Rendering EmissionTableRow with calculation:", calculation);
   
+  // Make sure we have the period from details
+  const period = calculation.details?.periodType || '';
+  
   return (
     <>
       <TableRow>
         <TableCell className="font-medium">{getCategoryLabel(calculation)}</TableCell>
         <TableCell>{formatDate(calculation.date)}</TableCell>
-        <TableCell>{getPeriodLabel(calculation.details?.periodType)}</TableCell>
+        <TableCell>{getPeriodLabel(period)}</TableCell>
         <TableCell>
           {formatNumber(calculation.quantity)} {calculation.unit}
         </TableCell>
@@ -74,9 +77,9 @@ const EmissionTableRow: React.FC<EmissionTableRowProps> = ({
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-2">
                   <VehicleEmissionInfo 
-                    vehicleType={calculation.details.vehicleDetails.vehicleType}
-                    vehicleFuelType={calculation.details.vehicleDetails.vehicleFuelType}
-                    vehicleEnergyClass={calculation.details.vehicleDetails.vehicleEnergyClass}
+                    vehicleType={calculation.details?.vehicleDetails?.vehicleType || ''}
+                    vehicleFuelType={calculation.details?.vehicleDetails?.vehicleFuelType || 'DIESEL'}
+                    vehicleEnergyClass={calculation.details?.vehicleDetails?.vehicleEnergyClass || ''}
                     showCard={false}
                   />
                 </AccordionContent>

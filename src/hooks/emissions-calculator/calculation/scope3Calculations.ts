@@ -23,12 +23,16 @@ export const performScope3Calculation = (
   let calculationResult;
   if (category === 'transport') {
     calculationResult = performTransportCalculation(inputs, results);
+    console.log('Transport calculation completed:', calculationResult);
   } else if (category === 'waste') {
     calculationResult = performWasteCalculation(inputs, results);
+    console.log('Waste calculation completed:', calculationResult);
   } else if (category === 'purchases') {
     calculationResult = performPurchaseCalculation(inputs, results);
+    console.log('Purchase calculation completed:', calculationResult);
   } else {
     // Default return if no category matched
+    console.log('No matching category found for:', category);
     return { updatedResults: results, details: '' };
   }
   

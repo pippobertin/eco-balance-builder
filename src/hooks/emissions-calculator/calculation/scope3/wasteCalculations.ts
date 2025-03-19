@@ -20,6 +20,7 @@ export const performWasteCalculation = (
   console.log('Starting waste calculation with inputs:', {
     wasteType: inputs.wasteType,
     wasteQuantity: inputs.wasteQuantity,
+    periodType: inputs.periodType,
     initialResults: results
   });
 

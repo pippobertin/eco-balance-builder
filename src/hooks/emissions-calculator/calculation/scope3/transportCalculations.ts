@@ -52,14 +52,18 @@ export const performTransportCalculation = (
           vehicleEnergyClass
         });
         
-        emissionsKg = calculateVehicleEmissions(
+        // Fix here: Extract only emissionsKg from the object returned by calculateVehicleEmissions
+        const vehicleEmissionsResult = calculateVehicleEmissions(
           inputs.vehicleType,
+          vehicleEnergyClass,
           inputs.vehicleFuelType,
-          consumption,
-          consumptionUnit,
           distance,
-          vehicleEnergyClass
+          consumption,
+          consumptionUnit as 'l_100km' | 'km_l'
         );
+        
+        emissionsKg = vehicleEmissionsResult.emissionsKg;
+        source = vehicleEmissionsResult.source;
       } else {
         // Use standard transport emissions calculation
         console.log('Using standard transport emissions calculation for:', inputs.transportType);
@@ -106,7 +110,7 @@ export const performTransportCalculation = (
         emissionsKg,
         emissionsTonnes,
         calculationDate: new Date().toISOString(),
-        source: getEmissionFactorSource(inputs.transportType),
+        source: source || getEmissionFactorSource(inputs.transportType),
         vehicleDetails
       };
       

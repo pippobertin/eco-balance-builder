@@ -98,17 +98,17 @@ export const useCalculateEmissions = (
             }
           }
           
-          // Create a new record with the details
+          // Create a new record with the details, safely accessing properties that might not exist
           const newRecord: EmissionCalculationRecord = {
             id: generateUniqueId(),
             date: new Date().toISOString(),
             scope: scope,
-            source: detailsObj.source || '',
-            description: scope === 'scope1' ? `${detailsObj.fuelType || 'Fuel'} emission` : 
-                        scope === 'scope2' ? `${detailsObj.energyType || 'Energy'} emission` :
-                        `${detailsObj.wasteType || detailsObj.purchaseType || detailsObj.transportType || detailsObj.activityType || 'Scope 3'} emission`,
-            quantity: detailsObj.quantity || 0,
-            unit: detailsObj.unit || '',
+            source: (detailsObj as any)?.source || '',
+            description: scope === 'scope1' ? `${(detailsObj as any)?.fuelType || 'Fuel'} emission` : 
+                        scope === 'scope2' ? `${(detailsObj as any)?.energyType || 'Energy'} emission` :
+                        `${(detailsObj as any)?.wasteType || (detailsObj as any)?.purchaseType || (detailsObj as any)?.transportType || (detailsObj as any)?.activityType || 'Scope 3'} emission`,
+            quantity: (detailsObj as any)?.quantity || 0,
+            unit: (detailsObj as any)?.unit || '',
             emissions: emissionValue,
             details: detailsObj
           };
