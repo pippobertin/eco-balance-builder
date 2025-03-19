@@ -18,18 +18,22 @@ export const performScope3Calculation = (
   // Determine which category of Scope 3 we're calculating
   const category = inputs.scope3Category || 'transport';
   
-  console.log('Performing Scope 3 calculation for category:', category);
+  console.log('Performing Scope 3 calculation for category:', category, 'with initial results:', results);
   
+  let calculationResult;
   if (category === 'transport') {
-    return performTransportCalculation(inputs, results);
+    calculationResult = performTransportCalculation(inputs, results);
   } else if (category === 'waste') {
-    return performWasteCalculation(inputs, results);
+    calculationResult = performWasteCalculation(inputs, results);
   } else if (category === 'purchases') {
-    return performPurchaseCalculation(inputs, results);
+    calculationResult = performPurchaseCalculation(inputs, results);
+  } else {
+    // Default return if no category matched
+    return { updatedResults: results, details: '' };
   }
   
-  // Default return if no calculations performed
-  return { updatedResults: results, details: '' };
+  console.log('Scope 3 calculation completed. Updated results:', calculationResult.updatedResults);
+  return calculationResult;
 };
 
 // Re-export the specific calculation functions for direct use

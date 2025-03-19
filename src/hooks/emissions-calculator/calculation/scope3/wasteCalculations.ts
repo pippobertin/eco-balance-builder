@@ -56,7 +56,7 @@ export const performWasteCalculation = (
       // Convert the source object to string
       const sourceInfo = calculationDetails.source;
       if (sourceInfo) {
-        source = typeof sourceInfo === 'string' ? sourceInfo : sourceInfo.name;
+        source = typeof sourceInfo === 'string' ? sourceInfo : JSON.stringify(sourceInfo);
       }
       
       details = JSON.stringify(calculationDetails);

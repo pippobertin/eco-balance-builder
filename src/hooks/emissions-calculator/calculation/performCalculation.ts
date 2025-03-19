@@ -50,7 +50,7 @@ export const performEmissionsCalculation = (
     console.log('Scope 3 calculation completed. Results:', results);
   }
   
-  // Calculate total emissions
+  // Calculate total emissions (should already be accurate from incremental updates)
   results.total = results.scope1 + results.scope2 + results.scope3;
   
   console.log('Final calculation results:', results);

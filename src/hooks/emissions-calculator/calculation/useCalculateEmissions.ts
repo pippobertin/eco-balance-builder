@@ -33,7 +33,7 @@ export const useCalculateEmissions = (
    */
   const calculateEmissions = useCallback((scope?: 'scope1' | 'scope2' | 'scope3') => {
     console.log('Starting calculation for scope:', scope);
-    console.log('Current inputs:', inputs);
+    console.log('Current inputs:', JSON.stringify(inputs));
     
     // Perform the calculation using the performEmissionsCalculation function
     const { results: newResults, details: newDetails } = performEmissionsCalculation(inputs, scope);
@@ -69,11 +69,11 @@ export const useCalculateEmissions = (
         
         updatedLogs = { ...calculationLogs };
         if (scope === 'scope1') {
-          updatedLogs.scope1Calculations = [...calculationLogs.scope1Calculations, newRecord];
+          updatedLogs.scope1Calculations = [...(Array.isArray(calculationLogs.scope1Calculations) ? calculationLogs.scope1Calculations : []), newRecord];
         } else if (scope === 'scope2') {
-          updatedLogs.scope2Calculations = [...calculationLogs.scope2Calculations, newRecord];
+          updatedLogs.scope2Calculations = [...(Array.isArray(calculationLogs.scope2Calculations) ? calculationLogs.scope2Calculations : []), newRecord];
         } else if (scope === 'scope3') {
-          updatedLogs.scope3Calculations = [...calculationLogs.scope3Calculations, newRecord];
+          updatedLogs.scope3Calculations = [...(Array.isArray(calculationLogs.scope3Calculations) ? calculationLogs.scope3Calculations : []), newRecord];
         }
         
         // Update calculation logs
@@ -85,7 +85,7 @@ export const useCalculateEmissions = (
           onCalculationLogChange(updatedLogs);
         }
       } else {
-        console.warn(`No emissions calculated for ${scope}`);
+        console.warn(`No emissions calculated for ${scope}, value:`, emissionValue);
       }
     }
     
