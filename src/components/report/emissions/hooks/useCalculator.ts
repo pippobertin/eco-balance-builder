@@ -24,7 +24,8 @@ export const useCalculator = (
   // Get emissions results for saving data
   const { 
     saveEmissions,
-    resetEmissions
+    resetEmissions,
+    isSaving
   } = useEmissionsResults(reportId);
   
   // Initial logs state
@@ -127,6 +128,7 @@ export const useCalculator = (
     setCalculationLogs,
     handleRemoveCalculation,
     resetCalculation,
-    handleSubmitCalculation
+    handleSubmitCalculation,
+    isSaving
   };
 };

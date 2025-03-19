@@ -61,7 +61,8 @@ export const useEmissionsSave = () => {
   ) => {
     if (!reportId) {
       console.error('Cannot save emissions: reportId is undefined');
-      return;
+      setIsSaving(false);
+      return null;
     }
 
     setIsSaving(true);

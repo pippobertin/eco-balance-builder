@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useEmissionsLoad } from './useEmissionsLoad';
 import { useEmissionsSave } from './useEmissionsSave';
 import { EmissionsResults } from './types';
+import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 
 export const useEmissionsResults = (reportId: string | undefined) => {
   const [scope1Emissions, setScope1Emissions] = useState<number>(0);
@@ -44,8 +45,13 @@ export const useEmissionsResults = (reportId: string | undefined) => {
     scope1: number,
     scope2: number,
     scope3: number,
-    calculationLogs: any
+    calculationLogs: EmissionCalculationLogs
   ) => {
+    if (!reportId) {
+      console.error('Cannot save emissions: reportId is undefined');
+      return null;
+    }
+    
     const result = await saveEmissions(reportId, scope1, scope2, scope3, calculationLogs);
     
     if (result) {
@@ -54,7 +60,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
       setScope2Emissions(result.scope2);
       setScope3Emissions(result.scope3);
       setTotalEmissions(result.total);
+      return result;
     }
+    
+    return null;
   };
 
   // Function to reset emissions data

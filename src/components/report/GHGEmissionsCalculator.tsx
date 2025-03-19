@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calculator } from 'lucide-react';
+import { Calculator, Save } from 'lucide-react';
 import { EmissionFactorSource, PeriodType } from '@/lib/emissions-types';
 import { GHGEmissionsCalculatorProps } from './emissions/types';
 import { useCalculator } from './emissions/hooks/useCalculator';
@@ -29,7 +29,8 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     calculateEmissions,
     calculationLogs,
     handleRemoveCalculation,
-    handleSubmitCalculation
+    handleSubmitCalculation,
+    isSaving
   } = useCalculator(formValues, setFormValues, onResetClick);
   
   const getActiveTabContent = () => {
@@ -114,7 +115,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           <TabsTrigger value="scope3">Scope 3 - Altre Emissioni</TabsTrigger>
         </TabsList>
         
-        {/* Contenuto dinamico in base al tab attivo */}
         <TabsContent value={activeTab} className="space-y-4">
           {getActiveTabContent()}
         </TabsContent>
@@ -132,9 +132,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
           
           <Button 
             onClick={handleSaveClick}
+            disabled={isSaving}
             variant="outline"
+            className="flex items-center"
           >
-            Salva Emissioni
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? 'Salvando...' : 'Salva Emissioni'}
           </Button>
         </div>
         

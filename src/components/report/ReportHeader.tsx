@@ -2,9 +2,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { FileBarChart, AlertCircle } from 'lucide-react';
+import { FileBarChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Company } from '@/context/types';
+import AutoSaveIndicator from './AutoSaveIndicator';
 
 interface ReportHeaderProps {
   currentCompany: Company | null;
@@ -39,12 +40,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
       </div>
       
       <div className="flex gap-3 items-center">
-        {needsSaving && (
-          <div className="flex items-center text-amber-500 text-sm mr-2">
-            <AlertCircle className="h-4 w-4 mr-1" />
-            <span>Salvataggio in corso...</span>
-          </div>
-        )}
+        <AutoSaveIndicator className="mr-2" />
         
         <Button 
           variant="outline" 
