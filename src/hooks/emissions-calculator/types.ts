@@ -48,7 +48,7 @@ export interface EmissionsDetails {
   scope3Details: string;
 }
 
-// Nuove interfacce per tenere traccia dei singoli calcoli
+// Record types for calculations
 export interface EmissionCalculationRecord {
   id: string;
   date: string;
@@ -66,3 +66,7 @@ export interface EmissionCalculationLogs {
   scope2Calculations: EmissionCalculationRecord[];
   scope3Calculations: EmissionCalculationRecord[];
 }
+
+// Type alias for backward compatibility
+export type EmissionsRecord = EmissionCalculationLogs;
+export type RecordEntry = EmissionCalculationRecord;

@@ -3,13 +3,16 @@ import { useState, useEffect } from 'react';
 import { useEmissionsCalculator, EmissionsInput, EmissionCalculationLogs } from '@/hooks/emissions-calculator';
 import { useEmissionsResults } from './useEmissionsResults';
 import { useExistingEmissions } from './useExistingEmissions';
-import { safeJsonParse } from '@/integrations/supabase/client';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useCalculator = (
   formValues: any,
   setFormValues: React.Dispatch<React.SetStateAction<any>>,
   onResetClick?: () => void
 ) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
+  
   const [activeTab, setActiveTab] = useState<string>('scope1');
   const [calculatedEmissions, setCalculatedEmissions] = useState({
     scope1: 0,
@@ -18,24 +21,20 @@ export const useCalculator = (
     total: 0
   });
   
-  // Initialize logs from existing data if available
-  const initialLogs = formValues?.environmentalMetrics?.emissionCalculationLogs
-    ? safeJsonParse<EmissionCalculationLogs>(
-        formValues.environmentalMetrics.emissionCalculationLogs,
-        { scope1Calculations: [], scope2Calculations: [], scope3Calculations: [] }
-      )
-    : { scope1Calculations: [], scope2Calculations: [], scope3Calculations: [] };
-  
-  // Get emissions results hook
+  // Get emissions results for saving data
   const { 
-    handleCalculationResults, 
-    handleCalculationLogs, 
-    calculationLogs, 
-    setCalculationLogs,
-    resetEmissionsValues 
-  } = useEmissionsResults(setFormValues);
+    saveEmissions,
+    resetEmissions
+  } = useEmissionsResults(reportId);
   
-  // Initialize calculator with pre-loaded logs
+  // Initial logs state
+  const [calculationLogs, setCalculationLogs] = useState<EmissionCalculationLogs>({
+    scope1Calculations: [],
+    scope2Calculations: [],
+    scope3Calculations: []
+  });
+  
+  // Initialize calculator
   const {
     inputs,
     updateInput,
@@ -43,31 +42,34 @@ export const useCalculator = (
     calculateEmissions,
     resetCalculation,
     removeCalculation
-  } = useEmissionsCalculator(
-    undefined, 
-    handleCalculationResults,
-    handleCalculationLogs
-  );
+  } = useEmissionsCalculator();
   
-  // Initialize with existing logs if any
+  // Load existing emissions data
+  const { existingEmissions, existingCalculations } = useExistingEmissions(reportId);
+  
+  // Load existing emissions when available
   useEffect(() => {
-    if (initialLogs && 
-        (initialLogs.scope1Calculations.length > 0 || 
-         initialLogs.scope2Calculations.length > 0 || 
-         initialLogs.scope3Calculations.length > 0)) {
-      console.log("Setting initial calculation logs:", initialLogs);
-      setCalculationLogs(initialLogs);
+    if (existingEmissions) {
+      setCalculatedEmissions(existingEmissions);
     }
-  }, []);
+    
+    if (existingCalculations) {
+      setCalculationLogs(existingCalculations);
+    }
+  }, [existingEmissions, existingCalculations]);
   
-  // Load existing emissions data if available
-  useExistingEmissions(
-    formValues,
-    updateInput,
-    resetCalculation,
-    setCalculatedEmissions,
-    setCalculationLogs
-  );
+  // Handle calculation submission
+  const handleSubmitCalculation = () => {
+    if (reportId) {
+      saveEmissions(
+        reportId,
+        calculatedEmissions.scope1,
+        calculatedEmissions.scope2,
+        calculatedEmissions.scope3,
+        calculationLogs
+      );
+    }
+  };
   
   // Update handleRemoveCalculation to match expected signature
   const handleRemoveCalculation = (calculationId: string) => {
@@ -83,8 +85,9 @@ export const useCalculator = (
     updateInput,
     calculateEmissions,
     calculationLogs,
-    setCalculationLogs, // Make sure to return setCalculationLogs
+    setCalculationLogs,
     handleRemoveCalculation,
-    resetCalculation: resetEmissionsValues
+    resetCalculation,
+    handleSubmitCalculation
   };
 };

@@ -54,10 +54,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
           .from('emissions_data')
           .insert({
             report_id: reportId,
-            scope1_emissions: 0,
-            scope2_emissions: 0,
-            scope3_emissions: 0,
-            total_emissions: 0,
+            scope1_emissions: '0',
+            scope2_emissions: '0',
+            scope3_emissions: '0',
+            total_emissions: '0',
             updated_at: new Date().toISOString()
           });
       }
@@ -131,10 +131,10 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         .from('emissions_data')
         .upsert({
           report_id: reportId,
-          scope1_emissions: scope1,
-          scope2_emissions: scope2,
-          scope3_emissions: scope3,
-          total_emissions: total,
+          scope1_emissions: scope1.toString(),
+          scope2_emissions: scope2.toString(),
+          scope3_emissions: scope3.toString(),
+          total_emissions: total.toString(),
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
 

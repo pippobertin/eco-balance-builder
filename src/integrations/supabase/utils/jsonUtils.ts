@@ -47,9 +47,42 @@ export const prepareJsonForDb = (obj: Record<string, any>): Record<string, any> 
       result[key] = safeJsonStringify(value);
     } else if (Array.isArray(value)) {
       result[key] = safeJsonStringify(value);
+    } else if (typeof value === 'number') {
+      // Convert numeric values to strings for database storage
+      result[key] = value.toString();
     } else {
       result[key] = value;
     }
+  }
+  
+  return result;
+};
+
+/**
+ * Convert any numeric string values in JSON to numbers
+ * @param obj The object to process
+ * @returns A new object with numeric strings converted to numbers
+ */
+export const convertStringToNumbers = (obj: any): any => {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (typeof obj !== 'object') {
+    // Check if it's a numeric string
+    if (typeof obj === 'string' && !isNaN(Number(obj)) && obj.trim() !== '') {
+      return Number(obj);
+    }
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertStringToNumbers(item));
+  }
+  
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = convertStringToNumbers(value);
   }
   
   return result;

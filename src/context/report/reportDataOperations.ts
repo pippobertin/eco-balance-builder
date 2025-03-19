@@ -1,142 +1,107 @@
 
-import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Subsidiary, ReportData } from '../types';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Report, ReportData } from '@/context/types';
+import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
 
-export const useReportDataOperations = () => {
-  const { toast } = useToast();
-  const { user, isAdmin } = useAuth();
-
-  // Save report data
-  const saveReportData = async (reportId: string, reportData: ReportData): Promise<boolean> => {
-    try {
-      if (!user) {
-        throw new Error('User must be logged in to save report data');
-      }
-      
-      return await withRetry(async () => {
-        // Check if user has access to this report
-        let query = supabase
-          .from('reports')
-          .select('*, companies!inner(created_by)')
-          .eq('id', reportId);
-        
-        // For regular users, only allow saving reports from companies they created
-        if (!isAdmin) {
-          query = query.eq('companies.created_by', user.id);
-        }
-        
-        const { data, error: accessError } = await query.single();
-        
-        if (accessError || !data) {
-          console.error("Access error when saving report:", accessError);
-          throw new Error('You do not have permission to save this report');
-        }
-        
-        // Log the data being saved to help with debugging
-        console.log("Saving to database:", {
-          environmental_metrics: reportData.environmentalMetrics,
-          social_metrics: reportData.socialMetrics,
-          conduct_metrics: reportData.conductMetrics,
-          materiality_analysis: reportData.materialityAnalysis,
-          narrative_pat_metrics: reportData.narrativePATMetrics
-        });
-        
-        // Convert camelCase to snake_case for database compatibility
-        // Stringify complex objects to ensure they match the JSON type
-        const { error } = await supabase
-          .from('reports')
-          .update({
-            environmental_metrics: JSON.stringify(reportData.environmentalMetrics),
-            social_metrics: JSON.stringify(reportData.socialMetrics),
-            conduct_metrics: JSON.stringify(reportData.conductMetrics),
-            materiality_analysis: JSON.stringify(reportData.materialityAnalysis),
-            narrative_pat_metrics: JSON.stringify(reportData.narrativePATMetrics),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', reportId);
-          
-        if (error) {
-          console.error("Database error when saving report:", error);
-          throw error;
-        }
-        
-        console.log("Report saved to database successfully");
-        return true;
-      });
-    } catch (error: any) {
-      console.error('Error saving report data:', error.message);
-      toast({
-        title: "Errore",
-        description: `Impossibile salvare i dati del report: ${error.message}`,
-        variant: "destructive"
-      });
-      return false;
+export const saveReportData = async (reportId: string, reportData: ReportData) => {
+  try {
+    // Format environmental metrics for database
+    const environmentalMetrics = prepareJsonForDb(reportData.environmentalMetrics || {});
+    
+    // Format social metrics for database
+    const socialMetrics = prepareJsonForDb(reportData.socialMetrics || {});
+    
+    // Format conduct metrics for database 
+    const conductMetrics = prepareJsonForDb(reportData.conductMetrics || {});
+    
+    // Format business partners metrics for database
+    const businessPartnersMetrics = prepareJsonForDb(reportData.businessPartnersMetrics || {});
+    
+    // Format materiality analysis for database
+    const materialityAnalysis = prepareJsonForDb(reportData.materialityAnalysis || {});
+    
+    // Prepare narrative PAT metrics
+    const narrativePATMetrics = reportData.narrativePATMetrics ? 
+      prepareJsonForDb(reportData.narrativePATMetrics) : null;
+    
+    // Update report in the database
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        environmental_metrics: environmentalMetrics,
+        social_metrics: socialMetrics,
+        conduct_metrics: conductMetrics,
+        materiality_analysis: materialityAnalysis,
+        narrative_pat_metrics: narrativePATMetrics,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) {
+      console.error("Error saving report data:", error);
+      throw error;
     }
-  };
+    
+    return true;
+  } catch (error) {
+    console.error("Error in saveReportData:", error);
+    throw error;
+  }
+};
 
-  // Save subsidiaries for a report
-  const saveSubsidiaries = async (subsidiaries: Subsidiary[], reportId: string): Promise<boolean> => {
-    try {
-      if (!user) {
-        throw new Error('User must be logged in to save subsidiaries');
+export const loadReportData = async (report: Report): Promise<ReportData> => {
+  try {
+    // Initialize default data
+    const reportData: ReportData = {
+      environmentalMetrics: {},
+      socialMetrics: {},
+      conductMetrics: {},
+      businessPartnersMetrics: {},
+      materialityAnalysis: {
+        issues: [],
+        stakeholders: []
       }
-      
-      return await withRetry(async () => {
-        // Check if user has access to this report
-        let query = supabase
-          .from('reports')
-          .select('*, companies!inner(created_by)')
-          .eq('id', reportId);
-        
-        // For regular users, only allow saving subsidiaries for reports from companies they created
-        if (!isAdmin) {
-          query = query.eq('companies.created_by', user.id);
-        }
-        
-        const { data, error: accessError } = await query.single();
-        
-        if (accessError || !data) {
-          throw new Error('You do not have permission to save subsidiaries for this report');
-        }
-        
-        // First delete all existing subsidiaries for this report
-        await supabase
-          .from('subsidiaries')
-          .delete()
-          .eq('report_id', reportId);
-        
-        // Then insert the new ones
-        if (subsidiaries.length > 0) {
-          const subsToInsert = subsidiaries.map(sub => ({
-            report_id: reportId,
-            name: sub.name,
-            location: sub.location
-          }));
-          
-          const { error } = await supabase
-            .from('subsidiaries')
-            .insert(subsToInsert);
-            
-          if (error) throw error;
-        }
-        
-        return true;
-      });
-    } catch (error: any) {
-      console.error('Error saving subsidiaries:', error.message);
-      toast({
-        title: "Errore",
-        description: `Impossibile salvare le imprese figlie: ${error.message}`,
-        variant: "destructive"
-      });
-      return false;
+    };
+    
+    // Parse JSON data from the report
+    if (report.environmental_metrics) {
+      reportData.environmentalMetrics = safeJsonParse(
+        safeJsonStringify(report.environmental_metrics), 
+        reportData.environmentalMetrics
+      );
     }
-  };
-
-  return {
-    saveReportData,
-    saveSubsidiaries
-  };
+    
+    if (report.social_metrics) {
+      reportData.socialMetrics = safeJsonParse(
+        safeJsonStringify(report.social_metrics), 
+        reportData.socialMetrics
+      );
+    }
+    
+    if (report.conduct_metrics) {
+      reportData.conductMetrics = safeJsonParse(
+        safeJsonStringify(report.conduct_metrics), 
+        reportData.conductMetrics
+      );
+    }
+    
+    if (report.materiality_analysis) {
+      reportData.materialityAnalysis = safeJsonParse(
+        safeJsonStringify(report.materiality_analysis), 
+        reportData.materialityAnalysis
+      );
+    }
+    
+    if (report.narrative_pat_metrics) {
+      reportData.narrativePATMetrics = safeJsonParse(
+        safeJsonStringify(report.narrative_pat_metrics), 
+        null
+      );
+    }
+    
+    return reportData;
+  } catch (error) {
+    console.error("Error in loadReportData:", error);
+    throw error;
+  }
 };

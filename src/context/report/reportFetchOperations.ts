@@ -1,191 +1,241 @@
 
-import { supabase, withRetry, safeJsonParse } from '@/integrations/supabase/client';
-import { Report, Subsidiary } from '@/context/types';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Report } from '@/context/types';
+import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
 
-// Track in-flight requests to avoid duplicates
-const activeLoadRequests = new Map();
-
-export const useReportFetchOperations = () => {
-  const { toast } = useToast();
-  const { user, isAdmin } = useAuth();
-
-  // Load reports for a specific company
-  const loadReports = async (companyId: string): Promise<Report[]> => {
-    try {
-      if (!user) {
-        console.log("No user, returning empty reports array");
-        return [];
-      }
-
-      // Generate a cache key for this request
-      const cacheKey = `loadReports-${companyId}-${user.id}`;
-      
-      // If this exact request is already in progress, return the promise
-      if (activeLoadRequests.has(cacheKey)) {
-        console.log(`Re-using in-flight request for ${cacheKey}`);
-        return activeLoadRequests.get(cacheKey);
-      }
-
-      console.log("Loading reports for company", companyId, "isAdmin:", isAdmin);
-      
-      // Create the promise for this request
-      const reportsPromise = withRetry(async () => {
-        let query = supabase
-          .from('reports')
-          .select('*, companies!inner(created_by)')
-          .eq('company_id', companyId);
-        
-        // For regular users, only load reports from companies they created
-        if (!isAdmin) {
-          console.log("Filtering reports for user:", user.id);
-          query = query.eq('companies.created_by', user.id);
+// Function to create a new report
+export const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => {
+  try {
+    const { data, error } = await supabase
+      .from('reports')
+      .insert([
+        {
+          company_id: report.company_id,
+          report_year: report.report_year,
+          report_type: report.report_type,
+          is_consolidated: report.is_consolidated,
+          status: report.status || 'draft',
         }
-        
-        query = query.order('created_at', { ascending: false });
+      ])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return data.id;
+  } catch (error) {
+    console.error('Error creating report:', error);
+    throw error;
+  }
+};
 
-        const { data, error } = await query;
+// Function to delete a report
+export const deleteReport = async (reportId: string) => {
+  try {
+    const { error } = await supabase
+      .from('reports')
+      .delete()
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    return false;
+  }
+};
 
-        if (error) {
-          console.error("Error in loading reports:", error.message);
-          throw error;
-        }
+// Function to fetch all reports for a company
+export const fetchReports = async (companyId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('reports')
+      .select('*')
+      .eq('company_id', companyId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    return [];
+  }
+};
 
-        console.log("Reports loaded:", data?.length || 0);
-        
-        // Remove the companies data from the result
-        const cleanedData = data?.map(item => {
-          if (!item) return null;
-          const { companies, ...reportData } = item;
-          return reportData;
-        }).filter(Boolean) as Report[]; // Filter out null values
+// Function to fetch a specific report
+export const fetchReport = async (reportId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('reports')
+      .select('*')
+      .eq('id', reportId)
+      .single();
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching report:', error);
+    return null;
+  }
+};
 
-        return cleanedData || [];
-      }, 2, 200);
+// Function to fetch subsidiaries for a report
+export const fetchSubsidiaries = async (reportId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('subsidiaries')
+      .select('*')
+      .eq('report_id', reportId);
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching subsidiaries:', error);
+    return [];
+  }
+};
+
+// Function to save subsidiaries for a report
+export const saveSubsidiaries = async (subsidiaries: any[], reportId: string) => {
+  try {
+    // First delete existing subsidiaries
+    const { error: deleteError } = await supabase
+      .from('subsidiaries')
+      .delete()
+      .eq('report_id', reportId);
+    
+    if (deleteError) throw deleteError;
+    
+    // Then insert new subsidiaries
+    if (subsidiaries.length > 0) {
+      const subsidiariesToInsert = subsidiaries.map(subsidiary => ({
+        report_id: reportId,
+        name: subsidiary.name,
+        location: subsidiary.location
+      }));
       
-      // Store the promise in the cache
-      activeLoadRequests.set(cacheKey, reportsPromise);
+      const { error: insertError } = await supabase
+        .from('subsidiaries')
+        .insert(subsidiariesToInsert);
       
-      // Remove from cache when complete
-      reportsPromise.finally(() => {
-        setTimeout(() => {
-          activeLoadRequests.delete(cacheKey);
-        }, 100);
-      });
-      
-      return await reportsPromise;
-    } catch (error: any) {
-      console.error('Error loading reports:', error.message);
-      toast({
-        title: "Errore",
-        description: `Impossibile caricare i report: ${error.message}`,
-        variant: "destructive"
-      });
-      return [];
+      if (insertError) throw insertError;
     }
-  };
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving subsidiaries:', error);
+    return false;
+  }
+};
 
-  // Load a specific report
-  const loadReport = async (reportId: string): Promise<{ report: Report | null, subsidiaries?: Subsidiary[] }> => {
-    try {
-      if (!user) {
-        return { report: null };
-      }
+// Function to update a report's environmental metrics
+export const updateReportEnvironmentalMetrics = async (reportId: string, metrics: any) => {
+  try {
+    const environmentalMetrics = prepareJsonForDb(metrics);
+    
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        environmental_metrics: environmentalMetrics,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating environmental metrics:', error);
+    return false;
+  }
+};
 
-      // Generate a cache key for this request
-      const cacheKey = `loadReport-${reportId}-${user.id}`;
-      
-      // If this exact request is already in progress, return the promise
-      if (activeLoadRequests.has(cacheKey)) {
-        console.log(`Re-using in-flight request for ${cacheKey}`);
-        return activeLoadRequests.get(cacheKey);
-      }
+// Function to update a report's social metrics
+export const updateReportSocialMetrics = async (reportId: string, metrics: any) => {
+  try {
+    const socialMetrics = prepareJsonForDb(metrics);
+    
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        social_metrics: socialMetrics,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating social metrics:', error);
+    return false;
+  }
+};
 
-      // Create the promise for this request
-      const reportPromise = withRetry(async () => {
-        let query = supabase
-          .from('reports')
-          .select('*, companies(*)')  // Use simpler select to get complete company data
-          .eq('id', reportId);
-        
-        // For regular users, only load reports from companies they created
-        if (!isAdmin) {
-          query = query.eq('companies.created_by', user.id);
-        }
-        
-        const { data, error } = await query.maybeSingle();
+// Function to update a report's conduct metrics
+export const updateReportConductMetrics = async (reportId: string, metrics: any) => {
+  try {
+    const conductMetrics = prepareJsonForDb(metrics);
+    
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        conduct_metrics: conductMetrics,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating conduct metrics:', error);
+    return false;
+  }
+};
 
-        if (error) {
-          console.error("Error in loading report:", error.message);
-          throw error;
-        }
+// Function to update a report's materiality analysis
+export const updateReportMaterialityAnalysis = async (reportId: string, analysis: any) => {
+  try {
+    const materialityAnalysis = prepareJsonForDb(analysis);
+    
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        materiality_analysis: materialityAnalysis,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating materiality analysis:', error);
+    return false;
+  }
+};
 
-        // Process the data if it exists
-        if (data) {
-          // Create a proper Report object that includes the company property
-          const { companies, ...reportData } = data;
-          
-          // Safely handle the data parsing with improved type handling
-          const parsedReport = {
-            ...reportData,
-            company: companies,
-            environmental_metrics: safeJsonParse(reportData.environmental_metrics, {}),
-            social_metrics: safeJsonParse(reportData.social_metrics, {}),
-            conduct_metrics: safeJsonParse(reportData.conduct_metrics, {}),
-            materiality_analysis: safeJsonParse(reportData.materiality_analysis, { issues: [], stakeholders: [] }),
-            narrative_pat_metrics: safeJsonParse(reportData.narrative_pat_metrics, {})
-          };
-          
-          console.log("Loaded report data:", JSON.stringify(parsedReport));
-          
-          // Load subsidiaries if the report is consolidated
-          let subsidiaries = undefined;
-          if (parsedReport.is_consolidated) {
-            const { data: subsData, error: subsError } = await supabase
-              .from('subsidiaries')
-              .select('*')
-              .eq('report_id', reportId);
-            
-            if (subsError) {
-              console.error("Error loading subsidiaries:", subsError.message);
-            }
-            
-            if (!subsError && subsData) {
-              subsidiaries = subsData;
-            }
-          }
-
-          return { report: parsedReport as Report, subsidiaries };
-        }
-
-        return { report: null };
-      }, 2, 200);
-      
-      // Store the promise in the cache
-      activeLoadRequests.set(cacheKey, reportPromise);
-      
-      // Remove from cache when complete
-      reportPromise.finally(() => {
-        setTimeout(() => {
-          activeLoadRequests.delete(cacheKey);
-        }, 100);
-      });
-      
-      return await reportPromise;
-    } catch (error: any) {
-      console.error('Error loading report:', error.message);
-      toast({
-        title: "Errore",
-        description: `Impossibile caricare il report: ${error.message}`,
-        variant: "destructive"
-      });
-      return { report: null };
-    }
-  };
-
-  return { 
-    loadReports, 
-    loadReport,
-  };
+// Function to update a report's status
+export const updateReportStatus = async (reportId: string, status: string) => {
+  try {
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        status: status,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating report status:', error);
+    return false;
+  }
 };

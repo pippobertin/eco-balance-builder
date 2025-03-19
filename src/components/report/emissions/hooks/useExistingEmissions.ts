@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { EmissionsRecord } from '@/hooks/emissions-calculator/types';
+import { EmissionsRecord, EmissionCalculationRecord, EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useExistingEmissions = (reportId: string | undefined) => {
@@ -69,7 +69,7 @@ export const useExistingEmissions = (reportId: string | undefined) => {
       // Update state with calculation logs
       if (logsData && logsData.calculation_logs) {
         // Parse the JSON data
-        const calculations = safeJsonParse(logsData.calculation_logs, {
+        const calculations = safeJsonParse<EmissionCalculationLogs>(logsData.calculation_logs, {
           scope1Calculations: [],
           scope2Calculations: [],
           scope3Calculations: []

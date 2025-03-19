@@ -2,12 +2,40 @@
 import React, { useState, useEffect, createContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { MaterialityContextType, MaterialityIssue, Stakeholder } from '../types';
-import { materialityIssuesDefaults } from './utils';
+import { MaterialityIssue, Stakeholder, IROSelections } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
+// Define the interface for the context type
+interface MaterialityContextType {
+  // Issues
+  materialityIssues: MaterialityIssue[];
+  setMaterialityIssues: React.Dispatch<React.SetStateAction<MaterialityIssue[]>>;
+  selectedIssueIds: Set<string>;
+  setSelectedIssueIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  addIssue: (issue: Omit<MaterialityIssue, 'id'>) => void;
+  updateIssue: (issueId: string, updates: Partial<MaterialityIssue>) => void;
+  removeIssue: (issueId: string) => void;
+  
+  // Stakeholders
+  stakeholders: Stakeholder[];
+  setStakeholders: React.Dispatch<React.SetStateAction<Stakeholder[]>>;
+  addStakeholder: (stakeholder: Omit<Stakeholder, 'id'>) => void;
+  updateStakeholder: (stakeholderId: string, updates: Partial<Stakeholder>) => void;
+  removeStakeholder: (stakeholderId: string) => void;
+  
+  // General
+  isLoading: boolean;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
+  lastSaved: Date | null;
+  saveAllMaterialityData: () => Promise<boolean>;
+}
+
 export const MaterialityContext = createContext<MaterialityContextType | null>(null);
+
+// Default materiality issues for new reports
+const materialityIssuesDefaults: MaterialityIssue[] = [];
 
 export const MaterialityProvider: React.FC<{
   children: React.ReactNode;
@@ -60,16 +88,28 @@ export const MaterialityProvider: React.FC<{
       // Transform issues data
       let issues: MaterialityIssue[] = [];
       if (issuesData && issuesData.length > 0) {
-        issues = issuesData.map(item => ({
-          id: item.issue_id,
-          name: item.name,
-          description: item.description || '',
-          impactRelevance: parseFloat(item.impact_relevance) || 0,
-          financialRelevance: parseFloat(item.financial_relevance) || 0,
-          isMaterial: item.is_material || false,
-          stakeholderRelevance: parseFloat(item.stakeholder_relevance) || 0,
-          iroSelections: safeJsonParse(item.iro_selections, [])
-        }));
+        issues = issuesData.map(item => {
+          const impactRelevance = parseFloat(item.impact_relevance.toString()) || 0;
+          const financialRelevance = parseFloat(item.financial_relevance.toString()) || 0;
+          const stakeholderRelevance = parseFloat(item.stakeholder_relevance.toString()) || 0;
+          
+          return {
+            id: item.issue_id,
+            name: item.name,
+            description: item.description || '',
+            impactRelevance,
+            financialRelevance,
+            isMaterial: item.is_material || false,
+            stakeholderRelevance,
+            iroSelections: safeJsonParse(item.iro_selections.toString(), {
+              selectedPositiveImpacts: [],
+              selectedNegativeImpacts: [],
+              selectedRisks: [],
+              selectedOpportunities: [],
+              selectedActions: []
+            } as IROSelections)
+          };
+        });
         
         // Initialize selected issue IDs
         const selectedIds = new Set<string>();
@@ -97,9 +137,9 @@ export const MaterialityProvider: React.FC<{
           email: item.email || '',
           notes: item.notes || '',
           priority: item.priority || 'medium',
-          surveyStatus: item.survey_status || 'not_sent',
+          surveyStatus: (item.survey_status as "pending" | "sent" | "completed") || 'pending',
           surveyToken: item.survey_token || '',
-          surveyResponse: safeJsonParse(item.survey_response, null)
+          surveyResponse: safeJsonParse(item.survey_response?.toString(), null)
         }));
       }
       
@@ -131,10 +171,10 @@ export const MaterialityProvider: React.FC<{
           issue_id: issue.id,
           name: issue.name,
           description: issue.description,
-          impact_relevance: issue.impactRelevance,
-          financial_relevance: issue.financialRelevance,
+          impact_relevance: issue.impactRelevance.toString(),
+          financial_relevance: issue.financialRelevance.toString(),
           is_material: issue.isMaterial,
-          stakeholder_relevance: issue.stakeholderRelevance,
+          stakeholder_relevance: issue.stakeholderRelevance.toString(),
           iro_selections: safeJsonStringify(issue.iroSelections),
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id,issue_id' });
