@@ -1,8 +1,5 @@
 
-/**
- * Re-export all emissions calculator types
- */
-
+// Export all types from the different type files
 export * from './common';
 export * from './inputs';
 export * from './records';
