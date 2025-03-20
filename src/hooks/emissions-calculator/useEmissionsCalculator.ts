@@ -10,8 +10,6 @@ import { EmissionsInput, EmissionsResults, EmissionsDetails, EmissionCalculation
  */
 export const useEmissionsCalculator = (
   initialInputs?: EmissionsInput,
-  onResultsChange?: (results: EmissionsResults, details: EmissionsDetails) => void,
-  onCalculationLogChange?: (logs: EmissionCalculationLogs) => void
 ) => {
   // Get state management
   const {
@@ -27,24 +25,14 @@ export const useEmissionsCalculator = (
   } = useEmissionsCalculatorState(initialInputs);
   
   // Get calculation functionality
-  const { calculateEmissions } = useCalculateEmissions(
-    inputs,
-    calculationLogs,
-    setResults,
-    setDetails,
-    setCalculationLogs,
-    onResultsChange,
-    onCalculationLogChange
-  );
+  const { calculateEmissions } = useEmissionsCalculations();
   
   // Get reset functionality
   const { resetCalculation } = useResetCalculation(
     resetInputs,
     setResults,
     setDetails,
-    setCalculationLogs,
-    onResultsChange,
-    onCalculationLogChange
+    setCalculationLogs
   );
   
   // Get remove calculation functionality
@@ -57,15 +45,6 @@ export const useEmissionsCalculator = (
     // Update state
     setCalculationLogs(updatedLogs);
     setResults(updatedResults);
-    
-    // Call callbacks
-    if (onResultsChange) {
-      onResultsChange(updatedResults, details);
-    }
-    
-    if (onCalculationLogChange) {
-      onCalculationLogChange(updatedLogs);
-    }
   };
   
   return {
@@ -78,4 +57,21 @@ export const useEmissionsCalculator = (
     resetCalculation,
     removeCalculation: handleRemoveCalculation
   };
+};
+
+/**
+ * Hook for calculations without state management
+ */
+const useEmissionsCalculations = () => {
+  // Simple function to calculate emissions based on inputs and scope
+  const calculateEmissions = (
+    inputs: EmissionsInput,
+    scope?: 'scope1' | 'scope2' | 'scope3'
+  ) => {
+    // Import the calculation function directly
+    const { performEmissionsCalculation } = require('./calculations');
+    return performEmissionsCalculation(inputs, scope);
+  };
+  
+  return { calculateEmissions };
 };

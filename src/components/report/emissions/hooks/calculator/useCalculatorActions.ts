@@ -28,8 +28,9 @@ export const useCalculatorActions = (
     
   const { handleSubmitCalculation, isSaving: isSubmitting } = 
     useEmissionSubmit(reportId, setCalculationLogs, setCalculatedEmissions);
-    
-  const { loadEmissionRecords } = useEmissionRecords();
+  
+  // Access to emission records
+  const { loadEmissionRecords, calculateTotals } = useEmissionRecords();
   
   // Calculate emissions wrapper that combines calculation and saving
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
@@ -53,7 +54,7 @@ export const useCalculatorActions = (
           
           setCalculationLogs(newLogs);
           
-          const totals = useEmissionRecords().calculateTotals(records);
+          const totals = calculateTotals(records);
           setCalculatedEmissions(totals);
         }
       });
