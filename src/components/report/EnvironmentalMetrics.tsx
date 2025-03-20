@@ -65,28 +65,28 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
       <div ref={waterRef}>
         <WaterSection
           formValues={formValues}
-          handleChange={handleChange}
+          setFormValues={handleChange}
         />
       </div>
       
       <div ref={resourcesRef}>
         <ResourcesSection
           formValues={formValues}
-          handleChange={handleChange}
+          setFormValues={handleChange}
         />
       </div>
       
       <div ref={biodiversityRef}>
         <BiodiversitySection
           formValues={formValues}
-          handleChange={handleChange}
+          setFormValues={handleChange}
         />
       </div>
       
       <div ref={pollutionRef}>
         <PollutionSection
           formValues={formValues}
-          handleChange={handleChange}
+          setFormValues={handleChange}
         />
       </div>
     </div>
