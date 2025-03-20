@@ -83,7 +83,8 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           // If no calculation_logs exist, use the default empty structure
           // Convert the EmissionCalculationLogs to a JSON-compatible format
           console.log('No calculation_logs found, using default empty structure');
-          data.calculation_logs = defaultLogs;
+          // Use JSON.stringify and parse to ensure we have a proper JSON object
+          data.calculation_logs = JSON.parse(safeJsonStringify(defaultLogs));
         }
       }
       
@@ -108,14 +109,16 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Use the structure directly without stringifying and parsing
+      // Convert initialLogs to a JSON-compatible format
+      const jsonLogs = JSON.parse(safeJsonStringify(initialLogs));
+      
+      // Insert into emissions_logs table
       const initialData = {
         report_id: reportId,
-        calculation_logs: initialLogs,
+        calculation_logs: jsonLogs,
         created_at: new Date().toISOString()
       };
       
-      // Insert into emissions_logs table
       const { error } = await supabase
         .from('emissions_logs')
         .insert(initialData);
