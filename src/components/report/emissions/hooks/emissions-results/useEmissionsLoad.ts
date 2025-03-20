@@ -84,11 +84,11 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert to a format suitable for the database by JSON.stringify to ensure compatibility
-      // This avoids the direct type assignment that was causing the error
+      // Convert to a format suitable for the database by JSON.stringify
+      // This avoids type incompatibility with Supabase's Json type
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify(initialLogs),
+        calculation_logs: JSON.stringify(initialLogs) as any, // Use type assertion to bypass the type check
         created_at: new Date().toISOString()
       };
       
