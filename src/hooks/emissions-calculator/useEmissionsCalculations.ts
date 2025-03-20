@@ -25,6 +25,34 @@ export const useEmissionsCalculations = () => {
     }
     
     try {
+      // Validate specific inputs for the scope
+      if (scope === 'scope1') {
+        if (!inputs.fuelType) {
+          console.error('Missing fuelType for scope1 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
+        
+        if (!inputs.fuelQuantity) {
+          console.error('Missing fuelQuantity for scope1 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
+        
+        const quantity = parseFloat(inputs.fuelQuantity);
+        if (isNaN(quantity) || quantity <= 0) {
+          console.error('Invalid fuelQuantity for scope1 calculation:', inputs.fuelQuantity);
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
+      }
+      
       // Call the calculation function
       const calculationResult = performEmissionsCalculation(inputs, scope);
       console.log('Calculation result:', JSON.stringify(calculationResult));

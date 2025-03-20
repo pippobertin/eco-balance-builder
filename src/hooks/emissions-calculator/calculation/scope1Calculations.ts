@@ -28,17 +28,20 @@ export const performScope1Calculation = (
     console.log('Parsed fuel quantity:', quantity);
     
     if (!isNaN(quantity) && quantity > 0) {
+      // Ensure we're using the correct unit, defaulting to 'L' if not provided
+      const unit = inputs.fuelUnit || 'L';
+      
       const emissionsKg = calculateScope1Emissions(
         inputs.fuelType, 
         quantity, 
-        inputs.fuelUnit || 'L'
+        unit
       );
       const emissionsTonnes = emissionsKg / 1000;
       
       console.log('Scope 1 calculation results:', {
         fuelType: inputs.fuelType,
         quantity,
-        unit: inputs.fuelUnit || 'L',
+        unit,
         emissionsKg,
         emissionsTonnes
       });

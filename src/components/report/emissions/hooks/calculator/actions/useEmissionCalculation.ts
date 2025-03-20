@@ -43,6 +43,20 @@ export const useEmissionCalculation = (
         return null;
       }
       
+      // Validate quantity is a number for scope1
+      if (scope === 'scope1' && inputs.fuelQuantity) {
+        const quantity = parseFloat(inputs.fuelQuantity);
+        if (isNaN(quantity) || quantity <= 0) {
+          console.error('Invalid fuel quantity:', inputs.fuelQuantity);
+          toast({
+            title: "Valore non valido",
+            description: "La quantità di combustibile deve essere un numero positivo.",
+            variant: "destructive"
+          });
+          return null;
+        }
+      }
+      
       // Perform calculation with inputs and scope
       const result = performCalculation(inputs, scope);
       console.log('Calculation result:', JSON.stringify(result));
