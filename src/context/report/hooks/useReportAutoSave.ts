@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { Report, ReportData } from '@/context/types';
 
@@ -14,6 +15,7 @@ export const useReportAutoSave = (
   const lastSavedDataRef = useRef<string>('');
   
   // NOTE: Autosave has been completely disabled. Users must save manually using the "Save" button.
+  console.log('Autosave is disabled, use manual save only');
   
   // Add a safety mechanism to ensure data is saved before navigation
   useEffect(() => {
@@ -31,6 +33,12 @@ export const useReportAutoSave = (
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      
+      // Clear any existing timer when unmounting
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
     };
   }, [needsSaving, saveCurrentReport]);
 

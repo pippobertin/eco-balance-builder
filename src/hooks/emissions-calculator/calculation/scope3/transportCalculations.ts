@@ -3,6 +3,7 @@ import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../../types';
 import { calculateScope3Emissions } from '@/lib/emissions-calculator';
 import { calculateVehicleEmissions } from '@/lib/vehicle-emissions';
+import { FuelType } from '@/lib/emissions-types';
 
 /**
  * Perform transport calculations for Scope 3
@@ -56,10 +57,11 @@ export const performTransportCalculation = (
       const consumption = inputs.vehicleFuelConsumption || '0';
       const consumptionUnit = inputs.vehicleFuelConsumptionUnit || 'l_100km';
       const vehicleEnergyClass = inputs.vehicleEnergyClass || '';
+      const vehicleFuelType = inputs.vehicleFuelType as FuelType;
       
       console.log('Using vehicle emissions calculation with details:', {
         vehicleType: inputs.vehicleType,
-        fuelType: inputs.vehicleFuelType,
+        fuelType: vehicleFuelType,
         consumption,
         consumptionUnit,
         distance,
@@ -70,7 +72,7 @@ export const performTransportCalculation = (
       const vehicleEmissionsResult = calculateVehicleEmissions(
         inputs.vehicleType,
         vehicleEnergyClass,
-        inputs.vehicleFuelType,
+        vehicleFuelType,
         distance,
         consumption,
         consumptionUnit as 'l_100km' | 'km_l'

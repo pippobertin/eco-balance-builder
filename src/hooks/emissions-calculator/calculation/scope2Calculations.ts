@@ -2,6 +2,7 @@
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../types';
 import { calculateScope2Emissions } from '@/lib/emissions-calculator';
+import { EnergyType } from '@/lib/emissions-types';
 
 /**
  * Perform Scope 2 emissions calculation
@@ -50,8 +51,11 @@ export const performScope2Calculation = (
     (inputs.renewablePercentage ? parseFloat(String(inputs.renewablePercentage)) : 0);
   
   try {
+    // Cast energyType to EnergyType to ensure type safety
+    const energyType = inputs.energyType as EnergyType;
+    
     const emissionsKg = calculateScope2Emissions(
-      inputs.energyType, 
+      energyType, 
       quantity,
       'kWh',
       renewablePercentage / 100 // Convert percentage to decimal
@@ -90,7 +94,7 @@ export const performScope2Calculation = (
       emissionsKg,
       emissionsTonnes,
       calculationDate: new Date().toISOString(),
-      source: getEmissionFactorSource(inputs.energyType)
+      source: getEmissionFactorSource(energyType)
     };
     
     // Convert the source object to string

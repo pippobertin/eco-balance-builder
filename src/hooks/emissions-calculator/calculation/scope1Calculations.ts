@@ -1,7 +1,8 @@
 
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
-import { EmissionsInput, EmissionsResults, EmissionsDetails } from '../types';
+import { EmissionsInput, EmissionsResults } from '../types';
 import { calculateScope1Emissions } from '@/lib/emissions-calculator';
+import { FuelType } from '@/lib/emissions-types';
 
 /**
  * Perform Scope 1 emissions calculation
@@ -54,8 +55,11 @@ export const performScope1Calculation = (
   });
   
   try {
+    // Make sure fuelType is cast to FuelType before passing to the calculation function
+    const fuelType = inputs.fuelType as FuelType;
+    
     const emissionsKg = calculateScope1Emissions(
-      inputs.fuelType, 
+      fuelType, 
       quantity, 
       unit
     );
@@ -95,7 +99,7 @@ export const performScope1Calculation = (
       emissionsKg,
       emissionsTonnes,
       calculationDate: new Date().toISOString(),
-      source: getEmissionFactorSource(inputs.fuelType)
+      source: getEmissionFactorSource(fuelType)
     };
     
     // Convert the source object to string
