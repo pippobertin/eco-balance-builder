@@ -5,6 +5,11 @@ import { performTransportCalculation } from './scope3/transportCalculations';
 import { performWasteCalculation } from './scope3/wasteCalculations';
 import { performPurchaseCalculation } from './scope3/purchaseCalculations';
 
+// Re-export the scope3 calculation functions for use in index.ts
+export { performTransportCalculation };
+export { performWasteCalculation };
+export { performPurchaseCalculation };
+
 /**
  * Perform Scope 3 emissions calculation
  */
