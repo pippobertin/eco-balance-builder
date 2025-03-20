@@ -71,14 +71,16 @@ export const useEmissionCalculation = (
         total: results.total
       }));
       
-      // Return data in the format expected by saveCalculation
-      return {
+      // Create a record for the calculation that matches what saveCalculation expects
+      const calculationRecord = {
         emissionValue: parsedDetails.emissionsTonnes,
         detailsObj: parsedDetails,
         description: `${parsedDetails.energyType || parsedDetails.fuelType || parsedDetails.transportType || parsedDetails.wasteType || parsedDetails.purchaseType || 'Unknown'} emission`,
         scope: scope,
         reportId: effectiveReportId
       };
+      
+      return calculationRecord;
     } catch (error) {
       console.error(`Error calculating ${scope} emissions:`, error);
       return null;

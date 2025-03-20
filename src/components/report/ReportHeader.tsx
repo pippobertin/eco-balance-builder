@@ -60,9 +60,10 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
               variant={needsSaving ? "default" : "outline"} 
               onClick={handleSaveClick}
               disabled={!needsSaving}
+              className={needsSaving ? "bg-green-600 hover:bg-green-700 text-white animate-pulse" : ""}
             >
               <Save className="mr-2 h-4 w-4" />
-              Salva
+              {needsSaving ? "Salva Modifiche" : "Salvato"}
             </Button>
             
             <Button asChild variant="outline">

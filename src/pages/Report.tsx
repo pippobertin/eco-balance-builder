@@ -53,11 +53,11 @@ const Report = () => {
     )
   );
 
-  // Auto-save on tab change
+  // Track changes in form values to set needsSaving flag
   useEffect(() => {
     if (formValues && Object.keys(formValues).length > 0) {
       console.log("Form values changed, marking as needs saving");
-      // This will be picked up by the auto-save mechanism
+      // This will be picked up when the user clicks Save manually
     }
   }, [formValues]);
 
