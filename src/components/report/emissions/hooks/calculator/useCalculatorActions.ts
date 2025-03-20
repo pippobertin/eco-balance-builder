@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { EmissionCalculationLogs, EmissionsInput, EmissionsResults, EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
 import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
@@ -18,19 +17,16 @@ export const useCalculatorActions = (
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { calculateEmissions: performCalculation } = useEmissionsCalculator();
-  const { saveEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords(reportId);
+  const { saveEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords();
   
-  // Function to calculate emissions for a specific scope
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
     try {
       console.log('Calculating emissions for scope:', scope);
       console.log('Inputs:', inputs);
       
-      // Perform the calculation
       const result = performCalculation(inputs, scope);
       console.log('Calculation result:', result);
       
-      // Extract the results for the specified scope
       let emissionValue = 0;
       let detailsObj: any = {};
       
@@ -66,16 +62,13 @@ export const useCalculatorActions = (
         }
       }
       
-      // Only create a record if there are emissions
       if (emissionValue > 0) {
-        // Create the description based on the scope and details
         const description = scope === 'scope1' 
           ? `${detailsObj.fuelType || 'Fuel'} emission` 
           : scope === 'scope2' 
           ? `${detailsObj.energyType || 'Energy'} emission`
           : `${detailsObj.wasteType || detailsObj.purchaseType || detailsObj.transportType || detailsObj.activityType || 'Scope 3'} emission`;
           
-        // Create a record for saving to database
         const record = {
           report_id: reportId || '',
           scope,
@@ -87,14 +80,12 @@ export const useCalculatorActions = (
           details: detailsObj
         };
         
-        // Save the record to the database
         console.log('Saving emission record:', record);
         const savedRecord = await saveEmissionRecord(record);
         
         if (savedRecord) {
           console.log('Saved record:', savedRecord);
           
-          // Update calculation logs
           const updatedLogs = { ...calculationLogs };
           
           if (scope === 'scope1') {
@@ -107,7 +98,6 @@ export const useCalculatorActions = (
           
           setCalculationLogs(updatedLogs);
           
-          // Update emission totals
           const records = [
             ...(updatedLogs.scope1Calculations || []),
             ...(updatedLogs.scope2Calculations || []),
@@ -117,7 +107,6 @@ export const useCalculatorActions = (
           const totals = calculateTotals(records);
           setCalculatedEmissions(totals);
           
-          // Show success message
           toast({
             title: "Calcolo completato",
             description: `Emissioni ${scope} calcolate con successo`,
@@ -143,22 +132,18 @@ export const useCalculatorActions = (
     }
   };
   
-  // Function to remove a calculation
   const handleRemoveCalculation = async (calculationId: string) => {
     try {
       console.log('Removing calculation:', calculationId);
       
-      // Find which scope contains this calculation
       let scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
       let calcIndex = -1;
       
-      // Check scope1
       calcIndex = calculationLogs.scope1Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
       if (calcIndex >= 0) {
         scopeKey = 'scope1Calculations';
       }
       
-      // Check scope2
       if (scopeKey === null) {
         calcIndex = calculationLogs.scope2Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
         if (calcIndex >= 0) {
@@ -166,7 +151,6 @@ export const useCalculatorActions = (
         }
       }
       
-      // Check scope3
       if (scopeKey === null) {
         calcIndex = calculationLogs.scope3Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
         if (calcIndex >= 0) {
@@ -175,18 +159,14 @@ export const useCalculatorActions = (
       }
       
       if (scopeKey && calcIndex >= 0) {
-        // Delete the record from the database
         const success = await deleteEmissionRecord(calculationId);
         
         if (success) {
-          // Update the local state
           const updatedLogs = { ...calculationLogs };
           updatedLogs[scopeKey] = updatedLogs[scopeKey].filter(calc => calc.id !== calculationId);
           
-          // Update the calculation logs
           setCalculationLogs(updatedLogs);
           
-          // Recalculate totals
           const records = [
             ...(updatedLogs.scope1Calculations || []),
             ...(updatedLogs.scope2Calculations || []),
@@ -219,7 +199,6 @@ export const useCalculatorActions = (
     }
   };
   
-  // Function to reset all calculations
   const resetCalculation = async () => {
     try {
       setCalculatedEmissions({
@@ -249,7 +228,6 @@ export const useCalculatorActions = (
     }
   };
   
-  // Function to submit all calculations
   const handleSubmitCalculation = async () => {
     if (!reportId) {
       console.error('Cannot submit calculation: reportId is undefined');
@@ -266,15 +244,12 @@ export const useCalculatorActions = (
     try {
       console.log('Submitting all calculations');
       
-      // Reload all records to ensure we have the latest data
       const records = await loadEmissionRecords(reportId);
       console.log('Loaded records:', records);
       
-      // Calculate new totals
       const totals = calculateTotals(records);
       console.log('Calculated totals:', totals);
       
-      // Update the state with the latest data
       const newLogs: EmissionCalculationLogs = {
         scope1Calculations: records.filter((record: EmissionCalculationRecord) => record.scope === 'scope1'),
         scope2Calculations: records.filter((record: EmissionCalculationRecord) => record.scope === 'scope2'),
@@ -303,12 +278,10 @@ export const useCalculatorActions = (
     }
   };
   
-  // Load existing records when component mounts or reportId changes
   useEffect(() => {
     if (reportId) {
       loadEmissionRecords(reportId).then(records => {
         if (records && records.length > 0) {
-          // Organize records by scope
           const newLogs: EmissionCalculationLogs = {
             scope1Calculations: records.filter(record => record.scope === 'scope1'),
             scope2Calculations: records.filter(record => record.scope === 'scope2'),
@@ -317,7 +290,6 @@ export const useCalculatorActions = (
           
           setCalculationLogs(newLogs);
           
-          // Calculate totals
           const totals = calculateTotals(records);
           setCalculatedEmissions(totals);
         }
