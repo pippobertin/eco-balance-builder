@@ -102,7 +102,13 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
     }
   };
 
-  return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
+  return (
+    <motion.div 
+      variants={containerAnimation} 
+      initial="hidden" 
+      animate="visible" 
+      className="space-y-6"
+    >
       <div className="p-4 rounded-md mb-6 bg-gray-500">
         <div className="flex items-start">
           <Info className="mt-0.5 mr-2 h-5 w-5 text-white" />
@@ -116,45 +122,101 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
-        <Button variant={activeSection === 'environmental' ? 'default' : 'outline'} onClick={() => setActiveSection('environmental')} className="flex items-center">
+        <Button 
+          variant={activeSection === 'environmental' ? 'default' : 'outline'} 
+          onClick={() => setActiveSection('environmental')} 
+          className="flex items-center"
+        >
           <Leaf className="mr-2 h-4 w-4" />
           Ambiente
         </Button>
-        <Button variant={activeSection === 'social' ? 'default' : 'outline'} onClick={() => setActiveSection('social')} className="flex items-center">
+        <Button 
+          variant={activeSection === 'social' ? 'default' : 'outline'} 
+          onClick={() => setActiveSection('social')} 
+          className="flex items-center"
+        >
           <Users className="mr-2 h-4 w-4" />
           Sociale
         </Button>
-        <Button variant={activeSection === 'conduct' ? 'default' : 'outline'} onClick={() => setActiveSection('conduct')} className="flex items-center">
+        <Button 
+          variant={activeSection === 'conduct' ? 'default' : 'outline'} 
+          onClick={() => setActiveSection('conduct')} 
+          className="flex items-center"
+        >
           <Building2 className="mr-2 h-4 w-4" />
           Condotta
         </Button>
-        {showNarrativeModule && <Button variant={activeSection === 'narrative' ? 'default' : 'outline'} onClick={() => setActiveSection('narrative')} className="flex items-center">
+        {showNarrativeModule && (
+          <Button 
+            variant={activeSection === 'narrative' ? 'default' : 'outline'} 
+            onClick={() => setActiveSection('narrative')} 
+            className="flex items-center"
+          >
             <FileText className="mr-2 h-4 w-4" />
             Narrativo-PAT
-          </Button>}
-        {showBusinessPartnersModule && <Button variant={activeSection === 'business-partners' ? 'default' : 'outline'} onClick={() => setActiveSection('business-partners')} className="flex items-center">
+          </Button>
+        )}
+        {showBusinessPartnersModule && (
+          <Button 
+            variant={activeSection === 'business-partners' ? 'default' : 'outline'} 
+            onClick={() => setActiveSection('business-partners')} 
+            className="flex items-center"
+          >
             <Briefcase className="mr-2 h-4 w-4" />
             Partner Commerciali
-          </Button>}
+          </Button>
+        )}
       </div>
 
-      {activeSection === 'environmental' && <EnvironmentalMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'environmental' ? initialField : undefined} />}
+      {activeSection === 'environmental' && (
+        <EnvironmentalMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialSection === 'environmental' ? initialField : undefined} 
+        />
+      )}
       
-      {activeSection === 'social' && <SocialMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'social' ? initialField : undefined} />}
+      {activeSection === 'social' && (
+        <SocialMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialSection === 'social' ? initialField : undefined} 
+        />
+      )}
       
-      {activeSection === 'conduct' && <ConductMetrics formValues={formValues} setFormValues={setFormValues} initialField={initialSection === 'conduct' ? initialField : undefined} />}
+      {activeSection === 'conduct' && (
+        <ConductMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialSection === 'conduct' ? initialField : undefined} 
+        />
+      )}
       
-      {activeSection === 'narrative' && showNarrativeModule && <NarrativePATMetrics formValues={formValues} setFormValues={setFormValues} />}
+      {activeSection === 'narrative' && showNarrativeModule && (
+        <NarrativePATMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+        />
+      )}
       
-      {activeSection === 'business-partners' && showBusinessPartnersModule && <BusinessPartnersMetrics formValues={formValues} setFormValues={setFormValues} />}
+      {activeSection === 'business-partners' && showBusinessPartnersModule && (
+        <BusinessPartnersMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+        />
+      )}
 
       <div className="flex justify-between pt-6">
         <Button variant="outline" onClick={onPrevious}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna indietro
         </Button>
+        <Button onClick={onSave}>
+          Salva e continua
+        </Button>
       </div>
-    </motion.div>;
+    </motion.div>
+  );
 };
 
 export default BaseModuleMetrics;

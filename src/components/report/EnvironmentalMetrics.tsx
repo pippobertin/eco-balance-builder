@@ -55,6 +55,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Metriche Base - Questioni Ambientali</h2>
       
+      {/* B3 - Emissioni e Energia */}
       <div ref={emissionsRef}>
         <EmissionsEnergySection
           formValues={formValues}
@@ -62,13 +63,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
-      <div ref={waterRef}>
-        <WaterSection
-          formValues={formValues}
-          setFormValues={handleChange}
-        />
-      </div>
-      
+      {/* B4 - Risorse */}
       <div ref={resourcesRef}>
         <ResourcesSection
           formValues={formValues}
@@ -76,6 +71,15 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
+      {/* B5 - Acqua */}
+      <div ref={waterRef}>
+        <WaterSection
+          formValues={formValues}
+          setFormValues={handleChange}
+        />
+      </div>
+      
+      {/* B6 - Biodiversità */}
       <div ref={biodiversityRef}>
         <BiodiversitySection
           formValues={formValues}
@@ -83,6 +87,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
+      {/* B7 - Inquinamento */}
       <div ref={pollutionRef}>
         <PollutionSection
           formValues={formValues}

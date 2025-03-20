@@ -11,19 +11,28 @@ import { Json } from '../types';
  */
 export const safeJsonParse = <T>(jsonString: string | Json | null | undefined, defaultValue: T): T => {
   if (jsonString === null || jsonString === undefined) {
+    console.log('safeJsonParse: input is null or undefined, returning default value');
     return defaultValue;
   }
   
   // If it's already an object (not a string), return it directly
   if (typeof jsonString !== 'string') {
+    console.log('safeJsonParse: input is already an object, returning directly');
     return jsonString as unknown as T;
+  }
+  
+  // If it's an empty string, return the default value
+  if (jsonString === '') {
+    console.log('safeJsonParse: input is an empty string, returning default value');
+    return defaultValue;
   }
   
   try {
     // Only try to parse if it's a string
+    console.log('safeJsonParse: parsing JSON string');
     return JSON.parse(jsonString) as T;
   } catch (error) {
-    console.error('Error parsing JSON string:', error);
+    console.error('Error parsing JSON string:', error, 'String value:', jsonString);
     return defaultValue;
   }
 };

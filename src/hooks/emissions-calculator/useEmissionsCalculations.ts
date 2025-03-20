@@ -13,7 +13,10 @@ export const useEmissionsCalculations = () => {
     inputs: EmissionsInput,
     scope?: 'scope1' | 'scope2' | 'scope3'
   ): { results: EmissionsResults; details: EmissionsDetails } => {
-    return performEmissionsCalculation(inputs, scope);
+    console.log('Performing emissions calculation with inputs:', inputs, 'for scope:', scope);
+    const calculationResult = performEmissionsCalculation(inputs, scope);
+    console.log('Calculation result:', calculationResult);
+    return calculationResult;
   };
   
   return { performCalculation };

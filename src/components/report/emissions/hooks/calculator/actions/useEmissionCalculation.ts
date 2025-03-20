@@ -61,6 +61,9 @@ export const useEmissionCalculation = (
         }
       }
       
+      console.log('Processed emission value:', emissionValue);
+      console.log('Processed details:', detailsObj);
+      
       if (emissionValue > 0) {
         const description = scope === 'scope1' 
           ? `${detailsObj.fuelType || 'Fuel'} emission` 
@@ -79,7 +82,7 @@ export const useEmissionCalculation = (
         console.warn(`No emissions calculated for ${scope}`, emissionValue);
         toast({
           title: "Nessuna emissione",
-          description: `Nessuna emissione calcolata per ${scope}`,
+          description: `Nessuna emissione calcolata per ${scope}. Controlla i dati inseriti.`,
           variant: "destructive"
         });
       }
