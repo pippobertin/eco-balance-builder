@@ -20,7 +20,7 @@ export const useEmissionsCalculations = () => {
       console.error('Invalid inputs for calculation:', inputs);
       return {
         results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-        details: { scope1Details: {}, scope2Details: {}, scope3Details: {} }
+        details: { scope1Details: '', scope2Details: '', scope3Details: '' }
       };
     }
     
@@ -34,7 +34,7 @@ export const useEmissionsCalculations = () => {
         console.error('Invalid calculation result structure:', calculationResult);
         return {
           results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-          details: { scope1Details: {}, scope2Details: {}, scope3Details: {} }
+          details: { scope1Details: '', scope2Details: '', scope3Details: '' }
         };
       }
       
@@ -43,7 +43,7 @@ export const useEmissionsCalculations = () => {
       console.error('Error during emissions calculation:', error);
       return {
         results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-        details: { scope1Details: {}, scope2Details: {}, scope3Details: {} }
+        details: { scope1Details: '', scope2Details: '', scope3Details: '' }
       };
     }
   };
