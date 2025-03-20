@@ -25,10 +25,12 @@ export interface CalculatorState {
 }
 
 export interface CalculatorActions {
-  calculateEmissions: (scope: 'scope1' | 'scope2' | 'scope3') => void;
+  calculateEmissions: (scope: 'scope1' | 'scope2' | 'scope3') => any;
   handleRemoveCalculation: (calculationId: string) => void;
   resetCalculation: () => void;
-  handleSubmitCalculation: () => void;
+  handleSubmitCalculation: () => Promise<void>;
+  isSaving: boolean;
+  lastSaved: Date | null;
 }
 
 export interface UseCalculatorResult extends CalculatorState, CalculatorActions {

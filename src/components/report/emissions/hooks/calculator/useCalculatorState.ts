@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { CalculatorState } from './types';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
-import { useExistingEmissions } from '../useExistingEmissions';
+import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 
-export const useCalculatorState = (reportId: string | undefined): CalculatorState => {
-  const [activeTab, setActiveTab] = useState<string>('scope1');
+export const useCalculatorState = (reportId?: string) => {
+  // Tab state
+  const [activeTab, setActiveTab] = useState('scope1');
+  
+  // Emissions calculation state
   const [calculatedEmissions, setCalculatedEmissions] = useState({
     scope1: 0,
     scope2: 0,
@@ -13,49 +15,73 @@ export const useCalculatorState = (reportId: string | undefined): CalculatorStat
     total: 0
   });
   
-  // Initial logs state
+  // Calculation logs state
   const [calculationLogs, setCalculationLogs] = useState<EmissionCalculationLogs>({
     scope1Calculations: [],
     scope2Calculations: [],
     scope3Calculations: []
   });
   
-  // Load existing emissions data
-  const { existingEmissions, existingLogs, isLoading } = useExistingEmissions();
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(false);
   
-  // Debug log to track the state of calculation logs
-  useEffect(() => {
-    console.log('Current calculation logs state:', calculationLogs);
-    console.log('Scope1 calculations count:', calculationLogs.scope1Calculations?.length || 0);
-    console.log('Scope2 calculations count:', calculationLogs.scope2Calculations?.length || 0);
-    console.log('Scope3 calculations count:', calculationLogs.scope3Calculations?.length || 0);
-  }, [calculationLogs]);
+  // Saving state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
-  // Load existing emissions when available
+  // Initialize the emission records service
+  const { loadEmissionRecords, calculateTotals } = useEmissionRecords(reportId);
+  
+  // Load existing records when component mounts
   useEffect(() => {
-    if (existingEmissions) {
-      console.log('Loading existing emissions:', existingEmissions);
-      setCalculatedEmissions(existingEmissions);
+    if (reportId) {
+      loadExistingRecords(reportId);
     }
+  }, [reportId]);
+  
+  // Load existing records from the database
+  const loadExistingRecords = async (reportId: string) => {
+    setIsLoadingExisting(true);
     
-    if (existingLogs) {
-      console.log('Loading existing calculations:', existingLogs);
+    try {
+      const records = await loadEmissionRecords(reportId);
       
-      // Ensure we have valid arrays for each scope
-      const validatedCalculations: EmissionCalculationLogs = {
-        scope1Calculations: Array.isArray(existingLogs.scope1Calculations) 
-          ? existingLogs.scope1Calculations : [],
-        scope2Calculations: Array.isArray(existingLogs.scope2Calculations)
-          ? existingLogs.scope2Calculations : [],
-        scope3Calculations: Array.isArray(existingLogs.scope3Calculations)
-          ? existingLogs.scope3Calculations : []
-      };
-      
-      console.log('Validated calculation logs:', validatedCalculations);
-      setCalculationLogs(validatedCalculations);
+      if (records && records.length > 0) {
+        // Group records by scope
+        const scope1Records = records.filter(record => record.scope === 'scope1');
+        const scope2Records = records.filter(record => record.scope === 'scope2');
+        const scope3Records = records.filter(record => record.scope === 'scope3');
+        
+        // Create calculation logs
+        const logs: EmissionCalculationLogs = {
+          scope1Calculations: scope1Records,
+          scope2Calculations: scope2Records,
+          scope3Calculations: scope3Records
+        };
+        
+        // Update logs state
+        setCalculationLogs(logs);
+        
+        // Calculate totals
+        const totals = calculateTotals(records);
+        setCalculatedEmissions(totals);
+        
+        console.log('Loaded existing emission records:', {
+          records: records.length,
+          scope1: scope1Records.length,
+          scope2: scope2Records.length,
+          scope3: scope3Records.length,
+          totals
+        });
+      }
+    } catch (error) {
+      console.error('Error loading existing records:', error);
+    } finally {
+      setIsLoadingExisting(false);
     }
-  }, [existingEmissions, existingLogs]);
-
+  };
+  
   return {
     activeTab,
     setActiveTab,
@@ -64,8 +90,8 @@ export const useCalculatorState = (reportId: string | undefined): CalculatorStat
     calculationLogs,
     setCalculationLogs,
     isLoading,
-    isLoadingExisting: isLoading, // Add isLoadingExisting for GHGEmissionsCalculator
-    isSaving: false, // Will be updated in the main hook
-    lastSaved: null, // Will be updated in the main hook
+    isLoadingExisting,
+    isSaving,
+    lastSaved
   };
 };

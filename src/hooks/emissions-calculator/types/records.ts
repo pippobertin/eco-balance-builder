@@ -4,6 +4,7 @@
  */
 export interface EmissionCalculationRecord {
   id: string;
+  report_id: string;
   date: string;
   scope: 'scope1' | 'scope2' | 'scope3';
   source: string;

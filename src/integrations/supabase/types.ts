@@ -152,6 +152,45 @@ export type Database = {
           },
         ]
       }
+      emission_calculation_records: {
+        Row: {
+          date: string
+          description: string
+          details: Json | null
+          emissions: number
+          id: string
+          quantity: number
+          report_id: string
+          scope: string
+          source: string
+          unit: string
+        }
+        Insert: {
+          date?: string
+          description: string
+          details?: Json | null
+          emissions: number
+          id?: string
+          quantity: number
+          report_id: string
+          scope: string
+          source: string
+          unit: string
+        }
+        Update: {
+          date?: string
+          description?: string
+          details?: Json | null
+          emissions?: number
+          id?: string
+          quantity?: number
+          report_id?: string
+          scope?: string
+          source?: string
+          unit?: string
+        }
+        Relationships: []
+      }
       emissions_data: {
         Row: {
           created_at: string

@@ -1,7 +1,7 @@
 
 import { useCalculatorState } from './useCalculatorState';
 import { useCalculatorActions } from './useCalculatorActions';
-import { useEmissionsCalculator, EmissionsInput } from '@/hooks/emissions-calculator';
+import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
 import { UseCalculatorResult } from './types';
 import { useReport } from '@/hooks/use-report-context';
 
