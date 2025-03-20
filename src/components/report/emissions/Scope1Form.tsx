@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Select, 
   SelectContent, 
@@ -43,6 +43,33 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
     setFuelQuantity(value);
   };
 
+  // Initialize fuelType if it's empty and scope1Source is 'fuel'
+  useEffect(() => {
+    if (scope1Source === 'fuel' && (!fuelType || fuelType === '')) {
+      console.log('Initializing default fuel type to DIESEL');
+      setFuelType('DIESEL');
+    }
+  }, [scope1Source, fuelType, setFuelType]);
+
+  // Initialize fuelUnit if it's empty
+  useEffect(() => {
+    if (!fuelUnit || fuelUnit === '') {
+      console.log('Initializing default fuel unit to L');
+      setFuelUnit('L');
+    }
+  }, [fuelUnit, setFuelUnit]);
+
+  // Log current values for debugging
+  useEffect(() => {
+    console.log('Scope1Form current values:', {
+      scope1Source,
+      fuelType,
+      fuelQuantity,
+      fuelUnit,
+      periodType
+    });
+  }, [scope1Source, fuelType, fuelQuantity, fuelUnit, periodType]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -68,7 +95,10 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
             <Label>Tipo di combustibile</Label>
             <Select 
               value={fuelType} 
-              onValueChange={(value) => setFuelType(value as FuelType)}
+              onValueChange={(value) => {
+                console.log('Fuel type changed to:', value);
+                setFuelType(value as FuelType);
+              }}
             >
               <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Seleziona combustibile" />
@@ -105,7 +135,10 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
           <Label>Unità di misura</Label>
           <Select 
             value={fuelUnit} 
-            onValueChange={setFuelUnit}
+            onValueChange={(value) => {
+              console.log('Fuel unit changed to:', value);
+              setFuelUnit(value);
+            }}
           >
             <SelectTrigger className="w-full bg-white">
               <SelectValue placeholder="Seleziona unità" />
@@ -125,7 +158,10 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
           <Label>Periodo di riferimento</Label>
           <Select 
             value={periodType} 
-            onValueChange={(value) => setPeriodType(value as PeriodType)}
+            onValueChange={(value) => {
+              console.log('Period type changed to:', value);
+              setPeriodType(value as PeriodType);
+            }}
           >
             <SelectTrigger className="w-full bg-white">
               <SelectValue placeholder="Seleziona periodo" />

@@ -28,13 +28,29 @@ export const performEmissionsCalculation = (
   console.log('Starting emissions calculation for scope:', scope || 'all scopes');
   console.log('Input values:', JSON.stringify(inputs));
   
-  // Ensure all necessary inputs exist before calculation
-  if (scope === 'scope1' && (!inputs.fuelType || !inputs.fuelQuantity)) {
-    console.error('Missing required inputs for scope1 calculation:', {
+  // Log specific inputs for scope1
+  if (scope === 'scope1' || !scope) {
+    console.log('Scope1 specific inputs:', {
       fuelType: inputs.fuelType,
-      fuelQuantity: inputs.fuelQuantity
+      fuelQuantity: inputs.fuelQuantity,
+      fuelUnit: inputs.fuelUnit
     });
-    return { results, details };
+  }
+  
+  // Ensure all necessary inputs exist before calculation
+  if (scope === 'scope1') {
+    if (!inputs.fuelType) {
+      console.error('Missing fuel type for scope1 calculation');
+      return { results, details };
+    }
+    
+    if (!inputs.fuelQuantity) {
+      console.error('Missing fuel quantity for scope1 calculation');
+      return { results, details };
+    }
+    
+    console.log('Fuel quantity type:', typeof inputs.fuelQuantity);
+    console.log('Fuel quantity value:', inputs.fuelQuantity);
   }
   
   // Perform calculation for the requested scope or all scopes
@@ -42,27 +58,40 @@ export const performEmissionsCalculation = (
     console.log('Calculating scope1 with initial results:', results);
     console.log('Fuel quantity type:', typeof inputs.fuelQuantity);
     console.log('Fuel quantity value:', inputs.fuelQuantity);
+    console.log('Fuel type:', inputs.fuelType);
     
-    const scope1Result = performScope1Calculation(inputs, results);
-    results = scope1Result.updatedResults;
-    details.scope1Details = scope1Result.details;
-    console.log('Scope 1 calculation completed. Updated results:', results);
+    try {
+      const scope1Result = performScope1Calculation(inputs, results);
+      results = scope1Result.updatedResults;
+      details.scope1Details = scope1Result.details;
+      console.log('Scope 1 calculation completed. Updated results:', results);
+    } catch (error) {
+      console.error('Error in scope1 calculation:', error);
+    }
   }
   
   if (!scope || scope === 'scope2') {
     console.log('Calculating scope2 with results after scope1:', results);
-    const scope2Result = performScope2Calculation(inputs, results);
-    results = scope2Result.updatedResults;
-    details.scope2Details = scope2Result.details;
-    console.log('Scope 2 calculation completed. Updated results:', results);
+    try {
+      const scope2Result = performScope2Calculation(inputs, results);
+      results = scope2Result.updatedResults;
+      details.scope2Details = scope2Result.details;
+      console.log('Scope 2 calculation completed. Updated results:', results);
+    } catch (error) {
+      console.error('Error in scope2 calculation:', error);
+    }
   }
   
   if (!scope || scope === 'scope3') {
     console.log('Calculating scope3 with results after scope1+2:', results);
-    const scope3Result = performScope3Calculation(inputs, results);
-    results = scope3Result.updatedResults;
-    details.scope3Details = scope3Result.details;
-    console.log('Scope 3 calculation completed. Updated results:', results);
+    try {
+      const scope3Result = performScope3Calculation(inputs, results);
+      results = scope3Result.updatedResults;
+      details.scope3Details = scope3Result.details;
+      console.log('Scope 3 calculation completed. Updated results:', results);
+    } catch (error) {
+      console.error('Error in scope3 calculation:', error);
+    }
   }
   
   // Calculate total emissions (should already be accurate from incremental updates)

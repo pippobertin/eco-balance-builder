@@ -27,8 +27,16 @@ export const useEmissionsCalculations = () => {
     try {
       // Validate specific inputs for the scope
       if (scope === 'scope1') {
+        // Log the exact state of inputs for debugging
+        console.log('Scope1 calculation inputs:', {
+          fuelType: inputs.fuelType,
+          fuelQuantity: inputs.fuelQuantity,
+          fuelUnit: inputs.fuelUnit,
+          fullInputs: inputs
+        });
+        
         if (!inputs.fuelType) {
-          console.error('Missing fuelType for scope1 calculation');
+          console.error('Missing fuelType for scope1 calculation, inputs:', inputs);
           return {
             results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
             details: { scope1Details: '', scope2Details: '', scope3Details: '' }
@@ -64,10 +72,13 @@ export const useEmissionsCalculations = () => {
         // Ensure the fuelQuantity is properly set as a string in inputs
         const validatedInputs = {
           ...inputs,
-          fuelQuantity: quantityStr
+          fuelQuantity: quantityStr,
+          // Ensure fuelUnit is set to a default if not provided
+          fuelUnit: inputs.fuelUnit || 'L'
         };
         
         // Call the calculation function with validated inputs
+        console.log('Calling performEmissionsCalculation with validated inputs:', validatedInputs);
         const calculationResult = performEmissionsCalculation(validatedInputs, scope);
         console.log('Calculation result:', JSON.stringify(calculationResult));
         

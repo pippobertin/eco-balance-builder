@@ -34,17 +34,28 @@ export const useEmissionCalculation = (
       
       // Specific validations based on scope
       if (scope === 'scope1') {
-        if (!inputs.fuelType || !inputs.fuelQuantity) {
-          console.error('Missing fuel type or quantity for scope1 calculation');
+        if (!inputs.fuelType) {
+          console.error('Missing fuel type for scope1 calculation, inputs:', inputs);
           toast({
-            title: "Dati mancanti",
-            description: "Seleziona tipo e quantità di combustibile.",
+            title: "Tipo di combustibile mancante",
+            description: "Seleziona il tipo di combustibile prima di calcolare le emissioni.",
+            variant: "destructive"
+          });
+          return null;
+        }
+        
+        if (!inputs.fuelQuantity) {
+          console.error('Missing fuel quantity for scope1 calculation');
+          toast({
+            title: "Quantità mancante",
+            description: "Inserisci la quantità di combustibile.",
             variant: "destructive"
           });
           return null;
         }
         
         console.log('Validating fuel quantity:', inputs.fuelQuantity, 'type:', typeof inputs.fuelQuantity);
+        console.log('Fuel type:', inputs.fuelType, 'type:', typeof inputs.fuelType);
         
         // Extra validation for fuel quantity
         if (typeof inputs.fuelQuantity === 'string') {
@@ -72,6 +83,15 @@ export const useEmissionCalculation = (
           return null;
         }
       }
+      
+      // Check complete inputs for clarity
+      console.log('Complete inputs before calculation:', {
+        scope,
+        fuelType: inputs.fuelType,
+        fuelQuantity: inputs.fuelQuantity,
+        fuelUnit: inputs.fuelUnit,
+        periodType: inputs.periodType
+      });
       
       // Perform calculation with inputs and scope
       const result = performCalculation(inputs, scope);
