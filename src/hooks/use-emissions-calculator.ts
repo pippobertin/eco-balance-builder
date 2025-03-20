@@ -1,6 +1,6 @@
 
 // This file is now just a re-export of the refactored hook
-export { useEmissionsCalculator } from './emissions-calculator';
+export { useEmissionsCalculator } from './emissions-calculator/useEmissionsCalculator';
 export type { 
   EmissionsInput,
   EmissionsResults,

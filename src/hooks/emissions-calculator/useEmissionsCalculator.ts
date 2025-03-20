@@ -4,6 +4,7 @@ import { useCalculateEmissions } from './calculation/useCalculateEmissions';
 import { useResetCalculation } from './calculation/useResetCalculation';
 import { useRemoveCalculation } from './calculation/useRemoveCalculation';
 import { EmissionsInput, EmissionsResults, EmissionsDetails, EmissionCalculationLogs } from './types';
+import { useEmissionsCalculations } from './useEmissionsCalculations';
 
 /**
  * Main emissions calculator hook that combines other specialized hooks
@@ -24,8 +25,8 @@ export const useEmissionsCalculator = (
     setCalculationLogs
   } = useEmissionsCalculatorState(initialInputs);
   
-  // Get calculation functionality
-  const { calculateEmissions } = useEmissionsCalculations();
+  // Get calculation functionality using the standalone hook
+  const { performCalculation } = useEmissionsCalculations();
   
   // Get reset functionality
   const { resetCalculation } = useResetCalculation(
@@ -47,6 +48,14 @@ export const useEmissionsCalculator = (
     setResults(updatedResults);
   };
   
+  // Function to calculate emissions
+  const calculateEmissions = (
+    inputValues: EmissionsInput,
+    scope?: 'scope1' | 'scope2' | 'scope3'
+  ) => {
+    return performCalculation(inputValues, scope);
+  };
+  
   return {
     inputs,
     updateInput,
@@ -57,21 +66,4 @@ export const useEmissionsCalculator = (
     resetCalculation,
     removeCalculation: handleRemoveCalculation
   };
-};
-
-/**
- * Hook for calculations without state management
- */
-const useEmissionsCalculations = () => {
-  // Simple function to calculate emissions based on inputs and scope
-  const calculateEmissions = (
-    inputs: EmissionsInput,
-    scope?: 'scope1' | 'scope2' | 'scope3'
-  ) => {
-    // Import the calculation function directly
-    const { performEmissionsCalculation } = require('./calculations');
-    return performEmissionsCalculation(inputs, scope);
-  };
-  
-  return { calculateEmissions };
 };

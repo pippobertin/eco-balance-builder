@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { EmissionCalculationLogs, EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator/types';
-import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
+import { useEmissionsCalculations } from '@/hooks/emissions-calculator/useEmissionsCalculations';
 import { useToast } from '@/hooks/use-toast';
 
 export const useEmissionCalculation = (
@@ -14,8 +14,8 @@ export const useEmissionCalculation = (
 ) => {
   const { toast } = useToast();
   
-  // Fix: Call useEmissionsCalculator with no arguments
-  const { calculateEmissions: performCalculation } = useEmissionsCalculator();
+  // Use the simplified emissions calculation hook
+  const { performCalculation } = useEmissionsCalculations();
   
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
     try {
