@@ -25,26 +25,11 @@ export const useEmissionsCalculations = () => {
     }
     
     try {
-      // Validate specific inputs for the scope
+      // Only validate scope-specific inputs depending on which scope we're calculating
       if (scope === 'scope1') {
-        // Log the exact state of inputs for debugging
-        console.log('Scope1 calculation inputs:', {
-          fuelType: inputs.fuelType,
-          fuelQuantity: inputs.fuelQuantity,
-          fuelUnit: inputs.fuelUnit,
-          fullInputs: inputs
-        });
-        
+        // Scope 1 validation
         if (!inputs.fuelType) {
-          console.error('Missing fuelType for scope1 calculation, inputs:', inputs);
-          return {
-            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
-          };
-        }
-        
-        if (!inputs.fuelQuantity) {
-          console.error('Missing fuelQuantity for scope1 calculation');
+          console.error('Missing fuelType for scope1 calculation');
           return {
             results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
             details: { scope1Details: '', scope2Details: '', scope3Details: '' }
@@ -52,14 +37,8 @@ export const useEmissionsCalculations = () => {
         }
         
         // Always handle fuel quantity as string, then parse it
-        const quantityStr = String(inputs.fuelQuantity).replace(',', '.');
+        const quantityStr = String(inputs.fuelQuantity || '').replace(',', '.');
         const quantity = parseFloat(quantityStr);
-        
-        console.log('Validating fuel quantity:', {
-          original: inputs.fuelQuantity,
-          asString: quantityStr,
-          parsed: quantity
-        });
         
         if (isNaN(quantity) || quantity <= 0) {
           console.error('Invalid fuelQuantity for scope1 calculation:', inputs.fuelQuantity);
@@ -68,35 +47,65 @@ export const useEmissionsCalculations = () => {
             details: { scope1Details: '', scope2Details: '', scope3Details: '' }
           };
         }
+      } 
+      else if (scope === 'scope2') {
+        // Scope 2 validation
+        if (!inputs.energyType) {
+          console.error('Missing energyType for scope2 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
         
-        // Ensure the fuelQuantity is properly set as a string in inputs
-        const validatedInputs = {
-          ...inputs,
-          fuelQuantity: quantityStr,
-          // Ensure fuelUnit is set to a default if not provided
-          fuelUnit: inputs.fuelUnit || 'L'
-        };
+        // Parse energy quantity 
+        const quantityStr = String(inputs.energyQuantity || '').replace(',', '.');
+        const quantity = parseFloat(quantityStr);
         
-        // Call the calculation function with validated inputs
-        console.log('Calling performEmissionsCalculation with validated inputs:', validatedInputs);
-        const calculationResult = performEmissionsCalculation(validatedInputs, scope);
-        console.log('Calculation result:', JSON.stringify(calculationResult));
+        if (isNaN(quantity) || quantity <= 0) {
+          console.error('Invalid energyQuantity for scope2 calculation:', inputs.energyQuantity);
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
+      }
+      else if (scope === 'scope3') {
+        // Scope 3 validation logic based on category
+        if (!inputs.scope3Category) {
+          console.error('Missing scope3Category for scope3 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
         
-        return calculationResult;
+        // Additional validation based on category
+        if (inputs.scope3Category === 'transport' && (!inputs.transportType || !inputs.transportDistance)) {
+          console.error('Missing transport details for scope3 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        } 
+        else if (inputs.scope3Category === 'waste' && (!inputs.wasteType || !inputs.wasteQuantity)) {
+          console.error('Missing waste details for scope3 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
+        else if (inputs.scope3Category === 'purchases' && (!inputs.purchaseType || !inputs.purchaseQuantity)) {
+          console.error('Missing purchase details for scope3 calculation');
+          return {
+            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+          };
+        }
       }
       
       // Call the calculation function
       const calculationResult = performEmissionsCalculation(inputs, scope);
-      console.log('Calculation result:', JSON.stringify(calculationResult));
-      
-      // Ensure the calculation result has the expected structure
-      if (!calculationResult.results) {
-        console.error('Invalid calculation result structure:', calculationResult);
-        return {
-          results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-          details: { scope1Details: '', scope2Details: '', scope3Details: '' }
-        };
-      }
       
       return calculationResult;
     } catch (error) {
