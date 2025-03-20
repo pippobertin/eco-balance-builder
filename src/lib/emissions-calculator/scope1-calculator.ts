@@ -15,6 +15,8 @@ export const calculateScope1Emissions = (
   quantity: number,
   unit: string
 ): number => {
+  console.log('calculateScope1Emissions called with:', { fuelType, quantity, unit });
+  
   // Ottieni il fattore di emissione per il tipo di combustibile
   const emissionFactor = EMISSION_FACTORS[fuelType];
   
@@ -25,10 +27,16 @@ export const calculateScope1Emissions = (
   
   // Ottieni il fattore di conversione per l'unità
   const conversionFactor = UNIT_CONVERSIONS.FUEL[unit] || 1;
+  console.log('Using emission factor:', emissionFactor.value, 'and conversion factor:', conversionFactor);
   
   // Calcola le emissioni
   const standardizedQuantity = quantity * conversionFactor;
   const emissions = emissionFactor.value * standardizedQuantity;
+  
+  console.log('Calculated emissions:', {
+    standardizedQuantity,
+    emissions
+  });
   
   return emissions;
 };

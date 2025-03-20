@@ -17,8 +17,16 @@ export const performScope1Calculation = (
   let details = '';
   let source = '';
 
+  console.log('Starting scope1 calculation with inputs:', {
+    fuelType: inputs.fuelType,
+    fuelQuantity: inputs.fuelQuantity,
+    fuelUnit: inputs.fuelUnit
+  });
+
   if (inputs.fuelType && inputs.fuelQuantity && inputs.fuelQuantity !== '') {
     const quantity = parseFloat(inputs.fuelQuantity);
+    console.log('Parsed fuel quantity:', quantity);
+    
     if (!isNaN(quantity) && quantity > 0) {
       const emissionsKg = calculateScope1Emissions(
         inputs.fuelType, 
@@ -30,6 +38,7 @@ export const performScope1Calculation = (
       console.log('Scope 1 calculation results:', {
         fuelType: inputs.fuelType,
         quantity,
+        unit: inputs.fuelUnit || 'L',
         emissionsKg,
         emissionsTonnes
       });
@@ -40,6 +49,8 @@ export const performScope1Calculation = (
         scope1: results.scope1 + emissionsTonnes,
         total: results.total + emissionsTonnes
       };
+      
+      console.log('Updated results after scope1 calculation:', updatedResults);
       
       // Save calculation details
       const calculationDetails = {
@@ -62,7 +73,11 @@ export const performScope1Calculation = (
       details = JSON.stringify(calculationDetails);
       
       return { updatedResults, details, source };
+    } else {
+      console.warn('Invalid quantity for scope1 calculation:', inputs.fuelQuantity);
     }
+  } else {
+    console.warn('Missing required inputs for scope1 calculation');
   }
   
   return { updatedResults: results, details };

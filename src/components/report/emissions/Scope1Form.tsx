@@ -36,6 +36,13 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
   periodType,
   setPeriodType
 }) => {
+  // Handler for quantity change to ensure proper value capture
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log('Fuel quantity changed to:', value);
+    setFuelQuantity(value);
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,7 +95,7 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
           <Input 
             type="number" 
             value={fuelQuantity} 
-            onChange={(e) => setFuelQuantity(e.target.value)}
+            onChange={handleQuantityChange}
             placeholder="Inserisci quantità"
             className="bg-white"
           />

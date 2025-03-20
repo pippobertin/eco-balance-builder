@@ -32,6 +32,17 @@ export const useEmissionCalculation = (
         return null;
       }
       
+      // Specific validations based on scope
+      if (scope === 'scope1' && (!inputs.fuelType || !inputs.fuelQuantity)) {
+        console.error('Missing fuel type or quantity for scope1 calculation');
+        toast({
+          title: "Dati mancanti",
+          description: "Seleziona tipo e quantità di combustibile.",
+          variant: "destructive"
+        });
+        return null;
+      }
+      
       // Perform calculation with inputs and scope
       const result = performCalculation(inputs, scope);
       console.log('Calculation result:', JSON.stringify(result));
