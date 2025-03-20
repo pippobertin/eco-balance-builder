@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
+import { Json } from '@/integrations/supabase/types';
 
 export const useEmissionsLoad = (reportId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,14 +43,28 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         if (data.calculation_logs) {
           console.log('Found calculation logs in data:', data.calculation_logs);
           
+          // Handle different possible formats of data.calculation_logs
+          let parsedLogs: any;
+          
+          if (typeof data.calculation_logs === 'string') {
+            try {
+              parsedLogs = JSON.parse(data.calculation_logs);
+            } catch (e) {
+              console.error('Error parsing calculation_logs string:', e);
+              parsedLogs = defaultLogs;
+            }
+          } else {
+            parsedLogs = data.calculation_logs;
+          }
+          
           // Ensure arrays exist and are arrays
           data.calculation_logs = {
-            scope1Calculations: Array.isArray(data.calculation_logs.scope1Calculations) 
-              ? data.calculation_logs.scope1Calculations : [],
-            scope2Calculations: Array.isArray(data.calculation_logs.scope2Calculations)
-              ? data.calculation_logs.scope2Calculations : [],
-            scope3Calculations: Array.isArray(data.calculation_logs.scope3Calculations)
-              ? data.calculation_logs.scope3Calculations : []
+            scope1Calculations: Array.isArray(parsedLogs.scope1Calculations) 
+              ? parsedLogs.scope1Calculations : [],
+            scope2Calculations: Array.isArray(parsedLogs.scope2Calculations)
+              ? parsedLogs.scope2Calculations : [],
+            scope3Calculations: Array.isArray(parsedLogs.scope3Calculations)
+              ? parsedLogs.scope3Calculations : []
           };
         } else {
           console.log('No calculation_logs found, using default empty structure');
@@ -78,10 +93,10 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Insert into emissions_logs table
+      // Insert into emissions_logs table - convert to plain object to satisfy Json type
       const initialData = {
         report_id: reportId,
-        calculation_logs: initialLogs,
+        calculation_logs: initialLogs as unknown as Json,
         created_at: new Date().toISOString()
       };
       

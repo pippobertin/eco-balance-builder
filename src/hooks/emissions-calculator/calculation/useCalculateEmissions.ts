@@ -55,11 +55,11 @@ export const useCalculateEmissions = (
     console.log('Calculation details:', newDetails);
     
     // Ensure logs have the correct structure
-    const safeScope1Calculations = Array.isArray(calculationLogs.scope1Calculations) ? 
+    const safeScope1Calculations = Array.isArray(calculationLogs?.scope1Calculations) ? 
       [...calculationLogs.scope1Calculations] : [];
-    const safeScope2Calculations = Array.isArray(calculationLogs.scope2Calculations) ? 
+    const safeScope2Calculations = Array.isArray(calculationLogs?.scope2Calculations) ? 
       [...calculationLogs.scope2Calculations] : [];
-    const safeScope3Calculations = Array.isArray(calculationLogs.scope3Calculations) ? 
+    const safeScope3Calculations = Array.isArray(calculationLogs?.scope3Calculations) ? 
       [...calculationLogs.scope3Calculations] : [];
     
     // Create updated logs

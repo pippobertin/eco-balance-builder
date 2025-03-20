@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useToast } from '@/hooks/use-toast';
+import { Json } from '@/integrations/supabase/types';
 
 export const useEmissionsSave = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -57,7 +58,7 @@ export const useEmissionsSave = () => {
         const { data, error } = await supabase
           .from('emissions_logs')
           .update({
-            calculation_logs: validatedLogs,
+            calculation_logs: validatedLogs as unknown as Json,
             updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
@@ -72,7 +73,7 @@ export const useEmissionsSave = () => {
           .from('emissions_logs')
           .insert({
             report_id: reportId,
-            calculation_logs: validatedLogs,
+            calculation_logs: validatedLogs as unknown as Json,
             created_at: new Date().toISOString()
           })
           .select()
