@@ -6,7 +6,7 @@ import { useToast as useShadcnToast } from "@/components/ui/use-toast";
 type ToastProps = {
   title?: string;
   description?: string;
-  variant?: "default" | "destructive";
+  variant?: "default" | "destructive" | "warning";  // Added "warning" variant
   duration?: number;
   action?: React.ReactNode;
 };
@@ -25,6 +25,12 @@ export const toast = ({
   // Use sonner toast for its simplicity and better mobile experience
   if (variant === "destructive") {
     return sonnerToast.error(title, {
+      description,
+      duration,
+      action
+    });
+  } else if (variant === "warning") {
+    return sonnerToast.warning(title, {
       description,
       duration,
       action

@@ -48,7 +48,7 @@ const ReportList = ({ reports, onDelete, onSelectReport }: ReportListProps) => {
           toast({
             title: "Avviso",
             description: "Dati del report incompleti. Potrebbero mancare alcune informazioni.",
-            variant: "warning"
+            variant: "default"  // Changed from "warning" to "default"
           });
         }
       }
