@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
-import { safeJsonParse } from '@/integrations/supabase/utils/jsonUtils';
+import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsLoad = (reportId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -84,11 +84,13 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert to a format suitable for the database by JSON.stringify
-      // This avoids type incompatibility with Supabase's Json type
+      // Convert to a string format suitable for the database
+      // This properly converts the EmissionCalculationLogs to a Json compatible format
+      const stringifiedLogs = safeJsonStringify(initialLogs);
+      
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify(initialLogs) as any, // Use type assertion to bypass TypeScript's type check
+        calculation_logs: stringifiedLogs as any, // Use type assertion to bypass TypeScript's type check
         created_at: new Date().toISOString()
       };
       
