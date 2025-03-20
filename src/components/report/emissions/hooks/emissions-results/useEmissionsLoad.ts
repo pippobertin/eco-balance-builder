@@ -70,7 +70,9 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           };
         } else {
           // If no calculation_logs exist, use the default empty structure
-          data.calculation_logs = defaultLogs;
+          // Convert the EmissionCalculationLogs to a JSON-compatible format
+          const logsString = safeJsonStringify(defaultLogs);
+          data.calculation_logs = JSON.parse(logsString);
         }
       }
       
