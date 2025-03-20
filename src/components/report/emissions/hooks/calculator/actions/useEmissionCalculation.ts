@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { EmissionCalculationLogs, EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator/types';
 import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
@@ -13,7 +12,7 @@ export const useEmissionCalculation = (
   setCalculatedEmissions: (emissions: EmissionsResults) => void
 ) => {
   const { toast } = useToast();
-  // Fix: Remove the reportId parameter when calling useEmissionsCalculator
+  
   const { calculateEmissions: performCalculation } = useEmissionsCalculator();
   
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
