@@ -53,15 +53,16 @@ export const useEmissionsSave = () => {
       
       let result;
       
-      // Convert calculation logs to JSON string for database storage
-      const calculationLogsJson = safeJsonStringify(validatedCalculations);
+      // Convert calculation logs to a format suitable for the database
+      // Use as unknown to bridge the type gap
+      const calculationLogsForDb = validatedCalculations as unknown as object;
       
       // If data exists, update it
       if (existingData) {
         const { data, error } = await supabase
           .from('emissions_logs')
           .update({
-            calculation_logs: calculationLogsJson,
+            calculation_logs: calculationLogsForDb,
             updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
@@ -76,7 +77,7 @@ export const useEmissionsSave = () => {
           .from('emissions_logs')
           .insert({
             report_id: reportId,
-            calculation_logs: calculationLogsJson,
+            calculation_logs: calculationLogsForDb,
             created_at: new Date().toISOString()
           })
           .select()

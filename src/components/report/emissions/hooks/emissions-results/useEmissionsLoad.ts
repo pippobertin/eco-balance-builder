@@ -39,16 +39,17 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           scope3Calculations: []
         };
         
-        // Parse calculation_logs if it's a string
+        // Parse calculation_logs if it exists
         if (data.calculation_logs) {
+          // Handle string or object format
           if (typeof data.calculation_logs === 'string') {
             data.calculation_logs = safeJsonParse(data.calculation_logs, defaultLogs);
           }
           
-          // Ensure the parsed object has the expected structure
+          // Ensure the parsed object has the expected structure by validating and normalizing
           const parsed = data.calculation_logs as any;
           
-          // Validate and normalize the structure
+          // Normalize the structure
           data.calculation_logs = {
             scope1Calculations: Array.isArray(parsed.scope1Calculations) 
               ? parsed.scope1Calculations : [],
@@ -83,9 +84,10 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
+      // Convert EmissionCalculationLogs to a JSON-compatible object
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify(initialLogs),
+        calculation_logs: initialLogs as unknown as object,
         created_at: new Date().toISOString()
       };
       

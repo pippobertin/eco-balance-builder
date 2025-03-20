@@ -38,12 +38,12 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         scope3Calculations: [] 
       };
       
-      // Parse the calculation logs safely
-      const calculationLogs = typeof data.calculation_logs === 'string' 
+      // Use type assertion to safely handle the calculation logs
+      const calculationLogs = (typeof data.calculation_logs === 'string' 
         ? safeJsonParse(data.calculation_logs, defaultLogs)
-        : (data.calculation_logs as EmissionCalculationLogs || defaultLogs);
+        : data.calculation_logs) as EmissionCalculationLogs;
       
-      // Ensure the parsed object has the expected structure
+      // Ensure the data has the correct structure
       const validatedLogs: EmissionCalculationLogs = {
         scope1Calculations: Array.isArray(calculationLogs.scope1Calculations) 
           ? calculationLogs.scope1Calculations : [],
