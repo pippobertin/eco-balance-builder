@@ -45,15 +45,15 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
 
   // Initialize fuelType if it's empty and scope1Source is 'fuel'
   useEffect(() => {
-    if (scope1Source === 'fuel' && (!fuelType || fuelType === '')) {
+    if (scope1Source === 'fuel' && !fuelType) {
       console.log('Initializing default fuel type to DIESEL');
-      setFuelType('DIESEL');
+      setFuelType('DIESEL' as FuelType);
     }
   }, [scope1Source, fuelType, setFuelType]);
 
   // Initialize fuelUnit if it's empty
   useEffect(() => {
-    if (!fuelUnit || fuelUnit === '') {
+    if (!fuelUnit) {
       console.log('Initializing default fuel unit to L');
       setFuelUnit('L');
     }
