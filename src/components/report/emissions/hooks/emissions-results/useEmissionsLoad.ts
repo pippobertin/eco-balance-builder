@@ -87,7 +87,7 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
       // Convert to a format suitable for the database - we need to explicitly cast to Json type
       const initialData = {
         report_id: reportId,
-        calculation_logs: initialLogs as any,
+        calculation_logs: JSON.stringify(initialLogs) as any,
         created_at: new Date().toISOString()
       };
       

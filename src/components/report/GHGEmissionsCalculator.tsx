@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calculator, Save } from 'lucide-react';
-import { EmissionFactorSource, PeriodType } from '@/lib/emissions-types';
+import { EmissionFactorSource, PeriodType, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
 import { GHGEmissionsCalculatorProps } from './emissions/types';
 import { useCalculator } from './emissions/hooks/useCalculator';
 
@@ -47,57 +47,57 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     switch (activeTab) {
       case 'scope1':
         return <Scope1Form 
-                 scope1Source={inputs.scope1Source || 'fuel'} 
+                 scope1Source={typeof inputs.scope1Source === 'string' ? inputs.scope1Source : 'fuel'} 
                  setScope1Source={value => updateInput('scope1Source', value)} 
-                 fuelType={inputs.fuelType || 'DIESEL'} 
+                 fuelType={typeof inputs.fuelType === 'string' ? inputs.fuelType as FuelType : 'DIESEL'} 
                  setFuelType={value => updateInput('fuelType', value)} 
-                 fuelQuantity={inputs.fuelQuantity || ''} 
+                 fuelQuantity={typeof inputs.fuelQuantity === 'string' ? inputs.fuelQuantity : ''} 
                  setFuelQuantity={value => updateInput('fuelQuantity', value)} 
-                 fuelUnit={inputs.fuelUnit || 'L'} 
+                 fuelUnit={typeof inputs.fuelUnit === 'string' ? inputs.fuelUnit : 'L'} 
                  setFuelUnit={value => updateInput('fuelUnit', value)} 
-                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 periodType={typeof inputs.periodType === 'string' ? inputs.periodType as PeriodType : PeriodType.ANNUAL} 
                  setPeriodType={value => updateInput('periodType', value)} />;
       case 'scope2':
         return <Scope2Form 
-                 energyType={inputs.energyType || 'ELECTRICITY_IT'} 
+                 energyType={typeof inputs.energyType === 'string' ? inputs.energyType as EnergyType : 'ELECTRICITY_IT'} 
                  setEnergyType={value => updateInput('energyType', value)} 
-                 energyQuantity={inputs.energyQuantity || ''} 
+                 energyQuantity={typeof inputs.energyQuantity === 'string' ? inputs.energyQuantity : ''} 
                  setEnergyQuantity={value => updateInput('energyQuantity', value)} 
-                 renewablePercentage={inputs.renewablePercentage || 0} 
+                 renewablePercentage={typeof inputs.renewablePercentage === 'number' ? inputs.renewablePercentage : 0} 
                  setRenewablePercentage={value => updateInput('renewablePercentage', value)} 
-                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 periodType={typeof inputs.periodType === 'string' ? inputs.periodType as PeriodType : PeriodType.ANNUAL} 
                  setPeriodType={value => updateInput('periodType', value)}
-                 energyProvider={inputs.energyProvider || ''}
+                 energyProvider={typeof inputs.energyProvider === 'string' ? inputs.energyProvider : ''}
                  setEnergyProvider={value => updateInput('energyProvider', value)} />;
       case 'scope3':
         return <Scope3Form 
-                 scope3Category={inputs.scope3Category || 'transport'} 
+                 scope3Category={typeof inputs.scope3Category === 'string' ? inputs.scope3Category : 'transport'} 
                  setScope3Category={value => updateInput('scope3Category', value)} 
-                 transportType={inputs.transportType || 'BUSINESS_TRAVEL_CAR'} 
+                 transportType={typeof inputs.transportType === 'string' ? inputs.transportType as TransportType : 'BUSINESS_TRAVEL_CAR'} 
                  setTransportType={value => updateInput('transportType', value)} 
-                 transportDistance={inputs.transportDistance || ''} 
+                 transportDistance={typeof inputs.transportDistance === 'string' ? inputs.transportDistance : ''} 
                  setTransportDistance={value => updateInput('transportDistance', value)} 
-                 wasteType={inputs.wasteType || 'WASTE_LANDFILL'} 
+                 wasteType={typeof inputs.wasteType === 'string' ? inputs.wasteType as WasteType : 'WASTE_LANDFILL'} 
                  setWasteType={value => updateInput('wasteType', value)} 
-                 wasteQuantity={inputs.wasteQuantity || ''} 
+                 wasteQuantity={typeof inputs.wasteQuantity === 'string' ? inputs.wasteQuantity : ''} 
                  setWasteQuantity={value => updateInput('wasteQuantity', value)} 
-                 purchaseType={inputs.purchaseType || 'PURCHASED_GOODS'} 
+                 purchaseType={typeof inputs.purchaseType === 'string' ? inputs.purchaseType as PurchaseType : 'PURCHASED_GOODS'} 
                  setPurchaseType={value => updateInput('purchaseType', value)} 
-                 purchaseQuantity={inputs.purchaseQuantity || ''} 
+                 purchaseQuantity={typeof inputs.purchaseQuantity === 'string' ? inputs.purchaseQuantity : ''} 
                  setPurchaseQuantity={value => updateInput('purchaseQuantity', value)}
-                 purchaseDescription={inputs.purchaseDescription || ''}
+                 purchaseDescription={typeof inputs.purchaseDescription === 'string' ? inputs.purchaseDescription : ''}
                  setPurchaseDescription={value => updateInput('purchaseDescription', value)}
-                 periodType={inputs.periodType || PeriodType.ANNUAL} 
+                 periodType={typeof inputs.periodType === 'string' ? inputs.periodType as PeriodType : PeriodType.ANNUAL} 
                  setPeriodType={value => updateInput('periodType', value)}
-                 vehicleType={inputs.vehicleType || ''}
+                 vehicleType={typeof inputs.vehicleType === 'string' ? inputs.vehicleType : ''}
                  setVehicleType={value => updateInput('vehicleType', value)}
-                 vehicleFuelType={inputs.vehicleFuelType || 'DIESEL'}
+                 vehicleFuelType={typeof inputs.vehicleFuelType === 'string' ? inputs.vehicleFuelType as FuelType : 'DIESEL'}
                  setVehicleFuelType={value => updateInput('vehicleFuelType', value)}
-                 vehicleEnergyClass={inputs.vehicleEnergyClass || ''}
+                 vehicleEnergyClass={typeof inputs.vehicleEnergyClass === 'string' ? inputs.vehicleEnergyClass : ''}
                  setVehicleEnergyClass={value => updateInput('vehicleEnergyClass', value)}
-                 vehicleFuelConsumption={inputs.vehicleFuelConsumption || ''}
+                 vehicleFuelConsumption={typeof inputs.vehicleFuelConsumption === 'string' ? inputs.vehicleFuelConsumption : ''}
                  setVehicleFuelConsumption={value => updateInput('vehicleFuelConsumption', value)}
-                 vehicleFuelConsumptionUnit={inputs.vehicleFuelConsumptionUnit || 'l_100km'}
+                 vehicleFuelConsumptionUnit={typeof inputs.vehicleFuelConsumptionUnit === 'string' ? inputs.vehicleFuelConsumptionUnit : 'l_100km'}
                  setVehicleFuelConsumptionUnit={value => updateInput('vehicleFuelConsumptionUnit', value)}
                  />;
       default:
@@ -126,7 +126,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   }
 
   return <div className="border rounded-md p-4 bg-white/80">
-      <CalculatorHeader calculationMethod={inputs.calculationMethod || EmissionFactorSource.DEFRA} setCalculationMethod={value => updateInput('calculationMethod', value)} />
+      <CalculatorHeader calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod as EmissionFactorSource : EmissionFactorSource.DEFRA} setCalculationMethod={value => updateInput('calculationMethod', value)} />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 mb-4">

@@ -30,7 +30,17 @@ export const useExistingEmissions = () => {
             // Safely handle the calculation logs
             if (data.calculation_logs) {
               // Ensure we have a proper EmissionCalculationLogs object
-              const logs = data.calculation_logs as unknown as EmissionCalculationLogs;
+              let logs;
+              
+              if (typeof data.calculation_logs === 'string') {
+                try {
+                  logs = JSON.parse(data.calculation_logs);
+                } catch (e) {
+                  logs = {};
+                }
+              } else {
+                logs = data.calculation_logs;
+              }
               
               setExistingLogs({
                 scope1Calculations: Array.isArray(logs.scope1Calculations) ? logs.scope1Calculations : [],

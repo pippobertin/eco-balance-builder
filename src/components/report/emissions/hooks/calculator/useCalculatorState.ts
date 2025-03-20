@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { useReport } from '@/hooks/use-report-context';
 import { CalculatorState } from './types';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useExistingEmissions } from '../useExistingEmissions';
@@ -22,7 +21,7 @@ export const useCalculatorState = (reportId: string | undefined): CalculatorStat
   });
   
   // Load existing emissions data
-  const { existingEmissions, existingCalculations, isLoading } = useExistingEmissions(reportId);
+  const { existingEmissions, existingLogs, isLoading } = useExistingEmissions();
   
   // Debug log to track the state of calculation logs
   useEffect(() => {
@@ -39,23 +38,23 @@ export const useCalculatorState = (reportId: string | undefined): CalculatorStat
       setCalculatedEmissions(existingEmissions);
     }
     
-    if (existingCalculations) {
-      console.log('Loading existing calculations:', existingCalculations);
+    if (existingLogs) {
+      console.log('Loading existing calculations:', existingLogs);
       
       // Ensure we have valid arrays for each scope
       const validatedCalculations: EmissionCalculationLogs = {
-        scope1Calculations: Array.isArray(existingCalculations.scope1Calculations) 
-          ? existingCalculations.scope1Calculations : [],
-        scope2Calculations: Array.isArray(existingCalculations.scope2Calculations)
-          ? existingCalculations.scope2Calculations : [],
-        scope3Calculations: Array.isArray(existingCalculations.scope3Calculations)
-          ? existingCalculations.scope3Calculations : []
+        scope1Calculations: Array.isArray(existingLogs.scope1Calculations) 
+          ? existingLogs.scope1Calculations : [],
+        scope2Calculations: Array.isArray(existingLogs.scope2Calculations)
+          ? existingLogs.scope2Calculations : [],
+        scope3Calculations: Array.isArray(existingLogs.scope3Calculations)
+          ? existingLogs.scope3Calculations : []
       };
       
       console.log('Validated calculation logs:', validatedCalculations);
       setCalculationLogs(validatedCalculations);
     }
-  }, [existingEmissions, existingCalculations]);
+  }, [existingEmissions, existingLogs]);
 
   return {
     activeTab,

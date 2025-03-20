@@ -11,6 +11,7 @@ interface StakeholderFormActionsProps {
   onDelete?: () => void;
   isNew?: boolean;
   disabled?: boolean;
+  isValid?: boolean; // Added this prop to match usage in AddStakeholderForm
 }
 
 const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
@@ -18,7 +19,8 @@ const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
   onCancel,
   onDelete,
   isNew = true,
-  disabled = false
+  disabled = false,
+  isValid = true // Default to true to maintain backward compatibility
 }) => {
   const { needsSaving, lastSaved } = useReport();
   
@@ -44,7 +46,7 @@ const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
           Annulla
         </Button>
         
-        <Button onClick={onSave} disabled={disabled} type="button">
+        <Button onClick={onSave} disabled={disabled || !isValid} type="button">
           <Save className="mr-2 h-4 w-4" />
           Salva
         </Button>
