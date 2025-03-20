@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCalculatorState } from './calculator/useCalculatorState';
 import { useCalculatorActions } from './calculator/useCalculatorActions';
 import { useCalculatorInputs } from './calculator/useCalculatorInputs';
@@ -12,6 +12,10 @@ export const useCalculator = (
 ) => {
   const { currentReport } = useReport();
   const reportId = currentReport?.id;
+  
+  // Add a ref to track previous emissions values to avoid unnecessary updates
+  const prevEmissionsRef = useRef<any>(null);
+  const prevLogsRef = useRef<any>(null);
   
   // Initialize calculator state
   const {
@@ -46,13 +50,40 @@ export const useCalculator = (
     setCalculatedEmissions
   );
   
-  // Update form values when emissions change
+  // Update form values when emissions change, but only if they actually changed
   useEffect(() => {
-    // Only update if we have meaningful data
-    if (calculatedEmissions.total > 0 || 
+    // Function to check if emissions have actually changed
+    const haveEmissionsChanged = () => {
+      if (!prevEmissionsRef.current) return true;
+      
+      return (
+        calculatedEmissions.total !== prevEmissionsRef.current.total ||
+        calculatedEmissions.scope1 !== prevEmissionsRef.current.scope1 ||
+        calculatedEmissions.scope2 !== prevEmissionsRef.current.scope2 ||
+        calculatedEmissions.scope3 !== prevEmissionsRef.current.scope3
+      );
+    };
+    
+    // Function to check if logs have actually changed
+    const haveLogsChanged = () => {
+      if (!prevLogsRef.current) return true;
+      
+      const scope1Changed = (calculationLogs.scope1Calculations?.length || 0) !== 
+                           (prevLogsRef.current.scope1Calculations?.length || 0);
+      const scope2Changed = (calculationLogs.scope2Calculations?.length || 0) !== 
+                           (prevLogsRef.current.scope2Calculations?.length || 0);
+      const scope3Changed = (calculationLogs.scope3Calculations?.length || 0) !== 
+                           (prevLogsRef.current.scope3Calculations?.length || 0);
+      
+      return scope1Changed || scope2Changed || scope3Changed;
+    };
+    
+    // Only update if we have meaningful data AND the values have actually changed
+    if ((calculatedEmissions.total > 0 || 
         (calculationLogs.scope1Calculations && calculationLogs.scope1Calculations.length > 0) ||
         (calculationLogs.scope2Calculations && calculationLogs.scope2Calculations.length > 0) ||
-        (calculationLogs.scope3Calculations && calculationLogs.scope3Calculations.length > 0)) {
+        (calculationLogs.scope3Calculations && calculationLogs.scope3Calculations.length > 0)) && 
+        (haveEmissionsChanged() || haveLogsChanged())) {
       
       console.log('Updating form values with calculated emissions:', calculatedEmissions);
       console.log('Calculation logs when updating form:', {
@@ -72,6 +103,14 @@ export const useCalculator = (
           emissionCalculationLogs: calculationLogs
         }
       });
+      
+      // Update refs with current values to use in the next comparison
+      prevEmissionsRef.current = { ...calculatedEmissions };
+      prevLogsRef.current = {
+        scope1Calculations: [...(calculationLogs.scope1Calculations || [])],
+        scope2Calculations: [...(calculationLogs.scope2Calculations || [])],
+        scope3Calculations: [...(calculationLogs.scope3Calculations || [])]
+      };
     }
   }, [calculatedEmissions, calculationLogs, formValues, setFormValues]);
   

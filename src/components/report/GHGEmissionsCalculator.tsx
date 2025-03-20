@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,16 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   const { currentReport } = useReport();
   const reportId = currentReport?.id || formValues?.reportId;
   
+  // Use a ref to track if we've already logged initial information
+  const hasLoggedInitialInfo = React.useRef(false);
+  
   useEffect(() => {
-    console.log('GHGEmissionsCalculator: Current reportId:', reportId);
-    console.log('GHGEmissionsCalculator: formValues:', formValues);
+    // Only log this information once when the component mounts, not on every render
+    if (!hasLoggedInitialInfo.current) {
+      console.log('GHGEmissionsCalculator: Current reportId:', reportId);
+      console.log('GHGEmissionsCalculator: formValues:', formValues);
+      hasLoggedInitialInfo.current = true;
+    }
   }, [reportId, formValues]);
   
   const {
@@ -47,11 +55,33 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     onResetClick
   );
 
+  // Only log calculation logs when they actually change, not on every render
+  const calculationLogCountRef = React.useRef({
+    scope1: 0,
+    scope2: 0,
+    scope3: 0
+  });
+  
   useEffect(() => {
-    console.log("GHGEmissionsCalculator: Current calculation logs:", calculationLogs);
-    console.log("Scope1 calculations:", calculationLogs.scope1Calculations?.length || 0);
-    console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
-    console.log("Scope3 calculations:", calculationLogs.scope3Calculations?.length || 0);
+    const newCounts = {
+      scope1: calculationLogs.scope1Calculations?.length || 0,
+      scope2: calculationLogs.scope2Calculations?.length || 0,
+      scope3: calculationLogs.scope3Calculations?.length || 0
+    };
+    
+    // Only log if the counts have changed
+    if (newCounts.scope1 !== calculationLogCountRef.current.scope1 ||
+        newCounts.scope2 !== calculationLogCountRef.current.scope2 ||
+        newCounts.scope3 !== calculationLogCountRef.current.scope3) {
+        
+      console.log("GHGEmissionsCalculator: Current calculation logs:", calculationLogs);
+      console.log("Scope1 calculations:", calculationLogs.scope1Calculations?.length || 0);
+      console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
+      console.log("Scope3 calculations:", calculationLogs.scope3Calculations?.length || 0);
+      
+      // Update the ref with new counts
+      calculationLogCountRef.current = newCounts;
+    }
   }, [calculationLogs]);
 
   const getActiveTabContent = () => {
