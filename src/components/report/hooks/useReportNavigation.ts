@@ -13,11 +13,32 @@ export const useReportNavigation = () => {
   // Add refs to track data loading state and prevent loops
   const isLoadingRef = useRef(false);
   const reportLoadAttemptedRef = useRef(false);
+  const maxRetryAttemptsRef = useRef(2); // Limit retries to prevent infinite loops
+  const retryCountRef = useRef(0);
   
   useEffect(() => {
     const fetchData = async () => {
       // Prevent concurrent loading attempts
       if (isLoadingRef.current) {
+        return;
+      }
+      
+      // Don't retry more than maxRetryAttemptsRef
+      if (retryCountRef.current >= maxRetryAttemptsRef.current) {
+        console.log("Max retry attempts reached, aborting further load attempts");
+        setIsLoading(false);
+        isLoadingRef.current = false;
+        
+        // If we still don't have data, redirect to companies
+        if (!currentCompany || !currentReport) {
+          console.error("Failed to load report or company data after max retries");
+          toast({
+            title: "Errore di caricamento",
+            description: "Impossibile caricare i dati del report. Tornando alla pagina aziende.",
+            variant: "destructive"
+          });
+          navigate('/companies');
+        }
         return;
       }
       
@@ -31,13 +52,25 @@ export const useReportNavigation = () => {
           await loadCompanies();
         }
         
-        // Only attempt to load the report once per component lifecycle
-        // Unless we have a report ID but missing company data
-        if (currentReport && currentReport.id && !reportLoadAttemptedRef.current) {
-          if (!currentReport.company || !currentReport.company.name) {
+        // Check if we have a report but it's missing essential data
+        if (currentReport && currentReport.id) {
+          const needsReload = !currentReport.company || !currentReport.company.name;
+          
+          if (needsReload && !reportLoadAttemptedRef.current) {
             console.log("Report exists but missing company data. Loading full report:", currentReport.id);
             reportLoadAttemptedRef.current = true;
-            await loadReport(currentReport.id);
+            retryCountRef.current++;
+            const result = await loadReport(currentReport.id);
+            
+            // Verify we got the company data this time
+            if (result && result.report && (!result.report.company || !result.report.company.name)) {
+              console.error("Still missing company data after reload:", currentReport.id);
+              // We'll continue and check again in the next section
+            } else {
+              console.log("Successfully loaded report with company data");
+            }
+          } else if (needsReload) {
+            console.log("Still missing company data, but already attempted reload");
           } else {
             console.log("Report already has company data:", currentReport.company.name);
           }

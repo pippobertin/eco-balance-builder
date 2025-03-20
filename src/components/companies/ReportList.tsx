@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, FileBarChart, Trash2 } from 'lucide-react';
+import { CalendarDays, FileBarChart, Trash2, Loader2 } from 'lucide-react';
 import { Report } from '@/context/types';
 import { useReport } from '@/context/ReportContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReportListProps {
   reports: Report[];
@@ -14,32 +15,94 @@ interface ReportListProps {
 
 const ReportList = ({ reports, onDelete, onSelectReport }: ReportListProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { loadReport, setCurrentCompany, companies } = useReport();
+  const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
 
   const handleOpenReport = async (report: Report) => {
-    const company = companies.find(c => c.id === report.company_id) || null;
-    setCurrentCompany(company);
-    
-    if (onSelectReport) {
-      await onSelectReport(report);
-    } else {
-      await loadReport(report.id);
+    try {
+      // Set loading state for this specific report
+      setLoadingReportId(report.id);
+
+      // Find and set company first
+      const company = companies.find(c => c.id === report.company_id) || null;
+      if (!company) {
+        toast({
+          title: "Errore",
+          description: "Azienda associata non trovata",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setCurrentCompany(company);
+      
+      // Load the full report with detailed company data
+      if (onSelectReport) {
+        await onSelectReport(report);
+      } else {
+        const result = await loadReport(report.id);
+        
+        // Verify the report was loaded successfully with company data
+        if (!result.report || !result.report.company || !result.report.company.name) {
+          toast({
+            title: "Avviso",
+            description: "Dati del report incompleti. Potrebbero mancare alcune informazioni.",
+            variant: "warning"
+          });
+        }
+      }
+      
+      // Navigate to report page
+      navigate('/report');
+    } catch (error) {
+      console.error("Error opening report:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante l'apertura del report",
+        variant: "destructive"
+      });
+    } finally {
+      // Clear loading state
+      setLoadingReportId(null);
     }
-    
-    navigate('/report');
   };
   
   const handleViewDashboard = async (report: Report) => {
-    const company = companies.find(c => c.id === report.company_id) || null;
-    setCurrentCompany(company);
-    
-    if (onSelectReport) {
-      await onSelectReport(report);
-    } else {
-      await loadReport(report.id);
+    try {
+      // Set loading state for this specific report
+      setLoadingReportId(report.id);
+      
+      const company = companies.find(c => c.id === report.company_id) || null;
+      if (!company) {
+        toast({
+          title: "Errore",
+          description: "Azienda associata non trovata",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setCurrentCompany(company);
+      
+      // Load the full report
+      if (onSelectReport) {
+        await onSelectReport(report);
+      } else {
+        await loadReport(report.id);
+      }
+      
+      navigate('/dashboard');
+    } catch (error) {
+      console.error("Error viewing dashboard:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante l'apertura della dashboard",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingReportId(null);
     }
-    
-    navigate('/dashboard');
   };
 
   return (
@@ -61,22 +124,31 @@ const ReportList = ({ reports, onDelete, onSelectReport }: ReportListProps) => {
                 variant="outline" 
                 size="sm"
                 onClick={() => handleViewDashboard(report)}
+                disabled={loadingReportId === report.id}
               >
-                <FileBarChart className="h-4 w-4 mr-1" />
+                {loadingReportId === report.id ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <FileBarChart className="h-4 w-4 mr-1" />
+                )}
                 Dashboard
               </Button>
               <Button 
                 variant="default" 
                 size="sm"
                 onClick={() => handleOpenReport(report)}
+                disabled={loadingReportId === report.id}
               >
-                Apri Report
+                {loadingReportId === report.id ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : "Apri Report"}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 className="text-red-600 border-red-200 hover:bg-red-50"
                 onClick={(e) => onDelete(report, e)}
+                disabled={loadingReportId === report.id}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

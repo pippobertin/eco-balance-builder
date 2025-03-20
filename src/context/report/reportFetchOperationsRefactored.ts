@@ -20,7 +20,7 @@ export const useReportFetchOperations = () => {
       return await withRetry(async () => {
         let query = supabase
           .from('reports')
-          .select('*, companies!inner(created_by)')
+          .select('*, companies!inner(created_by, name, id)')
           .eq('company_id', companyId);
         
         // For regular users, only load reports from companies they created
@@ -39,10 +39,14 @@ export const useReportFetchOperations = () => {
 
         console.log("Reports loaded:", data?.length || 0);
         
-        // Remove the companies data from the result
+        // Process the data to have proper company structure
         const cleanedData = data?.map(item => {
           const { companies, ...reportData } = item;
-          return reportData;
+          // Create a proper company property
+          return {
+            ...reportData,
+            company: companies
+          };
         });
 
         return cleanedData || [];
@@ -68,7 +72,7 @@ export const useReportFetchOperations = () => {
       return await withRetry(async () => {
         let query = supabase
           .from('reports')
-          .select('*, companies!inner(created_by)')
+          .select('*, companies(*)')
           .eq('id', reportId);
         
         // For regular users, only load reports from companies they created
@@ -76,19 +80,25 @@ export const useReportFetchOperations = () => {
           query = query.eq('companies.created_by', user.id);
         }
         
-        const { data, error } = await query.single();
+        const { data, error } = await query.maybeSingle();
 
         if (error) {
           throw error;
         }
 
-        // Remove the companies data from the result
+        // Process the data to have proper structure
         if (data) {
           const { companies, ...reportData } = data;
           
+          // Create a proper report object with company data
+          const report = {
+            ...reportData,
+            company: companies
+          } as Report;
+          
           // Load subsidiaries if the report is consolidated
           let subsidiaries = undefined;
-          if (reportData.is_consolidated) {
+          if (report.is_consolidated) {
             const { data: subsData, error: subsError } = await supabase
               .from('subsidiaries')
               .select('*')
@@ -99,7 +109,7 @@ export const useReportFetchOperations = () => {
             }
           }
 
-          return { report: reportData as Report, subsidiaries };
+          return { report, subsidiaries };
         }
 
         return { report: null };

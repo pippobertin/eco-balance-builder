@@ -5,7 +5,9 @@ import BasicInfoSection from '../BasicInfoSection';
 import BaseModuleMetrics from '../BaseModuleMetrics';
 import { Report } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface ReportModuleTabsProps {
   activeTab: string;
@@ -47,14 +49,17 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
   initialField
 }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Add more specific debugging
   useEffect(() => {
     if (currentReport) {
-      if (!currentReport.company) {
-        console.log("Report exists but company data is missing:", currentReport.id);
+      if (!currentReport.company || !currentReport.company_id) {
+        console.log("Report exists but company data is completely missing:", currentReport.id);
+      } else if (!currentReport.company.name) {
+        console.log("Report has company_id but missing company details:", currentReport.company_id);
       } else {
-        console.log("Report has company data:", currentReport.company.name);
+        console.log("Report has complete company data:", currentReport.company.name);
       }
     } else {
       console.log("No current report loaded");
@@ -66,6 +71,24 @@ const ReportModuleTabs: React.FC<ReportModuleTabsProps> = ({
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
         <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
         <p className="text-gray-500">Caricamento report in corso...</p>
+      </div>
+    );
+  }
+
+  // Check if report has company data
+  const missingCompanyData = !currentReport.company || !currentReport.company.name;
+  if (missingCompanyData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-amber-500" />
+        <h3 className="text-xl font-semibold text-center">Dati aziendali incompleti</h3>
+        <p className="text-gray-600 text-center max-w-md">
+          Non è stato possibile caricare i dati dell'azienda associata a questo report. 
+          Si prega di tornare alla pagina aziende e selezionare nuovamente il report.
+        </p>
+        <Button onClick={() => navigate('/companies')}>
+          Torna alla pagina aziende
+        </Button>
       </div>
     );
   }

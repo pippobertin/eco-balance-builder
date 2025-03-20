@@ -88,6 +88,26 @@ export const useReportLoad = (
       const result = await fetchReport(reportId);
       
       if (result.report) {
+        // Ensure the report has complete company data
+        if (!result.report.company || !result.report.company.name) {
+          console.log("Report missing company data, attempting to load company:", result.report.company_id);
+          
+          // Load the company separately if it's missing
+          if (result.report.company_id) {
+            const company = await loadCompanyById(result.report.company_id);
+            if (company) {
+              console.log("Successfully loaded company data:", company.name);
+              // Attach the company to the report
+              result.report.company = company;
+              // Also set as current company
+              setCurrentCompany(company);
+            } else {
+              console.error("Failed to load company data for ID:", result.report.company_id);
+            }
+          }
+        }
+        
+        // Now set the report with the attached company
         setCurrentReport(result.report);
         
         // Extract metrics data from the loaded report with improved parsing
