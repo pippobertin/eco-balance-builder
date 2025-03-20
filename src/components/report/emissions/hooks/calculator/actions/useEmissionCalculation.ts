@@ -75,7 +75,7 @@ export const useEmissionCalculation = (
       const calculationRecord = {
         emissionValue: parsedDetails.emissionsTonnes,
         detailsObj: parsedDetails,
-        description: `${parsedDetails.energyType || parsedDetails.fuelType || parsedDetails.transportType || parsedDetails.wasteType || parsedDetails.purchaseType || 'Unknown'} emission`,
+        description: `${parsedDetails.energyType || parsedDetails.fuelType || parsedDetails.transportType || parsedDetails.wasteType || parsedDetails.purchaseType || parsedDetails.activityType || 'Unknown'} emission`,
         scope: scope,
         reportId: effectiveReportId
       };

@@ -29,8 +29,7 @@ export const performScope3Calculation = (
     wasteQuantity: inputs.wasteQuantity,
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
-    periodType: inputs.periodType,
-    reportId: inputs.reportId
+    periodType: inputs.periodType
   });
 
   // Ensure scope3Category is defined

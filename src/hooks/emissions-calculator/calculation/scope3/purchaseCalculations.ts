@@ -21,8 +21,7 @@ export const performPurchaseCalculation = (
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
     purchaseDescription: inputs.purchaseDescription,
-    periodType: inputs.periodType,
-    reportId: inputs.reportId
+    periodType: inputs.periodType
   });
 
   // Validate required inputs
@@ -47,7 +46,7 @@ export const performPurchaseCalculation = (
 
   try {
     const emissionsKg = calculateScope3Emissions(
-      inputs.purchaseType, 
+      inputs.purchaseType!, 
       quantity,
       'kg'
     );
@@ -84,7 +83,7 @@ export const performPurchaseCalculation = (
       emissionsKg,
       emissionsTonnes,
       calculationDate: new Date().toISOString(),
-      source: getEmissionFactorSource(inputs.purchaseType)
+      source: getEmissionFactorSource(inputs.purchaseType!)
     };
     
     // Convert the source object to string

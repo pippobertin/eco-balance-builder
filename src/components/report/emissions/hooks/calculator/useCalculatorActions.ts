@@ -34,9 +34,13 @@ export const useCalculatorActions = (
   
   // Calculate emissions wrapper that combines calculation and saving
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
+    console.log(`Starting ${scope} calculation via useCalculatorActions`);
     const calculationResult = await performEmissionCalculation(scope);
     if (calculationResult) {
+      console.log(`${scope} calculation successful, saving result:`, calculationResult);
       await saveCalculation(calculationResult);
+    } else {
+      console.error(`${scope} calculation failed, no result to save`);
     }
     return calculationResult;
   };
@@ -44,19 +48,28 @@ export const useCalculatorActions = (
   // Load emission records on component mount
   useEffect(() => {
     if (reportId) {
+      console.log(`Loading emission records for report: ${reportId}`);
       loadEmissionRecords(reportId).then(records => {
         if (records && records.length > 0) {
+          console.log(`Loaded ${records.length} emission records`);
           const newLogs: EmissionCalculationLogs = {
             scope1Calculations: records.filter(record => record.scope === 'scope1'),
             scope2Calculations: records.filter(record => record.scope === 'scope2'),
             scope3Calculations: records.filter(record => record.scope === 'scope3')
           };
           
+          console.log(`Processed records: scope1=${newLogs.scope1Calculations.length}, scope2=${newLogs.scope2Calculations.length}, scope3=${newLogs.scope3Calculations.length}`);
+          
           setCalculationLogs(newLogs);
           
           const totals = calculateTotals(records);
+          console.log(`Calculated emission totals:`, totals);
           setCalculatedEmissions(totals);
+        } else {
+          console.log(`No emission records found for report: ${reportId}`);
         }
+      }).catch(error => {
+        console.error(`Error loading emission records:`, error);
       });
     }
   }, [reportId]);

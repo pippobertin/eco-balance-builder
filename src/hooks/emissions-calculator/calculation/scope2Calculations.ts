@@ -21,8 +21,7 @@ export const performScope2Calculation = (
     energyType: inputs.energyType,
     energyQuantity: inputs.energyQuantity,
     renewablePercentage: inputs.renewablePercentage,
-    periodType: inputs.periodType,
-    reportId: inputs.reportId
+    periodType: inputs.periodType
   });
 
   // Validate required inputs

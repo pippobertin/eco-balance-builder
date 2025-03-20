@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Report, ReportData } from '@/context/types';
 
@@ -10,12 +9,11 @@ export const useReportAutoSave = (
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
-  // Create auto-save functionality
+  // References for autosave - keeping these for future reference but not using them
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedDataRef = useRef<string>('');
   
-  // AUTOSAVE DISABILITATO
-  // L'auto-save è stato disabilitato. Gli utenti devono salvare manualmente usando il pulsante "Salva"
+  // NOTE: Autosave has been completely disabled. Users must save manually using the "Save" button.
   
   // Add a safety mechanism to ensure data is saved before navigation
   useEffect(() => {

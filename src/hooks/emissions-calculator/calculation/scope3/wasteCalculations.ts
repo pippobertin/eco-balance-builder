@@ -20,8 +20,7 @@ export const performWasteCalculation = (
   console.log('Starting waste calculation with inputs:', {
     wasteType: inputs.wasteType,
     wasteQuantity: inputs.wasteQuantity,
-    periodType: inputs.periodType,
-    reportId: inputs.reportId
+    periodType: inputs.periodType
   });
 
   // Validate required inputs
@@ -46,7 +45,7 @@ export const performWasteCalculation = (
 
   try {
     const emissionsKg = calculateScope3Emissions(
-      inputs.wasteType, 
+      inputs.wasteType!, 
       quantity,
       'kg'
     );
@@ -82,7 +81,7 @@ export const performWasteCalculation = (
       emissionsKg,
       emissionsTonnes,
       calculationDate: new Date().toISOString(),
-      source: getEmissionFactorSource(inputs.wasteType)
+      source: getEmissionFactorSource(inputs.wasteType!)
     };
     
     // Convert the source object to string
