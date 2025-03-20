@@ -1,23 +1,14 @@
 
 import { useCalculatorState } from './useCalculatorState';
 import { useCalculatorActions } from './useCalculatorActions';
-import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
-import { UseCalculatorResult } from './types';
-import { useReport } from '@/hooks/use-report-context';
+import { useCalculatorInputs } from './useCalculatorInputs';
 
 export const useCalculator = (
   formValues: any,
-  setFormValues: React.Dispatch<React.SetStateAction<any>>,
+  setFormValues: (values: any) => void,
   onResetClick?: () => void
-): UseCalculatorResult => {
-  const { currentReport } = useReport();
-  const reportId = currentReport?.id;
-  
-  // Initialize emissions calculator hook to get inputs and updateInput
-  const { inputs, updateInput } = useEmissionsCalculator();
-  
-  // Get state from state hook
-  const {
+) => {
+  const { 
     activeTab,
     setActiveTab,
     calculatedEmissions,
@@ -25,19 +16,20 @@ export const useCalculator = (
     calculationLogs,
     setCalculationLogs,
     isLoading,
-    isLoadingExisting
-  } = useCalculatorState(reportId);
+    isLoadingExisting,
+    isSaving,
+    lastSaved
+  } = useCalculatorState(formValues?.reportId);
   
-  // Get actions from actions hook
+  const { inputs, updateInput } = useCalculatorInputs();
+  
   const {
     calculateEmissions,
     handleRemoveCalculation,
     resetCalculation,
-    handleSubmitCalculation,
-    isSaving,
-    lastSaved
+    handleSubmitCalculation
   } = useCalculatorActions(
-    reportId,
+    formValues?.reportId,
     inputs,
     updateInput,
     calculationLogs,
@@ -50,20 +42,16 @@ export const useCalculator = (
     activeTab,
     setActiveTab,
     calculatedEmissions,
-    setCalculatedEmissions,
     inputs,
     updateInput,
-    calculateEmissions,
     calculationLogs,
-    setCalculationLogs,
+    calculateEmissions,
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,
-    isSaving,
     isLoading,
     isLoadingExisting,
+    isSaving,
     lastSaved
   };
 };
-
-export * from './types';

@@ -4,6 +4,7 @@ import { EmissionCalculationLogs, EmissionsInput, EmissionsResults, EmissionCalc
 import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
 import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useToast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useCalculatorActions = (
   reportId: string | undefined,
@@ -12,238 +13,249 @@ export const useCalculatorActions = (
   calculationLogs: EmissionCalculationLogs,
   setCalculationLogs: (logs: EmissionCalculationLogs) => void,
   calculatedEmissions: EmissionsResults,
-  setCalculatedEmissions: (results: EmissionsResults) => void
+  setCalculatedEmissions: (emissions: EmissionsResults) => void
 ) => {
-  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const { toast } = useToast();
+  const { calculateEmissions: performCalculation } = useEmissionsCalculator();
+  const { saveEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords(reportId);
   
-  // Initialize the emission records service
-  const {
-    loadEmissionRecords,
-    saveEmissionRecord,
-    deleteEmissionRecord,
-    calculateTotals,
-    createRecord
-  } = useEmissionRecords(reportId);
-  
-  // Initialize the emissions calculator
-  const { 
-    calculateEmissions: calculateEmissionsWithHook,
-    results,
-    resetCalculation: resetCalculationWithHook
-  } = useEmissionsCalculator(
-    inputs,
-    (results, details) => {
-      console.log('Calculator results updated:', results);
-      setCalculatedEmissions(results);
-    },
-    (logs) => {
-      console.log('Calculator logs updated:', logs);
-      console.log('Log structure:', {
-        scope1: logs.scope1Calculations?.length || 0,
-        scope2: logs.scope2Calculations?.length || 0,
-        scope3: logs.scope3Calculations?.length || 0
-      });
-      setCalculationLogs(logs);
-    }
-  );
-  
-  // Load existing records on mount
-  useEffect(() => {
-    if (reportId) {
-      loadExistingRecords(reportId);
-    }
-  }, [reportId]);
-  
-  // Load existing records from the database
-  const loadExistingRecords = async (reportId: string) => {
+  // Function to calculate emissions for a specific scope
+  const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
     try {
-      const records = await loadEmissionRecords(reportId);
+      console.log('Calculating emissions for scope:', scope);
+      console.log('Inputs:', inputs);
       
-      if (records && records.length > 0) {
-        // Group records by scope
-        const scope1Records = records.filter(record => record.scope === 'scope1');
-        const scope2Records = records.filter(record => record.scope === 'scope2');
-        const scope3Records = records.filter(record => record.scope === 'scope3');
-        
-        // Create calculation logs
-        const logs: EmissionCalculationLogs = {
-          scope1Calculations: scope1Records,
-          scope2Calculations: scope2Records,
-          scope3Calculations: scope3Records
+      // Perform the calculation
+      const result = performCalculation(inputs, scope);
+      console.log('Calculation result:', result);
+      
+      // Extract the results for the specified scope
+      let emissionValue = 0;
+      let detailsObj: any = {};
+      
+      if (scope === 'scope1') {
+        emissionValue = result.results.scope1;
+        try {
+          detailsObj = typeof result.details.scope1Details === 'string'
+            ? JSON.parse(result.details.scope1Details)
+            : result.details.scope1Details || {};
+        } catch (e) {
+          console.error('Error parsing scope1 details:', e);
+          detailsObj = { rawDetails: result.details.scope1Details };
+        }
+      } else if (scope === 'scope2') {
+        emissionValue = result.results.scope2;
+        try {
+          detailsObj = typeof result.details.scope2Details === 'string'
+            ? JSON.parse(result.details.scope2Details)
+            : result.details.scope2Details || {};
+        } catch (e) {
+          console.error('Error parsing scope2 details:', e);
+          detailsObj = { rawDetails: result.details.scope2Details };
+        }
+      } else if (scope === 'scope3') {
+        emissionValue = result.results.scope3;
+        try {
+          detailsObj = typeof result.details.scope3Details === 'string'
+            ? JSON.parse(result.details.scope3Details)
+            : result.details.scope3Details || {};
+        } catch (e) {
+          console.error('Error parsing scope3 details:', e);
+          detailsObj = { rawDetails: result.details.scope3Details };
+        }
+      }
+      
+      // Only create a record if there are emissions
+      if (emissionValue > 0) {
+        // Create the description based on the scope and details
+        const description = scope === 'scope1' 
+          ? `${detailsObj.fuelType || 'Fuel'} emission` 
+          : scope === 'scope2' 
+          ? `${detailsObj.energyType || 'Energy'} emission`
+          : `${detailsObj.wasteType || detailsObj.purchaseType || detailsObj.transportType || detailsObj.activityType || 'Scope 3'} emission`;
+          
+        // Create a record for saving to database
+        const record = {
+          report_id: reportId || '',
+          scope,
+          source: detailsObj.source || '',
+          description,
+          quantity: detailsObj.quantity || 0,
+          unit: detailsObj.unit || '',
+          emissions: emissionValue,
+          details: detailsObj
         };
         
-        // Update logs state
-        setCalculationLogs(logs);
-        
-        // Calculate totals
-        const totals = calculateTotals(records);
-        setCalculatedEmissions(totals);
-        
-        console.log('Loaded existing emission records:', {
-          records: records.length,
-          scope1: scope1Records.length,
-          scope2: scope2Records.length,
-          scope3: scope3Records.length,
-          totals
-        });
-      }
-    } catch (error) {
-      console.error('Error loading existing records:', error);
-    }
-  };
-  
-  // Call the emissions calculation hook
-  const calculateEmissions = (scope: 'scope1' | 'scope2' | 'scope3') => {
-    console.log(`Calculating emissions for ${scope} with inputs:`, inputs);
-    
-    try {
-      // Perform the calculation
-      const result = calculateEmissionsWithHook(scope);
-      console.log(`Calculation result for ${scope}:`, result);
-      
-      // Create a new record from the calculation
-      if (result && result.results && reportId) {
-        let description = '';
-        let source = '';
-        let quantity = 0;
-        let unit = '';
-        let details = {};
-        
-        // Set values based on the scope
-        switch (scope) {
-          case 'scope1':
-            description = `Emissioni da ${inputs.fuelType}`;
-            source = 'Combustibile';
-            quantity = parseFloat(inputs.fuelQuantity || '0');
-            unit = inputs.fuelUnit || 'L';
-            details = {
-              fuelType: inputs.fuelType,
-              periodType: inputs.periodType
-            };
-            break;
-          case 'scope2':
-            description = `Emissioni da ${inputs.energyType}`;
-            source = 'Energia';
-            quantity = parseFloat(inputs.energyQuantity || '0');
-            unit = 'kWh';
-            details = {
-              energyType: inputs.energyType,
-              energyProvider: inputs.energyProvider,
-              renewablePercentage: inputs.renewablePercentage,
-              periodType: inputs.periodType
-            };
-            break;
-          case 'scope3':
-            if (inputs.scope3Category === 'transport') {
-              description = `Emissioni da ${inputs.transportType}`;
-              source = 'Trasporto';
-              quantity = parseFloat(inputs.transportDistance || '0');
-              unit = 'km';
-              details = {
-                transportType: inputs.transportType,
-                vehicleType: inputs.vehicleType,
-                vehicleFuelType: inputs.vehicleFuelType,
-                vehicleEnergyClass: inputs.vehicleEnergyClass,
-                periodType: inputs.periodType
-              };
-            } else if (inputs.scope3Category === 'waste') {
-              description = `Emissioni da ${inputs.wasteType}`;
-              source = 'Rifiuti';
-              quantity = parseFloat(inputs.wasteQuantity || '0');
-              unit = 'kg';
-              details = {
-                wasteType: inputs.wasteType,
-                periodType: inputs.periodType
-              };
-            } else if (inputs.scope3Category === 'purchase') {
-              description = `Emissioni da ${inputs.purchaseDescription || inputs.purchaseType}`;
-              source = 'Acquisti';
-              quantity = parseFloat(inputs.purchaseQuantity || '0');
-              unit = 'EUR';
-              details = {
-                purchaseType: inputs.purchaseType,
-                purchaseDescription: inputs.purchaseDescription,
-                periodType: inputs.periodType
-              };
-            }
-            break;
-        }
-        
-        // Get the emission value from the result
-        const emissionValue = scope === 'scope1' ? result.results.scope1 :
-                             scope === 'scope2' ? result.results.scope2 :
-                             result.results.scope3;
-        
-        // Create the record object
-        const newRecord = createRecord(
-          scope,
-          source,
-          description,
-          quantity,
-          unit,
-          emissionValue,
-          details
-        );
-        
         // Save the record to the database
-        saveEmissionRecord(newRecord).then(savedRecord => {
-          if (savedRecord) {
-            // Add the new record to the appropriate scope array
-            const updatedLogs = { ...calculationLogs };
-            
-            if (scope === 'scope1') {
-              updatedLogs.scope1Calculations = [...updatedLogs.scope1Calculations, savedRecord];
-            } else if (scope === 'scope2') {
-              updatedLogs.scope2Calculations = [...updatedLogs.scope2Calculations, savedRecord];
-            } else if (scope === 'scope3') {
-              updatedLogs.scope3Calculations = [...updatedLogs.scope3Calculations, savedRecord];
-            }
-            
-            // Update the logs state
-            setCalculationLogs(updatedLogs);
-            
-            // Update the calculated emissions
-            const allRecords = [
-              ...updatedLogs.scope1Calculations,
-              ...updatedLogs.scope2Calculations,
-              ...updatedLogs.scope3Calculations
-            ];
-            
-            setCalculatedEmissions(calculateTotals(allRecords));
-            setLastSaved(new Date());
+        console.log('Saving emission record:', record);
+        const savedRecord = await saveEmissionRecord(record);
+        
+        if (savedRecord) {
+          console.log('Saved record:', savedRecord);
+          
+          // Update calculation logs
+          const updatedLogs = { ...calculationLogs };
+          
+          if (scope === 'scope1') {
+            updatedLogs.scope1Calculations = [...(updatedLogs.scope1Calculations || []), savedRecord];
+          } else if (scope === 'scope2') {
+            updatedLogs.scope2Calculations = [...(updatedLogs.scope2Calculations || []), savedRecord];
+          } else if (scope === 'scope3') {
+            updatedLogs.scope3Calculations = [...(updatedLogs.scope3Calculations || []), savedRecord];
           }
+          
+          setCalculationLogs(updatedLogs);
+          
+          // Update emission totals
+          const records = [
+            ...(updatedLogs.scope1Calculations || []),
+            ...(updatedLogs.scope2Calculations || []),
+            ...(updatedLogs.scope3Calculations || [])
+          ];
+          
+          const totals = calculateTotals(records);
+          setCalculatedEmissions(totals);
+          
+          // Show success message
+          toast({
+            title: "Calcolo completato",
+            description: `Emissioni ${scope} calcolate con successo`,
+          });
+        }
+      } else {
+        console.warn(`No emissions calculated for ${scope}`, emissionValue);
+        toast({
+          title: "Nessuna emissione",
+          description: `Nessuna emissione calcolata per ${scope}`,
+          variant: "destructive"
         });
       }
-      
-      // Show toast notification
-      toast({
-        title: "Calcolo completato",
-        description: `Il calcolo delle emissioni per ${scope === 'scope1' ? 'Scope 1' : scope === 'scope2' ? 'Scope 2' : 'Scope 3'} è stato completato`
-      });
       
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error calculating emissions:', error);
-      
       toast({
         title: "Errore",
-        description: `Si è verificato un errore durante il calcolo delle emissioni: ${error}`,
+        description: `Impossibile calcolare le emissioni: ${error.message}`,
         variant: "destructive"
       });
-      
-      return null;
     }
   };
   
-  // Handle saving the calculation data
-  const handleSubmitCalculation = async () => {
-    if (!reportId) {
-      console.error('Cannot save calculation: report ID is undefined');
+  // Function to remove a calculation
+  const handleRemoveCalculation = async (calculationId: string) => {
+    try {
+      console.log('Removing calculation:', calculationId);
+      
+      // Find which scope contains this calculation
+      let scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
+      let calcIndex = -1;
+      
+      // Check scope1
+      calcIndex = calculationLogs.scope1Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+      if (calcIndex >= 0) {
+        scopeKey = 'scope1Calculations';
+      }
+      
+      // Check scope2
+      if (scopeKey === null) {
+        calcIndex = calculationLogs.scope2Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+        if (calcIndex >= 0) {
+          scopeKey = 'scope2Calculations';
+        }
+      }
+      
+      // Check scope3
+      if (scopeKey === null) {
+        calcIndex = calculationLogs.scope3Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+        if (calcIndex >= 0) {
+          scopeKey = 'scope3Calculations';
+        }
+      }
+      
+      if (scopeKey && calcIndex >= 0) {
+        // Delete the record from the database
+        const success = await deleteEmissionRecord(calculationId);
+        
+        if (success) {
+          // Update the local state
+          const updatedLogs = { ...calculationLogs };
+          updatedLogs[scopeKey] = updatedLogs[scopeKey].filter(calc => calc.id !== calculationId);
+          
+          // Update the calculation logs
+          setCalculationLogs(updatedLogs);
+          
+          // Recalculate totals
+          const records = [
+            ...(updatedLogs.scope1Calculations || []),
+            ...(updatedLogs.scope2Calculations || []),
+            ...(updatedLogs.scope3Calculations || [])
+          ];
+          
+          const totals = calculateTotals(records);
+          setCalculatedEmissions(totals);
+          
+          toast({
+            title: "Calcolo rimosso",
+            description: "Il calcolo è stato rimosso con successo",
+          });
+        }
+      } else {
+        console.error('Calculation not found:', calculationId);
+        toast({
+          title: "Errore",
+          description: "Impossibile trovare il calcolo da rimuovere",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error removing calculation:', error);
       toast({
         title: "Errore",
-        description: "Impossibile salvare i dati. ID report non disponibile.",
+        description: `Impossibile rimuovere il calcolo: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Function to reset all calculations
+  const resetCalculation = async () => {
+    try {
+      setCalculatedEmissions({
+        scope1: 0,
+        scope2: 0,
+        scope3: 0,
+        total: 0
+      });
+      
+      setCalculationLogs({
+        scope1Calculations: [],
+        scope2Calculations: [],
+        scope3Calculations: []
+      });
+      
+      toast({
+        title: "Calcoli azzerati",
+        description: "Tutti i calcoli sono stati azzerati",
+      });
+    } catch (error: any) {
+      console.error('Error resetting calculations:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile azzerare i calcoli: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Function to submit all calculations
+  const handleSubmitCalculation = async () => {
+    if (!reportId) {
+      console.error('Cannot submit calculation: reportId is undefined');
+      toast({
+        title: "Errore",
+        description: "ID Report non valido, impossibile salvare",
         variant: "destructive"
       });
       return;
@@ -252,120 +264,72 @@ export const useCalculatorActions = (
     setIsSaving(true);
     
     try {
-      // We don't need to do anything here anymore since calculations are saved individually
-      // Just update the lastSaved date
-      setLastSaved(new Date());
+      console.log('Submitting all calculations');
+      
+      // Reload all records to ensure we have the latest data
+      const records = await loadEmissionRecords(reportId);
+      console.log('Loaded records:', records);
+      
+      // Calculate new totals
+      const totals = calculateTotals(records);
+      console.log('Calculated totals:', totals);
+      
+      // Update the state with the latest data
+      const newLogs: EmissionCalculationLogs = {
+        scope1Calculations: records.filter((record: EmissionCalculationRecord) => record.scope === 'scope1'),
+        scope2Calculations: records.filter((record: EmissionCalculationRecord) => record.scope === 'scope2'),
+        scope3Calculations: records.filter((record: EmissionCalculationRecord) => record.scope === 'scope3')
+      };
+      
+      setCalculationLogs(newLogs);
+      setCalculatedEmissions(totals);
       
       toast({
-        title: "Salvato",
-        description: "I dati delle emissioni sono stati salvati con successo"
+        title: "Emissioni salvate",
+        description: "Tutti i calcoli sono stati salvati con successo",
       });
-    } catch (error) {
-      console.error('Error submitting calculation:', error);
       
+      return totals;
+    } catch (error: any) {
+      console.error('Error submitting calculations:', error);
       toast({
         title: "Errore",
-        description: `Si è verificato un errore durante il salvataggio: ${error}`,
+        description: `Impossibile salvare i calcoli: ${error.message}`,
         variant: "destructive"
       });
+      return null;
     } finally {
       setIsSaving(false);
     }
   };
   
-  // Handle removing a calculation
-  const handleRemoveCalculation = (calculationId: string) => {
-    console.log('Removing calculation with ID:', calculationId);
-    
-    // Find the record and its scope
-    let scope = '';
-    let scopeKey = '';
-    
-    if (calculationLogs.scope1Calculations.some(calc => calc.id === calculationId)) {
-      scope = 'scope1';
-      scopeKey = 'scope1Calculations';
-    } else if (calculationLogs.scope2Calculations.some(calc => calc.id === calculationId)) {
-      scope = 'scope2';
-      scopeKey = 'scope2Calculations';
-    } else if (calculationLogs.scope3Calculations.some(calc => calc.id === calculationId)) {
-      scope = 'scope3';
-      scopeKey = 'scope3Calculations';
+  // Load existing records when component mounts or reportId changes
+  useEffect(() => {
+    if (reportId) {
+      loadEmissionRecords(reportId).then(records => {
+        if (records && records.length > 0) {
+          // Organize records by scope
+          const newLogs: EmissionCalculationLogs = {
+            scope1Calculations: records.filter(record => record.scope === 'scope1'),
+            scope2Calculations: records.filter(record => record.scope === 'scope2'),
+            scope3Calculations: records.filter(record => record.scope === 'scope3')
+          };
+          
+          setCalculationLogs(newLogs);
+          
+          // Calculate totals
+          const totals = calculateTotals(records);
+          setCalculatedEmissions(totals);
+        }
+      });
     }
-    
-    if (!scope) {
-      console.error('Calculation ID not found:', calculationId);
-      return;
-    }
-    
-    // Delete the record from the database
-    deleteEmissionRecord(calculationId).then(success => {
-      if (success) {
-        // Remove the record from the appropriate scope array
-        const updatedLogs = { ...calculationLogs };
-        updatedLogs[scopeKey as keyof EmissionCalculationLogs] = (
-          updatedLogs[scopeKey as keyof EmissionCalculationLogs] as EmissionCalculationRecord[]
-        ).filter(calc => calc.id !== calculationId);
-        
-        // Update the logs state
-        setCalculationLogs(updatedLogs);
-        
-        // Update the calculated emissions
-        const allRecords = [
-          ...updatedLogs.scope1Calculations,
-          ...updatedLogs.scope2Calculations,
-          ...updatedLogs.scope3Calculations
-        ];
-        
-        setCalculatedEmissions(calculateTotals(allRecords));
-        
-        // Show toast notification
-        toast({
-          title: "Calcolo rimosso",
-          description: "Il calcolo selezionato è stato rimosso con successo"
-        });
-      }
-    });
-  };
-  
-  // Reset the calculation
-  const resetCalculation = () => {
-    console.log('Resetting calculation');
-    
-    // Call the hook's resetCalculation function
-    resetCalculationWithHook();
-    
-    // Reset inputs
-    updateInput('scope1Source', 'fuel');
-    updateInput('fuelType', 'DIESEL');
-    updateInput('fuelQuantity', '');
-    updateInput('fuelUnit', 'L');
-    updateInput('energyType', 'ELECTRICITY_IT');
-    updateInput('energyQuantity', '');
-    updateInput('renewablePercentage', 0);
-    updateInput('energyProvider', '');
-    updateInput('scope3Category', 'transport');
-    updateInput('transportType', 'BUSINESS_TRAVEL_CAR');
-    updateInput('transportDistance', '');
-    updateInput('wasteType', 'WASTE_LANDFILL');
-    updateInput('wasteQuantity', '');
-    updateInput('purchaseType', 'PURCHASED_GOODS');
-    updateInput('purchaseQuantity', '');
-    updateInput('purchaseDescription', '');
-    updateInput('periodType', 'ANNUAL');
-    
-    // Show toast notification
-    toast({
-      title: "Reset completato",
-      description: "Tutti i dati di calcolo sono stati reimpostati"
-    });
-  };
+  }, [reportId]);
   
   return {
     calculateEmissions,
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,
-    isSaving,
-    lastSaved
+    isSaving
   };
 };
