@@ -14,7 +14,7 @@ export const calculateVehicleEmissions = (
   vehicleEnergyClass: string,
   vehicleFuelType: FuelType,
   distance: number,
-  fuelConsumption?: number,
+  fuelConsumption?: number | string,
   fuelConsumptionUnit?: 'l_100km' | 'km_l'
 ): {
   emissionsKg: number;
@@ -54,19 +54,27 @@ export const calculateVehicleEmissions = (
   let fuelConsumed = 0;
   let consumptionFactorUsed = 0;
 
+  // Ensure fuelConsumption is a number
+  const parsedFuelConsumption = fuelConsumption !== undefined ? Number(fuelConsumption) : 0;
+
   // Apply fuel consumption if available
-  if (fuelConsumption && fuelConsumption > 0 && fuelConsumptionUnit) {
+  if (parsedFuelConsumption > 0 && fuelConsumptionUnit) {
+    console.log('Using fuel consumption for calculation:', parsedFuelConsumption, fuelConsumptionUnit);
+    
     // Convert consumption to L/100km for calculation
     if (fuelConsumptionUnit === 'km_l') {
       // From km/L to L/100km
-      consumptionFactorUsed = 100 / fuelConsumption;
+      consumptionFactorUsed = 100 / parsedFuelConsumption;
     } else {
       // Already in L/100km
-      consumptionFactorUsed = fuelConsumption;
+      consumptionFactorUsed = parsedFuelConsumption;
     }
+    
+    console.log('Consumption factor used:', consumptionFactorUsed, 'L/100km');
     
     // Calculate total fuel consumed for the journey in liters
     fuelConsumed = (distance * consumptionFactorUsed) / 100;
+    console.log('Fuel consumed for the journey:', fuelConsumed, 'liters');
     
     // Calculate emissions based on the theoretical fuel consumption
     if (vehicleFuelType === 'ELECTRIC') {
@@ -119,7 +127,7 @@ export const calculateVehicleEmissions = (
     vehicleFuelType,
     distance,
     emissionFactor: validEmissionFactor,
-    fuelConsumption,
+    fuelConsumption: parsedFuelConsumption,
     fuelConsumptionUnit,
     fuelConsumed,
     consumptionFactorUsed,

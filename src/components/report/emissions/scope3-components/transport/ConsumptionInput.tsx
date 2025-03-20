@@ -53,7 +53,9 @@ const ConsumptionInput: React.FC<ConsumptionInputProps> = ({
 
   // Handle consumption change
   const handleConsumptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConsumption(e.target.value);
+    const value = e.target.value;
+    console.log('Consumption changed to:', value);
+    setConsumption(value);
   };
 
   return (

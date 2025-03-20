@@ -39,7 +39,7 @@ export const performTransportCalculation = (
       // Check if we have detailed vehicle information
       if (inputs.vehicleType && inputs.vehicleFuelType) {
         // Use vehicle emissions calculation with detailed info
-        const consumption = parseFloat(inputs.vehicleFuelConsumption || '0');
+        const consumption = inputs.vehicleFuelConsumption || '0';
         const consumptionUnit = inputs.vehicleFuelConsumptionUnit || 'l_100km';
         const vehicleEnergyClass = inputs.vehicleEnergyClass || '';
         
@@ -52,7 +52,7 @@ export const performTransportCalculation = (
           vehicleEnergyClass
         });
         
-        // Fix here: Extract only emissionsKg from the object returned by calculateVehicleEmissions
+        // Extract only emissionsKg from the object returned by calculateVehicleEmissions
         const vehicleEmissionsResult = calculateVehicleEmissions(
           inputs.vehicleType,
           vehicleEnergyClass,
