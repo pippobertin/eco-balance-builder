@@ -84,12 +84,15 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert the object to a JSON string
-      const logsAsString = safeJsonStringify(initialLogs);
+      // Stringify the object for Supabase
+      const logsString = safeJsonStringify(initialLogs);
+      
+      // Create a proper JSON object that Supabase can store
+      const jsonLogs = JSON.parse(logsString);
       
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.parse(logsAsString), // Parse back to an object that Supabase can handle
+        calculation_logs: jsonLogs,
         created_at: new Date().toISOString()
       };
       
