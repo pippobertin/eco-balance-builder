@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
-import { safeJsonParse, safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsLoad = (reportId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,59 +31,29 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
       if (data) {
         console.log('Emissions data loaded successfully:', data);
         
-        // Prepare default empty logs structure
+        // Create safe default logs structure
         const defaultLogs: EmissionCalculationLogs = {
           scope1Calculations: [],
           scope2Calculations: [],
           scope3Calculations: []
         };
         
-        // Parse calculation_logs if it exists
+        // If calculation_logs is available, use it, otherwise use defaults
         if (data.calculation_logs) {
-          // Handle the case when calculation_logs is already an object
-          let logsData: any;
+          console.log('Found calculation logs in data:', data.calculation_logs);
           
-          if (typeof data.calculation_logs === 'string') {
-            try {
-              logsData = JSON.parse(data.calculation_logs);
-              console.log('Parsed calculation_logs from string:', logsData);
-            } catch (e) {
-              console.error('Failed to parse calculation_logs string:', e);
-              logsData = {};
-            }
-          } else {
-            // Already an object, use as is
-            logsData = data.calculation_logs;
-            console.log('calculation_logs is already an object:', logsData);
-          }
-          
-          // Now ensure the structure is correct by explicitly accessing properties
-          const scope1Calcs = Array.isArray(logsData.scope1Calculations) 
-            ? logsData.scope1Calculations 
-            : [];
-            
-          const scope2Calcs = Array.isArray(logsData.scope2Calculations)
-            ? logsData.scope2Calculations 
-            : [];
-            
-          const scope3Calcs = Array.isArray(logsData.scope3Calculations)
-            ? logsData.scope3Calculations 
-            : [];
-          
-          // Create a clean structure that can be safely stringified later
+          // Ensure arrays exist and are arrays
           data.calculation_logs = {
-            scope1Calculations: scope1Calcs,
-            scope2Calculations: scope2Calcs,
-            scope3Calculations: scope3Calcs
+            scope1Calculations: Array.isArray(data.calculation_logs.scope1Calculations) 
+              ? data.calculation_logs.scope1Calculations : [],
+            scope2Calculations: Array.isArray(data.calculation_logs.scope2Calculations)
+              ? data.calculation_logs.scope2Calculations : [],
+            scope3Calculations: Array.isArray(data.calculation_logs.scope3Calculations)
+              ? data.calculation_logs.scope3Calculations : []
           };
-          
-          console.log('Normalized calculation_logs structure:', data.calculation_logs);
         } else {
-          // If no calculation_logs exist, use the default empty structure
-          // Convert the EmissionCalculationLogs to a JSON-compatible format
           console.log('No calculation_logs found, using default empty structure');
-          // Use JSON.stringify and parse to ensure we have a proper JSON object
-          data.calculation_logs = JSON.parse(safeJsonStringify(defaultLogs));
+          data.calculation_logs = defaultLogs;
         }
       }
       
@@ -109,13 +78,10 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert initialLogs to a JSON-compatible format
-      const jsonLogs = JSON.parse(safeJsonStringify(initialLogs));
-      
       // Insert into emissions_logs table
       const initialData = {
         report_id: reportId,
-        calculation_logs: jsonLogs,
+        calculation_logs: initialLogs,
         created_at: new Date().toISOString()
       };
       

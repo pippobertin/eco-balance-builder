@@ -94,15 +94,13 @@ export const useCalculateEmissions = (
               console.log(`Parsed details object for ${scope}:`, detailsObj);
             } catch (e) {
               console.error(`Error parsing details for ${scope}:`, e);
-              // If parsing fails, try to use the string as is
               detailsObj = { rawDetails: detailsStr };
             }
           } else if (detailsStr && typeof detailsStr === 'object') {
-            // If it's already an object, use it directly
             detailsObj = detailsStr;
           }
           
-          // Create a new record with the details, safely accessing properties that might not exist
+          // Create a new record with the details
           const newRecord: EmissionCalculationRecord = {
             id: generateUniqueId(),
             date: new Date().toISOString(),
