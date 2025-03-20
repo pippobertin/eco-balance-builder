@@ -88,7 +88,7 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
       // This avoids type incompatibility with Supabase's Json type
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify(initialLogs) as any, // Use type assertion to bypass the type check
+        calculation_logs: JSON.stringify(initialLogs) as any, // Use type assertion to bypass TypeScript's type check
         created_at: new Date().toISOString()
       };
       
