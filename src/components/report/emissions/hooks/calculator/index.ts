@@ -8,6 +8,7 @@ export const useCalculator = (
   setFormValues: (values: any) => void,
   onResetClick?: () => void
 ) => {
+  // Initialize calculator state
   const { 
     activeTab,
     setActiveTab,
@@ -21,8 +22,10 @@ export const useCalculator = (
     lastSaved
   } = useCalculatorState(formValues?.reportId);
   
+  // Initialize inputs state
   const { inputs, updateInput } = useCalculatorInputs();
   
+  // Initialize calculator actions
   const {
     calculateEmissions,
     handleRemoveCalculation,
