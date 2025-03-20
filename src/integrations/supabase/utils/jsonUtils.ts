@@ -1,4 +1,6 @@
 
+import { Json } from '../types';
+
 /**
  * Safely parse a JSON string or return a default value if parsing fails
  * Also handles when the input is already an object
