@@ -84,13 +84,12 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert to a string format suitable for the database
-      // This properly converts the EmissionCalculationLogs to a Json compatible format
-      const stringifiedLogs = safeJsonStringify(initialLogs);
+      // Convert the object to a JSON string
+      const logsAsString = safeJsonStringify(initialLogs);
       
       const initialData = {
         report_id: reportId,
-        calculation_logs: stringifiedLogs as any, // Use type assertion to bypass TypeScript's type check
+        calculation_logs: JSON.parse(logsAsString), // Parse back to an object that Supabase can handle
         created_at: new Date().toISOString()
       };
       
