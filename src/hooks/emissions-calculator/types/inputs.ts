@@ -48,6 +48,7 @@ export interface Scope3Input {
 export interface CommonInput {
   periodType?: PeriodType;
   calculationMethod?: EmissionFactorSource;
+  reportId?: string; // Add reportId to EmissionsInput interface
 }
 
 export interface EmissionsInput extends Scope1Input, Scope2Input, Scope3Input, CommonInput {}

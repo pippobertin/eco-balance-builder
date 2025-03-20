@@ -71,22 +71,14 @@ export const useEmissionCalculation = (
         total: results.total
       }));
       
-      // Create a record for the calculation
-      const calculationRecord = {
-        id: uuidv4(),
-        scope: scope,
-        emissions: parsedDetails.emissionsTonnes,
+      // Return data in the format expected by saveCalculation
+      return {
+        emissionValue: parsedDetails.emissionsTonnes,
+        detailsObj: parsedDetails,
         description: `${parsedDetails.energyType || parsedDetails.fuelType || parsedDetails.transportType || parsedDetails.wasteType || parsedDetails.purchaseType || 'Unknown'} emission`,
-        quantity: parsedDetails.quantity,
-        unit: parsedDetails.unit,
-        date: new Date().toISOString(),
-        details: scopeDetails,
-        source: parsedDetails.source || 'DEFRA',
-        report_id: effectiveReportId
+        scope: scope,
+        reportId: effectiveReportId
       };
-      
-      // Return the calculation record
-      return calculationRecord;
     } catch (error) {
       console.error(`Error calculating ${scope} emissions:`, error);
       return null;
