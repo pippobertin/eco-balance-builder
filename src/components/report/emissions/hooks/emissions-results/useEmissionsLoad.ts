@@ -48,24 +48,31 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           
           if (typeof data.calculation_logs === 'string') {
             try {
+              console.log('Calculation logs is a string, parsing it...');
               parsedLogs = JSON.parse(data.calculation_logs);
+              console.log('Successfully parsed calculation logs:', parsedLogs);
             } catch (e) {
               console.error('Error parsing calculation_logs string:', e);
               parsedLogs = defaultLogs;
             }
           } else {
+            console.log('Calculation logs is an object, using directly');
             parsedLogs = data.calculation_logs;
           }
           
-          // Ensure arrays exist and are arrays
+          console.log('Parsed logs before validation:', parsedLogs);
+          
+          // Ensure we have a proper structure with arrays
           const validatedCalculationLogs = {
-            scope1Calculations: Array.isArray(parsedLogs.scope1Calculations) 
+            scope1Calculations: Array.isArray(parsedLogs?.scope1Calculations) 
               ? parsedLogs.scope1Calculations : [],
-            scope2Calculations: Array.isArray(parsedLogs.scope2Calculations)
+            scope2Calculations: Array.isArray(parsedLogs?.scope2Calculations)
               ? parsedLogs.scope2Calculations : [],
-            scope3Calculations: Array.isArray(parsedLogs.scope3Calculations)
+            scope3Calculations: Array.isArray(parsedLogs?.scope3Calculations)
               ? parsedLogs.scope3Calculations : []
           };
+          
+          console.log('Validated calculation logs:', validatedCalculationLogs);
           
           // Assign the validated logs to data.calculation_logs with proper type casting
           data.calculation_logs = validatedCalculationLogs as unknown as Json;
@@ -73,6 +80,8 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           console.log('No calculation_logs found, using default empty structure');
           data.calculation_logs = defaultLogs as unknown as Json;
         }
+        
+        console.log('Final data with calculation_logs:', data);
       }
       
       return data;
@@ -103,6 +112,8 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         created_at: new Date().toISOString()
       };
       
+      console.log('Initial data being created:', initialData);
+      
       const { error } = await supabase
         .from('emissions_logs')
         .insert(initialData);
@@ -113,6 +124,7 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         return null;
       }
       
+      console.log('Initial emissions data created successfully');
       return initialData;
     } catch (error: any) {
       console.error('Unexpected error creating initial emissions data:', error);

@@ -21,7 +21,8 @@ export const useEmissionsSave = () => {
     try {
       console.log('Saving emissions data for report:', reportId);
       console.log('Emissions values:', { scope1, scope2, scope3, total: scope1 + scope2 + scope3 });
-      console.log('Calculation logs before save:', {
+      console.log('Calculation logs before save:', calculationLogs);
+      console.log('Calculation logs structure:', {
         scope1Count: calculationLogs.scope1Calculations?.length || 0,
         scope2Count: calculationLogs.scope2Calculations?.length || 0,
         scope3Count: calculationLogs.scope3Calculations?.length || 0
@@ -55,6 +56,8 @@ export const useEmissionsSave = () => {
       
       // If data exists, update it
       if (existingData) {
+        console.log('Updating existing emissions data with ID:', existingData.id);
+        
         const { data, error } = await supabase
           .from('emissions_logs')
           .update({
@@ -65,10 +68,16 @@ export const useEmissionsSave = () => {
           .select()
           .single();
         
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error('Error updating emissions data:', error);
+          throw new Error(error.message);
+        }
         result = data;
+        console.log('Emissions data updated successfully:', result);
       } else {
         // If no data exists, create a new record
+        console.log('Creating new emissions data record');
+        
         const { data, error } = await supabase
           .from('emissions_logs')
           .insert({
@@ -79,11 +88,13 @@ export const useEmissionsSave = () => {
           .select()
           .single();
         
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error('Error inserting emissions data:', error);
+          throw new Error(error.message);
+        }
         result = data;
+        console.log('New emissions data created successfully:', result);
       }
-      
-      console.log('Emissions data saved successfully:', result);
       
       // Create the normalized result
       const normalizedResult = {
