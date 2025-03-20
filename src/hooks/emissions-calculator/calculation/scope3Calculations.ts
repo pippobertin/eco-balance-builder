@@ -29,6 +29,7 @@ export const performScope3Calculation = (
     wasteQuantity: inputs.wasteQuantity,
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
+    reportId: inputs.reportId
   });
 
   // Ensure scope3Category is defined
@@ -40,10 +41,13 @@ export const performScope3Calculation = (
   try {
     // Based on the category, call the appropriate calculation function
     if (inputs.scope3Category === 'transport') {
+      console.log('Calling transport calculation');
       return performTransportCalculation(inputs, results);
     } else if (inputs.scope3Category === 'waste') {
+      console.log('Calling waste calculation');
       return performWasteCalculation(inputs, results);
     } else if (inputs.scope3Category === 'purchases') {
+      console.log('Calling purchase calculation');
       return performPurchaseCalculation(inputs, results);
     } else {
       console.error('Unknown scope3 category:', inputs.scope3Category);

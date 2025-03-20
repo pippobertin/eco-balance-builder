@@ -11,7 +11,7 @@ export const performPurchaseCalculation = (
   results: EmissionsResults
 ): { 
   updatedResults: EmissionsResults; 
-  details: string; 
+  details: string;
   source?: string;
 } => {
   let details = '';
@@ -21,7 +21,8 @@ export const performPurchaseCalculation = (
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
     purchaseDescription: inputs.purchaseDescription,
-    periodType: inputs.periodType
+    periodType: inputs.periodType,
+    reportId: inputs.reportId
   });
 
   // Validate required inputs
@@ -35,7 +36,10 @@ export const performPurchaseCalculation = (
     return { updatedResults: results, details };
   }
 
-  const quantity = parseFloat(inputs.purchaseQuantity);
+  // Always handle quantity as string, then parse it
+  const quantityStr = String(inputs.purchaseQuantity).replace(',', '.');
+  const quantity = parseFloat(quantityStr);
+  
   if (isNaN(quantity) || quantity <= 0) {
     console.error('Invalid purchase quantity:', inputs.purchaseQuantity);
     return { updatedResults: results, details };
@@ -45,11 +49,11 @@ export const performPurchaseCalculation = (
     const emissionsKg = calculateScope3Emissions(
       inputs.purchaseType, 
       quantity,
-      inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità'
+      'kg'
     );
     const emissionsTonnes = emissionsKg / 1000;
     
-    console.log('Purchase calculation results:', {
+    console.log('Purchase calculation intermediate results:', {
       purchaseType: inputs.purchaseType,
       quantity,
       emissionsKg,
@@ -63,13 +67,19 @@ export const performPurchaseCalculation = (
       total: results.total + emissionsTonnes
     };
     
+    console.log('Purchase calculation updated results:', {
+      originalScope3: results.scope3,
+      newScope3: updatedResults.scope3,
+      addedEmissions: emissionsTonnes
+    });
+    
     // Save calculation details
     const calculationDetails = {
       purchaseType: inputs.purchaseType,
       activityType: inputs.purchaseType, // Add this for table display
-      description: inputs.purchaseDescription || '',
+      purchaseDescription: inputs.purchaseDescription || '',
       quantity,
-      unit: inputs.purchaseType === 'PURCHASED_GOODS' ? 'kg' : 'unità',
+      unit: 'kg',
       periodType: inputs.periodType,
       emissionsKg,
       emissionsTonnes,
@@ -85,11 +95,7 @@ export const performPurchaseCalculation = (
     }
     
     details = JSON.stringify(calculationDetails);
-    
-    console.log('Purchase calculation details:', {
-      details,
-      updatedResults
-    });
+    console.log('Processed purchase calculation details:', details);
     
     return { updatedResults, details, source };
   } catch (error) {

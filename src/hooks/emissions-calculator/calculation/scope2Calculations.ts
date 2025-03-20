@@ -17,7 +17,13 @@ export const performScope2Calculation = (
   let details = '';
   let source = '';
 
-  console.log('Starting scope2 calculation with inputs:', inputs);
+  console.log('Starting scope2 calculation with inputs:', {
+    energyType: inputs.energyType,
+    energyQuantity: inputs.energyQuantity,
+    renewablePercentage: inputs.renewablePercentage,
+    periodType: inputs.periodType,
+    reportId: inputs.reportId
+  });
 
   // Validate required inputs
   if (!inputs.energyType) {
@@ -30,7 +36,10 @@ export const performScope2Calculation = (
     return { updatedResults: results, details };
   }
 
-  const quantity = parseFloat(inputs.energyQuantity);
+  // Always handle quantity as string, then parse it
+  const quantityStr = String(inputs.energyQuantity).replace(',', '.');
+  const quantity = parseFloat(quantityStr);
+  
   if (isNaN(quantity) || quantity <= 0) {
     console.error('Invalid energy quantity for scope2 calculation:', inputs.energyQuantity);
     return { updatedResults: results, details };
@@ -65,6 +74,12 @@ export const performScope2Calculation = (
       total: results.total + emissionsTonnes
     };
     
+    console.log('Scope 2 calculation updated results:', {
+      originalScope2: results.scope2,
+      newScope2: updatedResults.scope2,
+      addedEmissions: emissionsTonnes
+    });
+    
     // Save calculation details
     const calculationDetails = {
       energyType: inputs.energyType,
@@ -87,6 +102,7 @@ export const performScope2Calculation = (
     }
     
     details = JSON.stringify(calculationDetails);
+    console.log('Processed scope2 calculation details:', details);
     
     return { updatedResults, details, source };
   } catch (error) {

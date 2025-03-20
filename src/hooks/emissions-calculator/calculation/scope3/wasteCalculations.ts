@@ -20,7 +20,8 @@ export const performWasteCalculation = (
   console.log('Starting waste calculation with inputs:', {
     wasteType: inputs.wasteType,
     wasteQuantity: inputs.wasteQuantity,
-    periodType: inputs.periodType
+    periodType: inputs.periodType,
+    reportId: inputs.reportId
   });
 
   // Validate required inputs
@@ -34,7 +35,10 @@ export const performWasteCalculation = (
     return { updatedResults: results, details };
   }
 
-  const quantity = parseFloat(inputs.wasteQuantity);
+  // Always handle quantity as string, then parse it
+  const quantityStr = String(inputs.wasteQuantity).replace(',', '.');
+  const quantity = parseFloat(quantityStr);
+  
   if (isNaN(quantity) || quantity <= 0) {
     console.error('Invalid waste quantity:', inputs.wasteQuantity);
     return { updatedResults: results, details };
@@ -89,6 +93,7 @@ export const performWasteCalculation = (
     }
     
     details = JSON.stringify(calculationDetails);
+    console.log('Processed waste calculation details:', details);
     
     return { updatedResults, details, source };
   } catch (error) {
