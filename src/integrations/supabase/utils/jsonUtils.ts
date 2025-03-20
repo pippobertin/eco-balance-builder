@@ -1,14 +1,26 @@
 
+import { Json } from '../types';
+
 /**
- * Safely parses a JSON string
- * @param jsonString The JSON string to parse
+ * Safely parse a JSON string or return a default value if parsing fails
+ * Also handles when the input is already an object
+ * 
+ * @param jsonString The JSON string or object to parse
  * @param defaultValue The default value to return if parsing fails
  * @returns The parsed JSON object or the default value
  */
-export const safeJsonParse = <T>(jsonString: string | null | undefined, defaultValue: T): T => {
-  if (!jsonString) return defaultValue;
+export const safeJsonParse = <T>(jsonString: string | Json | null | undefined, defaultValue: T): T => {
+  if (jsonString === null || jsonString === undefined) {
+    return defaultValue;
+  }
+  
+  // If it's already an object (not a string), return it directly
+  if (typeof jsonString !== 'string') {
+    return jsonString as unknown as T;
+  }
   
   try {
+    // Only try to parse if it's a string
     return JSON.parse(jsonString) as T;
   } catch (error) {
     console.error('Error parsing JSON string:', error);
@@ -17,73 +29,51 @@ export const safeJsonParse = <T>(jsonString: string | null | undefined, defaultV
 };
 
 /**
- * Safely stringifies a JSON object
+ * Safely stringify a JSON object or return a default value if stringification fails
+ * 
  * @param jsonObject The object to stringify
- * @returns The stringified JSON or an empty JSON string if stringification fails
+ * @param defaultValue The default value to return if stringification fails
+ * @returns The stringified JSON or the default value
  */
-export const safeJsonStringify = (jsonObject: any): string => {
-  if (!jsonObject) return '{}';
-  
+export const safeJsonStringify = (jsonObject: any, defaultValue: string = '{}'): string => {
   try {
     return JSON.stringify(jsonObject);
   } catch (error) {
     console.error('Error stringifying JSON object:', error);
-    return '{}';
+    return defaultValue;
   }
 };
 
 /**
- * Creates a new object with all nested objects converted to JSON strings
- * @param obj The object to process
- * @returns A new object with all nested objects converted to JSON strings
+ * Prepare a JSON object for storage in the database
+ * This handles converting values that might cause issues with Supabase
+ * 
+ * @param jsonObject The object to prepare
+ * @returns The prepared object
  */
-export const prepareJsonForDb = (obj: Record<string, any>): Record<string, any> => {
-  const result: Record<string, any> = {};
+export const prepareJsonForDb = (jsonObject: any): any => {
+  if (!jsonObject) return {};
   
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === null || value === undefined) {
-      result[key] = null;
-    } else if (typeof value === 'object' && !Array.isArray(value)) {
-      result[key] = safeJsonStringify(value);
-    } else if (Array.isArray(value)) {
-      result[key] = safeJsonStringify(value);
-    } else if (typeof value === 'number') {
-      // Convert numeric values to strings for database storage
-      result[key] = value.toString();
-    } else {
-      result[key] = value;
+  // Convert null/undefined to empty values
+  const clean = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(item => clean(item));
     }
-  }
-  
-  return result;
-};
-
-/**
- * Convert any numeric string values in JSON to numbers
- * @param obj The object to process
- * @returns A new object with numeric strings converted to numbers
- */
-export const convertStringToNumbers = (obj: any): any => {
-  if (obj === null || obj === undefined) {
-    return obj;
-  }
-  
-  if (typeof obj !== 'object') {
-    // Check if it's a numeric string
-    if (typeof obj === 'string' && !isNaN(Number(obj)) && obj.trim() !== '') {
-      return Number(obj);
+    
+    if (obj !== null && typeof obj === 'object') {
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        acc[key] = clean(value);
+        return acc;
+      }, {} as any);
     }
+    
+    // Convert null/undefined to empty string or 0 based on context
+    if (obj === null || obj === undefined) {
+      return '';
+    }
+    
     return obj;
-  }
+  };
   
-  if (Array.isArray(obj)) {
-    return obj.map(item => convertStringToNumbers(item));
-  }
-  
-  const result: Record<string, any> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    result[key] = convertStringToNumbers(value);
-  }
-  
-  return result;
+  return clean(jsonObject);
 };

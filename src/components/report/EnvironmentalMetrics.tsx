@@ -2,13 +2,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Leaf } from 'lucide-react';
 import EmissionsEnergySection from './environmental/EmissionsEnergySection';
-import PollutionSection from './environmental/PollutionSection';
-import BiodiversitySection from './environmental/BiodiversitySection';
 import WaterSection from './environmental/WaterSection';
 import ResourcesSection from './environmental/ResourcesSection';
-import LocationSelector from './environmental/components/LocationSelector';
-import { useLocationMetrics } from './environmental/hooks/location-metrics';
-import { useReport } from '@/context/ReportContext';
+import BiodiversitySection from './environmental/BiodiversitySection';
+import PollutionSection from './environmental/PollutionSection';
 
 interface EnvironmentalMetricsProps {
   formValues: any;
@@ -21,109 +18,76 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
   setFormValues,
   initialField
 }) => {
-  // Add refs for scrolling to specific sections
   const emissionsRef = useRef<HTMLDivElement>(null);
-  const pollutionRef = useRef<HTMLDivElement>(null);
-  const biodiversityRef = useRef<HTMLDivElement>(null);
   const waterRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
-  
-  // Get current company
-  const { currentCompany } = useReport();
-  
-  // Use location metrics hook
-  const {
-    locations,
-    hasMultipleLocations,
-    isLoading,
-    selectedLocationId,
-    setSelectedLocationId,
-    getCurrentLocationMetrics,
-    handleLocationMetricsChange
-  } = useLocationMetrics(currentCompany?.id, formValues, setFormValues);
+  const biodiversityRef = useRef<HTMLDivElement>(null);
+  const pollutionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Scroll to the initial field if provided
     if (initialField) {
       if (initialField === 'emissions' && emissionsRef.current) {
         emissionsRef.current.scrollIntoView({ behavior: 'smooth' });
-      } else if (initialField === 'pollution' && pollutionRef.current) {
-        pollutionRef.current.scrollIntoView({ behavior: 'smooth' });
-      } else if (initialField === 'biodiversity' && biodiversityRef.current) {
-        biodiversityRef.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'water' && waterRef.current) {
         waterRef.current.scrollIntoView({ behavior: 'smooth' });
-      } else if (initialField === 'waste' && resourcesRef.current) {
+      } else if (initialField === 'resources' && resourcesRef.current) {
         resourcesRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'biodiversity' && biodiversityRef.current) {
+        biodiversityRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'pollution' && pollutionRef.current) {
+        pollutionRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
-  
-  // Get the appropriate metrics data and change handler based on whether we're using location-specific metrics
-  const getMetricsProps = () => {
-    if (hasMultipleLocations && selectedLocationId) {
-      // Return location-specific metrics and handler
-      return {
-        metricsData: getCurrentLocationMetrics(),
-        handleChange: handleLocationMetricsChange
-      };
-    } else {
-      // Return global metrics and handler
-      return {
-        metricsData: formValues.environmentalMetrics,
-        handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-          const { name, value } = e.target;
-          setFormValues((prev: any) => ({
-            ...prev,
-            environmentalMetrics: {
-              ...prev.environmentalMetrics,
-              [name]: value
-            }
-          }));
-        }
-      };
-    }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormValues((prev: any) => ({
+      ...prev,
+      environmentalMetrics: {
+        ...prev.environmentalMetrics,
+        [name]: value
+      }
+    }));
   };
-  
-  const { metricsData, handleChange } = getMetricsProps();
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Metriche Base - Ambiente</h2>
+      <h2 className="text-2xl font-bold">Metriche Base - Questioni Ambientali</h2>
       
-      {/* Location selector - only show if the company has multiple locations */}
-      {hasMultipleLocations && (
-        <LocationSelector
-          locations={locations}
-          selectedLocationId={selectedLocationId}
-          onLocationChange={setSelectedLocationId}
-          isLoading={isLoading}
-        />
-      )}
-      
-      {/* Emissions & Energy Section - B3 */}
       <div ref={emissionsRef}>
-        <EmissionsEnergySection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
+        <EmissionsEnergySection
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
       
-      {/* Pollution Section - B4 */}
-      <div ref={pollutionRef}>
-        <PollutionSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
-      </div>
-      
-      {/* Biodiversity Section - B5 */}
-      <div ref={biodiversityRef}>
-        <BiodiversitySection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
-      </div>
-      
-      {/* Water Section - B6 */}
       <div ref={waterRef}>
-        <WaterSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
+        <WaterSection
+          formValues={formValues}
+          handleChange={handleChange}
+        />
       </div>
       
-      {/* Resources & Circular Economy Section - B7 */}
       <div ref={resourcesRef}>
-        <ResourcesSection formValues={{ environmentalMetrics: metricsData }} setFormValues={handleChange} />
+        <ResourcesSection
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
+      
+      <div ref={biodiversityRef}>
+        <BiodiversitySection
+          formValues={formValues}
+          handleChange={handleChange}
+        />
+      </div>
+      
+      <div ref={pollutionRef}>
+        <PollutionSection
+          formValues={formValues}
+          handleChange={handleChange}
+        />
       </div>
     </div>
   );

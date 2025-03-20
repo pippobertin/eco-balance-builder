@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
@@ -161,16 +162,4 @@ export const useReportLoad = (
     loadReports,
     loadReport
   };
-};
-
-// Fetch companies - This would be defined in reportOperations, but is mocked here for the hook
-const fetchCompanies = async () => {
-  // This would call supabase but will be handled by the actual reportOperations
-  return { data: [], error: null };
-};
-
-// Fetch company by ID - This would be defined in reportOperations, but is mocked here for the hook
-const fetchCompanyById = async (companyId: string) => {
-  // This would call supabase but will be handled by the actual reportOperations
-  return { data: null, error: null };
 };
