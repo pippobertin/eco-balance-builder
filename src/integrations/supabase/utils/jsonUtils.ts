@@ -45,6 +45,10 @@ export const safeJsonParse = <T>(jsonString: string | Json | null | undefined, d
  * @returns The stringified JSON or the default value
  */
 export const safeJsonStringify = (jsonObject: any, defaultValue: string = '{}'): string => {
+  if (jsonObject === null || jsonObject === undefined) {
+    return defaultValue;
+  }
+  
   try {
     return JSON.stringify(jsonObject);
   } catch (error) {

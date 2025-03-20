@@ -20,17 +20,37 @@ export const useEmissionCalculation = (
   const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
     try {
       console.log('Calculating emissions for scope:', scope);
-      console.log('Inputs:', inputs);
+      console.log('Inputs:', JSON.stringify(inputs));
+      
+      if (!inputs) {
+        console.error('Missing inputs for calculation');
+        toast({
+          title: "Dati mancanti",
+          description: "I dati necessari per il calcolo non sono completi.",
+          variant: "destructive"
+        });
+        return null;
+      }
       
       // Perform calculation with inputs and scope
       const result = performCalculation(inputs, scope);
-      console.log('Calculation result:', result);
+      console.log('Calculation result:', JSON.stringify(result));
+      
+      if (!result || !result.results) {
+        console.error('No valid calculation result returned');
+        toast({
+          title: "Errore di calcolo",
+          description: "Si è verificato un errore durante il calcolo delle emissioni.",
+          variant: "destructive"
+        });
+        return null;
+      }
       
       let emissionValue = 0;
       let detailsObj: any = {};
       
       if (scope === 'scope1') {
-        emissionValue = result.results.scope1;
+        emissionValue = result.results.scope1 || 0;
         try {
           detailsObj = typeof result.details.scope1Details === 'string'
             ? JSON.parse(result.details.scope1Details)
@@ -40,7 +60,7 @@ export const useEmissionCalculation = (
           detailsObj = { rawDetails: result.details.scope1Details };
         }
       } else if (scope === 'scope2') {
-        emissionValue = result.results.scope2;
+        emissionValue = result.results.scope2 || 0;
         try {
           detailsObj = typeof result.details.scope2Details === 'string'
             ? JSON.parse(result.details.scope2Details)
@@ -50,7 +70,7 @@ export const useEmissionCalculation = (
           detailsObj = { rawDetails: result.details.scope2Details };
         }
       } else if (scope === 'scope3') {
-        emissionValue = result.results.scope3;
+        emissionValue = result.results.scope3 || 0;
         try {
           detailsObj = typeof result.details.scope3Details === 'string'
             ? JSON.parse(result.details.scope3Details)
@@ -62,7 +82,7 @@ export const useEmissionCalculation = (
       }
       
       console.log('Processed emission value:', emissionValue);
-      console.log('Processed details:', detailsObj);
+      console.log('Processed details:', JSON.stringify(detailsObj));
       
       if (emissionValue > 0) {
         const description = scope === 'scope1' 

@@ -63,17 +63,17 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
-      {/* B4 - Risorse */}
-      <div ref={resourcesRef}>
-        <ResourcesSection
+      {/* B4 - Acqua */}
+      <div ref={waterRef}>
+        <WaterSection
           formValues={formValues}
           setFormValues={handleChange}
         />
       </div>
       
-      {/* B5 - Acqua */}
-      <div ref={waterRef}>
-        <WaterSection
+      {/* B5 - Risorse */}
+      <div ref={resourcesRef}>
+        <ResourcesSection
           formValues={formValues}
           setFormValues={handleChange}
         />
