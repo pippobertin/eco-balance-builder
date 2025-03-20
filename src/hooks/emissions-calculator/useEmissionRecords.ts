@@ -14,7 +14,10 @@ export const useEmissionRecords = (reportId?: string) => {
    * Load emission records for a report
    */
   const loadEmissionRecords = async (reportId: string): Promise<EmissionCalculationRecord[]> => {
-    if (!reportId) return [];
+    if (!reportId) {
+      console.error('Cannot load emission records: reportId is undefined');
+      return [];
+    }
     
     setIsLoading(true);
     
@@ -51,19 +54,19 @@ export const useEmissionRecords = (reportId?: string) => {
    * Save a new emission record
    */
   const saveEmissionRecord = async (record: Omit<EmissionCalculationRecord, 'id' | 'date'>) => {
-    if (!reportId) {
-      console.error('Cannot save emission record: reportId is undefined');
+    if (!record.report_id) {
+      console.error('Cannot save emission record: report_id in record is undefined');
       return null;
     }
     
     setIsSaving(true);
     
     try {
-      console.log('Saving emission record:', record);
+      console.log('Saving emission record with report_id:', record.report_id);
       
       const newRecord = {
         ...record,
-        report_id: reportId,
+        date: new Date().toISOString(),
       };
       
       const { data, error } = await supabase

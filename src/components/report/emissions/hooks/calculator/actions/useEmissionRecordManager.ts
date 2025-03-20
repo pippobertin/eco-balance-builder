@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { EmissionCalculationLogs, EmissionCalculationRecord, EmissionsResults } from '@/hooks/emissions-calculator/types';
 import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useToast } from '@/hooks/use-toast';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useEmissionRecordManager = (
   reportId: string | undefined,
@@ -13,6 +14,7 @@ export const useEmissionRecordManager = (
 ) => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { currentReport } = useReport();
   const { saveEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords();
   
   // Save emission calculation after successful calculation
@@ -23,12 +25,23 @@ export const useEmissionRecordManager = (
     scope: 'scope1' | 'scope2' | 'scope3';
     reportId: string | undefined;
   }) => {
-    if (!calculationData || !calculationData.reportId) return null;
+    // Use current report ID from context as fallback if the passed reportId is undefined
+    const effectiveReportId = calculationData.reportId || reportId || currentReport?.id;
     
-    const { emissionValue, detailsObj, description, scope, reportId } = calculationData;
+    if (!effectiveReportId) {
+      console.error('Cannot save emission record: reportId is undefined. Make sure you are in a valid report context.');
+      toast({
+        title: "Errore di salvataggio",
+        description: "Impossibile salvare il calcolo: ID Report mancante",
+        variant: "destructive"
+      });
+      return null;
+    }
+    
+    const { emissionValue, detailsObj, description, scope } = calculationData;
     
     const record = {
-      report_id: reportId,
+      report_id: effectiveReportId,
       scope,
       source: detailsObj.source || '',
       description,
@@ -39,38 +52,51 @@ export const useEmissionRecordManager = (
     };
     
     console.log('Saving emission record:', record);
-    const savedRecord = await saveEmissionRecord(record);
+    setIsSaving(true);
     
-    if (savedRecord) {
-      console.log('Saved record:', savedRecord);
+    try {
+      const savedRecord = await saveEmissionRecord(record);
       
-      const updatedLogs = { ...calculationLogs };
-      
-      if (scope === 'scope1') {
-        updatedLogs.scope1Calculations = [...(updatedLogs.scope1Calculations || []), savedRecord];
-      } else if (scope === 'scope2') {
-        updatedLogs.scope2Calculations = [...(updatedLogs.scope2Calculations || []), savedRecord];
-      } else if (scope === 'scope3') {
-        updatedLogs.scope3Calculations = [...(updatedLogs.scope3Calculations || []), savedRecord];
+      if (savedRecord) {
+        console.log('Saved record:', savedRecord);
+        
+        const updatedLogs = { ...calculationLogs };
+        
+        if (scope === 'scope1') {
+          updatedLogs.scope1Calculations = [...(updatedLogs.scope1Calculations || []), savedRecord];
+        } else if (scope === 'scope2') {
+          updatedLogs.scope2Calculations = [...(updatedLogs.scope2Calculations || []), savedRecord];
+        } else if (scope === 'scope3') {
+          updatedLogs.scope3Calculations = [...(updatedLogs.scope3Calculations || []), savedRecord];
+        }
+        
+        setCalculationLogs(updatedLogs);
+        
+        const records = [
+          ...(updatedLogs.scope1Calculations || []),
+          ...(updatedLogs.scope2Calculations || []),
+          ...(updatedLogs.scope3Calculations || [])
+        ];
+        
+        const totals = calculateTotals(records);
+        setCalculatedEmissions(totals);
+        
+        toast({
+          title: "Calcolo completato",
+          description: `Emissioni ${scope} calcolate con successo`,
+        });
+        
+        return savedRecord;
       }
-      
-      setCalculationLogs(updatedLogs);
-      
-      const records = [
-        ...(updatedLogs.scope1Calculations || []),
-        ...(updatedLogs.scope2Calculations || []),
-        ...(updatedLogs.scope3Calculations || [])
-      ];
-      
-      const totals = calculateTotals(records);
-      setCalculatedEmissions(totals);
-      
+    } catch (error) {
+      console.error('Error saving emission record:', error);
       toast({
-        title: "Calcolo completato",
-        description: `Emissioni ${scope} calcolate con successo`,
+        title: "Errore",
+        description: `Impossibile salvare il calcolo: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
+        variant: "destructive"
       });
-      
-      return savedRecord;
+    } finally {
+      setIsSaving(false);
     }
     
     return null;

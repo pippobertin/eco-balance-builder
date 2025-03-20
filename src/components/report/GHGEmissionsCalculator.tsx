@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Calculator, Save } from 'lucide-react';
 import { EmissionFactorSource, PeriodType, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
 import { GHGEmissionsCalculatorProps } from './emissions/types';
 import { useCalculator } from './emissions/hooks/useCalculator';
+import { useReport } from '@/hooks/use-report-context';
 
 // Import refactored components
 import Scope1Form from './emissions/Scope1Form';
@@ -21,6 +21,14 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   setFormValues,
   onResetClick
 }) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id || formValues?.reportId;
+  
+  useEffect(() => {
+    console.log('GHGEmissionsCalculator: Current reportId:', reportId);
+    console.log('GHGEmissionsCalculator: formValues:', formValues);
+  }, [reportId, formValues]);
+  
   const {
     activeTab,
     setActiveTab,
@@ -33,10 +41,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     handleSubmitCalculation,
     isSaving,
     isLoadingExisting
-  } = useCalculator(formValues, setFormValues, onResetClick);
+  } = useCalculator(
+    { ...formValues, reportId },
+    setFormValues, 
+    onResetClick
+  );
 
   useEffect(() => {
-    // Debug log to see if calculation logs are populated correctly
     console.log("GHGEmissionsCalculator: Current calculation logs:", calculationLogs);
     console.log("Scope1 calculations:", calculationLogs.scope1Calculations?.length || 0);
     console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
@@ -107,11 +118,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
 
   const handleCalculateClick = () => {
     console.log('Calculate button clicked for tab:', activeTab);
+    console.log('Using reportId for calculation:', reportId);
     calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
   };
 
   const handleSaveClick = () => {
-    console.log('Save button clicked');
+    console.log('Save button clicked with reportId:', reportId);
     handleSubmitCalculation();
   };
 
@@ -159,13 +171,20 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       <div className="mt-8 space-y-6">
         <h3 className="text-lg font-semibold mb-4">Riepilogo calcoli emissioni</h3>
         
-        {!hasCalculationLogs && <p className="text-gray-500 text-sm">Nessun calcolo effettuato. Utilizzare il calcolatore per aggiungere emissioni.</p>}
+        {(!calculationLogs || 
+         (!calculationLogs.scope1Calculations?.length && 
+          !calculationLogs.scope2Calculations?.length && 
+          !calculationLogs.scope3Calculations?.length)) && 
+         <p className="text-gray-500 text-sm">Nessun calcolo effettuato. Utilizzare il calcolatore per aggiungere emissioni.</p>}
         
-        {calculationLogs && calculationLogs.scope1Calculations && calculationLogs.scope1Calculations.length > 0 && <EmissionsCalculationTable scope="scope1" scopeLabel="Scope 1 - Emissioni Dirette" calculations={calculationLogs.scope1Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+        {calculationLogs?.scope1Calculations && calculationLogs.scope1Calculations.length > 0 && 
+         <EmissionsCalculationTable scope="scope1" scopeLabel="Scope 1 - Emissioni Dirette" calculations={calculationLogs.scope1Calculations} onRemoveCalculation={handleRemoveCalculation} />}
         
-        {calculationLogs && calculationLogs.scope2Calculations && calculationLogs.scope2Calculations.length > 0 && <EmissionsCalculationTable scope="scope2" scopeLabel="Scope 2 - Energia" calculations={calculationLogs.scope2Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+        {calculationLogs?.scope2Calculations && calculationLogs.scope2Calculations.length > 0 && 
+         <EmissionsCalculationTable scope="scope2" scopeLabel="Scope 2 - Energia" calculations={calculationLogs.scope2Calculations} onRemoveCalculation={handleRemoveCalculation} />}
         
-        {calculationLogs && calculationLogs.scope3Calculations && calculationLogs.scope3Calculations.length > 0 && <EmissionsCalculationTable scope="scope3" scopeLabel="Scope 3 - Altre Emissioni" calculations={calculationLogs.scope3Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+        {calculationLogs?.scope3Calculations && calculationLogs.scope3Calculations.length > 0 && 
+         <EmissionsCalculationTable scope="scope3" scopeLabel="Scope 3 - Altre Emissioni" calculations={calculationLogs.scope3Calculations} onRemoveCalculation={handleRemoveCalculation} />}
       </div>
     </div>;
 };
