@@ -29,7 +29,15 @@ export const performScope3Calculation = (
     wasteQuantity: inputs.wasteQuantity,
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
-    periodType: inputs.periodType
+    periodType: inputs.periodType,
+    // Add vehicle details for better debugging
+    vehicleDetails: inputs.scope3Category === 'transport' ? {
+      vehicleType: inputs.vehicleType,
+      vehicleFuelType: inputs.vehicleFuelType,
+      vehicleEnergyClass: inputs.vehicleEnergyClass,
+      vehicleFuelConsumption: inputs.vehicleFuelConsumption,
+      vehicleFuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit
+    } : undefined
   });
 
   // Ensure scope3Category is defined

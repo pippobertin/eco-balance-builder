@@ -81,12 +81,34 @@ export const useEmissionsCalculations = () => {
         }
         
         // Additional validation based on category
-        if (inputs.scope3Category === 'transport' && (!inputs.transportType || !inputs.transportDistance)) {
-          console.error('Missing transport details for scope3 calculation');
-          return {
-            results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
-            details: { scope1Details: '', scope2Details: '', scope3Details: '' }
-          };
+        if (inputs.scope3Category === 'transport') {
+          if (!inputs.transportType) {
+            console.error('Missing transportType for scope3 calculation');
+            return {
+              results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+              details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+            };
+          }
+          
+          if (!inputs.transportDistance) {
+            console.error('Missing transportDistance for scope3 calculation');
+            return {
+              results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+              details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+            };
+          }
+          
+          // Parse transport distance
+          const distanceStr = String(inputs.transportDistance || '').replace(',', '.');
+          const distance = parseFloat(distanceStr);
+          
+          if (isNaN(distance) || distance <= 0) {
+            console.error('Invalid transportDistance for scope3 calculation:', inputs.transportDistance);
+            return {
+              results: { scope1: 0, scope2: 0, scope3: 0, total: 0 },
+              details: { scope1Details: '', scope2Details: '', scope3Details: '' }
+            };
+          }
         } 
         else if (inputs.scope3Category === 'waste' && (!inputs.wasteType || !inputs.wasteQuantity)) {
           console.error('Missing waste details for scope3 calculation');

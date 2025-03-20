@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { EmissionsInput } from '@/hooks/emissions-calculator/types';
-import { FuelType, PeriodType, EnergyType } from '@/lib/emissions-types';
+import { FuelType, PeriodType, EnergyType, TransportType } from '@/lib/emissions-types';
 
 interface CalculatorInputs extends EmissionsInput {
   [key: string]: string | number | boolean | undefined;
@@ -14,14 +14,30 @@ export const useCalculatorInputs = () => {
     scope1Source: 'fuel',
     fuelType: 'DIESEL' as FuelType,
     fuelUnit: 'L',
+    fuelQuantity: '',
     
     // Scope 2 defaults
     energyType: 'ELECTRICITY_IT' as EnergyType,
     energyQuantity: '',
     renewablePercentage: 0,
+    energyProvider: '',
     
     // Scope 3 defaults
     scope3Category: 'transport',
+    transportType: 'BUSINESS_TRAVEL_CAR' as TransportType,
+    transportDistance: '',
+    wasteType: 'WASTE_LANDFILL',
+    wasteQuantity: '',
+    purchaseType: 'PURCHASED_GOODS',
+    purchaseQuantity: '',
+    purchaseDescription: '',
+    
+    // Vehicle details for Scope 3
+    vehicleType: 'car_medium',
+    vehicleFuelType: 'DIESEL' as FuelType,
+    vehicleEnergyClass: 'euro6',
+    vehicleFuelConsumption: '',
+    vehicleFuelConsumptionUnit: 'l_100km',
     
     // Common defaults
     periodType: PeriodType.ANNUAL

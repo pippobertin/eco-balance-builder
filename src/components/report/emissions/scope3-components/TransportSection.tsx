@@ -64,7 +64,7 @@ const TransportSection: React.FC<TransportSectionProps> = ({
         setVehicleFuelConsumptionUnit('l_100km');
       }
     }
-  }, [transportType, showVehicleDetails, vehicleType, vehicleEnergyClass, vehicleFuelType, vehicleFuelConsumptionUnit]);
+  }, [transportType, showVehicleDetails, vehicleType, vehicleEnergyClass, vehicleFuelType, vehicleFuelConsumptionUnit, setVehicleType, setVehicleEnergyClass, setVehicleFuelType, setVehicleFuelConsumptionUnit]);
 
   return (
     <div className="space-y-4">

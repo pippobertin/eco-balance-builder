@@ -42,7 +42,7 @@ export const performTransportCalculation = (
     return { updatedResults: results, details };
   }
 
-  const distance = parseFloat(inputs.transportDistance);
+  const distance = parseFloat(String(inputs.transportDistance).replace(',', '.'));
   if (isNaN(distance) || distance <= 0) {
     console.error('Invalid transport distance:', inputs.transportDistance);
     return { updatedResults: results, details };
