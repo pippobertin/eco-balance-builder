@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { 
   EmissionsInput, 
@@ -115,6 +114,7 @@ export const useCalculateEmissions = (
             // Create a new record with the details
             const newRecord: EmissionCalculationRecord = {
               id: generateUniqueId(),
+              report_id: '', // This will be set by the parent component
               date: new Date().toISOString(),
               scope: scope,
               source: (detailsObj as any)?.source || '',

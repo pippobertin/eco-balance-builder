@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { EmissionCalculationLogs, EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator/types';
+import { EmissionCalculationLogs, EmissionsInput, EmissionsResults, EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
 import { useEmissionsCalculator } from '@/hooks/emissions-calculator/useEmissionsCalculator';
 import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useToast } from '@/hooks/use-toast';

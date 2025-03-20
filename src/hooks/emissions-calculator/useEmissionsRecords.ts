@@ -11,6 +11,7 @@ export const useEmissionsRecords = () => {
    */
   const createCalculationRecord = useCallback((
     id: string,
+    report_id: string,
     scope: 'scope1' | 'scope2' | 'scope3',
     source: string,
     description: string,
@@ -21,6 +22,7 @@ export const useEmissionsRecords = () => {
   ): EmissionCalculationRecord => {
     return {
       id,
+      report_id,
       date: new Date().toISOString(),
       scope,
       source,
