@@ -84,10 +84,10 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert EmissionCalculationLogs to a JSON-compatible object
+      // Convert to a format suitable for the database - we need to explicitly cast to Json type
       const initialData = {
         report_id: reportId,
-        calculation_logs: initialLogs as unknown as object,
+        calculation_logs: initialLogs as any,
         created_at: new Date().toISOString()
       };
       

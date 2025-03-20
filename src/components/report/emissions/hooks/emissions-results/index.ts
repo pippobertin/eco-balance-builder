@@ -38,10 +38,15 @@ export const useEmissionsResults = (reportId: string | undefined) => {
         scope3Calculations: [] 
       };
       
-      // Use type assertion to safely handle the calculation logs
-      const calculationLogs = (typeof data.calculation_logs === 'string' 
-        ? safeJsonParse(data.calculation_logs, defaultLogs)
-        : data.calculation_logs) as EmissionCalculationLogs;
+      // Safely handle calculation logs with type assertions for better TypeScript compatibility
+      let calculationLogs: EmissionCalculationLogs;
+      
+      if (typeof data.calculation_logs === 'string') {
+        calculationLogs = safeJsonParse(data.calculation_logs, defaultLogs);
+      } else {
+        // Type assertion to handle the JSON type from Supabase
+        calculationLogs = data.calculation_logs as unknown as EmissionCalculationLogs;
+      }
       
       // Ensure the data has the correct structure
       const validatedLogs: EmissionCalculationLogs = {

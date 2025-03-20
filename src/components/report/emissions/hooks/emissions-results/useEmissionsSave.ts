@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useToast } from '@/hooks/use-toast';
-import { safeJsonStringify } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useEmissionsSave = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -53,9 +52,9 @@ export const useEmissionsSave = () => {
       
       let result;
       
-      // Convert calculation logs to a format suitable for the database
-      // Use as unknown to bridge the type gap
-      const calculationLogsForDb = validatedCalculations as unknown as object;
+      // Convert calculation logs to a format suitable for the database using type casting
+      // This fixes TypeScript issues with Supabase's Json type
+      const calculationLogsForDb = validatedCalculations as any;
       
       // If data exists, update it
       if (existingData) {
