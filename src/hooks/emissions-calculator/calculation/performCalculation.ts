@@ -28,37 +28,9 @@ export const performEmissionsCalculation = (
   console.log('Starting emissions calculation for scope:', scope || 'all scopes');
   console.log('Input values:', JSON.stringify(inputs));
   
-  // Log specific inputs for scope1
-  if (scope === 'scope1' || !scope) {
-    console.log('Scope1 specific inputs:', {
-      fuelType: inputs.fuelType,
-      fuelQuantity: inputs.fuelQuantity,
-      fuelUnit: inputs.fuelUnit
-    });
-  }
-  
-  // Ensure all necessary inputs exist before calculation
-  if (scope === 'scope1') {
-    if (!inputs.fuelType) {
-      console.error('Missing fuel type for scope1 calculation');
-      return { results, details };
-    }
-    
-    if (!inputs.fuelQuantity) {
-      console.error('Missing fuel quantity for scope1 calculation');
-      return { results, details };
-    }
-    
-    console.log('Fuel quantity type:', typeof inputs.fuelQuantity);
-    console.log('Fuel quantity value:', inputs.fuelQuantity);
-  }
-  
   // Perform calculation for the requested scope or all scopes
   if (!scope || scope === 'scope1') {
     console.log('Calculating scope1 with initial results:', results);
-    console.log('Fuel quantity type:', typeof inputs.fuelQuantity);
-    console.log('Fuel quantity value:', inputs.fuelQuantity);
-    console.log('Fuel type:', inputs.fuelType);
     
     try {
       const scope1Result = performScope1Calculation(inputs, results);

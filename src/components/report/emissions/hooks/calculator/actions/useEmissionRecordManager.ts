@@ -40,13 +40,34 @@ export const useEmissionRecordManager = (
     
     const { emissionValue, detailsObj, description, scope } = calculationData;
     
+    // Create record object with appropriate values based on scope
+    let sourceValue = '';
+    let quantityValue = 0;
+    let unitValue = '';
+    
+    if (scope === 'scope1' && detailsObj.fuelType) {
+      sourceValue = detailsObj.fuelType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'L';
+    } else if (scope === 'scope2' && detailsObj.energyType) {
+      sourceValue = detailsObj.energyType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'kWh';
+    } else if (scope === 'scope3') {
+      sourceValue = detailsObj.activityType || '';
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || '';
+    } else {
+      sourceValue = detailsObj.source || '';
+    }
+    
     const record = {
       report_id: effectiveReportId,
       scope,
-      source: detailsObj.source || '',
+      source: sourceValue,
       description,
-      quantity: detailsObj.quantity || 0,
-      unit: detailsObj.unit || '',
+      quantity: quantityValue,
+      unit: unitValue,
       emissions: emissionValue,
       details: detailsObj
     };

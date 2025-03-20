@@ -1,4 +1,5 @@
 
+import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../types';
 import { performTransportCalculation } from './scope3/transportCalculations';
 import { performWasteCalculation } from './scope3/wasteCalculations';
@@ -15,42 +16,36 @@ export const performScope3Calculation = (
   details: string;
   source?: string;
 } => {
-  // Determine which category of Scope 3 we're calculating
-  const category = inputs.scope3Category || 'transport';
-  
-  console.log('Performing Scope 3 calculation for category:', category, 'with initial results:', results);
-  
-  let calculationResult;
-  if (category === 'transport') {
-    calculationResult = performTransportCalculation(inputs, results);
-    console.log('Transport calculation completed:', calculationResult);
-  } else if (category === 'waste') {
-    calculationResult = performWasteCalculation(inputs, results);
-    console.log('Waste calculation completed:', calculationResult);
-  } else if (category === 'purchases') {
-    calculationResult = performPurchaseCalculation(inputs, results);
-    console.log('Purchase calculation completed:', calculationResult);
-  } else {
-    // Default return if no category matched
-    console.log('No matching category found for:', category);
+  console.log('Starting scope3 calculation with inputs:', {
+    scope3Category: inputs.scope3Category,
+    transportType: inputs.transportType,
+    transportDistance: inputs.transportDistance,
+    wasteType: inputs.wasteType,
+    wasteQuantity: inputs.wasteQuantity,
+    purchaseType: inputs.purchaseType,
+    purchaseQuantity: inputs.purchaseQuantity,
+  });
+
+  // Ensure scope3Category is defined
+  if (!inputs.scope3Category) {
+    console.error('Missing scope3Category for scope3 calculation');
     return { updatedResults: results, details: '' };
   }
-  
-  // Log the detailed results to help with debugging
-  console.log('Scope 3 calculation result:', {
-    category,
-    initialScope3: results.scope3,
-    updatedScope3: calculationResult.updatedResults.scope3,
-    details: calculationResult.details,
-    source: calculationResult.source
-  });
-  
-  return calculationResult;
-};
 
-// Re-export the specific calculation functions for direct use
-export { 
-  performTransportCalculation,
-  performWasteCalculation,
-  performPurchaseCalculation 
+  try {
+    // Based on the category, call the appropriate calculation function
+    if (inputs.scope3Category === 'transport') {
+      return performTransportCalculation(inputs, results);
+    } else if (inputs.scope3Category === 'waste') {
+      return performWasteCalculation(inputs, results);
+    } else if (inputs.scope3Category === 'purchases') {
+      return performPurchaseCalculation(inputs, results);
+    } else {
+      console.error('Unknown scope3 category:', inputs.scope3Category);
+      return { updatedResults: results, details: '' };
+    }
+  } catch (error) {
+    console.error('Error in scope3 calculation:', error);
+    return { updatedResults: results, details: '' };
+  }
 };

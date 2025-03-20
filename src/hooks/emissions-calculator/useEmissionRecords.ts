@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationRecord, EmissionsResults } from './types';
 import { useToast } from '@/hooks/use-toast';
