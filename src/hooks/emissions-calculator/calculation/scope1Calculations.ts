@@ -24,6 +24,7 @@ export const performScope1Calculation = (
   });
 
   if (inputs.fuelType && inputs.fuelQuantity && inputs.fuelQuantity !== '') {
+    // Parse fuel quantity as a number
     const quantity = parseFloat(inputs.fuelQuantity);
     console.log('Parsed fuel quantity:', quantity);
     
@@ -31,11 +32,21 @@ export const performScope1Calculation = (
       // Ensure we're using the correct unit, defaulting to 'L' if not provided
       const unit = inputs.fuelUnit || 'L';
       
+      // Call the calculation function from the emissions calculator library
+      console.log('Calling calculateScope1Emissions with:', {
+        fuelType: inputs.fuelType,
+        quantity,
+        unit
+      });
+      
       const emissionsKg = calculateScope1Emissions(
         inputs.fuelType, 
         quantity, 
         unit
       );
+      
+      console.log('Received emissions result in kg:', emissionsKg);
+      
       const emissionsTonnes = emissionsKg / 1000;
       
       console.log('Scope 1 calculation results:', {

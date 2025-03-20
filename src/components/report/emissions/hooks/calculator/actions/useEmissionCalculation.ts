@@ -33,19 +33,35 @@ export const useEmissionCalculation = (
       }
       
       // Specific validations based on scope
-      if (scope === 'scope1' && (!inputs.fuelType || !inputs.fuelQuantity)) {
-        console.error('Missing fuel type or quantity for scope1 calculation');
-        toast({
-          title: "Dati mancanti",
-          description: "Seleziona tipo e quantità di combustibile.",
-          variant: "destructive"
-        });
-        return null;
-      }
-      
-      // Validate quantity is a number for scope1
-      if (scope === 'scope1' && inputs.fuelQuantity) {
-        const quantity = parseFloat(inputs.fuelQuantity);
+      if (scope === 'scope1') {
+        if (!inputs.fuelType || !inputs.fuelQuantity) {
+          console.error('Missing fuel type or quantity for scope1 calculation');
+          toast({
+            title: "Dati mancanti",
+            description: "Seleziona tipo e quantità di combustibile.",
+            variant: "destructive"
+          });
+          return null;
+        }
+        
+        console.log('Validating fuel quantity:', inputs.fuelQuantity, 'type:', typeof inputs.fuelQuantity);
+        
+        // Extra validation for fuel quantity
+        if (typeof inputs.fuelQuantity === 'string') {
+          // Make sure it's a valid number string
+          if (!/^\d*\.?\d+$/.test(inputs.fuelQuantity)) {
+            console.error('Invalid fuel quantity format:', inputs.fuelQuantity);
+            toast({
+              title: "Formato non valido",
+              description: "La quantità di combustibile deve essere un numero positivo.",
+              variant: "destructive"
+            });
+            return null;
+          }
+        }
+        
+        // Validate quantity is a number for scope1
+        const quantity = parseFloat(String(inputs.fuelQuantity));
         if (isNaN(quantity) || quantity <= 0) {
           console.error('Invalid fuel quantity:', inputs.fuelQuantity);
           toast({

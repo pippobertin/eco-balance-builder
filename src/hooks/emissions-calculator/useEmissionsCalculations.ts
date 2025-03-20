@@ -43,7 +43,16 @@ export const useEmissionsCalculations = () => {
           };
         }
         
-        const quantity = parseFloat(inputs.fuelQuantity);
+        // Always handle fuel quantity as string, then parse it
+        const quantityStr = String(inputs.fuelQuantity).replace(',', '.');
+        const quantity = parseFloat(quantityStr);
+        
+        console.log('Validating fuel quantity:', {
+          original: inputs.fuelQuantity,
+          asString: quantityStr,
+          parsed: quantity
+        });
+        
         if (isNaN(quantity) || quantity <= 0) {
           console.error('Invalid fuelQuantity for scope1 calculation:', inputs.fuelQuantity);
           return {
@@ -51,6 +60,18 @@ export const useEmissionsCalculations = () => {
             details: { scope1Details: '', scope2Details: '', scope3Details: '' }
           };
         }
+        
+        // Ensure the fuelQuantity is properly set as a string in inputs
+        const validatedInputs = {
+          ...inputs,
+          fuelQuantity: quantityStr
+        };
+        
+        // Call the calculation function with validated inputs
+        const calculationResult = performEmissionsCalculation(validatedInputs, scope);
+        console.log('Calculation result:', JSON.stringify(calculationResult));
+        
+        return calculationResult;
       }
       
       // Call the calculation function
