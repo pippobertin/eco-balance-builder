@@ -2,10 +2,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Leaf } from 'lucide-react';
 import EmissionsEnergySection from './environmental/EmissionsEnergySection';
+import PollutionSection from './environmental/PollutionSection';
+import BiodiversitySection from './environmental/BiodiversitySection';
 import WaterSection from './environmental/WaterSection';
 import ResourcesSection from './environmental/ResourcesSection';
-import BiodiversitySection from './environmental/BiodiversitySection';
-import PollutionSection from './environmental/PollutionSection';
 
 interface EnvironmentalMetricsProps {
   formValues: any;
@@ -19,23 +19,23 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
   initialField
 }) => {
   const emissionsRef = useRef<HTMLDivElement>(null);
+  const pollutionRef = useRef<HTMLDivElement>(null);
+  const biodiversityRef = useRef<HTMLDivElement>(null);
   const waterRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
-  const biodiversityRef = useRef<HTMLDivElement>(null);
-  const pollutionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
       if (initialField === 'emissions' && emissionsRef.current) {
         emissionsRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'pollution' && pollutionRef.current) {
+        pollutionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'biodiversity' && biodiversityRef.current) {
+        biodiversityRef.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'water' && waterRef.current) {
         waterRef.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'resources' && resourcesRef.current) {
         resourcesRef.current.scrollIntoView({ behavior: 'smooth' });
-      } else if (initialField === 'biodiversity' && biodiversityRef.current) {
-        biodiversityRef.current.scrollIntoView({ behavior: 'smooth' });
-      } else if (initialField === 'pollution' && pollutionRef.current) {
-        pollutionRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -63,23 +63,15 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
-      {/* B4 - Acqua */}
-      <div ref={waterRef}>
-        <WaterSection
+      {/* B4 - Inquinamento */}
+      <div ref={pollutionRef}>
+        <PollutionSection
           formValues={formValues}
           setFormValues={setFormValues}
         />
       </div>
       
-      {/* B5 - Risorse */}
-      <div ref={resourcesRef}>
-        <ResourcesSection
-          formValues={formValues}
-          setFormValues={setFormValues}
-        />
-      </div>
-      
-      {/* B6 - Biodiversità */}
+      {/* B5 - Biodiversità */}
       <div ref={biodiversityRef}>
         <BiodiversitySection
           formValues={formValues}
@@ -87,9 +79,17 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
         />
       </div>
       
-      {/* B7 - Inquinamento */}
-      <div ref={pollutionRef}>
-        <PollutionSection
+      {/* B6 - Acqua */}
+      <div ref={waterRef}>
+        <WaterSection
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
+      </div>
+      
+      {/* B7 - Risorse */}
+      <div ref={resourcesRef}>
+        <ResourcesSection
           formValues={formValues}
           setFormValues={setFormValues}
         />
