@@ -40,6 +40,7 @@ export const useCalculateEmissions = (
   const calculateEmissions = useCallback((scope?: 'scope1' | 'scope2' | 'scope3') => {
     console.log('Starting calculation for scope:', scope);
     console.log('Current inputs:', inputs);
+    console.log('Current calculation logs:', calculationLogs);
     
     // Initialize results with zeros if not provided
     const initialResults: EmissionsResults = {
@@ -71,11 +72,13 @@ export const useCalculateEmissions = (
     
     // Update calculation logs if we have a new calculation
     if (scope) {
+      console.log(`Checking if we need to add a new calculation record for ${scope}`);
+      
       // Create a record only if there are calculated emissions
       const emissionValue = scope === 'scope1' ? newResults.scope1 : 
                           scope === 'scope2' ? newResults.scope2 : newResults.scope3;
       
-      console.log(`Checking emissions value for ${scope}:`, emissionValue);
+      console.log(`Emissions value for ${scope}:`, emissionValue);
       
       if (emissionValue > 0) {
         console.log(`Found positive emissions for ${scope}:`, emissionValue);

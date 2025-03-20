@@ -58,7 +58,7 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
           }
           
           // Ensure arrays exist and are arrays
-          data.calculation_logs = {
+          const validatedCalculationLogs = {
             scope1Calculations: Array.isArray(parsedLogs.scope1Calculations) 
               ? parsedLogs.scope1Calculations : [],
             scope2Calculations: Array.isArray(parsedLogs.scope2Calculations)
@@ -66,9 +66,12 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
             scope3Calculations: Array.isArray(parsedLogs.scope3Calculations)
               ? parsedLogs.scope3Calculations : []
           };
+          
+          // Assign the validated logs to data.calculation_logs with proper type casting
+          data.calculation_logs = validatedCalculationLogs as unknown as Json;
         } else {
           console.log('No calculation_logs found, using default empty structure');
-          data.calculation_logs = defaultLogs;
+          data.calculation_logs = defaultLogs as unknown as Json;
         }
       }
       
