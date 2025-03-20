@@ -41,38 +41,49 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         
         // Parse calculation_logs if it exists
         if (data.calculation_logs) {
-          // Safely convert the data to a proper structure
-          // First, get either the JSON object or parse the string
+          // Handle the case when calculation_logs is already an object
           let logsData: any;
           
           if (typeof data.calculation_logs === 'string') {
             try {
               logsData = JSON.parse(data.calculation_logs);
+              console.log('Parsed calculation_logs from string:', logsData);
             } catch (e) {
               console.error('Failed to parse calculation_logs string:', e);
               logsData = {};
             }
           } else {
+            // Already an object, use as is
             logsData = data.calculation_logs;
+            console.log('calculation_logs is already an object:', logsData);
           }
           
-          // Now ensure the structure is correct
+          // Now ensure the structure is correct by explicitly accessing properties
+          const scope1Calcs = Array.isArray(logsData.scope1Calculations) 
+            ? logsData.scope1Calculations 
+            : [];
+            
+          const scope2Calcs = Array.isArray(logsData.scope2Calculations)
+            ? logsData.scope2Calculations 
+            : [];
+            
+          const scope3Calcs = Array.isArray(logsData.scope3Calculations)
+            ? logsData.scope3Calculations 
+            : [];
+          
+          // Create a clean structure that can be safely stringified later
           data.calculation_logs = {
-            scope1Calculations: Array.isArray(logsData.scope1Calculations) 
-              ? logsData.scope1Calculations 
-              : [],
-            scope2Calculations: Array.isArray(logsData.scope2Calculations)
-              ? logsData.scope2Calculations 
-              : [],
-            scope3Calculations: Array.isArray(logsData.scope3Calculations)
-              ? logsData.scope3Calculations 
-              : []
+            scope1Calculations: scope1Calcs,
+            scope2Calculations: scope2Calcs,
+            scope3Calculations: scope3Calcs
           };
+          
+          console.log('Normalized calculation_logs structure:', data.calculation_logs);
         } else {
           // If no calculation_logs exist, use the default empty structure
           // Convert the EmissionCalculationLogs to a JSON-compatible format
-          const logsString = safeJsonStringify(defaultLogs);
-          data.calculation_logs = JSON.parse(logsString);
+          console.log('No calculation_logs found, using default empty structure');
+          data.calculation_logs = defaultLogs;
         }
       }
       
@@ -97,13 +108,10 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert the EmissionCalculationLogs to a JSON string first
-      const logsString = safeJsonStringify(initialLogs);
-      
-      // Then parse it back to a plain JavaScript object that Supabase can handle
+      // Use the structure directly without stringifying and parsing
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.parse(logsString),
+        calculation_logs: initialLogs,
         created_at: new Date().toISOString()
       };
       

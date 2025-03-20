@@ -53,11 +53,10 @@ export const useEmissionsSave = () => {
       
       let result;
       
-      // First convert the EmissionCalculationLogs to a JSON string
-      const logsString = safeJsonStringify(validatedCalculations);
+      // Directly use the validated object - let Supabase handle the JSON conversion
+      const logsForDB = validatedCalculations;
       
-      // Then parse it back to a plain JavaScript object that Supabase can handle
-      const logsForDB = JSON.parse(logsString);
+      console.log('Logs prepared for DB:', logsForDB);
       
       // If data exists, update it
       if (existingData) {

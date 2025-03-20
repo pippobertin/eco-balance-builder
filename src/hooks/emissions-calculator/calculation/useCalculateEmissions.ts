@@ -39,7 +39,7 @@ export const useCalculateEmissions = (
    */
   const calculateEmissions = useCallback((scope?: 'scope1' | 'scope2' | 'scope3') => {
     console.log('Starting calculation for scope:', scope);
-    console.log('Current inputs:', JSON.stringify(inputs));
+    console.log('Current inputs:', inputs);
     
     // Initialize results with zeros if not provided
     const initialResults: EmissionsResults = {
@@ -88,13 +88,18 @@ export const useCalculateEmissions = (
           console.log(`Details string for ${scope}:`, detailsStr);
           
           let detailsObj = {};
-          if (detailsStr) {
+          if (detailsStr && typeof detailsStr === 'string') {
             try {
               detailsObj = JSON.parse(detailsStr);
               console.log(`Parsed details object for ${scope}:`, detailsObj);
             } catch (e) {
               console.error(`Error parsing details for ${scope}:`, e);
+              // If parsing fails, try to use the string as is
+              detailsObj = { rawDetails: detailsStr };
             }
+          } else if (detailsStr && typeof detailsStr === 'object') {
+            // If it's already an object, use it directly
+            detailsObj = detailsStr;
           }
           
           // Create a new record with the details, safely accessing properties that might not exist
