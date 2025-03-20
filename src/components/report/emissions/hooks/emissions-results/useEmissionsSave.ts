@@ -53,9 +53,11 @@ export const useEmissionsSave = () => {
       
       let result;
       
-      // Use 'as any' to bypass TypeScript type checking
-      // This is necessary because EmissionCalculationLogs cannot be directly assigned to Json
-      const logsForDB = validatedCalculations as any;
+      // First convert the EmissionCalculationLogs to a JSON string
+      const logsString = safeJsonStringify(validatedCalculations);
+      
+      // Then parse it back to a plain JavaScript object that Supabase can handle
+      const logsForDB = JSON.parse(logsString);
       
       // If data exists, update it
       if (existingData) {

@@ -41,21 +41,35 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         
         // Parse calculation_logs if it exists
         if (data.calculation_logs) {
-          // Handle string or object format
-          const parsedLogs = typeof data.calculation_logs === 'string' 
-            ? safeJsonParse(data.calculation_logs, defaultLogs)
-            : data.calculation_logs;
+          // Safely convert the data to a proper structure
+          // First, get either the JSON object or parse the string
+          let logsData: any;
           
-          // Normalize the structure to ensure it has all expected properties
+          if (typeof data.calculation_logs === 'string') {
+            try {
+              logsData = JSON.parse(data.calculation_logs);
+            } catch (e) {
+              console.error('Failed to parse calculation_logs string:', e);
+              logsData = {};
+            }
+          } else {
+            logsData = data.calculation_logs;
+          }
+          
+          // Now ensure the structure is correct
           data.calculation_logs = {
-            scope1Calculations: Array.isArray(parsedLogs.scope1Calculations) 
-              ? parsedLogs.scope1Calculations : [],
-            scope2Calculations: Array.isArray(parsedLogs.scope2Calculations)
-              ? parsedLogs.scope2Calculations : [],
-            scope3Calculations: Array.isArray(parsedLogs.scope3Calculations)
-              ? parsedLogs.scope3Calculations : []
+            scope1Calculations: Array.isArray(logsData.scope1Calculations) 
+              ? logsData.scope1Calculations 
+              : [],
+            scope2Calculations: Array.isArray(logsData.scope2Calculations)
+              ? logsData.scope2Calculations 
+              : [],
+            scope3Calculations: Array.isArray(logsData.scope3Calculations)
+              ? logsData.scope3Calculations 
+              : []
           };
         } else {
+          // If no calculation_logs exist, use the default empty structure
           data.calculation_logs = defaultLogs;
         }
       }
@@ -81,11 +95,13 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Use 'as any' to bypass TypeScript type checking
-      // This is necessary because EmissionCalculationLogs cannot be directly assigned to Json
+      // Convert the EmissionCalculationLogs to a JSON string first
+      const logsString = safeJsonStringify(initialLogs);
+      
+      // Then parse it back to a plain JavaScript object that Supabase can handle
       const initialData = {
         report_id: reportId,
-        calculation_logs: initialLogs as any,
+        calculation_logs: JSON.parse(logsString),
         created_at: new Date().toISOString()
       };
       
