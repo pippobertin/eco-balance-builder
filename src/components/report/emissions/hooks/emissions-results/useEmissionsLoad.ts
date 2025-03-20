@@ -42,21 +42,18 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         // Parse calculation_logs if it exists
         if (data.calculation_logs) {
           // Handle string or object format
-          if (typeof data.calculation_logs === 'string') {
-            data.calculation_logs = safeJsonParse(data.calculation_logs, defaultLogs);
-          }
+          const parsedLogs = typeof data.calculation_logs === 'string' 
+            ? safeJsonParse(data.calculation_logs, defaultLogs)
+            : data.calculation_logs;
           
-          // Ensure the parsed object has the expected structure by validating and normalizing
-          const parsed = data.calculation_logs as any;
-          
-          // Normalize the structure
+          // Normalize the structure to ensure it has all expected properties
           data.calculation_logs = {
-            scope1Calculations: Array.isArray(parsed.scope1Calculations) 
-              ? parsed.scope1Calculations : [],
-            scope2Calculations: Array.isArray(parsed.scope2Calculations)
-              ? parsed.scope2Calculations : [],
-            scope3Calculations: Array.isArray(parsed.scope3Calculations)
-              ? parsed.scope3Calculations : []
+            scope1Calculations: Array.isArray(parsedLogs.scope1Calculations) 
+              ? parsedLogs.scope1Calculations : [],
+            scope2Calculations: Array.isArray(parsedLogs.scope2Calculations)
+              ? parsedLogs.scope2Calculations : [],
+            scope3Calculations: Array.isArray(parsedLogs.scope3Calculations)
+              ? parsedLogs.scope3Calculations : []
           };
         } else {
           data.calculation_logs = defaultLogs;
@@ -84,15 +81,11 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Stringify the object for Supabase
-      const logsString = safeJsonStringify(initialLogs);
-      
-      // Create a proper JSON object that Supabase can store
-      const jsonLogs = JSON.parse(logsString);
-      
+      // Use 'as any' to bypass TypeScript type checking
+      // This is necessary because EmissionCalculationLogs cannot be directly assigned to Json
       const initialData = {
         report_id: reportId,
-        calculation_logs: jsonLogs,
+        calculation_logs: initialLogs as any,
         created_at: new Date().toISOString()
       };
       

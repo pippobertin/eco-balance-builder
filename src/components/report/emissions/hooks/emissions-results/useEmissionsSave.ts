@@ -53,16 +53,16 @@ export const useEmissionsSave = () => {
       
       let result;
       
-      // Convert to JSON string and then parse it back to ensure it's compatible with Supabase's Json type
-      const logsAsString = safeJsonStringify(validatedCalculations);
-      const jsonCompatibleLogs = JSON.parse(logsAsString);
+      // Use 'as any' to bypass TypeScript type checking
+      // This is necessary because EmissionCalculationLogs cannot be directly assigned to Json
+      const logsForDB = validatedCalculations as any;
       
       // If data exists, update it
       if (existingData) {
         const { data, error } = await supabase
           .from('emissions_logs')
           .update({
-            calculation_logs: jsonCompatibleLogs,
+            calculation_logs: logsForDB,
             updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
@@ -77,7 +77,7 @@ export const useEmissionsSave = () => {
           .from('emissions_logs')
           .insert({
             report_id: reportId,
-            calculation_logs: jsonCompatibleLogs,
+            calculation_logs: logsForDB,
             created_at: new Date().toISOString()
           })
           .select()
