@@ -84,10 +84,11 @@ export const useEmissionsLoad = (reportId: string | undefined) => {
         scope3Calculations: []
       };
       
-      // Convert to a format suitable for the database - we need to explicitly cast to Json type
+      // Convert to a format suitable for the database by JSON.stringify to ensure compatibility
+      // This avoids the direct type assignment that was causing the error
       const initialData = {
         report_id: reportId,
-        calculation_logs: JSON.stringify(initialLogs) as any,
+        calculation_logs: JSON.stringify(initialLogs),
         created_at: new Date().toISOString()
       };
       

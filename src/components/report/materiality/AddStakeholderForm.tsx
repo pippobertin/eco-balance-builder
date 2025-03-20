@@ -122,7 +122,7 @@ const AddStakeholderForm: React.FC<AddStakeholderFormProps> = ({
         <StakeholderFormActions 
           isValid={isFormValid}
           onCancel={onCancel}
-          onSubmit={handleAddStakeholder}
+          onSave={handleAddStakeholder} // Use onSave prop which is what the component expects
         />
       </div>
     </GlassmorphicCard>

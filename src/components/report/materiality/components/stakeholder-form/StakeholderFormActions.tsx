@@ -9,6 +9,7 @@ interface StakeholderFormActionsProps {
   onSave: () => void;
   onCancel: () => void;
   onDelete?: () => void;
+  onSubmit?: () => void; // Add onSubmit prop to support both naming conventions
   isNew?: boolean;
   disabled?: boolean;
   isValid?: boolean; // Added this prop to match usage in AddStakeholderForm
@@ -18,11 +19,21 @@ const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
   onSave,
   onCancel,
   onDelete,
+  onSubmit, // Add this to destructuring
   isNew = true,
   disabled = false,
   isValid = true // Default to true to maintain backward compatibility
 }) => {
   const { needsSaving, lastSaved } = useReport();
+  
+  // Use onSubmit if provided, otherwise fall back to onSave
+  const handleSaveClick = () => {
+    if (onSubmit) {
+      onSubmit();
+    } else {
+      onSave();
+    }
+  };
   
   return (
     <div className="flex items-center justify-between gap-4 mt-6">
@@ -46,7 +57,7 @@ const StakeholderFormActions: React.FC<StakeholderFormActionsProps> = ({
           Annulla
         </Button>
         
-        <Button onClick={onSave} disabled={disabled || !isValid} type="button">
+        <Button onClick={handleSaveClick} disabled={disabled || !isValid} type="button">
           <Save className="mr-2 h-4 w-4" />
           Salva
         </Button>
