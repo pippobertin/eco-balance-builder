@@ -3,11 +3,13 @@ import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CircleDollarSign, Info, Save } from 'lucide-react';
+import { CircleDollarSign, Info, Save, HelpCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { useWorkforceCompensationData } from './hooks/useWorkforceCompensationData';
 import { useReport } from '@/hooks/use-report-context';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type WorkforceCompensationProps = {
   formValues: any;
@@ -58,6 +60,38 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
       }
     }, [compensationData, loading]);
 
+    // Automatically calculate wage ratio when entry wage or minimum wage changes
+    useEffect(() => {
+      if (
+        formValues?.socialMetrics?.entryWage && 
+        formValues?.socialMetrics?.localMinimumWage && 
+        parseFloat(formValues.socialMetrics.localMinimumWage) > 0
+      ) {
+        const entryWage = parseFloat(formValues.socialMetrics.entryWage);
+        const minimumWage = parseFloat(formValues.socialMetrics.localMinimumWage);
+        
+        if (!isNaN(entryWage) && !isNaN(minimumWage) && minimumWage > 0) {
+          const ratio = entryWage / minimumWage;
+          
+          // Update the ratio field
+          const updatedSocialMetrics = {
+            ...(formValues?.socialMetrics || {}),
+            entryWageToMinimumWageRatio: ratio.toFixed(2)
+          };
+          
+          // Create a synthetic change event to update the form values
+          const syntheticEvent = {
+            target: {
+              name: 'socialMetrics',
+              value: updatedSocialMetrics
+            }
+          } as any;
+          
+          handleChange(syntheticEvent);
+        }
+      }
+    }, [formValues?.socialMetrics?.entryWage, formValues?.socialMetrics?.localMinimumWage]);
+
     const handleSaveCompensationData = async () => {
       if (!formValues?.socialMetrics) {
         console.error("Social metrics data is undefined. Cannot save compensation data.");
@@ -82,6 +116,39 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
         avg_training_hours_female: formValues.socialMetrics.avgTrainingHoursFemale !== "" ? Number(formValues.socialMetrics.avgTrainingHoursFemale) : null
       });
     };
+
+    // Helper component for field explanations
+    const InfoTooltip = ({ text }: { text: string }) => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="ml-1.5 inline-flex items-center">
+              <HelpCircle className="h-4 w-4 text-slate-500 hover:text-slate-700" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm">
+            <p className="text-sm">{text}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+
+    // Helper component for field popup explanations with info icon
+    const InfoPopover = ({ children }: { children: React.ReactNode }) => (
+      <Popover>
+        <PopoverTrigger asChild>
+          <span className="ml-1.5 inline-flex items-center cursor-pointer">
+            <HelpCircle className="h-4 w-4 text-slate-500 hover:text-slate-700" />
+          </span>
+        </PopoverTrigger>
+        <PopoverContent className="max-w-sm bg-blue-50 border-blue-200">
+          <div className="flex items-start mb-2">
+            <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+            {children}
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
 
     return (
       <GlassmorphicCard>
@@ -112,20 +179,61 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
           <h4 className="font-medium text-lg">Retribuzione</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="entryWage">Salario di ingresso (€)</Label>
+              <Label htmlFor="entryWage">
+                Salario di ingresso (€)
+                <InfoPopover>
+                  <p className="text-sm text-slate-600">
+                    Per "salario di ingresso" si intende il salario a tempo pieno della categoria occupazionale più
+                    bassa. I salari dei tirocinanti e degli apprendisti non devono essere considerati nell'identificazione
+                    del salario di ingresso dell'impresa.
+                  </p>
+                </InfoPopover>
+              </Label>
               <Input id="entryWage" name="entryWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.entryWage || ""} onChange={handleChange} />
             </div>
             
             <div>
-              <Label htmlFor="localMinimumWage">Salario minimo locale (€)</Label>
+              <Label htmlFor="localMinimumWage">
+                Salario minimo locale (€)
+                <InfoPopover>
+                  <p className="text-sm text-slate-600">
+                    Per "salario minimo" si intende il compenso minimo di lavoro per ora, o altra unità di tempo,
+                    consentito dalla legge. A seconda del Paese, il salario minimo può essere stabilito direttamente
+                    dalla legge o attraverso accordi di contrattazione collettiva. L'impresa deve fare riferimento al
+                    salario minimo applicabile per il Paese in cui si riferisce (sia esso stabilito direttamente dalla legge
+                    o attraverso un contratto collettivo di lavoro).
+                  </p>
+                </InfoPopover>
+              </Label>
               <Input id="localMinimumWage" name="localMinimumWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.localMinimumWage || ""} onChange={handleChange} />
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="entryWageToMinimumWageRatio">Rapporto tra salario di ingresso e salario minimo</Label>
-              <Input id="entryWageToMinimumWageRatio" name="entryWageToMinimumWageRatio" type="number" placeholder="0.0" value={formValues.socialMetrics?.entryWageToMinimumWageRatio || ""} onChange={handleChange} />
+              <Label htmlFor="entryWageToMinimumWageRatio">
+                Rapporto tra salario di ingresso e salario minimo
+                <InfoPopover>
+                  <p className="text-sm text-slate-600">
+                    Per calcolare il rapporto tra il salario di ingresso e il salario minimo, si utilizza la formula seguente:
+                    <br />
+                    <span className="font-medium mt-1 block">Indice = Salario di ingresso / Salario minimo</span>
+                    <br />
+                    Per "percentuale significativa di dipendenti" si intende la maggioranza dei dipendenti dell'impresa,
+                    senza considerare stagisti e apprendisti.
+                  </p>
+                </InfoPopover>
+              </Label>
+              <Input 
+                id="entryWageToMinimumWageRatio" 
+                name="entryWageToMinimumWageRatio" 
+                type="number" 
+                placeholder="0.0" 
+                value={formValues.socialMetrics?.entryWageToMinimumWageRatio || ""} 
+                onChange={handleChange}
+                readOnly
+                className="bg-gray-50"
+              />
               <p className="text-sm text-gray-500 mt-1">
                 Indicare solo se una percentuale significativa di dipendenti è retribuita sulla base di salari soggetti a norme sul salario minimo
               </p>
