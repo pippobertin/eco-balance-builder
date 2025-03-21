@@ -233,6 +233,15 @@ export const usePollutionData = (reportId?: string) => {
   const editRecord = (record: PollutionRecord) => {
     setEditingRecord(record);
     setSelectedMedium(record.release_medium_id);
+    
+    // Update filtered pollutants based on the selected medium
+    if (pollutants.length > 0) {
+      const filtered = pollutants.filter(pollutant => 
+        pollutant.release_medium_ids && 
+        pollutant.release_medium_ids.includes(record.release_medium_id)
+      );
+      setFilteredPollutants(filtered);
+    }
   };
 
   // Cancel editing

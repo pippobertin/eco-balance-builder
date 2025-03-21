@@ -93,6 +93,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
             <PollutionRecordForm
               reportId={reportId}
               mediums={mediums}
+              pollutants={pollutants}
               filteredPollutants={filteredPollutants}
               selectedMedium={selectedMedium}
               setSelectedMedium={setSelectedMedium}

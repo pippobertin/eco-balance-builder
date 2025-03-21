@@ -19,6 +19,7 @@ interface PollutionRecordFormProps {
   onCancelEdit?: () => void;
   editingRecord: PollutionRecord | null;
   isSubmitting: boolean;
+  pollutants: PollutantType[]; // Add the complete list of pollutants
 }
 
 const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
@@ -31,7 +32,8 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
   onUpdateRecord,
   onCancelEdit,
   editingRecord,
-  isSubmitting
+  isSubmitting,
+  pollutants
 }) => {
   const [pollutantTypeId, setPollutantTypeId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<string>("");
@@ -96,8 +98,8 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
           value={selectedMedium?.toString() || ""}
           onValueChange={(value) => {
             setSelectedMedium(parseInt(value));
-            // Reset pollutant when changing medium (unless in edit mode)
-            if (!editingRecord) {
+            // Don't reset pollutant when changing medium during edit mode
+            if (!editingRecord && pollutantTypeId) {
               setPollutantTypeId(null);
             }
           }}
@@ -147,7 +149,8 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
         
         {pollutantTypeId && (
           <p className="text-xs text-gray-500 mt-1">
-            {filteredPollutants.find(p => p.id === pollutantTypeId)?.description}
+            {filteredPollutants.find(p => p.id === pollutantTypeId)?.description || 
+             pollutants.find(p => p.id === pollutantTypeId)?.description}
           </p>
         )}
       </div>
