@@ -5,13 +5,19 @@ import { Leaf } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
 import EmissionsChart from './environmental/EmissionsChart';
+import PollutionChart from './environmental/PollutionChart';
 
 interface EnvironmentalSectionProps {
   reportData: ReportData;
   companyName?: string;
+  reportId?: string;
 }
 
-const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData, companyName }) => {
+const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ 
+  reportData, 
+  companyName,
+  reportId
+}) => {
   const navigate = useNavigate();
   
   const getAggregatedMetrics = () => {
@@ -72,20 +78,12 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
     impermeableSurface,
     natureSurfaceOnSite,
     natureSurfaceOffSite,
-    airPollution,
-    waterPollution,
-    soilPollution,
     totalWaste,
     recycledWaste,
     hazardousWaste,
     recycledContent,
     recyclableContent
   } = getAggregatedMetrics() || {};
-
-  const pollutionData = [];
-  if (airPollution) pollutionData.push({ name: 'Aria', value: airPollution });
-  if (waterPollution) pollutionData.push({ name: 'Acqua', value: waterPollution });
-  if (soilPollution) pollutionData.push({ name: 'Suolo', value: soilPollution });
 
   const biodiversityData = [];
   if (landUse) biodiversityData.push({ name: 'Uso Totale\nTerreno', value: landUse });
@@ -127,17 +125,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ reportData,
         
         {/* Energy chart removed as requested */}
         
-        <MetricChart
-          title="B4 - Inquinamento"
-          description="Emissioni di inquinanti in aria, acqua e suolo"
-          type={pollutionData.length > 0 ? "bar" : "empty"}
-          data={pollutionData}
-          dataKey="name"
-          categories={["value"]}
-          colors={['#5AC8FA', '#0EA5E9', '#8B5CF6']}
-          individualColors={true}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
-        />
+        <PollutionChart reportId={reportId} />
 
         <MetricChart
           title="B5 - Biodiversità"

@@ -1,10 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Wind, Info } from 'lucide-react';
+import { Wind, Info, AlertCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { usePollutionData } from './hooks/usePollutionData';
+import PollutionRecordForm from './pollution/PollutionRecordForm';
+import PollutionRecordsList from './pollution/PollutionRecordsList';
+import { useReport } from '@/hooks/use-report-context';
 
 interface PollutionSectionProps {
   formValues: any;
@@ -15,6 +20,22 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
   formValues,
   setFormValues
 }) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const {
+    mediums,
+    pollutants,
+    filteredPollutants,
+    records,
+    isLoading,
+    selectedMedium,
+    setSelectedMedium,
+    addRecord,
+    deleteRecord
+  } = usePollutionData(reportId);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
     if (typeof setFormValues === 'function' && setFormValues.length === 1) {
@@ -32,6 +53,16 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     }
   };
 
+  const handleAddRecord = async (record: any) => {
+    setIsSubmitting(true);
+    try {
+      const result = await addRecord(record);
+      return result;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <GlassmorphicCard>
       <div className="flex items-center mb-4">
@@ -39,7 +70,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
         <h3 className="text-xl font-semibold">B4 - Inquinamento</h3>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="p-4 rounded-md mb-4 bg-blue-100">
           <div className="flex items-start">
             <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
@@ -51,54 +82,54 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="airPollution">Inquinamento atmosferico (kg)</Label>
-            <Input 
-              id="airPollution" 
-              name="airPollution" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.airPollution || ""} 
-              onChange={handleChange} 
+        {!reportId && (
+          <Alert variant="warning">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Per registrare gli inquinanti è necessario prima salvare il report.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h4 className="font-medium">Registro Inquinanti</h4>
+            <PollutionRecordForm
+              reportId={reportId}
+              mediums={mediums}
+              filteredPollutants={filteredPollutants}
+              selectedMedium={selectedMedium}
+              setSelectedMedium={setSelectedMedium}
+              onAddRecord={handleAddRecord}
+              isSubmitting={isSubmitting}
             />
           </div>
           
-          <div>
-            <Label htmlFor="waterPollution">Inquinamento idrico (kg)</Label>
-            <Input 
-              id="waterPollution" 
-              name="waterPollution" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.waterPollution || ""} 
-              onChange={handleChange} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="soilPollution">Inquinamento del suolo (kg)</Label>
-            <Input 
-              id="soilPollution" 
-              name="soilPollution" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.soilPollution || ""} 
-              onChange={handleChange} 
+          <div className="space-y-4">
+            <h4 className="font-medium">Inquinanti Registrati</h4>
+            <PollutionRecordsList
+              records={records}
+              pollutants={pollutants}
+              mediums={mediums}
+              onDeleteRecord={deleteRecord}
+              isLoading={isLoading}
             />
           </div>
         </div>
         
-        <div>
-          <Label htmlFor="pollutionDetails">Dettagli sull'inquinamento (opzionale)</Label>
-          <Textarea 
-            id="pollutionDetails" 
-            name="pollutionDetails" 
-            placeholder="Fornisci dettagli sulle sostanze inquinanti e sui sistemi di gestione ambientale adottati." 
-            value={formValues.environmentalMetrics?.pollutionDetails || ""} 
-            onChange={handleChange} 
-            className="min-h-[120px]" 
-          />
+        <div className="mt-6">
+          <h4 className="font-medium mb-2">Note aggiuntive sull'inquinamento</h4>
+          <div>
+            <Label htmlFor="pollutionDetails">Dettagli sul sistema di gestione degli inquinanti (opzionale)</Label>
+            <Textarea 
+              id="pollutionDetails" 
+              name="pollutionDetails" 
+              placeholder="Fornisci dettagli sui sistemi di gestione ambientale adottati e ulteriori informazioni sugli inquinanti." 
+              value={formValues.environmentalMetrics?.pollutionDetails || ""} 
+              onChange={handleChange} 
+              className="min-h-[120px]" 
+            />
+          </div>
         </div>
       </div>
     </GlassmorphicCard>
