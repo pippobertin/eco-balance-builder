@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { BiodiversityLandUseData } from '../hooks/biodiversity/useBiodiversityLandUse';
+import { BiodiversityData } from '../hooks/biodiversity/useBiodiversityLandUse';
 import BiodiversityTableHeader from './components/BiodiversityTableHeader';
 import BiodiversityTableRow from './components/BiodiversityTableRow';
 
 interface BiodiversityTableProps {
-  data: BiodiversityLandUseData;
+  data: BiodiversityData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   percentageChanges: {
     totalLandUseChange: number | null;
@@ -36,44 +36,44 @@ const BiodiversityTable: React.FC<BiodiversityTableProps> = ({
             label="Uso totale del suolo"
             tooltipTitle="Uso totale del suolo"
             tooltipContent={tooltipContents.totalLandUse}
-            previousValue={data.previousTotalLandUse}
-            currentValue={data.currentTotalLandUse}
+            previousValue={data.previous_total_land_use}
+            currentValue={data.current_total_land_use}
             percentageChange={percentageChanges.totalLandUseChange}
-            previousFieldName="previousTotalLandUse"
-            currentFieldName="currentTotalLandUse"
+            previousFieldName="previous_total_land_use"
+            currentFieldName="current_total_land_use"
             handleChange={handleChange}
           />
           <BiodiversityTableRow 
             label="Superficie impermeabilizzata"
             tooltipTitle="Superficie impermeabilizzata"
             tooltipContent={tooltipContents.impermeableSurface}
-            previousValue={data.previousImpermeableSurface}
-            currentValue={data.currentImpermeableSurface}
+            previousValue={data.previous_impermeable_surface}
+            currentValue={data.current_impermeable_surface}
             percentageChange={percentageChanges.impermeableSurfaceChange}
-            previousFieldName="previousImpermeableSurface"
-            currentFieldName="currentImpermeableSurface"
+            previousFieldName="previous_impermeable_surface"
+            currentFieldName="current_impermeable_surface"
             handleChange={handleChange}
           />
           <BiodiversityTableRow 
             label="Superficie orientata alla natura in sito"
             tooltipTitle="Superficie orientata alla natura in sito"
             tooltipContent={tooltipContents.natureSurfaceOnsite}
-            previousValue={data.previousNatureSurfaceOnsite}
-            currentValue={data.currentNatureSurfaceOnsite}
+            previousValue={data.previous_nature_surface_onsite}
+            currentValue={data.current_nature_surface_onsite}
             percentageChange={percentageChanges.natureSurfaceOnsiteChange}
-            previousFieldName="previousNatureSurfaceOnsite"
-            currentFieldName="currentNatureSurfaceOnsite"
+            previousFieldName="previous_nature_surface_onsite"
+            currentFieldName="current_nature_surface_onsite"
             handleChange={handleChange}
           />
           <BiodiversityTableRow 
             label="Superficie orientata alla natura fuori sito"
             tooltipTitle="Superficie orientata alla natura fuori sito"
             tooltipContent={tooltipContents.natureSurfaceOffsite}
-            previousValue={data.previousNatureSurfaceOffsite}
-            currentValue={data.currentNatureSurfaceOffsite}
+            previousValue={data.previous_nature_surface_offsite}
+            currentValue={data.current_nature_surface_offsite}
             percentageChange={percentageChanges.natureSurfaceOffsiteChange}
-            previousFieldName="previousNatureSurfaceOffsite"
-            currentFieldName="currentNatureSurfaceOffsite"
+            previousFieldName="previous_nature_surface_offsite"
+            currentFieldName="current_nature_surface_offsite"
             handleChange={handleChange}
           />
         </tbody>

@@ -6,10 +6,15 @@ import { useReport } from '@/context/ReportContext';
 
 interface BiodiversityHeaderProps {
   reportId: string | undefined;
+  isSaving?: boolean;
+  lastSaved?: Date | null;
 }
 
-const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId }) => {
-  const { needsSaving, lastSaved } = useReport();
+const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId, isSaving, lastSaved }) => {
+  const reportContext = useReport();
+  // Use local props if provided, otherwise fall back to context values
+  const isDataSaving = isSaving !== undefined ? isSaving : reportContext.needsSaving;
+  const lastDataSaved = lastSaved !== undefined ? lastSaved : reportContext.lastSaved;
   
   return (
     <div className="mb-4">
@@ -18,7 +23,11 @@ const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId }) => 
         <h3 className="text-xl font-semibold">B5 - Biodiversità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" />
+      <SectionAutoSaveIndicator 
+        className="mb-4" 
+        isSaving={isDataSaving} 
+        lastSaved={lastDataSaved} 
+      />
       
       <div className="p-4 rounded-md mb-4 bg-green-100">
         <div className="flex items-start">

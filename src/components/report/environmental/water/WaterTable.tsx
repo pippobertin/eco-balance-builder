@@ -34,11 +34,11 @@ const WaterTable: React.FC<WaterTableProps> = ({
             label="Prelievo idrico totale (m³)"
             tooltipTitle="Prelievo idrico"
             tooltipContent={tooltipContents.waterWithdrawal}
-            previousValue={data.previousWaterWithdrawal}
-            currentValue={data.currentWaterWithdrawal}
+            previousValue={data.previous_water_withdrawal}
+            currentValue={data.current_water_withdrawal}
             percentageChange={percentageChanges.waterWithdrawalChange}
-            previousFieldName="previousWaterWithdrawal"
-            currentFieldName="currentWaterWithdrawal"
+            previousFieldName="previous_water_withdrawal"
+            currentFieldName="current_water_withdrawal"
             handleChange={handleChange}
           />
           
@@ -46,11 +46,11 @@ const WaterTable: React.FC<WaterTableProps> = ({
             label="Consumo idrico (m³)"
             tooltipTitle="Consumo idrico"
             tooltipContent={tooltipContents.waterConsumption}
-            previousValue={data.previousWaterConsumption}
-            currentValue={data.currentWaterConsumption}
+            previousValue={data.previous_water_consumption}
+            currentValue={data.current_water_consumption}
             percentageChange={percentageChanges.waterConsumptionChange}
-            previousFieldName="previousWaterConsumption"
-            currentFieldName="currentWaterConsumption"
+            previousFieldName="previous_water_consumption"
+            currentFieldName="current_water_consumption"
             handleChange={handleChange}
           />
           
@@ -58,11 +58,11 @@ const WaterTable: React.FC<WaterTableProps> = ({
             label="Consumo idrico in zone di stress idrico (m³)"
             tooltipTitle="Zone di stress idrico"
             tooltipContent={tooltipContents.waterStressAreas}
-            previousValue={data.previousWaterStressAreas}
-            currentValue={data.currentWaterStressAreas}
+            previousValue={data.previous_water_stress_areas}
+            currentValue={data.current_water_stress_areas}
             percentageChange={percentageChanges.waterStressAreasChange}
-            previousFieldName="previousWaterStressAreas"
-            currentFieldName="currentWaterStressAreas"
+            previousFieldName="previous_water_stress_areas"
+            currentFieldName="current_water_stress_areas"
             handleChange={handleChange}
             externalLink={{
               url: "https://www.wri.org/applications/aqueduct/water-risk-atlas/#/?advanced=false&basemap=hydro&indicator=w_awr_def_tot_cat&lat=30&lng=-80&mapMode=view&month=1&opacity=0.5&ponderation=DEF&predefined=false&projection=absolute&scenario=optimistic&scope=baseline&threshold&timeScale=annual&year=baseline&zoom=3",

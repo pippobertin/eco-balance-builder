@@ -20,8 +20,8 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     updateReportData: state.updateReportData,
     resetReportData: state.resetReportData,
     loadCompanies: state.loadCompanies,
-    createCompany: state.handleCreateCompany,
-    createReport: state.handleCreateReport,
+    createCompany: state.handleCreateCompany as (companyData: Partial<Company>) => Promise<Company | null>,
+    createReport: state.handleCreateReport as (reportData: Partial<Report>) => Promise<Report | null>,
     loadReports: state.loadReports,
     loadReport: state.loadReport,
     deleteReport: state.handleDeleteReport,
@@ -32,7 +32,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     needsSaving: state.needsSaving,
     setNeedsSaving: state.setNeedsSaving,
     lastSaved: state.lastSaved,
-    setLastSaved: state.setLastSaved
+    setLastSaved: state.setLastSaved || ((date: Date | null) => {})
   };
 
   return (

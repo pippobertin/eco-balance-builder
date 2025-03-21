@@ -72,6 +72,14 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
     }
   };
 
+  // Map the percentage changes to the format required by BiodiversityTable
+  const mappedPercentageChanges = {
+    totalLandUseChange: percentageChanges.total,
+    impermeableSurfaceChange: percentageChanges.impermeable,
+    natureSurfaceOnsiteChange: percentageChanges.natureOnsite,
+    natureSurfaceOffsiteChange: percentageChanges.natureOffsite
+  };
+
   return (
     <GlassmorphicCard>
       <BiodiversityHeader 
@@ -84,7 +92,7 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
         <BiodiversityTable 
           data={data} 
           handleChange={handleBiodiversityChange} 
-          percentageChanges={percentageChanges} 
+          percentageChanges={mappedPercentageChanges} 
         />
 
         <SensitiveSitesDetails 

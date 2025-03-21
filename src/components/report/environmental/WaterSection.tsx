@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Droplets, Info, HelpCircle } from 'lucide-react';
+import { Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
 import { useWaterMetrics } from './hooks/water';
@@ -56,6 +56,13 @@ const WaterSection: React.FC<WaterSectionProps> = ({
     }
   };
 
+  // Map the percentage changes to the format required by WaterTable
+  const mappedPercentageChanges = {
+    waterWithdrawalChange: percentageChanges.withdrawal,
+    waterConsumptionChange: percentageChanges.consumption,
+    waterStressAreasChange: percentageChanges.stressAreas
+  };
+
   return (
     <GlassmorphicCard>
       <WaterHeader 
@@ -68,7 +75,7 @@ const WaterSection: React.FC<WaterSectionProps> = ({
         <WaterTable 
           data={data} 
           handleChange={handleWaterChange} 
-          percentageChanges={percentageChanges} 
+          percentageChanges={mappedPercentageChanges} 
         />
 
         <WaterDetails 
