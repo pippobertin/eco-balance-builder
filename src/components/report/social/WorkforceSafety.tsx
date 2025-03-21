@@ -73,12 +73,12 @@ const WorkforceSafety = React.forwardRef<HTMLDivElement, WorkforceSafetyProps>(
       const hours = formValues?.socialMetrics?.totalHoursWorked;
       
       if (accidents !== undefined && hours !== undefined) {
-        const rate = calculateAccidentsRate(Number(accidents), Number(hours));
+        const rate = calculateAccidentsRate(accidents, hours);
         
         if (rate !== formValues?.socialMetrics?.workAccidentsRate) {
           const updatedSocialMetrics = {
             ...(formValues?.socialMetrics || {}),
-            workAccidentsRate: rate
+            workAccidentsRate: rate !== null ? parseFloat(rate.toFixed(2)) : null
           };
           
           // Create a synthetic change event to update the form values

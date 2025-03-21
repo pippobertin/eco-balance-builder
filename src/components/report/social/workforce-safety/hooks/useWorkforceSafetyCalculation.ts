@@ -14,12 +14,9 @@ export const useWorkforceSafetyCalculation = () => {
       return null;
     }
     
-    // Formula: (Number of accidents / Total hours worked) x 1720
-    // Using only 2 decimal places as specified
-    const result = (accidents / hours) * 1720;
-    
-    // Return with fixed 2 decimal precision
-    return parseFloat(result.toFixed(2));
+    // Formula: (Number of accidents / Total hours worked) x 1000
+    // Modifichiamo il moltiplicatore da 172000 a 1000 per ottenere il valore corretto
+    return (accidents / hours) * 1000;
   }, []);
 
   return {
