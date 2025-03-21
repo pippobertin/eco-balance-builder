@@ -1,14 +1,16 @@
+
 import React, { useEffect } from 'react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { CircleDollarSign, Info, Save, HelpCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { useWorkforceCompensationData } from './hooks/useWorkforceCompensationData';
 import { useReport } from '@/hooks/use-report-context';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { 
+  WageFields, 
+  CollectiveBargainingField, 
+  TrainingFields,
+  WorkforceCompensationHeader,
+  SaveButton
+} from './workforce-compensation';
 
 type WorkforceCompensationProps = {
   formValues: any;
@@ -116,150 +118,40 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
       });
     };
 
-    // Helper component for field explanations with hover card
-    const InfoHoverCard = ({ children }: { children: React.ReactNode }) => (
-      <HoverCard>
-        <HoverCardTrigger asChild>
-          <span className="ml-1.5 inline-flex items-center cursor-help">
-            <HelpCircle className="h-4 w-4 text-slate-500 hover:text-slate-700" />
-          </span>
-        </HoverCardTrigger>
-        <HoverCardContent className="max-w-sm bg-blue-50 border-blue-200">
-          <div className="flex items-start mb-2">
-            <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-            {children}
-          </div>
-        </HoverCardContent>
-      </HoverCard>
-    );
-
     return (
       <GlassmorphicCard>
-        <div className="flex items-center mb-4" ref={ref}>
-          <CircleDollarSign className="mr-2 h-5 w-5 text-green-500" />
-          <h3 className="text-xl font-semibold">B10 - Forza lavoro - Retribuzione, contrattazione collettiva e formazione</h3>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="p-4 rounded-md mb-4 bg-blue-100">
-            <div className="flex items-start">
-              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-slate-600">
-                Il divario retributivo di genere è la differenza tra i livelli retributivi medi tra dipendenti di sesso femminile e maschile, espressa come percentuale del livello retributivo medio maschile. La copertura della contrattazione collettiva è la percentuale di dipendenti a cui si applicano i contratti collettivi.
-              </p>
-            </div>
-          </div>
+        <div ref={ref}>
+          <WorkforceCompensationHeader />
           
-          {/* Auto Save Indicator */}
-          <div className="flex justify-end mb-4">
-            <AutoSaveIndicator 
-              needsSaving={false} 
-              lastSaved={lastSaved} 
-              className="w-full bg-green-50 py-2 px-3 rounded-md"
-            />
-          </div>
-          
-          <h4 className="font-medium text-lg">Retribuzione</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="entryWage" className="flex items-center">
-                Salario di ingresso (€)
-                <InfoHoverCard>
-                  <p className="text-sm text-slate-600">
-                    Per "salario di ingresso" si intende il salario a tempo pieno della categoria occupazionale più
-                    bassa. I salari dei tirocinanti e degli apprendisti non devono essere considerati nell'identificazione
-                    del salario di ingresso dell'impresa.
-                  </p>
-                </InfoHoverCard>
-              </Label>
-              <Input id="entryWage" name="entryWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.entryWage || ""} onChange={handleChange} />
-            </div>
-            
-            <div>
-              <Label htmlFor="localMinimumWage" className="flex items-center">
-                Salario minimo locale (€)
-                <InfoHoverCard>
-                  <p className="text-sm text-slate-600">
-                    Per "salario minimo" si intende il compenso minimo di lavoro per ora, o altra unità di tempo,
-                    consentito dalla legge. A seconda del Paese, il salario minimo può essere stabilito direttamente
-                    dalla legge o attraverso accordi di contrattazione collettiva. L'impresa deve fare riferimento al
-                    salario minimo applicabile per il Paese in cui si riferisce (sia esso stabilito direttamente dalla legge
-                    o attraverso un contratto collettivo di lavoro).
-                  </p>
-                </InfoHoverCard>
-              </Label>
-              <Input id="localMinimumWage" name="localMinimumWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.localMinimumWage || ""} onChange={handleChange} />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="entryWageToMinimumWageRatio" className="flex items-center">
-                Rapporto tra salario di ingresso e salario minimo
-                <InfoHoverCard>
-                  <p className="text-sm text-slate-600">
-                    Per calcolare il rapporto tra il salario di ingresso e il salario minimo, si utilizza la formula seguente:
-                    <br />
-                    <span className="font-medium mt-1 block">Indice = Salario di ingresso / Salario minimo</span>
-                    <br />
-                    Per "percentuale significativa di dipendenti" si intende la maggioranza dei dipendenti dell'impresa,
-                    senza considerare stagisti e apprendisti.
-                  </p>
-                </InfoHoverCard>
-              </Label>
-              <Input 
-                id="entryWageToMinimumWageRatio" 
-                name="entryWageToMinimumWageRatio" 
-                type="number" 
-                placeholder="0.0" 
-                value={formValues.socialMetrics?.entryWageToMinimumWageRatio || ""} 
-                onChange={handleChange}
-                readOnly
-                className="bg-gray-50"
+          <div className="space-y-4">
+            {/* Auto Save Indicator */}
+            <div className="flex justify-end mb-4">
+              <AutoSaveIndicator 
+                needsSaving={false} 
+                lastSaved={lastSaved} 
+                className="w-full bg-green-50 py-2 px-3 rounded-md"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Indicare solo se una percentuale significativa di dipendenti è retribuita sulla base di salari soggetti a norme sul salario minimo
-              </p>
             </div>
             
-            <div>
-              <Label htmlFor="genderPayGap">Divario retributivo di genere (%)</Label>
-              <Input id="genderPayGap" name="genderPayGap" type="number" placeholder="0.0" value={formValues.socialMetrics?.genderPayGap || ""} onChange={handleChange} />
-              <p className="text-sm text-gray-500 mt-1">
-                Formula: (retribuzione uomini-retribuzione donne)/retribuzione uomini*100
-              </p>
-            </div>
-          </div>
-          
-          <h4 className="font-medium text-lg">Contrattazione collettiva</h4>
-          <div>
-            <Label htmlFor="collectiveBargainingCoverage">Percentuale di dipendenti coperti da contratti collettivi di lavoro (%)</Label>
-            <Input id="collectiveBargainingCoverage" name="collectiveBargainingCoverage" type="number" placeholder="0.0" value={formValues.socialMetrics?.collectiveBargainingCoverage || ""} onChange={handleChange} />
-          </div>
-          
-          <h4 className="font-medium text-lg">Formazione</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="avgTrainingHoursMale">Ore medie di formazione annuali per dipendente di genere maschile</Label>
-              <Input id="avgTrainingHoursMale" name="avgTrainingHoursMale" type="number" placeholder="0.0" value={formValues.socialMetrics?.avgTrainingHoursMale || ""} onChange={handleChange} />
-            </div>
+            <WageFields 
+              formValues={formValues}
+              handleChange={handleChange}
+            />
             
-            <div>
-              <Label htmlFor="avgTrainingHoursFemale">Ore medie di formazione annuali per dipendente di genere femminile</Label>
-              <Input id="avgTrainingHoursFemale" name="avgTrainingHoursFemale" type="number" placeholder="0.0" value={formValues.socialMetrics?.avgTrainingHoursFemale || ""} onChange={handleChange} />
-            </div>
-          </div>
-          
-          {/* Save Button */}
-          <div className="flex justify-end mt-6">
-            <Button 
+            <CollectiveBargainingField
+              formValues={formValues}
+              handleChange={handleChange}
+            />
+            
+            <TrainingFields
+              formValues={formValues}
+              handleChange={handleChange}
+            />
+            
+            <SaveButton 
               onClick={handleSaveCompensationData} 
-              disabled={isSaving}
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? "Salvataggio..." : "Salva dati retribuzione"}
-            </Button>
+              isLoading={isSaving} 
+            />
           </div>
         </div>
       </GlassmorphicCard>
