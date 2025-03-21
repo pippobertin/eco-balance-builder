@@ -38,6 +38,8 @@ const ITALIAN_ENERGY_PROVIDERS = [
   { value: "engie", label: "Engie" },
   { value: "illumia", label: "Illumia" },
   { value: "dolomiti", label: "Dolomiti Energia" },
+  { value: "enegan", label: "Enegan" },
+  { value: "duferco", label: "Duferco" },
   { value: "altro", label: "Altro" }
 ];
 
