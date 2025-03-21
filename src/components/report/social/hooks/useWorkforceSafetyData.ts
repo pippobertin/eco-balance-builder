@@ -171,8 +171,8 @@ export const useWorkforceSafetyData = (reportId: string | undefined) => {
       return null;
     }
     
-    // Formula: (Number of accidents / Total hours worked) x 200,000
-    return (accidents / hours) * 200000;
+    // Updated Formula: (Number of accidents / Total hours worked) x 172,000
+    return (accidents / hours) * 172000;
   };
 
   // Initial data load

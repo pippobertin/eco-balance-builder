@@ -128,7 +128,7 @@ const WorkforceSafety = React.forwardRef<HTMLDivElement, WorkforceSafetyProps>(
             <div className="flex items-start">
               <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
               <p className="text-sm text-slate-600">
-                Il tasso di infortuni sul lavoro si calcola con la formula: (Numero di infortuni / Numero totale di ore lavorate in un anno da tutti i dipendenti) x 200.000. Questo indica il numero di infortuni per 100 lavoratori a tempo pieno in un anno.
+                Il tasso di infortuni sul lavoro si calcola con la formula: (Numero di infortuni / Numero totale di ore lavorate in un anno da tutti i dipendenti) x 172.000. Questo indica il numero di infortuni per 100 lavoratori a tempo pieno in un anno.
               </p>
             </div>
           </div>
@@ -169,7 +169,7 @@ const WorkforceSafety = React.forwardRef<HTMLDivElement, WorkforceSafetyProps>(
                 className="bg-gray-50"
               />
               <p className="text-sm text-gray-500 mt-1">
-                Calcolato come (N. infortuni / Ore totali lavorate) x 200.000
+                Calcolato come (N. infortuni / Ore totali lavorate) x 172.000
               </p>
             </div>
             
