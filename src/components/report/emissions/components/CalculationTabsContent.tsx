@@ -17,6 +17,17 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
   inputs,
   updateInput
 }) => {
+  // Debug inputs for specific fields to help diagnose issues
+  React.useEffect(() => {
+    console.log("Current inputs in CalculationTabsContent:", {
+      fuelQuantity: inputs.fuelQuantity,
+      energyQuantity: inputs.energyQuantity,
+      transportDistance: inputs.transportDistance,
+      wasteQuantity: inputs.wasteQuantity,
+      purchaseQuantity: inputs.purchaseQuantity,
+    });
+  }, [inputs]);
+
   const getActiveTabContent = () => {
     switch (activeTab) {
       case 'scope1':

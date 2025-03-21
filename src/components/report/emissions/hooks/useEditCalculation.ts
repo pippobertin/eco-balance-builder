@@ -17,6 +17,7 @@ export const useEditCalculation = () => {
 
   // Handle canceling edit mode
   const handleCancelEdit = () => {
+    console.log('Canceling edit mode');
     setEditMode(false);
     setEditingCalculationId(null);
     setEditingCalculation(null);
