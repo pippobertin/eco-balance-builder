@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,8 @@ import { Users, Info, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useWorkforceData } from './hooks/useWorkforceData';
 
 type WorkforceGeneralProps = {
   formValues: any;
@@ -17,7 +19,8 @@ type WorkforceGeneralProps = {
 const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
     const { toast } = useToast();
-    const [isSaving, setIsSaving] = React.useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const { lastSaved, loadWorkforceData } = useWorkforceData(formValues?.id);
 
     const handleSaveWorkforceData = async () => {
       if (!formValues?.socialMetrics) return;
@@ -48,9 +51,13 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
             female_employees: formValues.socialMetrics.femaleEmployees || 0,
             other_gender_employees: formValues.socialMetrics.otherGenderEmployees || 0,
             distribution_notes: formValues.socialMetrics.employeesByCountry || '',
+            updated_at: new Date().toISOString()
           }, { onConflict: 'report_id' });
         
         if (error) throw error;
+        
+        // Reload workforce data to get updated lastSaved timestamp
+        await loadWorkforceData();
         
         toast({
           title: "Successo",
@@ -85,6 +92,14 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
               </p>
             </div>
           </div>
+          
+          {lastSaved && (
+            <AutoSaveIndicator 
+              needsSaving={false} 
+              lastSaved={lastSaved} 
+              className="mb-4"
+            />
+          )}
           
           <h4 className="font-medium text-lg">Totale dipendenti</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

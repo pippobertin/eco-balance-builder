@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 export const useWorkforceData = (reportId: string | undefined) => {
   const [loading, setLoading] = useState(false);
   const [workforceData, setWorkforceData] = useState<any>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { toast } = useToast();
 
   // Load workforce data
@@ -25,6 +26,7 @@ export const useWorkforceData = (reportId: string | undefined) => {
       
       if (data) {
         setWorkforceData(data);
+        setLastSaved(new Date(data.updated_at));
         return data;
       }
       
@@ -52,6 +54,7 @@ export const useWorkforceData = (reportId: string | undefined) => {
   return {
     loading,
     workforceData,
-    loadWorkforceData
+    loadWorkforceData,
+    lastSaved
   };
 };
