@@ -3,13 +3,11 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmissionCalculationLogs } from '@/hooks/emissions-calculator/types';
 import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/hooks/use-report-context';
 import { Json } from '@/integrations/supabase/types';
 
 export const useEmissionsSave = () => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
-  const { setLastSaved } = useReport();
 
   const saveEmissions = async (
     reportId: string,
@@ -48,14 +46,12 @@ export const useEmissionsSave = () => {
         .from('emissions_logs')
         .select('id')
         .eq('report_id', reportId)
-        .maybeSingle();
+        .single();
       
       if (checkError && checkError.code !== 'PGRST116') { // Not found error code
         throw new Error(checkError.message);
       }
       
-      const now = new Date();
-      const isoDate = now.toISOString();
       let result;
       
       // If data exists, update it
@@ -66,7 +62,7 @@ export const useEmissionsSave = () => {
           .from('emissions_logs')
           .update({
             calculation_logs: validatedLogs as unknown as Json,
-            updated_at: isoDate
+            updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId)
           .select()
@@ -87,8 +83,7 @@ export const useEmissionsSave = () => {
           .insert({
             report_id: reportId,
             calculation_logs: validatedLogs as unknown as Json,
-            created_at: isoDate,
-            updated_at: isoDate
+            created_at: new Date().toISOString()
           })
           .select()
           .single();
@@ -108,9 +103,6 @@ export const useEmissionsSave = () => {
         scope3: scope3,
         total: total
       };
-      
-      // Update the global lastSaved timestamp
-      setLastSaved(now);
       
       toast({
         title: "Emissioni salvate",

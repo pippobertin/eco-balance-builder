@@ -44,7 +44,7 @@ const AddReportDialog = ({ open, onOpenChange }: AddReportDialogProps) => {
       return;
     }
     
-    const report = await createReport({
+    const reportId = await createReport({
       company_id: selectedCompany.id,
       report_year: newReportData.report_year,
       report_type: newReportData.report_type,
@@ -55,7 +55,7 @@ const AddReportDialog = ({ open, onOpenChange }: AddReportDialogProps) => {
       status: 'draft'
     });
     
-    if (report) {
+    if (reportId) {
       setNewReportData({
         report_year: new Date().getFullYear().toString(),
         report_type: 'A',

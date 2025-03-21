@@ -2,183 +2,163 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/hooks/use-report-context';
-
-interface UseWaterMetricsProps {
-  reportId: string | undefined;
-}
 
 export interface WaterMetricsData {
-  current_water_withdrawal: number | null;
-  current_water_consumption: number | null;
-  current_water_stress_areas: number | null;
-  previous_water_withdrawal: number | null;
-  previous_water_consumption: number | null;
-  previous_water_stress_areas: number | null;
-  waterDetails: string | null;
+  previousWaterWithdrawal: number | null;
+  currentWaterWithdrawal: number | null;
+  previousWaterConsumption: number | null;
+  currentWaterConsumption: number | null;
+  previousWaterStressAreas: number | null;
+  currentWaterStressAreas: number | null;
+  waterDetails: string;
   areaUnit: string;
 }
 
-export const useWaterMetrics = ({ reportId }: UseWaterMetricsProps) => {
-  const [data, setData] = useState<WaterMetricsData>({
-    current_water_withdrawal: null,
-    current_water_consumption: null,
-    current_water_stress_areas: null,
-    previous_water_withdrawal: null,
-    previous_water_consumption: null,
-    previous_water_stress_areas: null,
-    waterDetails: null,
-    areaUnit: 'm³'
-  });
-  
+const defaultData: WaterMetricsData = {
+  previousWaterWithdrawal: null,
+  currentWaterWithdrawal: null,
+  previousWaterConsumption: null,
+  currentWaterConsumption: null,
+  previousWaterStressAreas: null,
+  currentWaterStressAreas: null,
+  waterDetails: '',
+  areaUnit: 'm³'
+};
+
+interface WaterMetricsOptions {
+  reportId?: string;
+}
+
+export const useWaterMetrics = ({ reportId }: WaterMetricsOptions) => {
+  const { toast } = useToast();
+  const [data, setData] = useState<WaterMetricsData>(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { toast } = useToast();
-  const { setLastSaved: setGlobalLastSaved } = useReport();
-  
+
   // Calculate percentage changes
   const percentageChanges = {
-    withdrawal: calculatePercentageChange(
-      data.previous_water_withdrawal, 
-      data.current_water_withdrawal
+    waterWithdrawalChange: calculatePercentageChange(
+      data.previousWaterWithdrawal,
+      data.currentWaterWithdrawal
     ),
-    consumption: calculatePercentageChange(
-      data.previous_water_consumption, 
-      data.current_water_consumption
+    waterConsumptionChange: calculatePercentageChange(
+      data.previousWaterConsumption,
+      data.currentWaterConsumption
     ),
-    stressAreas: calculatePercentageChange(
-      data.previous_water_stress_areas, 
-      data.current_water_stress_areas
+    waterStressAreasChange: calculatePercentageChange(
+      data.previousWaterStressAreas,
+      data.currentWaterStressAreas
     )
   };
-  
-  // Load water metrics on component mount
+
+  // Load data when report ID changes
   useEffect(() => {
     if (reportId) {
-      loadWaterMetrics();
+      loadData(reportId);
     }
   }, [reportId]);
-  
-  const loadWaterMetrics = async () => {
-    if (!reportId) return;
-    
+
+  // Load data from Supabase
+  const loadData = async (reportId: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: waterData, error } = await supabase
         .from('water_metrics')
-        .select(`
-          current_water_withdrawal, 
-          current_water_consumption,
-          current_water_stress_areas,
-          previous_water_withdrawal, 
-          previous_water_consumption,
-          previous_water_stress_areas,
-          water_details,
-          area_unit,
-          updated_at
-        `)
+        .select('*')
         .eq('report_id', reportId)
         .maybeSingle();
-      
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
-        throw error;
-      }
-      
-      if (data) {
+
+      if (error) throw error;
+
+      if (waterData) {
         setData({
-          current_water_withdrawal: data.current_water_withdrawal,
-          current_water_consumption: data.current_water_consumption,
-          current_water_stress_areas: data.current_water_stress_areas,
-          previous_water_withdrawal: data.previous_water_withdrawal,
-          previous_water_consumption: data.previous_water_consumption,
-          previous_water_stress_areas: data.previous_water_stress_areas,
-          waterDetails: data.water_details,
-          areaUnit: data.area_unit || 'm³'
+          previousWaterWithdrawal: waterData.previous_water_withdrawal,
+          currentWaterWithdrawal: waterData.current_water_withdrawal,
+          previousWaterConsumption: waterData.previous_water_consumption,
+          currentWaterConsumption: waterData.current_water_consumption,
+          previousWaterStressAreas: waterData.previous_water_stress_areas,
+          currentWaterStressAreas: waterData.current_water_stress_areas,
+          waterDetails: waterData.water_details || '',
+          areaUnit: waterData.area_unit || 'm³'
         });
-        
-        if (data.updated_at) {
-          setLastSaved(new Date(data.updated_at));
-        }
+        setLastSaved(new Date(waterData.updated_at));
       }
     } catch (error) {
       console.error('Error loading water metrics:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i dati sulla gestione dell'acqua",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const saveData = async (newData: WaterMetricsData): Promise<boolean> => {
-    if (!reportId) return false;
-    
+
+  // Save data to Supabase
+  const saveData = async (dataToSave: WaterMetricsData): Promise<boolean> => {
+    if (!reportId) {
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare i dati sulla gestione dell'acqua: ID report mancante",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     setIsSaving(true);
     try {
-      const now = new Date();
-      const isoDate = now.toISOString();
-      
-      // Check if record exists
-      const { data: existingData } = await supabase
+      // Check if data already exists for this report
+      const { data: existingData, error: checkError } = await supabase
         .from('water_metrics')
         .select('id')
         .eq('report_id', reportId)
         .maybeSingle();
-      
-      let result;
-      
+
+      if (checkError) throw checkError;
+
+      const dbData = {
+        report_id: reportId,
+        previous_water_withdrawal: dataToSave.previousWaterWithdrawal,
+        current_water_withdrawal: dataToSave.currentWaterWithdrawal,
+        previous_water_consumption: dataToSave.previousWaterConsumption,
+        current_water_consumption: dataToSave.currentWaterConsumption,
+        previous_water_stress_areas: dataToSave.previousWaterStressAreas,
+        current_water_stress_areas: dataToSave.currentWaterStressAreas,
+        water_details: dataToSave.waterDetails,
+        area_unit: dataToSave.areaUnit
+      };
+
+      let saveError;
       if (existingData) {
         // Update existing record
-        result = await supabase
+        const { error } = await supabase
           .from('water_metrics')
-          .update({
-            current_water_withdrawal: newData.current_water_withdrawal,
-            current_water_consumption: newData.current_water_consumption,
-            current_water_stress_areas: newData.current_water_stress_areas,
-            previous_water_withdrawal: newData.previous_water_withdrawal,
-            previous_water_consumption: newData.previous_water_consumption,
-            previous_water_stress_areas: newData.previous_water_stress_areas,
-            water_details: newData.waterDetails,
-            area_unit: newData.areaUnit,
-            updated_at: isoDate
-          })
-          .eq('report_id', reportId);
+          .update(dbData)
+          .eq('id', existingData.id);
+        saveError = error;
       } else {
         // Insert new record
-        result = await supabase
+        const { error } = await supabase
           .from('water_metrics')
-          .insert({
-            report_id: reportId,
-            current_water_withdrawal: newData.current_water_withdrawal,
-            current_water_consumption: newData.current_water_consumption,
-            current_water_stress_areas: newData.current_water_stress_areas,
-            previous_water_withdrawal: newData.previous_water_withdrawal,
-            previous_water_consumption: newData.previous_water_consumption,
-            previous_water_stress_areas: newData.previous_water_stress_areas,
-            water_details: newData.waterDetails,
-            area_unit: newData.areaUnit,
-            updated_at: isoDate
-          });
+          .insert(dbData);
+        saveError = error;
       }
-      
-      if (result.error) throw result.error;
-      
-      // Update state
-      setData(newData);
-      
-      // Update both local and global timestamps
-      setLastSaved(now);
-      setGlobalLastSaved(now);
-      
+
+      if (saveError) throw saveError;
+
+      setLastSaved(new Date());
       toast({
-        title: "Salvato con successo",
-        description: "I dati sull'acqua sono stati salvati",
+        title: "Salvato",
+        description: "I dati sulla gestione dell'acqua sono stati salvati con successo"
       });
-      
       return true;
     } catch (error) {
       console.error('Error saving water metrics:', error);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio dei dati sull'acqua",
+        description: "Impossibile salvare i dati sulla gestione dell'acqua",
         variant: "destructive"
       });
       return false;
@@ -186,24 +166,31 @@ export const useWaterMetrics = ({ reportId }: UseWaterMetricsProps) => {
       setIsSaving(false);
     }
   };
-  
+
+  // Update a field in the state
   const updateField = (field: keyof WaterMetricsData, value: any) => {
-    setData(prev => ({ ...prev, [field]: value }));
+    setData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-  
+
   return {
     data,
     isLoading,
     isSaving,
+    percentageChanges,
     saveData,
     updateField,
-    percentageChanges,
     lastSaved
   };
 };
 
 // Helper function to calculate percentage change
 function calculatePercentageChange(previous: number | null, current: number | null): number | null {
-  if (previous === null || current === null || previous === 0) return null;
-  return ((current - previous) / previous) * 100;
+  if (previous === null || current === null) return null;
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / Math.abs(previous)) * 100;
 }
+
+export default useWaterMetrics;

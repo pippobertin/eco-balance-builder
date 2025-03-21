@@ -44,7 +44,7 @@ const ReportList = ({ reports, onDelete, onSelectReport }: ReportListProps) => {
         const result = await loadReport(report.id);
         
         // Verify the report was loaded successfully with company data
-        if (!result || !result.report || !result.report.company || !result.report.company.name) {
+        if (!result.report || !result.report.company || !result.report.company.name) {
           toast({
             title: "Avviso",
             description: "Dati del report incompleti. Potrebbero mancare alcune informazioni.",

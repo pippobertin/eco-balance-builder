@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/hooks/use-report-context';
 
 interface CircularEconomyDetails {
   recycledContent: number | null;
@@ -18,9 +17,7 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { toast } = useToast();
-  const { setLastSaved: setGlobalLastSaved } = useReport();
 
   // Carica i dettagli dell'economia circolare
   useEffect(() => {
@@ -36,7 +33,7 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
     try {
       const { data, error } = await supabase
         .from('circular_economy_details')
-        .select('recycled_content, recyclable_content, resources_details, updated_at')
+        .select('recycled_content, recyclable_content, resources_details')
         .eq('report_id', reportId)
         .maybeSingle();
       
@@ -50,10 +47,6 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
           recyclableContent: data.recyclable_content,
           resourcesDetails: data.resources_details
         });
-        
-        if (data.updated_at) {
-          setLastSaved(new Date(data.updated_at));
-        }
       }
     } catch (error) {
       console.error('Error loading circular economy details:', error);
@@ -67,9 +60,6 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
     
     setIsSaving(true);
     try {
-      const now = new Date();
-      const isoDate = now.toISOString();
-      
       // Controlla se il record esiste
       const { data: existingData } = await supabase
         .from('circular_economy_details')
@@ -87,7 +77,7 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
             recycled_content: newDetails.recycledContent,
             recyclable_content: newDetails.recyclableContent,
             resources_details: newDetails.resourcesDetails,
-            updated_at: isoDate
+            updated_at: new Date().toISOString()
           })
           .eq('report_id', reportId);
       } else {
@@ -98,8 +88,7 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
             report_id: reportId,
             recycled_content: newDetails.recycledContent,
             recyclable_content: newDetails.recyclableContent,
-            resources_details: newDetails.resourcesDetails,
-            updated_at: isoDate
+            resources_details: newDetails.resourcesDetails
           });
       }
       
@@ -107,10 +96,6 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
       
       // Aggiorna lo stato locale
       setDetails(newDetails);
-      
-      // Update both local and global timestamps
-      setLastSaved(now);
-      setGlobalLastSaved(now);
       
       toast({
         title: "Salvato con successo",
@@ -136,7 +121,6 @@ export const useCircularEconomyDetails = (reportId: string | undefined) => {
     setDetails,
     isLoading,
     isSaving,
-    saveDetails,
-    lastSaved
+    saveDetails
   };
 };

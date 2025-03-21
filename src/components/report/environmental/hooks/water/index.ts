@@ -1,2 +1,2 @@
 
-export { useWaterMetrics } from './useWaterMetrics';
+export { default as useWaterMetrics } from './useWaterMetrics';

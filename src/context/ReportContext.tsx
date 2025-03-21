@@ -2,7 +2,6 @@
 import React, { createContext } from 'react';
 import { useReportState } from './report/reportState';
 import { ReportContextType } from '@/context/types';
-import { Company, Report, Subsidiary, ReportData } from '@/context/types';
 
 // Create context
 export const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -20,8 +19,8 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     updateReportData: state.updateReportData,
     resetReportData: state.resetReportData,
     loadCompanies: state.loadCompanies,
-    createCompany: state.handleCreateCompany as (companyData: Partial<Company>) => Promise<Company | null>,
-    createReport: state.handleCreateReport as (reportData: Partial<Report>) => Promise<Report | null>,
+    createCompany: state.handleCreateCompany,
+    createReport: state.handleCreateReport,
     loadReports: state.loadReports,
     loadReport: state.loadReport,
     deleteReport: state.handleDeleteReport,
@@ -31,8 +30,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     saveCurrentReport: state.saveCurrentReport,
     needsSaving: state.needsSaving,
     setNeedsSaving: state.setNeedsSaving,
-    lastSaved: state.lastSaved,
-    setLastSaved: state.setLastSaved || ((date: Date | null) => {})
+    lastSaved: state.lastSaved
   };
 
   return (

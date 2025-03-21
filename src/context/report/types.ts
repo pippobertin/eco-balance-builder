@@ -8,5 +8,4 @@ export type {
   ReportContextType
 } from '../types';
 
-// No default export of ReportData as it should be imported directly
-export { defaultReportData } from '../types/metricsTypes';
+export { defaultReportData } from '../types';
