@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useWorkforceData = (reportId: string | undefined) => {
   const [loading, setLoading] = useState(false);
@@ -10,13 +11,18 @@ export const useWorkforceData = (reportId: string | undefined) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { setNeedsSaving } = useReport();
 
   // Load workforce data
   const loadWorkforceData = async () => {
-    if (!reportId) return;
+    if (!reportId) {
+      console.log("Cannot load workforce data: reportId is undefined");
+      return null;
+    }
     
     try {
       setLoading(true);
+      console.log("Loading workforce data for report:", reportId);
       
       const { data, error } = await supabase
         .from('workforce_distribution')
@@ -25,6 +31,8 @@ export const useWorkforceData = (reportId: string | undefined) => {
         .maybeSingle();
       
       if (error) throw error;
+      
+      console.log("Workforce data loaded:", data);
       
       if (data) {
         setWorkforceData(data);
@@ -44,12 +52,16 @@ export const useWorkforceData = (reportId: string | undefined) => {
 
   // Save workforce data
   const saveWorkforceData = async (values: any) => {
-    if (!reportId || !values) return false;
+    if (!reportId || !values) {
+      console.error("Cannot save workforce data: reportId or values is undefined", { reportId, values });
+      return false;
+    }
     
     try {
       setIsSaving(true);
+      setNeedsSaving(true);
       
-      console.log("Saving workforce data:", { reportId, values });
+      console.log("Saving workforce data for report:", reportId, values);
       
       const workforcePayload = {
         report_id: reportId,
@@ -64,15 +76,50 @@ export const useWorkforceData = (reportId: string | undefined) => {
         updated_at: new Date().toISOString()
       };
       
-      // Save to the workforce_distribution table
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingData, error: checkError } = await supabase
         .from('workforce_distribution')
-        .upsert(workforcePayload, { onConflict: 'report_id' });
+        .select('id')
+        .eq('report_id', reportId)
+        .single();
       
-      if (error) throw error;
+      let result;
+      
+      if (checkError && checkError.code !== 'PGRST116') { // Not found error code
+        throw checkError;
+      }
+      
+      // If data exists, update it
+      if (existingData) {
+        console.log("Updating existing workforce record with ID:", existingData.id);
+        
+        const { data, error } = await supabase
+          .from('workforce_distribution')
+          .update(workforcePayload)
+          .eq('report_id', reportId);
+        
+        if (error) throw error;
+        result = data;
+      } else {
+        // If no data exists, create a new record
+        console.log("Creating new workforce record");
+        
+        const { data, error } = await supabase
+          .from('workforce_distribution')
+          .insert(workforcePayload);
+        
+        if (error) throw error;
+        result = data;
+      }
+      
+      console.log("Workforce data saved successfully:", result);
       
       // Reload workforce data
       await loadWorkforceData();
+      
+      // Mark as saved
+      setNeedsSaving(false);
+      setLastSaved(new Date());
       
       toast({
         title: "Successo",

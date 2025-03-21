@@ -8,6 +8,7 @@ import { Users, Info, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { useWorkforceData } from './hooks/useWorkforceData';
+import { useReport } from '@/hooks/use-report-context';
 
 type WorkforceGeneralProps = {
   formValues: any;
@@ -16,12 +17,17 @@ type WorkforceGeneralProps = {
 
 const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
-    const { saveWorkforceData, isSaving, lastSaved } = useWorkforceData(formValues?.id);
+    const { currentReport } = useReport();
+    const reportId = currentReport?.id;
+    const { saveWorkforceData, isSaving, lastSaved } = useWorkforceData(reportId);
 
     const handleSaveWorkforceData = async () => {
-      if (!formValues?.socialMetrics) return;
+      if (!formValues?.socialMetrics) {
+        console.error("Social metrics data is undefined. Cannot save workforce data.");
+        return;
+      }
       
-      if (!formValues.id) {
+      if (!reportId) {
         console.error("Report ID is undefined. Cannot save workforce data.");
         return;
       }
@@ -47,13 +53,14 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
             </div>
           </div>
           
-          {lastSaved && (
+          {/* Auto Save Indicator */}
+          <div className="flex justify-end mb-4">
             <AutoSaveIndicator 
               needsSaving={false} 
               lastSaved={lastSaved} 
-              className="mb-4"
+              className="w-full bg-green-50 py-2 px-3 rounded-md"
             />
-          )}
+          </div>
           
           <h4 className="font-medium text-lg">Totale dipendenti</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
