@@ -1,249 +1,315 @@
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useReport } from "@/hooks/use-report-context";
-import { PeriodType, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
+import { useState } from 'react';
+import { EmissionCalculationLogs, EmissionCalculationRecord, EmissionsResults } from '@/hooks/emissions-calculator/types';
+import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
+import { useToast } from '@/hooks/use-toast';
+import { useReport } from '@/hooks/use-report-context';
 
-// Define the basic EmissionCalculationRecord type
-export interface EmissionCalculationRecord {
-  id?: string;
-  report_id: string;
-  scope: 'scope1' | 'scope2' | 'scope3';
-  source: string;
-  description: string;
-  quantity: number;
-  unit: string;
-  emissions: number;
-  details: any;
-  date: string;
-}
-
-// Define service functions to avoid import errors
-const createEmissionCalculation = async (calculation: EmissionCalculationRecord): Promise<EmissionCalculationRecord> => {
-  console.log("Creating emission calculation:", calculation);
-  // This would normally call the Supabase API
-  return { ...calculation, id: `temp-${Date.now()}` };
-};
-
-const updateEmissionCalculation = async (calculation: EmissionCalculationRecord): Promise<EmissionCalculationRecord> => {
-  console.log("Updating emission calculation:", calculation);
-  // This would normally call the Supabase API
-  return calculation;
-};
-
-const deleteEmissionCalculation = async (id: string): Promise<void> => {
-  console.log("Deleting emission calculation:", id);
-  // This would normally call the Supabase API
-  return;
-};
-
-// Define types for the details object based on the scope
-type Scope1Details = {
-  periodType: PeriodType;
-  scope1Source: 'fuel';
-  fuelType: FuelType;
-  quantity: number;
-  unit: string;
-};
-
-type Scope2Details = {
-  periodType: PeriodType;
-  energyType: EnergyType;
-  quantity: number;
-  renewablePercentage: number;
-  energyProvider: string;
-};
-
-type Scope3Details = {
-  periodType: PeriodType;
-  scope3Category: 'transport' | 'waste' | 'purchases';
-  transportType: TransportType;
-  transportDistance: number;
-  wasteType: WasteType;
-  wasteQuantity: number;
-  purchaseType: PurchaseType;
-  purchaseQuantity: number;
-  purchaseDescription: string;
-  vehicleType: string;
-  vehicleFuelType: FuelType;
-  vehicleEnergyClass: string;
-  vehicleFuelConsumption: number;
-  vehicleFuelConsumptionUnit: string;
-};
-
-type EmissionDetails = Scope1Details | Scope2Details | Scope3Details;
-
-export const useEmissionRecordManager = () => {
-  const queryClient = useQueryClient();
+export const useEmissionRecordManager = (
+  reportId: string | undefined,
+  calculationLogs: EmissionCalculationLogs,
+  setCalculationLogs: (logs: EmissionCalculationLogs) => void,
+  calculatedEmissions: EmissionsResults,
+  setCalculatedEmissions: (emissions: EmissionsResults) => void
+) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
   const { currentReport } = useReport();
-  const reportId = currentReport?.id;
-
-  const { mutate: newCalculation, isPending: isCreating } = useMutation({
-    mutationFn: async (emissionCalculation: EmissionCalculationRecord) => {
-      if (!reportId) {
-        throw new Error("Report ID is missing.");
-      }
-      return createEmissionCalculation({ ...emissionCalculation, report_id: reportId });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['emission-calculations', reportId],
+  const { saveEmissionRecord, updateEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords();
+  
+  // Save emission calculation after successful calculation
+  const saveCalculation = async (calculationData: { 
+    emissionValue: number;
+    detailsObj: any;
+    description: string;
+    scope: 'scope1' | 'scope2' | 'scope3';
+    reportId: string | undefined;
+  }) => {
+    // Use current report ID from context as fallback if the passed reportId is undefined
+    const effectiveReportId = calculationData.reportId || reportId || currentReport?.id;
+    
+    if (!effectiveReportId) {
+      console.error('Cannot save emission record: reportId is undefined. Make sure you are in a valid report context.');
+      toast({
+        title: "Errore di salvataggio",
+        description: "Impossibile salvare il calcolo: ID Report mancante",
+        variant: "destructive"
       });
-      toast.success('Emission calculation created successfully!');
-    },
-    onError: (error) => {
-      toast.error(`Failed to create emission calculation: ${error.message}`);
-    },
-  });
-
-  const { mutate: removeCalculation, isPending: isDeleting } = useMutation({
-    mutationFn: async (id: string) => {
-      return deleteEmissionCalculation(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['emission-calculations', reportId],
-      });
-      toast.success('Emission calculation deleted successfully!');
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete emission calculation: ${error.message}`);
-    },
-  });
-
-  const { mutate: editCalculation, isPending: isUpdating } = useMutation({
-    mutationFn: async (emissionCalculation: EmissionCalculationRecord) => {
-      return updateEmissionCalculation(emissionCalculation);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['emission-calculations', reportId],
-      });
-      toast.success('Emission calculation updated successfully!');
-    },
-    onError: (error) => {
-      toast.error(`Failed to update emission calculation: ${error.message}`);
-    },
-  });
-
-  const createNewCalculation = async (
-    scope: 'scope1' | 'scope2' | 'scope3',
-    source: string,
-    description: string,
-    quantity: string,
-    unit: string,
-    emissions: number,
-    details: EmissionDetails
-  ) => {
-    if (!reportId) {
-      throw new Error("Report ID is missing.");
+      return null;
     }
-
-    const quantityToSave = Number(quantity);
-    const emissionsToSave = Number(emissions);
-
-    if (isNaN(quantityToSave) || isNaN(emissionsToSave)) {
-      toast.error("Please enter valid numeric values for quantity and emissions.");
-      return;
-    }
-
-    const newCalculationData: EmissionCalculationRecord = {
-      report_id: reportId,
-      scope: scope,
-      source: source,
-      description: description,
-      quantity: quantityToSave,
-      unit: unit,
-      emissions: emissionsToSave,
-      details: details,
-      date: new Date().toISOString()
-    };
-
-    newCalculation(newCalculationData);
-  };
-
-  const updateCalculation = async (calculationId: string, scope: 'scope1' | 'scope2' | 'scope3') => {
-    if (!reportId) {
-      throw new Error("Report ID is missing.");
-    }
-
-    // Retrieve input values from the form or component state
-    // Replace these with your actual input fields
-    const source = 'Fuel Consumption'; // Example source
-    const description = 'Updated Fuel Consumption Calculation'; // Example description
-    const quantity = '1500'; // Example quantity
-    const unit = 'L'; // Example unit
-    const emissions = 3.8; // Example emissions
-
-    // Retrieve details based on the scope
-    let detailsToSave: EmissionDetails;
-
-    if (scope === 'scope1') {
-      detailsToSave = {
-        periodType: PeriodType.ANNUAL,
-        scope1Source: 'fuel',
-        fuelType: 'DIESEL' as FuelType,
-        quantity: 1500,
-        unit: 'L',
-      };
-    } else if (scope === 'scope2') {
-      detailsToSave = {
-        periodType: PeriodType.ANNUAL,
-        energyType: 'ELECTRICITY_IT' as EnergyType,
-        quantity: 5000,
-        renewablePercentage: 10,
-        energyProvider: 'Enel',
-      };
+    
+    const { emissionValue, detailsObj, description, scope } = calculationData;
+    
+    // Create record object with appropriate values based on scope
+    let sourceValue = '';
+    let quantityValue = 0;
+    let unitValue = '';
+    
+    if (scope === 'scope1' && detailsObj.fuelType) {
+      sourceValue = detailsObj.fuelType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'L';
+    } else if (scope === 'scope2' && detailsObj.energyType) {
+      sourceValue = detailsObj.energyType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'kWh';
+    } else if (scope === 'scope3') {
+      sourceValue = detailsObj.activityType || '';
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || '';
     } else {
-      detailsToSave = {
-        periodType: PeriodType.ANNUAL,
-        scope3Category: 'transport',
-        transportType: 'BUSINESS_TRAVEL_CAR' as TransportType,
-        transportDistance: 200,
-        wasteType: 'WASTE_LANDFILL' as WasteType,
-        wasteQuantity: 100,
-        purchaseType: 'PURCHASED_GOODS' as PurchaseType,
-        purchaseQuantity: 50,
-        purchaseDescription: 'Office Supplies',
-        vehicleType: 'Car',
-        vehicleFuelType: 'DIESEL' as FuelType,
-        vehicleEnergyClass: 'A',
-        vehicleFuelConsumption: 7.5,
-        vehicleFuelConsumptionUnit: 'l_100km',
-      };
+      sourceValue = detailsObj.source || '';
     }
-
-    const quantityToSave = Number(quantity);
-    const emissionsToSave = Number(emissions);
-
-    if (isNaN(quantityToSave) || isNaN(emissionsToSave)) {
-      toast.error("Please enter valid numeric values for quantity and emissions.");
-      return;
-    }
-
-    // Costruzione dell'oggetto di aggiornamento, aggiungendo il campo date
-    const updatedCalculation: EmissionCalculationRecord = {
-      id: calculationId,
-      report_id: reportId || '',
-      scope: scope,
-      source: source,
-      description: description,
-      quantity: Number(quantity),
-      unit: unit,
-      emissions: emissionsToSave,
-      details: detailsToSave,
-      date: new Date().toISOString() // Aggiungiamo il campo date mancante
+    
+    const record = {
+      report_id: effectiveReportId,
+      scope,
+      source: sourceValue,
+      description,
+      quantity: quantityValue,
+      unit: unitValue,
+      emissions: emissionValue,
+      details: detailsObj
     };
-
-    editCalculation(updatedCalculation);
+    
+    console.log('Saving emission record:', record);
+    setIsSaving(true);
+    
+    try {
+      const savedRecord = await saveEmissionRecord(record);
+      
+      if (savedRecord) {
+        console.log('Saved record:', savedRecord);
+        
+        const updatedLogs = { ...calculationLogs };
+        
+        if (scope === 'scope1') {
+          updatedLogs.scope1Calculations = [...(updatedLogs.scope1Calculations || []), savedRecord];
+        } else if (scope === 'scope2') {
+          updatedLogs.scope2Calculations = [...(updatedLogs.scope2Calculations || []), savedRecord];
+        } else if (scope === 'scope3') {
+          updatedLogs.scope3Calculations = [...(updatedLogs.scope3Calculations || []), savedRecord];
+        }
+        
+        setCalculationLogs(updatedLogs);
+        
+        const records = [
+          ...(updatedLogs.scope1Calculations || []),
+          ...(updatedLogs.scope2Calculations || []),
+          ...(updatedLogs.scope3Calculations || [])
+        ];
+        
+        const totals = calculateTotals(records);
+        setCalculatedEmissions(totals);
+        
+        toast({
+          title: "Calcolo completato",
+          description: `Emissioni ${scope} calcolate con successo`,
+        });
+        
+        return savedRecord;
+      }
+    } catch (error) {
+      console.error('Error saving emission record:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile salvare il calcolo: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+    
+    return null;
   };
-
+  
+  // Update an existing emission calculation
+  const updateCalculation = async (
+    calculationId: string,
+    calculationData: { 
+      emissionValue: number;
+      detailsObj: any;
+      description: string;
+      scope: 'scope1' | 'scope2' | 'scope3';
+      reportId: string | undefined;
+    }
+  ) => {
+    const effectiveReportId = calculationData.reportId || reportId || currentReport?.id;
+    
+    if (!effectiveReportId) {
+      console.error('Cannot update emission record: reportId is undefined.');
+      toast({
+        title: "Errore di aggiornamento",
+        description: "Impossibile aggiornare il calcolo: ID Report mancante",
+        variant: "destructive"
+      });
+      return null;
+    }
+    
+    const { emissionValue, detailsObj, description, scope } = calculationData;
+    
+    // Create record object with appropriate values based on scope
+    let sourceValue = '';
+    let quantityValue = 0;
+    let unitValue = '';
+    
+    if (scope === 'scope1' && detailsObj.fuelType) {
+      sourceValue = detailsObj.fuelType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'L';
+    } else if (scope === 'scope2' && detailsObj.energyType) {
+      sourceValue = detailsObj.energyType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'kWh';
+    } else if (scope === 'scope3') {
+      sourceValue = detailsObj.activityType || '';
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || '';
+    } else {
+      sourceValue = detailsObj.source || '';
+    }
+    
+    const recordUpdate = {
+      id: calculationId,
+      report_id: effectiveReportId,
+      scope,
+      source: sourceValue,
+      description,
+      quantity: quantityValue,
+      unit: unitValue,
+      emissions: emissionValue,
+      details: detailsObj
+    };
+    
+    console.log('Updating emission record:', recordUpdate);
+    setIsSaving(true);
+    
+    try {
+      const updatedRecord = await updateEmissionRecord(recordUpdate);
+      
+      if (updatedRecord) {
+        console.log('Updated record:', updatedRecord);
+        
+        // Find and update the record in the calculation logs
+        const updatedLogs = { ...calculationLogs };
+        
+        if (scope === 'scope1') {
+          updatedLogs.scope1Calculations = updatedLogs.scope1Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        } else if (scope === 'scope2') {
+          updatedLogs.scope2Calculations = updatedLogs.scope2Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        } else if (scope === 'scope3') {
+          updatedLogs.scope3Calculations = updatedLogs.scope3Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        }
+        
+        setCalculationLogs(updatedLogs);
+        
+        const records = [
+          ...(updatedLogs.scope1Calculations || []),
+          ...(updatedLogs.scope2Calculations || []),
+          ...(updatedLogs.scope3Calculations || [])
+        ];
+        
+        const totals = calculateTotals(records);
+        setCalculatedEmissions(totals);
+        
+        toast({
+          title: "Calcolo aggiornato",
+          description: `Emissioni ${scope} aggiornate con successo`,
+        });
+        
+        return updatedRecord;
+      }
+    } catch (error) {
+      console.error('Error updating emission record:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile aggiornare il calcolo: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+    
+    return null;
+  };
+  
+  const handleRemoveCalculation = async (calculationId: string) => {
+    try {
+      console.log('Removing calculation:', calculationId);
+      
+      let scopeKey: 'scope1Calculations' | 'scope2Calculations' | 'scope3Calculations' | null = null;
+      let calcIndex = -1;
+      
+      calcIndex = calculationLogs.scope1Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+      if (calcIndex >= 0) {
+        scopeKey = 'scope1Calculations';
+      }
+      
+      if (scopeKey === null) {
+        calcIndex = calculationLogs.scope2Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+        if (calcIndex >= 0) {
+          scopeKey = 'scope2Calculations';
+        }
+      }
+      
+      if (scopeKey === null) {
+        calcIndex = calculationLogs.scope3Calculations?.findIndex(calc => calc.id === calculationId) ?? -1;
+        if (calcIndex >= 0) {
+          scopeKey = 'scope3Calculations';
+        }
+      }
+      
+      if (scopeKey && calcIndex >= 0) {
+        const success = await deleteEmissionRecord(calculationId);
+        
+        if (success) {
+          const updatedLogs = { ...calculationLogs };
+          updatedLogs[scopeKey] = updatedLogs[scopeKey].filter(calc => calc.id !== calculationId);
+          
+          setCalculationLogs(updatedLogs);
+          
+          const records = [
+            ...(updatedLogs.scope1Calculations || []),
+            ...(updatedLogs.scope2Calculations || []),
+            ...(updatedLogs.scope3Calculations || [])
+          ];
+          
+          const totals = calculateTotals(records);
+          setCalculatedEmissions(totals);
+          
+          toast({
+            title: "Calcolo rimosso",
+            description: "Il calcolo è stato rimosso con successo",
+          });
+        }
+      } else {
+        console.error('Calculation not found:', calculationId);
+        toast({
+          title: "Errore",
+          description: "Impossibile trovare il calcolo da rimuovere",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error removing calculation:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile rimuovere il calcolo: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  };
+  
   return {
-    createNewCalculation,
-    removeCalculation,
+    saveCalculation,
     updateCalculation,
-    isCreating,
-    isDeleting,
-    isUpdating,
+    handleRemoveCalculation,
+    isSaving
   };
 };

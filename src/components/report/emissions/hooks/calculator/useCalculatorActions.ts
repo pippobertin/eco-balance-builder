@@ -1,165 +1,100 @@
 
+import { useEffect } from 'react';
+import { EmissionCalculationLogs, EmissionsInput, EmissionsResults } from '@/hooks/emissions-calculator/types';
+import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useEmissionCalculation } from './actions/useEmissionCalculation';
 import { useEmissionRecordManager } from './actions/useEmissionRecordManager';
 import { useEmissionReset } from './actions/useEmissionReset';
 import { useEmissionSubmit } from './actions/useEmissionSubmit';
-import { EmissionsInput, EmissionCalculationLogs, EmissionsResults } from '@/hooks/emissions-calculator/types';
 
 export const useCalculatorActions = (
   reportId: string | undefined,
   inputs: EmissionsInput,
-  updateInput: (name: string, value: any) => void,
+  updateInput: (key: string, value: any) => void,
   calculationLogs: EmissionCalculationLogs,
-  setCalculationLogs: React.Dispatch<React.SetStateAction<EmissionCalculationLogs>>,
+  setCalculationLogs: (logs: EmissionCalculationLogs) => void,
   calculatedEmissions: EmissionsResults,
-  setCalculatedEmissions: React.Dispatch<React.SetStateAction<EmissionsResults>>
+  setCalculatedEmissions: (emissions: EmissionsResults) => void
 ) => {
-  // Use the emission record manager
-  const {
-    createNewCalculation,
-    removeCalculation,
-    updateCalculation,
-    isCreating,
-    isDeleting,
-    isUpdating
-  } = useEmissionRecordManager();
-
-  // Use the emission calculation
-  const { calculateEmissions: performCalculation, isCalculating } = useEmissionCalculation(
-    reportId,
-    inputs,
-    calculationLogs,
-    setCalculationLogs,
-    calculatedEmissions,
-    setCalculatedEmissions
-  );
-
-  // Use the emission reset
-  const { resetCalculation } = useEmissionReset(
-    setCalculatedEmissions,
-    setCalculationLogs
-  );
-
-  // Use the emission submit
-  const { handleSubmitCalculation, isSaving } = useEmissionSubmit(
-    reportId,
-    setCalculationLogs,
-    setCalculatedEmissions
-  );
-
-  // Function to handle calculation based on scope
-  const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
-    console.log(`Calculating emissions for ${scope}`);
+  // Initialize specialized hooks
+  const { calculateEmissions: performEmissionCalculation } = 
+    useEmissionCalculation(reportId, inputs, calculationLogs, setCalculationLogs, calculatedEmissions, setCalculatedEmissions);
     
-    try {
-      // Prepare source, description, quantity, and unit based on scope
-      let source = '';
-      let description = '';
-      let quantity = '';
-      let unit = '';
-      let details: any = {};
-      
-      if (scope === 'scope1') {
-        source = inputs.scope1Source || 'fuel';
-        description = `${inputs.fuelType || 'DIESEL'} consumption`;
-        quantity = inputs.fuelQuantity || '0';
-        unit = inputs.fuelUnit || 'L';
-        details = {
-          periodType: inputs.periodType || 'ANNUAL',
-          scope1Source: inputs.scope1Source || 'fuel',
-          fuelType: inputs.fuelType || 'DIESEL',
-          quantity: Number(inputs.fuelQuantity || 0),
-          unit: inputs.fuelUnit || 'L'
-        };
-      } else if (scope === 'scope2') {
-        source = 'electricity';
-        description = `${inputs.energyType || 'ELECTRICITY_IT'} consumption`;
-        quantity = inputs.energyQuantity || '0';
-        unit = 'kWh';
-        details = {
-          periodType: inputs.periodType || 'ANNUAL',
-          energyType: inputs.energyType || 'ELECTRICITY_IT',
-          quantity: Number(inputs.energyQuantity || 0),
-          renewablePercentage: Number(inputs.renewablePercentage || 0),
-          energyProvider: inputs.energyProvider || ''
-        };
-      } else if (scope === 'scope3') {
-        const category = inputs.scope3Category || 'transport';
-        
-        if (category === 'transport') {
-          source = 'transport';
-          description = `${inputs.transportType || 'BUSINESS_TRAVEL_CAR'} travel`;
-          quantity = inputs.transportDistance || '0';
-          unit = 'km';
-          details = {
-            periodType: inputs.periodType || 'ANNUAL',
-            scope3Category: 'transport',
-            transportType: inputs.transportType || 'BUSINESS_TRAVEL_CAR',
-            transportDistance: Number(inputs.transportDistance || 0),
-            vehicleType: inputs.vehicleType || '',
-            vehicleFuelType: inputs.vehicleFuelType || 'DIESEL',
-            vehicleEnergyClass: inputs.vehicleEnergyClass || '',
-            vehicleFuelConsumption: Number(inputs.vehicleFuelConsumption || 0),
-            vehicleFuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit || 'l_100km'
-          };
-        } else if (category === 'waste') {
-          source = 'waste';
-          description = `${inputs.wasteType || 'WASTE_LANDFILL'} disposal`;
-          quantity = inputs.wasteQuantity || '0';
-          unit = 'kg';
-          details = {
-            periodType: inputs.periodType || 'ANNUAL',
-            scope3Category: 'waste',
-            wasteType: inputs.wasteType || 'WASTE_LANDFILL',
-            wasteQuantity: Number(inputs.wasteQuantity || 0)
-          };
-        } else if (category === 'purchases') {
-          source = 'purchases';
-          description = `${inputs.purchaseType || 'PURCHASED_GOODS'}: ${inputs.purchaseDescription || ''}`;
-          quantity = inputs.purchaseQuantity || '0';
-          unit = 'units';
-          details = {
-            periodType: inputs.periodType || 'ANNUAL',
-            scope3Category: 'purchases',
-            purchaseType: inputs.purchaseType || 'PURCHASED_GOODS',
-            purchaseQuantity: Number(inputs.purchaseQuantity || 0),
-            purchaseDescription: inputs.purchaseDescription || ''
-          };
-        }
-      }
-      
-      // Calculate emissions (dummy value for now)
-      const emissionsValue = 2.5; // This would normally come from a calculation function
-      
-      // Create a new calculation record
-      await createNewCalculation(
-        scope,
-        source,
-        description,
-        quantity,
-        unit,
-        emissionsValue,
-        details
-      );
-      
-      console.log(`${scope} emissions calculated successfully`);
-      return true;
-    } catch (error) {
-      console.error(`Error calculating ${scope} emissions:`, error);
-      return false;
+  const { saveCalculation, updateCalculation: updateEmissionCalculation, handleRemoveCalculation, isSaving: isSavingRecord } = 
+    useEmissionRecordManager(reportId, calculationLogs, setCalculationLogs, calculatedEmissions, setCalculatedEmissions);
+    
+  const { resetCalculation } = 
+    useEmissionReset(setCalculatedEmissions, setCalculationLogs);
+    
+  const { handleSubmitCalculation, isSaving: isSubmitting } = 
+    useEmissionSubmit(reportId, setCalculationLogs, setCalculatedEmissions);
+  
+  // Access to emission records
+  const { loadEmissionRecords, calculateTotals } = useEmissionRecords();
+  
+  // Calculate emissions wrapper that combines calculation and saving
+  const calculateEmissions = async (scope: 'scope1' | 'scope2' | 'scope3') => {
+    console.log(`Starting ${scope} calculation via useCalculatorActions`);
+    const calculationResult = await performEmissionCalculation(scope);
+    if (calculationResult) {
+      console.log(`${scope} calculation successful, saving result:`, calculationResult);
+      await saveCalculation(calculationResult);
+    } else {
+      console.error(`${scope} calculation failed, no result to save`);
     }
+    return calculationResult;
   };
-
+  
+  // Update existing emission calculation
+  const updateCalculation = async (calculationId: string, scope: 'scope1' | 'scope2' | 'scope3') => {
+    console.log(`Updating ${scope} calculation with ID ${calculationId}`);
+    const calculationResult = await performEmissionCalculation(scope);
+    
+    if (calculationResult) {
+      console.log(`${scope} calculation successful, updating record:`, calculationResult);
+      await updateEmissionCalculation(calculationId, calculationResult);
+    } else {
+      console.error(`${scope} calculation update failed, no result to save`);
+    }
+    
+    return calculationResult;
+  };
+  
+  // Load emission records on component mount
+  useEffect(() => {
+    if (reportId) {
+      console.log(`Loading emission records for report: ${reportId}`);
+      loadEmissionRecords(reportId).then(records => {
+        if (records && records.length > 0) {
+          console.log(`Loaded ${records.length} emission records`);
+          const newLogs: EmissionCalculationLogs = {
+            scope1Calculations: records.filter(record => record.scope === 'scope1'),
+            scope2Calculations: records.filter(record => record.scope === 'scope2'),
+            scope3Calculations: records.filter(record => record.scope === 'scope3')
+          };
+          
+          console.log(`Processed records: scope1=${newLogs.scope1Calculations.length}, scope2=${newLogs.scope2Calculations.length}, scope3=${newLogs.scope3Calculations.length}`);
+          
+          setCalculationLogs(newLogs);
+          
+          const totals = calculateTotals(records);
+          console.log(`Calculated emission totals:`, totals);
+          setCalculatedEmissions(totals);
+        } else {
+          console.log(`No emission records found for report: ${reportId}`);
+        }
+      }).catch(error => {
+        console.error(`Error loading emission records:`, error);
+      });
+    }
+  }, [reportId]);
+  
   return {
     calculateEmissions,
-    handleRemoveCalculation: removeCalculation,
+    updateCalculation,
+    handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,
-    updateCalculation,
-    isCalculating,
-    isCreating,
-    isDeleting,
-    isUpdating,
-    isSaving
+    isSaving: isSavingRecord || isSubmitting
   };
 };
