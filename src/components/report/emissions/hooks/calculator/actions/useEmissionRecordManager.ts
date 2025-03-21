@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { EmissionCalculationLogs, EmissionCalculationRecord, EmissionsResults } from '@/hooks/emissions-calculator/types';
+import { EmissionCalculationLogs, EmissionCalculationRecord } from '@/hooks/emissions-calculator/types';
 import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/hooks/use-report-context';
@@ -9,8 +8,8 @@ export const useEmissionRecordManager = (
   reportId: string | undefined,
   calculationLogs: EmissionCalculationLogs,
   setCalculationLogs: (logs: EmissionCalculationLogs) => void,
-  calculatedEmissions: EmissionsResults,
-  setCalculatedEmissions: (emissions: EmissionsResults) => void
+  calculatedEmissions: any,
+  setCalculatedEmissions: (emissions: any) => void
 ) => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -69,7 +68,8 @@ export const useEmissionRecordManager = (
       quantity: quantityValue,
       unit: unitValue,
       emissions: emissionValue,
-      details: detailsObj
+      details: detailsObj,
+      date: new Date().toISOString() // Adding the missing date property
     };
     
     console.log('Saving emission record:', record);
@@ -178,7 +178,8 @@ export const useEmissionRecordManager = (
       quantity: quantityValue,
       unit: unitValue,
       emissions: emissionValue,
-      details: detailsObj
+      details: detailsObj,
+      date: new Date().toISOString() // Adding the missing date property
     };
     
     console.log('Updating emission record:', recordUpdate);

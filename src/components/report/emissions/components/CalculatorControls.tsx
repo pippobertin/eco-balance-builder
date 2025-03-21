@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calculator, Save, Trash2 } from 'lucide-react';
-import { EmissionsResults } from '../EmissionsResults';
+import EmissionsResults from '../EmissionsResults';
 
 type CalculatorControlsProps = {
   handleCalculateClick: () => Promise<void>;
