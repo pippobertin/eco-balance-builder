@@ -4,6 +4,7 @@ import { useCalculator } from './emissions/hooks/useCalculator';
 import { useReport } from '@/hooks/use-report-context';
 import { GHGEmissionsCalculatorProps } from './emissions/types';
 import { useEditCalculation } from './emissions/hooks/useEditCalculation';
+import { EmissionFactorSource } from '@/lib/emissions-types';
 
 // Import refactored components
 import CalculatorHeader from './emissions/CalculatorHeader';
@@ -117,10 +118,15 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     return <LoadingState />;
   }
 
+  // Convert string to EmissionFactorSource enum
+  const calculationMethod = typeof inputs.calculationMethod === 'string' 
+    ? (inputs.calculationMethod as EmissionFactorSource) 
+    : EmissionFactorSource.DEFRA;
+
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
-        calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod : 'DEFRA'} 
+        calculationMethod={calculationMethod}
         setCalculationMethod={value => updateInput('calculationMethod', value)} 
       />
       

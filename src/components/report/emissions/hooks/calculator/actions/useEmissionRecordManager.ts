@@ -182,14 +182,14 @@ export const useEmissionRecordManager = () => {
       detailsToSave = {
         periodType: PeriodType.ANNUAL,
         scope1Source: 'fuel',
-        fuelType: FuelType.DIESEL,
+        fuelType: 'DIESEL' as FuelType,
         quantity: 1500,
         unit: 'L',
       };
     } else if (scope === 'scope2') {
       detailsToSave = {
         periodType: PeriodType.ANNUAL,
-        energyType: EnergyType.ELECTRICITY_IT,
+        energyType: 'ELECTRICITY_IT' as EnergyType,
         quantity: 5000,
         renewablePercentage: 10,
         energyProvider: 'Enel',
@@ -198,15 +198,15 @@ export const useEmissionRecordManager = () => {
       detailsToSave = {
         periodType: PeriodType.ANNUAL,
         scope3Category: 'transport',
-        transportType: TransportType.BUSINESS_TRAVEL_CAR,
+        transportType: 'BUSINESS_TRAVEL_CAR' as TransportType,
         transportDistance: 200,
-        wasteType: WasteType.WASTE_LANDFILL,
+        wasteType: 'WASTE_LANDFILL' as WasteType,
         wasteQuantity: 100,
-        purchaseType: PurchaseType.PURCHASED_GOODS,
+        purchaseType: 'PURCHASED_GOODS' as PurchaseType,
         purchaseQuantity: 50,
         purchaseDescription: 'Office Supplies',
         vehicleType: 'Car',
-        vehicleFuelType: FuelType.DIESEL,
+        vehicleFuelType: 'DIESEL' as FuelType,
         vehicleEnergyClass: 'A',
         vehicleFuelConsumption: 7.5,
         vehicleFuelConsumptionUnit: 'l_100km',
