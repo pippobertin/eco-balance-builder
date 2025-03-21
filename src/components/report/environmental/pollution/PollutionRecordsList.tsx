@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Table, 
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Trash2, PenLine } from 'lucide-react';
-import { PollutionRecord, PollutantType, PollutionMedium } from '../hooks/usePollutionData';
+import { PollutionRecord, PollutantType, PollutionMedium } from '../hooks/pollution/types';
 
 interface PollutionRecordsListProps {
   records: PollutionRecord[];

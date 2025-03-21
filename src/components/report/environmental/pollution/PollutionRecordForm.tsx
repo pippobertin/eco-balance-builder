@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PollutantType, PollutionMedium, PollutionRecord } from '../hooks/usePollutionData';
+import { PollutantType, PollutionMedium, PollutionRecord } from '../hooks/pollution/types';
 import { usePollutionForm } from './hooks/usePollutionForm';
 import PollutantFormFields from './components/PollutantFormFields';
 import PollutantFormActions from './components/PollutantFormActions';

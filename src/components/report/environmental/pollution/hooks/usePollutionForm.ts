@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { PollutionRecord, PollutantType } from '../../hooks/usePollutionData';
+import { PollutionRecord } from '../../hooks/pollution/types';
 
 interface UsePollutionFormProps {
   editingRecord: PollutionRecord | null;
@@ -12,7 +11,6 @@ export const usePollutionForm = ({ editingRecord, setSelectedMedium }: UsePollut
   const [quantity, setQuantity] = useState<string>("");
   const [details, setDetails] = useState<string>("");
   
-  // Reset form or populate form values when editing record changes
   useEffect(() => {
     if (editingRecord) {
       setSelectedMedium(editingRecord.release_medium_id);
