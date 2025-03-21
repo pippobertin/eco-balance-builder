@@ -3,9 +3,11 @@ import { useEffect } from 'react';
 import { usePollutionFetch } from './usePollutionFetch';
 import { usePollutionRecords } from './usePollutionRecords';
 import { usePollutantFilter } from './usePollutantFilter';
+import { usePollutionManagement } from './usePollutionManagement';
 import { UsePollutionDataInput, UsePollutionDataOutput } from './types';
 
 export * from './types';
+export { usePollutionManagement };
 
 export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollutionDataOutput => {
   // Use the fetch hook to handle data loading

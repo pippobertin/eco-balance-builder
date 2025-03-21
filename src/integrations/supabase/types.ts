@@ -499,6 +499,38 @@ export type Database = {
         }
         Relationships: []
       }
+      pollution_management_details: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pollution_management_details_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pollution_records: {
         Row: {
           created_at: string

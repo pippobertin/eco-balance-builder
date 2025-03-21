@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Wind, Info, AlertCircle, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { usePollutionData } from './hooks/usePollutionData';
+import { usePollutionData, usePollutionManagement } from './hooks/pollution';
 import PollutionRecordForm from './pollution/PollutionRecordForm';
 import PollutionRecordsList from './pollution/PollutionRecordsList';
 import { useReport } from '@/hooks/use-report-context';
@@ -22,13 +22,16 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const { currentReport, saveCurrentReport } = useReport();
+  const { currentReport } = useReport();
   const reportId = currentReport?.id;
-  const { toast } = useToast();
-  const [pollutionDetails, setPollutionDetails] = useState<string>(
-    formValues.environmentalMetrics?.pollutionDetails || ""
-  );
-  const [isSaving, setIsSaving] = useState(false);
+  
+  // Use our new hook for pollution management details
+  const {
+    details: pollutionDetails,
+    setDetails: setPollutionDetails,
+    isSaving,
+    saveDetails
+  } = usePollutionManagement({ reportId });
   
   const {
     mediums,
@@ -45,7 +48,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     deleteRecord,
     editRecord,
     cancelEdit
-  } = usePollutionData({ reportId }); // Fix: Pass reportId as an object property
+  } = usePollutionData({ reportId });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
@@ -68,35 +71,8 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     setPollutionDetails(e.target.value);
   };
 
-  const saveDetails = async () => {
-    setIsSaving(true);
-    try {
-      // Update form values with the new pollution details
-      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          pollutionDetails: pollutionDetails
-        }
-      }));
-
-      // Save to database
-      await saveCurrentReport();
-      
-      toast({
-        title: "Salvato con successo",
-        description: "I dettagli sul sistema di gestione degli inquinanti sono stati salvati",
-      });
-    } catch (error) {
-      console.error("Errore durante il salvataggio dei dettagli:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSaveDetails = async () => {
+    await saveDetails(pollutionDetails);
   };
 
   return (
@@ -176,7 +152,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
               />
             </div>
             <Button 
-              onClick={saveDetails} 
+              onClick={handleSaveDetails} 
               disabled={isSaving}
               className="flex items-center"
             >
