@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { 
   Select, 
@@ -36,14 +35,12 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
   periodType,
   setPeriodType
 }) => {
-  // Handler for quantity change to ensure proper value capture
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     console.log('Fuel quantity changed to:', value);
     setFuelQuantity(value);
   };
 
-  // Initialize fuelType if it's empty and scope1Source is 'fuel'
   useEffect(() => {
     if (scope1Source === 'fuel' && !fuelType) {
       console.log('Initializing default fuel type to DIESEL');
@@ -51,7 +48,6 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
     }
   }, [scope1Source, fuelType, setFuelType]);
 
-  // Initialize fuelUnit if it's empty
   useEffect(() => {
     if (!fuelUnit) {
       console.log('Initializing default fuel unit to L');
@@ -59,7 +55,6 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
     }
   }, [fuelUnit, setFuelUnit]);
 
-  // Log current values for debugging
   useEffect(() => {
     console.log('Scope1Form current values:', {
       scope1Source,
@@ -127,7 +122,7 @@ const Scope1Form: React.FC<Scope1FormProps> = ({
             value={fuelQuantity} 
             onChange={handleQuantityChange}
             placeholder="Inserisci quantità"
-            className="bg-white"
+            className="bg-blue-50"
           />
         </div>
         

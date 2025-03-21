@@ -55,7 +55,7 @@ const PurchaseSection: React.FC<PurchaseSectionProps> = ({
             value={purchaseQuantity} 
             onChange={(e) => setPurchaseQuantity(e.target.value)}
             placeholder={purchaseType === 'PURCHASED_GOODS' ? "Inserisci quantità in kg" : "Inserisci numero di unità"}
-            className="bg-white"
+            className="bg-blue-50"
           />
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,7 +66,7 @@ const ConsumptionInput: React.FC<ConsumptionInputProps> = ({
           value={displayConsumption} 
           onChange={handleConsumptionChange}
           placeholder={consumptionUnit === 'l_100km' ? "Litri per 100 km" : "Km per litro"}
-          className="bg-white rounded-r-none"
+          className="bg-blue-50 rounded-r-none"
         />
         <Button
           type="button"

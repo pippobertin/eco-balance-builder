@@ -20,7 +20,7 @@ const TransportDistanceInput: React.FC<TransportDistanceInputProps> = ({
         value={transportDistance} 
         onChange={(e) => setTransportDistance(e.target.value)}
         placeholder="Inserisci distanza in km"
-        className="bg-white"
+        className="bg-blue-50"
       />
     </div>
   );

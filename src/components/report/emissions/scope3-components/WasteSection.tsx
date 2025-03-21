@@ -50,7 +50,7 @@ const WasteSection: React.FC<WasteSectionProps> = ({
           value={wasteQuantity} 
           onChange={(e) => setWasteQuantity(e.target.value)}
           placeholder="Inserisci quantità in kg"
-          className="bg-white"
+          className="bg-blue-50"
         />
       </div>
     </div>

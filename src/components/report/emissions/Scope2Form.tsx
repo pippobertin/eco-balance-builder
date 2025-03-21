@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { 
   Select, 
@@ -24,7 +23,6 @@ interface Scope2FormProps {
   setEnergyProvider?: (value: string) => void;
 }
 
-// Italian energy providers list with renewable percentage data
 const ITALIAN_ENERGY_PROVIDERS = [
   { value: "enel", label: "Enel", renewablePercentage: 80 },
   { value: "eni", label: "Eni Plenitude", renewablePercentage: 40 },
@@ -55,7 +53,6 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
   energyProvider = "",
   setEnergyProvider = () => {}
 }) => {
-  // Update renewable percentage when energy provider changes
   useEffect(() => {
     if (energyProvider) {
       const provider = ITALIAN_ENERGY_PROVIDERS.find(p => p.value === energyProvider);
@@ -65,10 +62,8 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
     }
   }, [energyProvider, setRenewablePercentage]);
 
-  // Handle manual changes to renewable percentage
   const handleRenewablePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
-    // Ensure percentage is between 0 and 100
     const validValue = Math.min(100, Math.max(0, value));
     setRenewablePercentage(validValue);
   };
@@ -122,7 +117,7 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
             value={renewablePercentage.toString()} 
             onChange={handleRenewablePercentageChange}
             placeholder="Percentuale energia rinnovabile"
-            className="bg-white"
+            className="bg-blue-50"
           />
         </div>
         
@@ -133,7 +128,7 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
             value={energyQuantity} 
             onChange={(e) => setEnergyQuantity(e.target.value)}
             placeholder="Inserisci quantità in kWh"
-            className="bg-white"
+            className="bg-blue-50"
           />
         </div>
       </div>
