@@ -59,7 +59,7 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-5 w-5 ml-1 p-0"
+            className="h-8 w-auto ml-1 p-0"
             asChild
           >
             <a
@@ -71,7 +71,7 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
               <img 
                 src="/lovable-uploads/bf31d396-a7a6-4861-86e0-33b07271cf30.png" 
                 alt="Aqueduct" 
-                className="h-15 w-auto"
+                className="h-6 w-auto"
               />
             </a>
           </Button>
