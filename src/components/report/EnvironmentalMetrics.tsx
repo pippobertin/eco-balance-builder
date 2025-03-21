@@ -6,6 +6,7 @@ import PollutionSection from './environmental/PollutionSection';
 import BiodiversitySection from './environmental/BiodiversitySection';
 import WaterSection from './environmental/WaterSection';
 import ResourcesSection from './environmental/ResourcesSection';
+import { useReport } from '@/hooks/use-report-context';
 
 interface EnvironmentalMetricsProps {
   formValues: any;
@@ -18,6 +19,9 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
   setFormValues,
   initialField
 }) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
+  
   const emissionsRef = useRef<HTMLDivElement>(null);
   const pollutionRef = useRef<HTMLDivElement>(null);
   const biodiversityRef = useRef<HTMLDivElement>(null);

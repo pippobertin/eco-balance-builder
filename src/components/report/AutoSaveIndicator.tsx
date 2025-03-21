@@ -5,13 +5,13 @@ import { it } from 'date-fns/locale';
 import { Clock, Save } from 'lucide-react';
 
 interface AutoSaveIndicatorProps {
-  needsSaving: boolean;
+  needsSaving?: boolean;
   lastSaved: Date | null;
   className?: string;
 }
 
 const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ 
-  needsSaving, 
+  needsSaving = false, 
   lastSaved,
   className = '' // Default to empty string
 }) => {

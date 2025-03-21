@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useReport } from '@/hooks/use-report-context';
 import { useBiodiversityLandUse } from './hooks/biodiversity';
+import AutoSaveIndicator from '../AutoSaveIndicator';
 
 interface BiodiversitySectionProps {
   formValues: any;
@@ -35,7 +36,8 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
     isSaving, 
     saveData, 
     updateField,
-    percentageChanges
+    percentageChanges,
+    lastSaved
   } = useBiodiversityLandUse({ reportId });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -95,9 +97,16 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
             <span className="sr-only">Info about {title}</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="max-w-md p-4">
+        <TooltipContent 
+          side="right" 
+          align="start" 
+          className="max-w-md p-4 z-50"
+          avoidCollisions={true}
+          collisionBoundary={null}
+          sticky="always"
+        >
           <div className="space-y-2">
-            <p className="font-medium text-sm">{title}</p>
+            <p className="font-medium text-sm"><strong>{title}</strong></p>
             <p className="text-xs">{content}</p>
           </div>
         </TooltipContent>
@@ -131,6 +140,14 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
           </Alert>
         )}
 
+        {lastSaved && (
+          <AutoSaveIndicator 
+            needsSaving={Boolean(isSaving)} 
+            lastSaved={lastSaved} 
+            className="mb-4" 
+          />
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
@@ -144,7 +161,7 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
             <tbody>
               <tr>
                 <td className="border p-2 flex items-center">
-                  Uso totale del suolo
+                  <span className="font-medium">Uso totale del suolo</span>
                   {renderTooltip(
                     "Uso totale del suolo", 
                     "La superficie totale di terreno utilizzata dall'azienda per le sue attività, espressa in ettari (ha)."
@@ -176,10 +193,10 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
               </tr>
               <tr>
                 <td className="border p-2 flex items-center">
-                  Superficie impermeabilizzata
+                  <span className="font-medium">Superficie impermeabilizzata</span>
                   {renderTooltip(
                     "Superficie impermeabilizzata", 
-                    "Si riferisce all'area di terreno coperta da materiali impermeabili, che impediscono all'acqua piovana di infiltrarsi nel suolo naturale. Include edifici, superfici esterne, strade e parcheggi asfaltati o cementati, piazzali industriali pavimentati, marciapiedi e sentieri pavimentati."
+                    "Si riferisce all'area di terreno coperta da materiali impermeabili, che impediscono all'acqua piovana di infiltrarsi nel suolo naturale. Include <strong>edifici</strong>, <strong>superfici esterne</strong>, <strong>strade e parcheggi asfaltati o cementati</strong>, <strong>piazzali industriali pavimentati</strong>, <strong>marciapiedi e sentieri pavimentati</strong>."
                   )}
                 </td>
                 <td className="border p-2">
@@ -208,10 +225,10 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
               </tr>
               <tr>
                 <td className="border p-2 flex items-center">
-                  Superficie orientata alla natura in sito
+                  <span className="font-medium">Superficie orientata alla natura in sito</span>
                   {renderTooltip(
                     "Superficie orientata alla natura in sito", 
-                    "Si riferisce a porzioni di terreno all'interno del sito operativo dell'azienda gestite o create per favorire la biodiversità e gli ecosistemi naturali. Esempi includono giardini naturalistici con piante autoctone, stagni o zone umide artificiali, boschetti o aree boscate, tetti verdi, fasce tampone vegetate."
+                    "Si riferisce a porzioni di terreno all'interno del sito operativo dell'azienda gestite o create per favorire la biodiversità e gli ecosistemi naturali. Esempi includono <strong>giardini naturalistici</strong> con piante autoctone, <strong>stagni o zone umide artificiali</strong>, <strong>boschetti o aree boscate</strong>, <strong>tetti verdi</strong>, <strong>fasce tampone vegetate</strong>."
                   )}
                 </td>
                 <td className="border p-2">
@@ -240,10 +257,10 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
               </tr>
               <tr>
                 <td className="border p-2 flex items-center">
-                  Superficie orientata alla natura fuori sito
+                  <span className="font-medium">Superficie orientata alla natura fuori sito</span>
                   {renderTooltip(
                     "Superficie orientata alla natura fuori sito", 
-                    "Si riferisce ad azioni o progetti di conservazione e ripristino della biodiversità realizzati dall'azienda al di fuori del suo sito operativo. Esempi includono progetti di riforestazione o ripristino di habitat, creazione o gestione di riserve naturali, progetti di conservazione di specie minacciate, corridoi ecologici."
+                    "Si riferisce ad azioni o progetti di conservazione e ripristino della biodiversità realizzati dall'azienda al di fuori del suo sito operativo. Esempi includono <strong>progetti di riforestazione</strong> o ripristino di habitat, <strong>creazione o gestione di riserve naturali</strong>, <strong>progetti di conservazione di specie minacciate</strong>, <strong>corridoi ecologici</strong>."
                   )}
                 </td>
                 <td className="border p-2">
@@ -276,12 +293,12 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
 
         <div className="mt-6">
           <div className="flex items-center">
-            <Label htmlFor="sensitiveSitesDetails" className="mr-2">
+            <Label htmlFor="sensitiveSitesDetails" className="mr-2 font-medium">
               Numero e area (ha) dei siti in prossimità di aree sensibili
             </Label>
             {renderTooltip(
               "Aree Sensibili Sotto il Profilo della Biodiversità", 
-              "Sono aree geografiche riconosciute a livello internazionale o europeo come particolarmente importanti per la conservazione della biodiversità. Include Rete Natura 2000, Siti del Patrimonio Mondiale UNESCO, Key Biodiversity Areas (KBA) e altre aree protette. 'In prossimità' significa che il sito operativo dell'azienda si trova in parte all'interno di un'area sensibile o confina direttamente con essa."
+              "Sono aree geografiche riconosciute a livello internazionale o europeo come particolarmente importanti per la conservazione della biodiversità. Include <strong>Rete Natura 2000</strong>, <strong>Siti del Patrimonio Mondiale UNESCO</strong>, <strong>Key Biodiversity Areas (KBA)</strong> e altre aree protette. '<strong>In prossimità</strong>' significa che il sito operativo dell'azienda si trova in parte all'interno di un'area sensibile o confina direttamente con essa."
             )}
           </div>
           <Textarea 

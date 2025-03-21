@@ -19,6 +19,10 @@ export interface MetricChartProps {
   individualColors?: boolean;
   height?: number;
   hideLegend?: boolean;
+  isLoading?: boolean;
+  emptyStateMessage?: string;
+  compareKey?: string;
+  categoryNames?: string[];
   tooltipFormatter?: (value: number, name: string, entry: any) => React.ReactNode;
 }
 
