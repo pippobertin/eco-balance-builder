@@ -84,10 +84,10 @@ export const performScope2Calculation = (
       addedEmissions: emissionsTonnes
     });
     
-    // Save calculation details
+    // Save calculation details with energy provider information
     const calculationDetails = {
       energyType: inputs.energyType,
-      energyProvider: inputs.energyProvider || '',
+      energyProvider: inputs.energyProvider || 'Non specificato',
       quantity,
       unit: 'kWh',
       renewablePercentage,

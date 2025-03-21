@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Info, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import EmissionTableBody from './table-components/EmissionTableBody';
+import { getCategoryLabel, formatDate, formatNumber, getPeriodLabel, hasVehicleDetails } from './table-components/tableUtils';
 
 interface Calculation {
   id: string;
@@ -42,62 +43,6 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
     );
   }
   
-  // Utility functions for formatting and labeling
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'dd/MM/yyyy');
-    } catch (e) {
-      return 'Data non valida';
-    }
-  };
-  
-  const formatNumber = (num: number, precision: number = 2) => {
-    if (typeof num !== 'number' || isNaN(num)) return '0';
-    return num.toFixed(precision);
-  };
-  
-  const getCategoryLabel = (calculation: Calculation) => {
-    try {
-      // Extract the category from the calculation details
-      const { description, details } = calculation;
-      
-      if (details?.category) {
-        return details.category;
-      }
-      
-      if (description) {
-        return description;
-      }
-      
-      return 'N/D';
-    } catch (e) {
-      return 'N/D';
-    }
-  };
-  
-  const getPeriodLabel = (period?: string) => {
-    if (!period) return '';
-    
-    switch (period) {
-      case 'annual':
-        return 'Annuale';
-      case 'monthly':
-        return 'Mensile';
-      case 'quarterly':
-        return 'Trimestrale';
-      default:
-        return period;
-    }
-  };
-  
-  const hasVehicleDetails = (calculation: Calculation) => {
-    return calculation.details && (
-      calculation.details.vehicleType || 
-      calculation.details.vehicleFuelType || 
-      calculation.details.vehicleEnergyClass
-    );
-  };
-
   return (
     <div className="border rounded-md p-4">
       <h4 className="font-medium text-gray-700 mb-4">{scopeLabel}</h4>
@@ -117,11 +62,11 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
         <EmissionTableBody
           calculations={calculations}
           onRemoveCalculation={onRemoveCalculation}
-          getCategoryLabel={getCategoryLabel}
+          getCategoryLabel={(calculation) => getCategoryLabel(calculation, scope)}
           formatDate={formatDate}
           formatNumber={formatNumber}
           getPeriodLabel={getPeriodLabel}
-          hasVehicleDetails={hasVehicleDetails}
+          hasVehicleDetails={(calculation) => hasVehicleDetails(calculation, scope)}
           scopeLabel={scopeLabel}
         />
       </Table>

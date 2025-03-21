@@ -45,21 +45,27 @@ const TransportSection: React.FC<TransportSectionProps> = ({
   
   // Set default values if transport type changes
   useEffect(() => {
-    if (showVehicleDetails && !vehicleType) {
-      if (transportType === 'BUSINESS_TRAVEL_CAR') {
-        setVehicleType('car_medium');
-      } else if (transportType === 'FREIGHT_ROAD') {
-        setVehicleType('truck_medium');
+    if (showVehicleDetails) {
+      // Set default vehicle type based on transport type if not already set
+      if (!vehicleType) {
+        if (transportType === 'BUSINESS_TRAVEL_CAR') {
+          setVehicleType('car_medium');
+        } else if (transportType === 'FREIGHT_ROAD') {
+          setVehicleType('truck_medium');
+        }
       }
       
+      // Set default energy class if not already set
       if (!vehicleEnergyClass) {
         setVehicleEnergyClass('euro6');
       }
       
+      // Set default fuel type if not already set
       if (!vehicleFuelType) {
         setVehicleFuelType('DIESEL');
       }
       
+      // Set default fuel consumption unit if not already set
       if (!vehicleFuelConsumptionUnit) {
         setVehicleFuelConsumptionUnit('l_100km');
       }

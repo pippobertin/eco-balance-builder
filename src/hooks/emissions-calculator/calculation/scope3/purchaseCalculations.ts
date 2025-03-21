@@ -72,11 +72,12 @@ export const performPurchaseCalculation = (
       addedEmissions: emissionsTonnes
     });
     
-    // Save calculation details
+    // Save calculation details with description
     const calculationDetails = {
       purchaseType: inputs.purchaseType,
       activityType: inputs.purchaseType, // Add this for table display
       purchaseDescription: inputs.purchaseDescription || '',
+      description: inputs.purchaseDescription || '', // Add at top level for better access
       quantity,
       unit: 'kg',
       periodType: inputs.periodType,

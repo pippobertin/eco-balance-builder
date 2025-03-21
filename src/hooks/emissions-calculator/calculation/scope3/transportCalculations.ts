@@ -1,4 +1,3 @@
-
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../../types';
 import { calculateScope3Emissions } from '@/lib/emissions-calculator';
@@ -106,18 +105,19 @@ export const performTransportCalculation = (
       total: results.total + emissionsTonnes
     };
     
-    // Vehicle details object to store in calculation details
+    // Enhanced vehicle details object
     const vehicleDetails = inputs.vehicleType ? {
       vehicleType: inputs.vehicleType,
       vehicleFuelType: inputs.vehicleFuelType,
-      vehicleEnergyClass: inputs.vehicleEnergyClass,
+      vehicleEnergyClass: inputs.vehicleEnergyClass || 'euro6',
       vehicleFuelConsumption: inputs.vehicleFuelConsumption,
       vehicleFuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit
     } : null;
     
-    // Save calculation details
+    // Save calculation details - make sure to include all vehicle information directly
     const calculationDetails = {
-      activityType: inputs.transportType,
+      transportType: inputs.transportType,
+      activityType: inputs.transportType, // Add this for table display
       quantity: distance,
       unit: 'km',
       periodType: inputs.periodType,
@@ -125,6 +125,15 @@ export const performTransportCalculation = (
       emissionsTonnes,
       calculationDate: new Date().toISOString(),
       source: source || getEmissionFactorSource(inputs.transportType),
+      
+      // Include vehicle details in top level for better accessibility
+      vehicleType: inputs.vehicleType,
+      vehicleFuelType: inputs.vehicleFuelType,
+      vehicleEnergyClass: inputs.vehicleEnergyClass || 'euro6',
+      vehicleFuelConsumption: inputs.vehicleFuelConsumption,
+      vehicleFuelConsumptionUnit: inputs.vehicleFuelConsumptionUnit,
+      
+      // Keep the nested structure for backward compatibility
       vehicleDetails
     };
     
@@ -136,6 +145,7 @@ export const performTransportCalculation = (
     }
     
     details = JSON.stringify(calculationDetails);
+    console.log('Processed transport calculation details:', details);
     
     return { updatedResults, details, source };
   } catch (error) {

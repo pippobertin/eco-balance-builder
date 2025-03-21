@@ -73,7 +73,7 @@ export const getCategoryLabel = (calculation: Calculation, scope: string) => {
     
     // Se ci sono dettagli del veicolo, mostra informazioni più specifiche
     if (hasValidVehicleDetails(calculation)) {
-      const vehicleDetails = calculation.details?.vehicleDetails;
+      const vehicleDetails = calculation.details?.vehicleDetails || calculation.details;
       const vehicleType = vehicleDetails?.vehicleType || '';
       const fuelType = vehicleDetails?.vehicleFuelType || '';
       
