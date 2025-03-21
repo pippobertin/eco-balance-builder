@@ -888,6 +888,50 @@ export type Database = {
           },
         ]
       }
+      waste_management: {
+        Row: {
+          created_at: string
+          disposal_waste: number | null
+          id: string
+          recycled_waste: number | null
+          report_id: string
+          total_waste: number | null
+          updated_at: string
+          waste_description: string
+          waste_type: string
+        }
+        Insert: {
+          created_at?: string
+          disposal_waste?: number | null
+          id?: string
+          recycled_waste?: number | null
+          report_id: string
+          total_waste?: number | null
+          updated_at?: string
+          waste_description: string
+          waste_type: string
+        }
+        Update: {
+          created_at?: string
+          disposal_waste?: number | null
+          id?: string
+          recycled_waste?: number | null
+          report_id?: string
+          total_waste?: number | null
+          updated_at?: string
+          waste_description?: string
+          waste_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_management_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       water_metrics: {
         Row: {
           area_unit: string

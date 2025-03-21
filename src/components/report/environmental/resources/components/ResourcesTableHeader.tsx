@@ -9,6 +9,7 @@ const ResourcesTableHeader: React.FC = () => {
         <th className="p-2 text-right font-medium text-sm text-gray-600">Totale Rifiuti (t)</th>
         <th className="p-2 text-right font-medium text-sm text-gray-600">Destinati a Riciclo o Riutilizzo (t)</th>
         <th className="p-2 text-right font-medium text-sm text-gray-600">Destinati a Smaltimento (t)</th>
+        <th className="p-2 text-right font-medium text-sm text-gray-600">Azioni</th>
       </tr>
     </thead>
   );
