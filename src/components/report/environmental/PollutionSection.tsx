@@ -22,7 +22,6 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
 }) => {
   const { currentReport } = useReport();
   const reportId = currentReport?.id;
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
     mediums,
@@ -30,10 +29,15 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     filteredPollutants,
     records,
     isLoading,
+    isSubmitting,
     selectedMedium,
     setSelectedMedium,
+    editingRecord,
     addRecord,
-    deleteRecord
+    updateRecord,
+    deleteRecord,
+    editRecord,
+    cancelEdit
   } = usePollutionData(reportId);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -50,16 +54,6 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
           [name]: value
         }
       }));
-    }
-  };
-
-  const handleAddRecord = async (record: any) => {
-    setIsSubmitting(true);
-    try {
-      const result = await addRecord(record);
-      return result;
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -93,14 +87,19 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h4 className="font-medium">Registro Inquinanti</h4>
+            <h4 className="font-medium">
+              {editingRecord ? "Modifica Inquinante" : "Registro Inquinanti"}
+            </h4>
             <PollutionRecordForm
               reportId={reportId}
               mediums={mediums}
               filteredPollutants={filteredPollutants}
               selectedMedium={selectedMedium}
               setSelectedMedium={setSelectedMedium}
-              onAddRecord={handleAddRecord}
+              onAddRecord={addRecord}
+              onUpdateRecord={updateRecord}
+              onCancelEdit={cancelEdit}
+              editingRecord={editingRecord}
               isSubmitting={isSubmitting}
             />
           </div>
@@ -112,7 +111,9 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
               pollutants={pollutants}
               mediums={mediums}
               onDeleteRecord={deleteRecord}
+              onEditRecord={editRecord}
               isLoading={isLoading}
+              editingId={editingRecord?.id}
             />
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from 'lucide-react';
+import { Trash2, PenLine } from 'lucide-react';
 import { PollutionRecord, PollutantType, PollutionMedium } from '../hooks/usePollutionData';
 
 interface PollutionRecordsListProps {
@@ -17,7 +17,9 @@ interface PollutionRecordsListProps {
   pollutants: PollutantType[];
   mediums: PollutionMedium[];
   onDeleteRecord: (id: string) => Promise<boolean>;
+  onEditRecord: (record: PollutionRecord) => void;
   isLoading?: boolean;
+  editingId?: string | null;
 }
 
 const PollutionRecordsList: React.FC<PollutionRecordsListProps> = ({
@@ -25,7 +27,9 @@ const PollutionRecordsList: React.FC<PollutionRecordsListProps> = ({
   pollutants,
   mediums,
   onDeleteRecord,
-  isLoading = false
+  onEditRecord,
+  isLoading = false,
+  editingId = null
 }) => {
   // Get pollutant name by ID
   const getPollutantName = (id: number) => {
@@ -63,12 +67,15 @@ const PollutionRecordsList: React.FC<PollutionRecordsListProps> = ({
             <TableHead>Mezzo di Rilascio</TableHead>
             <TableHead>Quantità (kg)</TableHead>
             <TableHead>Note</TableHead>
-            <TableHead className="w-[80px]">Azioni</TableHead>
+            <TableHead className="w-[120px]">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {records.map((record) => (
-            <TableRow key={record.id}>
+            <TableRow 
+              key={record.id}
+              className={editingId === record.id ? "bg-muted/50" : ""}
+            >
               <TableCell className="font-medium">
                 {getPollutantName(record.pollutant_type_id)}
               </TableCell>
@@ -78,14 +85,28 @@ const PollutionRecordsList: React.FC<PollutionRecordsListProps> = ({
                 {record.details || '-'}
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => record.id && onDeleteRecord(record.id)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEditRecord(record)}
+                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                    disabled={editingId !== null}
+                    title="Modifica"
+                  >
+                    <PenLine className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => record.id && onDeleteRecord(record.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    disabled={editingId !== null}
+                    title="Elimina"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

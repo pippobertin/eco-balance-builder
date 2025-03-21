@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PollutantType, PollutionMedium, PollutionRecord } from '../hooks/usePollutionData';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PenLine } from 'lucide-react';
 
 interface PollutionRecordFormProps {
   reportId?: string;
@@ -15,6 +15,9 @@ interface PollutionRecordFormProps {
   selectedMedium: number | null;
   setSelectedMedium: (id: number | null) => void;
   onAddRecord: (record: PollutionRecord) => Promise<any>;
+  onUpdateRecord?: (record: PollutionRecord) => Promise<any>;
+  onCancelEdit?: () => void;
+  editingRecord: PollutionRecord | null;
   isSubmitting: boolean;
 }
 
@@ -25,11 +28,32 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
   selectedMedium,
   setSelectedMedium,
   onAddRecord,
+  onUpdateRecord,
+  onCancelEdit,
+  editingRecord,
   isSubmitting
 }) => {
   const [pollutantTypeId, setPollutantTypeId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<string>("");
   const [details, setDetails] = useState<string>("");
+  
+  // Set form values when editing record changes
+  useEffect(() => {
+    if (editingRecord) {
+      setSelectedMedium(editingRecord.release_medium_id);
+      setPollutantTypeId(editingRecord.pollutant_type_id);
+      setQuantity(editingRecord.quantity.toString());
+      setDetails(editingRecord.details || "");
+    } else {
+      resetForm();
+    }
+  }, [editingRecord, setSelectedMedium]);
+
+  const resetForm = () => {
+    setPollutantTypeId(null);
+    setQuantity("");
+    setDetails("");
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +62,7 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
       return;
     }
     
-    const record: PollutionRecord = {
+    const recordData: PollutionRecord = {
       report_id: reportId,
       pollutant_type_id: pollutantTypeId,
       release_medium_id: selectedMedium,
@@ -47,13 +71,20 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
       details: details || undefined
     };
     
-    const result = await onAddRecord(record);
+    let result;
+    
+    if (editingRecord && onUpdateRecord) {
+      result = await onUpdateRecord({
+        ...recordData,
+        id: editingRecord.id
+      });
+    } else {
+      result = await onAddRecord(recordData);
+    }
     
     if (result) {
       // Reset the form
-      setPollutantTypeId(null);
-      setQuantity("");
-      setDetails("");
+      resetForm();
     }
   };
   
@@ -65,8 +96,10 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
           value={selectedMedium?.toString() || ""}
           onValueChange={(value) => {
             setSelectedMedium(parseInt(value));
-            // Reset pollutant when changing medium
-            setPollutantTypeId(null);
+            // Reset pollutant when changing medium (unless in edit mode)
+            if (!editingRecord) {
+              setPollutantTypeId(null);
+            }
           }}
           disabled={!reportId || isSubmitting}
         >
@@ -144,20 +177,42 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
         />
       </div>
       
-      <Button 
-        type="submit" 
-        disabled={!reportId || !selectedMedium || !pollutantTypeId || !quantity || isSubmitting} 
-        className="w-full"
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Salvataggio in corso...
-          </>
-        ) : (
-          'Aggiungi Inquinante'
+      <div className="flex gap-2">
+        <Button 
+          type="submit" 
+          disabled={!reportId || !selectedMedium || !pollutantTypeId || !quantity || isSubmitting} 
+          className="flex-1"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {editingRecord ? 'Aggiornamento...' : 'Salvataggio...'}
+            </>
+          ) : (
+            <>
+              {editingRecord ? (
+                <>
+                  <PenLine className="mr-2 h-4 w-4" />
+                  Aggiorna Inquinante
+                </>
+              ) : (
+                'Aggiungi Inquinante'
+              )}
+            </>
+          )}
+        </Button>
+        
+        {editingRecord && onCancelEdit && (
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancelEdit}
+            disabled={isSubmitting}
+          >
+            Annulla
+          </Button>
         )}
-      </Button>
+      </div>
     </form>
   );
 };

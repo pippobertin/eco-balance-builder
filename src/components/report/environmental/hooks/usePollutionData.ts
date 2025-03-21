@@ -33,6 +33,8 @@ export const usePollutionData = (reportId?: string) => {
   const [filteredPollutants, setFilteredPollutants] = useState<PollutantType[]>([]);
   const [selectedMedium, setSelectedMedium] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<PollutionRecord | null>(null);
   const { toast } = useToast();
 
   // Fetch all release mediums
@@ -112,6 +114,7 @@ export const usePollutionData = (reportId?: string) => {
 
   // Add a new pollution record
   const addRecord = async (record: PollutionRecord): Promise<PollutionRecord | null> => {
+    setIsSubmitting(true);
     try {
       const { data, error } = await supabase
         .from('pollution_records')
@@ -141,6 +144,55 @@ export const usePollutionData = (reportId?: string) => {
         variant: 'destructive',
       });
       return null;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Update a pollution record
+  const updateRecord = async (record: PollutionRecord): Promise<PollutionRecord | null> => {
+    if (!record.id) return null;
+    
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from('pollution_records')
+        .update({
+          pollutant_type_id: record.pollutant_type_id,
+          release_medium_id: record.release_medium_id,
+          quantity: record.quantity,
+          details: record.details,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', record.id)
+        .select(`
+          *,
+          pollutant_types (name, description),
+          pollution_release_mediums (name)
+        `);
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setRecords(prev => prev.map(r => r.id === record.id ? data[0] as PollutionRecord : r));
+        setEditingRecord(null);
+        toast({
+          title: 'Successo',
+          description: 'Inquinante aggiornato con successo',
+        });
+        return data[0] as PollutionRecord;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error updating pollution record:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiornare l\'inquinante',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -155,6 +207,12 @@ export const usePollutionData = (reportId?: string) => {
       if (error) throw error;
       
       setRecords(prev => prev.filter(record => record.id !== id));
+      
+      // If currently editing this record, clear the edit state
+      if (editingRecord && editingRecord.id === id) {
+        setEditingRecord(null);
+      }
+      
       toast({
         title: 'Successo',
         description: 'Inquinante rimosso con successo',
@@ -169,6 +227,18 @@ export const usePollutionData = (reportId?: string) => {
       });
       return false;
     }
+  };
+
+  // Set a record for editing
+  const editRecord = (record: PollutionRecord) => {
+    setEditingRecord(record);
+    setSelectedMedium(record.release_medium_id);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingRecord(null);
+    setSelectedMedium(null);
   };
 
   // Filter pollutants based on selected medium
@@ -205,10 +275,15 @@ export const usePollutionData = (reportId?: string) => {
     filteredPollutants,
     records,
     isLoading,
+    isSubmitting,
     selectedMedium,
     setSelectedMedium,
+    editingRecord,
     addRecord,
+    updateRecord,
     deleteRecord,
+    editRecord,
+    cancelEdit,
     refreshRecords: fetchRecords
   };
 };
