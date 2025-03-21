@@ -2,14 +2,15 @@
 import React from 'react';
 import { Sprout, Info } from 'lucide-react';
 import SectionAutoSaveIndicator from '../components/SectionAutoSaveIndicator';
+import { useReport } from '@/context/ReportContext';
 
 interface BiodiversityHeaderProps {
   reportId: string | undefined;
-  isSaving: boolean;
-  lastSaved: Date | null;
 }
 
-const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId, isSaving, lastSaved }) => {
+const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId }) => {
+  const { needsSaving, lastSaved } = useReport();
+  
   return (
     <div className="mb-4">
       <div className="flex items-center mb-2">

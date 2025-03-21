@@ -2,6 +2,7 @@
 import React, { createContext } from 'react';
 import { useReportState } from './report/reportState';
 import { ReportContextType } from '@/context/types';
+import { Company, Report, Subsidiary, ReportData } from '@/context/types';
 
 // Create context
 export const ReportContext = createContext<ReportContextType | undefined>(undefined);

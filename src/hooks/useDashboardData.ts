@@ -30,7 +30,7 @@ export const useDashboardData = (initialYear: string = "") => {
       
       try {
         const loadedReports = await loadReports(companyId);
-        setAccessError(loadedReports.length === 0);
+        setAccessError(loadedReports && loadedReports.length === 0);
       } catch (error) {
         console.error("Error loading reports:", error);
         setAccessError(true);

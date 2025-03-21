@@ -2,14 +2,15 @@
 import React from 'react';
 import { Droplets, Info } from 'lucide-react';
 import SectionAutoSaveIndicator from '../components/SectionAutoSaveIndicator';
+import { useReport } from '@/context/ReportContext';
 
 interface WaterHeaderProps {
   reportId: string | undefined;
-  isSaving: boolean;
-  lastSaved: Date | null;
 }
 
-const WaterHeader: React.FC<WaterHeaderProps> = ({ reportId, isSaving, lastSaved }) => {
+const WaterHeader: React.FC<WaterHeaderProps> = ({ reportId }) => {
+  const { needsSaving, lastSaved } = useReport();
+  
   return (
     <div className="mb-4">
       <div className="flex items-center mb-2">
