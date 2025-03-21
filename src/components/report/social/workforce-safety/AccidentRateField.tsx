@@ -25,11 +25,11 @@ const AccidentRateField = ({ value, onChange }: AccidentRateFieldProps) => {
         value={displayValue} 
         onChange={onChange} 
         readOnly={true}
-        step="0.001"
+        step="0.01"
         className="bg-gray-50"
       />
       <p className="text-sm text-gray-500 mt-1">
-        Calcolato come (N. infortuni / Ore totali lavorate) x 172.000 / 1000
+        Calcolato come (N. infortuni / Ore totali lavorate) x 1.720
       </p>
     </div>
   );
