@@ -5,3 +5,4 @@ export { default as WasteEntryForm } from './WasteEntryForm';
 export { default as WasteEntryRow } from './WasteEntryRow';
 export { default as WasteNumericField } from './WasteNumericField';
 export { default as WasteFormHeader } from './WasteFormHeader';
+export { default as CircularEconomyDetails } from './CircularEconomyDetails';

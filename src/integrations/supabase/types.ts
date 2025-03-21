@@ -68,6 +68,44 @@ export type Database = {
           },
         ]
       }
+      circular_economy_details: {
+        Row: {
+          created_at: string
+          id: string
+          recyclable_content: number | null
+          recycled_content: number | null
+          report_id: string
+          resources_details: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recyclable_content?: number | null
+          recycled_content?: number | null
+          report_id: string
+          resources_details?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recyclable_content?: number | null
+          recycled_content?: number | null
+          report_id?: string
+          resources_details?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circular_economy_details_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string | null
