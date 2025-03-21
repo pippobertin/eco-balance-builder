@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Select, 
   SelectContent, 
@@ -24,23 +24,23 @@ interface Scope2FormProps {
   setEnergyProvider?: (value: string) => void;
 }
 
-// Italian energy providers list
+// Italian energy providers list with renewable percentage data
 const ITALIAN_ENERGY_PROVIDERS = [
-  { value: "enel", label: "Enel" },
-  { value: "eni", label: "Eni Plenitude" },
-  { value: "a2a", label: "A2A" },
-  { value: "edison", label: "Edison" },
-  { value: "hera", label: "Hera" },
-  { value: "iren", label: "Iren" },
-  { value: "acea", label: "Acea" },
-  { value: "sorgenia", label: "Sorgenia" },
-  { value: "axpo", label: "Axpo" },
-  { value: "engie", label: "Engie" },
-  { value: "illumia", label: "Illumia" },
-  { value: "dolomiti", label: "Dolomiti Energia" },
-  { value: "enegan", label: "Enegan" },
-  { value: "duferco", label: "Duferco" },
-  { value: "altro", label: "Altro" }
+  { value: "enel", label: "Enel", renewablePercentage: 80 },
+  { value: "eni", label: "Eni Plenitude", renewablePercentage: 40 },
+  { value: "a2a", label: "A2A", renewablePercentage: 60 },
+  { value: "edison", label: "Edison", renewablePercentage: 50 },
+  { value: "hera", label: "Hera", renewablePercentage: 40 },
+  { value: "iren", label: "Iren", renewablePercentage: 55 },
+  { value: "acea", label: "Acea", renewablePercentage: 50 },
+  { value: "sorgenia", label: "Sorgenia", renewablePercentage: 40 },
+  { value: "axpo", label: "Axpo", renewablePercentage: 60 },
+  { value: "engie", label: "Engie", renewablePercentage: 60 },
+  { value: "illumia", label: "Illumia", renewablePercentage: 100 },
+  { value: "dolomiti", label: "Dolomiti Energia", renewablePercentage: 90 },
+  { value: "enegan", label: "Enegan", renewablePercentage: 100 },
+  { value: "duferco", label: "Duferco", renewablePercentage: 40 },
+  { value: "altro", label: "Altro", renewablePercentage: 0 }
 ];
 
 const Scope2Form: React.FC<Scope2FormProps> = ({
@@ -55,6 +55,24 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
   energyProvider = "",
   setEnergyProvider = () => {}
 }) => {
+  // Update renewable percentage when energy provider changes
+  useEffect(() => {
+    if (energyProvider) {
+      const provider = ITALIAN_ENERGY_PROVIDERS.find(p => p.value === energyProvider);
+      if (provider) {
+        setRenewablePercentage(provider.renewablePercentage);
+      }
+    }
+  }, [energyProvider, setRenewablePercentage]);
+
+  // Handle manual changes to renewable percentage
+  const handleRenewablePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    // Ensure percentage is between 0 and 100
+    const validValue = Math.min(100, Math.max(0, value));
+    setRenewablePercentage(validValue);
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -102,7 +120,7 @@ const Scope2Form: React.FC<Scope2FormProps> = ({
             min="0" 
             max="100" 
             value={renewablePercentage.toString()} 
-            onChange={(e) => setRenewablePercentage(Number(e.target.value))}
+            onChange={handleRenewablePercentageChange}
             placeholder="Percentuale energia rinnovabile"
             className="bg-white"
           />
