@@ -5,8 +5,8 @@ import { Link, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
 import { useSupplyChainData } from './supply-chain/hooks';
-import SaveButton from './supply-chain/SaveButton';
-import SupplyChainHeader from './supply-chain/SupplyChainHeader';
+import { SaveButton, SupplyChainHeader } from './supply-chain';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
 type SupplyChainMetricsProps = {
   formValues: any;
@@ -54,49 +54,58 @@ const SupplyChainMetrics = React.forwardRef<HTMLDivElement, SupplyChainMetricsPr
 
     return (
       <GlassmorphicCard>
-        <div className="flex items-center mb-4" ref={ref}>
+        <div ref={ref}>
           <SupplyChainHeader 
             reportId={reportId}
             isSaving={isSaving}
             lastSaved={lastSaved}
           />
-        </div>
-        
-        <div className="space-y-4">
-          <div className="p-4 rounded-md mb-4 bg-blue-100">
-            <div className="flex items-start">
-              <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-              <p className="text-sm text-slate-600">
-                L'impresa può indicare se dispone di un processo per identificare se ci sono lavoratori nella catena del valore, comunità interessate o consumatori e utilizzatori finali che sono interessati o possono essere interessati da impatti negativi relativi alle operazioni dell'impresa.
-              </p>
+          
+          <div className="space-y-4">
+            {/* Auto Save Indicator - Modified to match other sections */}
+            <div className="flex justify-end mb-4">
+              <AutoSaveIndicator 
+                needsSaving={false} 
+                lastSaved={lastSaved} 
+                className="w-full bg-green-50 py-2 px-3 rounded-md"
+              />
             </div>
+            
+            <div className="p-4 rounded-md mb-4 bg-blue-100">
+              <div className="flex items-start">
+                <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+                <p className="text-sm text-slate-600">
+                  L'impresa può indicare se dispone di un processo per identificare se ci sono lavoratori nella catena del valore, comunità interessate o consumatori e utilizzatori finali che sono interessati o possono essere interessati da impatti negativi relativi alle operazioni dell'impresa.
+                </p>
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="supplyChainImpactProcess">Processo di identificazione degli impatti sulla catena del valore</Label>
+              <Textarea 
+                id="supplyChainImpactProcess" 
+                name="supplyChainImpactProcess" 
+                placeholder="Descrivi il processo per identificare se ci sono lavoratori nella catena del valore, comunità interessate o consumatori e utilizzatori finali che sono o possono essere interessati da impatti negativi relativi alle operazioni dell'impresa." 
+                value={formValues.socialMetrics?.supplyChainImpactProcess || ""} 
+                onChange={syncToParentState} 
+                className="min-h-[150px]" 
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="identifiedImpacts">Impatti identificati</Label>
+              <Textarea 
+                id="identifiedImpacts" 
+                name="identifiedImpacts" 
+                placeholder="Se identificati, descrivi i tipi di impatti, compresi i luoghi in cui si verificano e i gruppi che ne sono interessati." 
+                value={formValues.socialMetrics?.identifiedImpacts || ""} 
+                onChange={syncToParentState} 
+                className="min-h-[150px]" 
+              />
+            </div>
+            
+            <SaveButton onClick={handleSaveData} isLoading={isSaving} />
           </div>
-          
-          <div>
-            <Label htmlFor="supplyChainImpactProcess">Processo di identificazione degli impatti sulla catena del valore</Label>
-            <Textarea 
-              id="supplyChainImpactProcess" 
-              name="supplyChainImpactProcess" 
-              placeholder="Descrivi il processo per identificare se ci sono lavoratori nella catena del valore, comunità interessate o consumatori e utilizzatori finali che sono o possono essere interessati da impatti negativi relativi alle operazioni dell'impresa." 
-              value={formValues.socialMetrics?.supplyChainImpactProcess || ""} 
-              onChange={syncToParentState} 
-              className="min-h-[150px]" 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="identifiedImpacts">Impatti identificati</Label>
-            <Textarea 
-              id="identifiedImpacts" 
-              name="identifiedImpacts" 
-              placeholder="Se identificati, descrivi i tipi di impatti, compresi i luoghi in cui si verificano e i gruppi che ne sono interessati." 
-              value={formValues.socialMetrics?.identifiedImpacts || ""} 
-              onChange={syncToParentState} 
-              className="min-h-[150px]" 
-            />
-          </div>
-          
-          <SaveButton onClick={handleSaveData} isLoading={isSaving} />
         </div>
       </GlassmorphicCard>
     );
