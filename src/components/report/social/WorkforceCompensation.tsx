@@ -1,9 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CircleDollarSign, Info } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { CircleDollarSign, Info, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useWorkforceCompensationData } from './hooks/useWorkforceCompensationData';
+import { useReport } from '@/hooks/use-report-context';
 
 type WorkforceCompensationProps = {
   formValues: any;
@@ -12,6 +16,73 @@ type WorkforceCompensationProps = {
 
 const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensationProps>(
   ({ formValues, handleChange }, ref) => {
+    const { currentReport } = useReport();
+    const reportId = currentReport?.id;
+    
+    const { 
+      compensationData, 
+      loading, 
+      saveCompensationData, 
+      isSaving,
+      lastSaved
+    } = useWorkforceCompensationData(reportId);
+
+    // Update form values when compensation data is loaded
+    useEffect(() => {
+      if (compensationData && !loading) {
+        console.log("Updating form with compensation data:", compensationData);
+        
+        // Update parent component's form values with the loaded data
+        const updatedSocialMetrics = {
+          ...(formValues?.socialMetrics || {}),
+          entryWage: compensationData.entry_wage,
+          localMinimumWage: compensationData.local_minimum_wage,
+          entryWageToMinimumWageRatio: compensationData.entry_wage_to_minimum_wage_ratio,
+          genderPayGap: compensationData.gender_pay_gap,
+          collectiveBargainingCoverage: compensationData.collective_bargaining_coverage,
+          avgTrainingHoursMale: compensationData.avg_training_hours_male,
+          avgTrainingHoursFemale: compensationData.avg_training_hours_female
+        };
+        
+        // Create a synthetic change event to update the form values
+        const syntheticEvent = {
+          target: {
+            name: 'socialMetrics',
+            value: updatedSocialMetrics
+          }
+        } as any;
+        
+        handleChange(syntheticEvent);
+        
+        console.log("Updated form values with compensation data:", updatedSocialMetrics);
+      }
+    }, [compensationData, loading]);
+
+    const handleSaveCompensationData = async () => {
+      if (!formValues?.socialMetrics) {
+        console.error("Social metrics data is undefined. Cannot save compensation data.");
+        return;
+      }
+      
+      if (!reportId) {
+        console.error("Report ID is undefined. Cannot save compensation data.");
+        return;
+      }
+      
+      console.log("Saving compensation data with values:", formValues.socialMetrics);
+      
+      // Call the saveCompensationData function
+      await saveCompensationData({
+        entry_wage: formValues.socialMetrics.entryWage !== "" ? Number(formValues.socialMetrics.entryWage) : null,
+        local_minimum_wage: formValues.socialMetrics.localMinimumWage !== "" ? Number(formValues.socialMetrics.localMinimumWage) : null,
+        entry_wage_to_minimum_wage_ratio: formValues.socialMetrics.entryWageToMinimumWageRatio !== "" ? Number(formValues.socialMetrics.entryWageToMinimumWageRatio) : null,
+        gender_pay_gap: formValues.socialMetrics.genderPayGap !== "" ? Number(formValues.socialMetrics.genderPayGap) : null,
+        collective_bargaining_coverage: formValues.socialMetrics.collectiveBargainingCoverage !== "" ? Number(formValues.socialMetrics.collectiveBargainingCoverage) : null,
+        avg_training_hours_male: formValues.socialMetrics.avgTrainingHoursMale !== "" ? Number(formValues.socialMetrics.avgTrainingHoursMale) : null,
+        avg_training_hours_female: formValues.socialMetrics.avgTrainingHoursFemale !== "" ? Number(formValues.socialMetrics.avgTrainingHoursFemale) : null
+      });
+    };
+
     return (
       <GlassmorphicCard>
         <div className="flex items-center mb-4" ref={ref}>
@@ -27,6 +98,15 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
                 Il divario retributivo di genere è la differenza tra i livelli retributivi medi tra dipendenti di sesso femminile e maschile, espressa come percentuale del livello retributivo medio maschile. La copertura della contrattazione collettiva è la percentuale di dipendenti a cui si applicano i contratti collettivi.
               </p>
             </div>
+          </div>
+          
+          {/* Auto Save Indicator */}
+          <div className="flex justify-end mb-4">
+            <AutoSaveIndicator 
+              needsSaving={false} 
+              lastSaved={lastSaved} 
+              className="w-full bg-green-50 py-2 px-3 rounded-md"
+            />
           </div>
           
           <h4 className="font-medium text-lg">Retribuzione</h4>
@@ -77,6 +157,18 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
               <Label htmlFor="avgTrainingHoursFemale">Ore medie di formazione annuali per dipendente di genere femminile</Label>
               <Input id="avgTrainingHoursFemale" name="avgTrainingHoursFemale" type="number" placeholder="0.0" value={formValues.socialMetrics?.avgTrainingHoursFemale || ""} onChange={handleChange} />
             </div>
+          </div>
+          
+          {/* Save Button */}
+          <div className="flex justify-end mt-6">
+            <Button 
+              onClick={handleSaveCompensationData} 
+              disabled={isSaving}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {isSaving ? "Salvataggio..." : "Salva dati retribuzione"}
+            </Button>
           </div>
         </div>
       </GlassmorphicCard>

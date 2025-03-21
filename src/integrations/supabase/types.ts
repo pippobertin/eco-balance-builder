@@ -1023,6 +1023,56 @@ export type Database = {
           },
         ]
       }
+      workforce_compensation: {
+        Row: {
+          avg_training_hours_female: number | null
+          avg_training_hours_male: number | null
+          collective_bargaining_coverage: number | null
+          created_at: string
+          entry_wage: number | null
+          entry_wage_to_minimum_wage_ratio: number | null
+          gender_pay_gap: number | null
+          id: string
+          local_minimum_wage: number | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          avg_training_hours_female?: number | null
+          avg_training_hours_male?: number | null
+          collective_bargaining_coverage?: number | null
+          created_at?: string
+          entry_wage?: number | null
+          entry_wage_to_minimum_wage_ratio?: number | null
+          gender_pay_gap?: number | null
+          id?: string
+          local_minimum_wage?: number | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          avg_training_hours_female?: number | null
+          avg_training_hours_male?: number | null
+          collective_bargaining_coverage?: number | null
+          created_at?: string
+          entry_wage?: number | null
+          entry_wage_to_minimum_wage_ratio?: number | null
+          gender_pay_gap?: number | null
+          id?: string
+          local_minimum_wage?: number | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workforce_compensation_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workforce_distribution: {
         Row: {
           company_or_location_name: string | null
