@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +8,7 @@ import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { useWorkforceCompensationData } from './hooks/useWorkforceCompensationData';
 import { useReport } from '@/hooks/use-report-context';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 type WorkforceCompensationProps = {
   formValues: any;
@@ -117,37 +116,21 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
       });
     };
 
-    // Helper component for field explanations
-    const InfoTooltip = ({ text }: { text: string }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="ml-1.5 inline-flex items-center">
-              <HelpCircle className="h-4 w-4 text-slate-500 hover:text-slate-700" />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent className="max-w-sm">
-            <p className="text-sm">{text}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-
-    // Helper component for field popup explanations with info icon
-    const InfoPopover = ({ children }: { children: React.ReactNode }) => (
-      <Popover>
-        <PopoverTrigger asChild>
-          <span className="ml-1.5 inline-flex items-center cursor-pointer">
+    // Helper component for field explanations with hover card
+    const InfoHoverCard = ({ children }: { children: React.ReactNode }) => (
+      <HoverCard>
+        <HoverCardTrigger asChild>
+          <span className="ml-1.5 inline-flex items-center cursor-help">
             <HelpCircle className="h-4 w-4 text-slate-500 hover:text-slate-700" />
           </span>
-        </PopoverTrigger>
-        <PopoverContent className="max-w-sm bg-blue-50 border-blue-200">
+        </HoverCardTrigger>
+        <HoverCardContent className="max-w-sm bg-blue-50 border-blue-200">
           <div className="flex items-start mb-2">
             <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
             {children}
           </div>
-        </PopoverContent>
-      </Popover>
+        </HoverCardContent>
+      </HoverCard>
     );
 
     return (
@@ -179,23 +162,23 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
           <h4 className="font-medium text-lg">Retribuzione</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="entryWage">
+              <Label htmlFor="entryWage" className="flex items-center">
                 Salario di ingresso (€)
-                <InfoPopover>
+                <InfoHoverCard>
                   <p className="text-sm text-slate-600">
                     Per "salario di ingresso" si intende il salario a tempo pieno della categoria occupazionale più
                     bassa. I salari dei tirocinanti e degli apprendisti non devono essere considerati nell'identificazione
                     del salario di ingresso dell'impresa.
                   </p>
-                </InfoPopover>
+                </InfoHoverCard>
               </Label>
               <Input id="entryWage" name="entryWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.entryWage || ""} onChange={handleChange} />
             </div>
             
             <div>
-              <Label htmlFor="localMinimumWage">
+              <Label htmlFor="localMinimumWage" className="flex items-center">
                 Salario minimo locale (€)
-                <InfoPopover>
+                <InfoHoverCard>
                   <p className="text-sm text-slate-600">
                     Per "salario minimo" si intende il compenso minimo di lavoro per ora, o altra unità di tempo,
                     consentito dalla legge. A seconda del Paese, il salario minimo può essere stabilito direttamente
@@ -203,7 +186,7 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
                     salario minimo applicabile per il Paese in cui si riferisce (sia esso stabilito direttamente dalla legge
                     o attraverso un contratto collettivo di lavoro).
                   </p>
-                </InfoPopover>
+                </InfoHoverCard>
               </Label>
               <Input id="localMinimumWage" name="localMinimumWage" type="number" placeholder="0.0" value={formValues.socialMetrics?.localMinimumWage || ""} onChange={handleChange} />
             </div>
@@ -211,9 +194,9 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="entryWageToMinimumWageRatio">
+              <Label htmlFor="entryWageToMinimumWageRatio" className="flex items-center">
                 Rapporto tra salario di ingresso e salario minimo
-                <InfoPopover>
+                <InfoHoverCard>
                   <p className="text-sm text-slate-600">
                     Per calcolare il rapporto tra il salario di ingresso e il salario minimo, si utilizza la formula seguente:
                     <br />
@@ -222,7 +205,7 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
                     Per "percentuale significativa di dipendenti" si intende la maggioranza dei dipendenti dell'impresa,
                     senza considerare stagisti e apprendisti.
                   </p>
-                </InfoPopover>
+                </InfoHoverCard>
               </Label>
               <Input 
                 id="entryWageToMinimumWageRatio" 
