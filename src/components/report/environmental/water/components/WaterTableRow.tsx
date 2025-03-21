@@ -71,7 +71,7 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
               <img 
                 src="/lovable-uploads/bf31d396-a7a6-4861-86e0-33b07271cf30.png" 
                 alt="Aqueduct" 
-                className="h-5 w-auto"
+                className="h-15 w-auto"
               />
             </a>
           </Button>
