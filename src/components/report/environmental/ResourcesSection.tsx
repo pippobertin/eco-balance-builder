@@ -5,6 +5,7 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import WasteManagementTable from './resources/WasteManagementTable';
 import { useReport } from '@/hooks/use-report-context';
 import CircularEconomyDetails from './resources/components/CircularEconomyDetails';
+import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
 interface ResourcesSectionProps {
   formValues: any;
@@ -24,6 +25,8 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
         <Recycle className="mr-2 h-5 w-5 text-green-500" />
         <h3 className="text-xl font-semibold">B7 - Uso delle risorse, economia circolare e gestione dei rifiuti</h3>
       </div>
+      
+      <SectionAutoSaveIndicator />
       
       <div className="space-y-4">
         <div className="p-4 rounded-md mb-4 bg-green-100">

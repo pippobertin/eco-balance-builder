@@ -12,6 +12,7 @@ import PollutionRecordsList from './pollution/PollutionRecordsList';
 import { useReport } from '@/hooks/use-report-context';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
 interface PollutionSectionProps {
   formValues: any;
@@ -81,6 +82,8 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
         <Wind className="mr-2 h-5 w-5 text-blue-500" />
         <h3 className="text-xl font-semibold">B4 - Inquinamento</h3>
       </div>
+      
+      <SectionAutoSaveIndicator />
       
       <div className="space-y-6">
         <div className="p-4 rounded-md mb-4 bg-blue-100">
