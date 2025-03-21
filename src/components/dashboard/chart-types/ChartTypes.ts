@@ -20,6 +20,10 @@ export interface MetricChartProps {
   height?: number;
   hideLegend?: boolean;
   tooltipFormatter?: (value: number, name: string, entry: any) => React.ReactNode;
+  isLoading?: boolean;
+  emptyStateMessage?: string;
+  compareKey?: string;
+  categoryNames?: string[];
 }
 
 export interface ChartComponentProps {

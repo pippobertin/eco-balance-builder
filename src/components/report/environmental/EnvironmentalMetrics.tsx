@@ -1,12 +1,10 @@
 
 import React, { useState } from 'react';
-import EnergyMetrics from './EnergyMetrics';
-import EmissionsMetrics from './EmissionsMetrics';
-import PollutionSection from './pollution/PollutionSection';
+import { useSearchParams } from 'react-router-dom';
+import PollutionSection from './PollutionSection';
 import BiodiversitySection from './BiodiversitySection';
 import MaterialResourcesSection from './MaterialResourcesSection';
 import EnvironmentalNavigation from './EnvironmentalNavigation';
-import { useSearchParams } from 'react-router-dom';
 
 interface EnvironmentalMetricsProps {
   reportId?: string;
@@ -25,9 +23,9 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({ reportId })
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'energy':
-        return <EnergyMetrics reportId={reportId} />;
+        return <div>Energy Metrics Component (In Development)</div>;
       case 'emissions':
-        return <EmissionsMetrics reportId={reportId} />;
+        return <div>Emissions Metrics Component (In Development)</div>;
       case 'pollution':
         return <PollutionSection reportId={reportId} />;
       case 'biodiversity':
@@ -35,7 +33,7 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({ reportId })
       case 'materials':
         return <MaterialResourcesSection reportId={reportId} />;
       default:
-        return <EnergyMetrics reportId={reportId} />;
+        return <div>Energy Metrics Component (In Development)</div>;
     }
   };
 

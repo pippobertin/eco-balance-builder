@@ -54,7 +54,7 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({ reportId }) =
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>B5. Biodiversità e Uso del Suolo</CardTitle>
         <div className="flex items-center gap-2">
-          <AutoSaveIndicator lastSaved={lastSaved} />
+          <AutoSaveIndicator lastSaved={lastSaved} needsSaving={isSaving} />
           <Button 
             onClick={saveData} 
             disabled={isSaving || !reportId}
