@@ -18,6 +18,7 @@ export const performPurchaseCalculation = (
   let source = '';
 
   console.log('Starting purchase calculation with inputs:', {
+    scope3Category: inputs.scope3Category,
     purchaseType: inputs.purchaseType,
     purchaseQuantity: inputs.purchaseQuantity,
     purchaseDescription: inputs.purchaseDescription,
@@ -74,6 +75,7 @@ export const performPurchaseCalculation = (
     
     // Save calculation details with description
     const calculationDetails = {
+      scope3Category: 'purchases', // Add scope3Category explicitly
       purchaseType: inputs.purchaseType,
       activityType: inputs.purchaseType, // Add this for table display
       purchaseDescription: inputs.purchaseDescription || '',

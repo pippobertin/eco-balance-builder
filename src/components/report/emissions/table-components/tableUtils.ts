@@ -61,61 +61,47 @@ export const getCategoryLabel = (calculation: Calculation, scope: string) => {
   });
   
   if (scope === 'scope1') {
-    return calculation.details?.fuelType ? `Combustibile: ${calculation.details?.fuelType.replace(/_/g, ' ')}` : 'Combustibile';
+    // For scope1, show the scope1Source as the category label
+    const scope1Source = calculation.details?.scope1Source || '';
+    
+    switch (scope1Source) {
+      case 'fuel':
+        return 'COMBUSTIBILI PER PRODUZIONE';
+      case 'fleet':
+        return 'FLOTTA AZIENDALE';
+      case 'other':
+        return 'ALTRE FONTI DIRETTE';
+      default:
+        return 'COMBUSTIBILI PER PRODUZIONE';
+    }
   } else if (scope === 'scope2') {
     return calculation.details?.energyType ? `Energia: ${calculation.details?.energyType.replace(/_/g, ' ')}` : 'Energia';
   } else if (scope === 'scope3') {
-    // Try to get the activity type from details
-    const activityType = calculation.details?.activityType || calculation.details?.wasteType || 
-                          calculation.details?.purchaseType || calculation.details?.transportType || '';
+    // For scope3, display the category based on scope3Category
+    const scope3Category = calculation.details?.scope3Category || '';
     
-    console.log('Scope 3 activity type:', activityType);
-    
-    // Se ci sono dettagli del veicolo, mostra informazioni più specifiche
-    if (hasValidVehicleDetails(calculation)) {
-      const vehicleDetails = calculation.details?.vehicleDetails || calculation.details;
-      const vehicleType = vehicleDetails?.vehicleType || '';
-      const fuelType = vehicleDetails?.vehicleFuelType || '';
-      
-      // Mappa dei tipi di veicolo per una visualizzazione più leggibile
-      const vehicleTypeMap: Record<string, string> = {
-        'car_small': "Auto piccola",
-        'car_medium': "Auto media",
-        'car_large': "Auto grande",
-        'van_small': "Furgone piccolo",
-        'van_medium': "Furgone medio",
-        'truck_small': "Camion piccolo",
-        'truck_medium': "Camion medio",
-        'truck_large': "Camion pesante",
-        'truck_articulated': "Autoarticolato"
-      };
-      
-      // Mappa dei tipi di carburante per una visualizzazione più leggibile
-      const fuelTypeMap: Record<string, string> = {
-        'DIESEL': "Diesel",
-        'GASOLINE': "Benzina",
-        'LPG': "GPL",
-        'NATURAL_GAS': "Metano",
-        'BIOFUEL': "Biocarburante",
-        'HYBRID': "Ibrido",
-        'ELECTRIC': "Elettrico"
-      };
-      
-      const readableVehicleType = vehicleTypeMap[vehicleType] || vehicleType;
-      const readableFuelType = fuelTypeMap[fuelType] || fuelType;
-      
-      return `Trasporto: ${readableVehicleType} (${readableFuelType})`;
+    switch (scope3Category) {
+      case 'transport':
+        return 'TRASPORTO E LOGISTICA';
+      case 'waste':
+        return 'GESTIONE RIFIUTI';
+      case 'purchases':
+        return 'ACQUISTO DI BENI E SERVIZI';
+      default:
+        // Fallback to activityType if scope3Category is not available
+        const activityType = calculation.details?.activityType || calculation.details?.wasteType || 
+                            calculation.details?.purchaseType || calculation.details?.transportType || '';
+        
+        if (activityType.includes('FREIGHT') || activityType.includes('BUSINESS_TRAVEL')) {
+          return 'TRASPORTO E LOGISTICA';
+        } else if (activityType.includes('WASTE')) {
+          return 'GESTIONE RIFIUTI';
+        } else if (activityType.includes('PURCHASED')) {
+          return 'ACQUISTO DI BENI E SERVIZI';
+        }
+        
+        return activityType.replace(/_/g, ' ') || 'Non specificato';
     }
-    
-    if (activityType.includes('FREIGHT') || activityType.includes('BUSINESS_TRAVEL')) {
-      return `Trasporto: ${activityType.replace(/_/g, ' ')}`;
-    } else if (activityType.includes('WASTE')) {
-      return `Rifiuti: ${activityType.replace(/_/g, ' ')}`;
-    } else if (activityType.includes('PURCHASED')) {
-      return `Acquisti: ${activityType.replace(/_/g, ' ')}${calculation.details?.description ? ` - ${calculation.details.description}` : ''}`;
-    }
-    
-    return activityType.replace(/_/g, ' ') || 'Non specificato';
   }
   
   return 'Non specificato';

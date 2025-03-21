@@ -1,3 +1,4 @@
+
 import { getEmissionFactorSource } from '@/lib/emissions-calculator';
 import { EmissionsInput, EmissionsResults } from '../../types';
 import { calculateScope3Emissions } from '@/lib/emissions-calculator';
@@ -19,6 +20,7 @@ export const performTransportCalculation = (
   let source = '';
 
   console.log('Starting transport calculation with inputs:', {
+    scope3Category: inputs.scope3Category,
     transportType: inputs.transportType,
     transportDistance: inputs.transportDistance,
     vehicleDetails: {
@@ -116,6 +118,7 @@ export const performTransportCalculation = (
     
     // Save calculation details - make sure to include all vehicle information directly
     const calculationDetails = {
+      scope3Category: inputs.scope3Category || 'transport', // Add scope3Category explicitly
       transportType: inputs.transportType,
       activityType: inputs.transportType, // Add this for table display
       quantity: distance,

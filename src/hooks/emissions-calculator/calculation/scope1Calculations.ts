@@ -19,6 +19,7 @@ export const performScope1Calculation = (
   let source = '';
 
   console.log('Starting scope1 calculation with inputs:', {
+    scope1Source: inputs.scope1Source,
     fuelType: inputs.fuelType,
     fuelQuantity: inputs.fuelQuantity,
     fuelUnit: inputs.fuelUnit,
@@ -90,8 +91,9 @@ export const performScope1Calculation = (
     
     console.log('Updated results after scope1 calculation:', updatedResults);
     
-    // Save calculation details
+    // Save calculation details - IMPORTANT: Include scope1Source
     const calculationDetails = {
+      scope1Source: inputs.scope1Source || 'fuel', // Add scope1Source to details
       fuelType: inputs.fuelType,
       quantity,
       unit: inputs.fuelUnit,

@@ -18,6 +18,7 @@ export const performWasteCalculation = (
   let source = '';
 
   console.log('Starting waste calculation with inputs:', {
+    scope3Category: inputs.scope3Category,
     wasteType: inputs.wasteType,
     wasteQuantity: inputs.wasteQuantity,
     periodType: inputs.periodType
@@ -73,6 +74,7 @@ export const performWasteCalculation = (
     
     // Save calculation details
     const calculationDetails = {
+      scope3Category: 'waste', // Add scope3Category explicitly
       wasteType: inputs.wasteType,
       activityType: inputs.wasteType, // Add this for table display
       quantity,
