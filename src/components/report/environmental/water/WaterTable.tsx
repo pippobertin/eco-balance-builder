@@ -45,7 +45,7 @@ const WaterTable: React.FC<WaterTableProps> = ({
           sticky="always"
         >
           <div className="space-y-2">
-            <p className="font-medium text-sm"><strong>{title}</strong></p>
+            <p className="font-medium text-sm">{title}</p>
             <p className="text-xs">{content}</p>
           </div>
         </TooltipContent>
