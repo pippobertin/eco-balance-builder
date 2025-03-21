@@ -110,61 +110,99 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         // Set the active tab based on the calculation scope
         setActiveTab(editingCalculation.scope);
         
-        // Set common inputs
-        if (editingCalculation.details?.periodType) {
-          updateInput('periodType', editingCalculation.details.periodType);
+        // Clear form data first before setting new values to avoid mixing
+        if (editingCalculation.scope === 'scope1') {
+          updateInput('fuelQuantity', '');
+        } else if (editingCalculation.scope === 'scope2') {
+          updateInput('energyQuantity', '');
+        } else if (editingCalculation.scope === 'scope3') {
+          updateInput('transportDistance', '');
+          updateInput('wasteQuantity', '');
+          updateInput('purchaseQuantity', '');
         }
         
-        // Set scope-specific inputs
-        if (editingCalculation.scope === 'scope1') {
-          const details = editingCalculation.details;
-          if (details) {
-            updateInput('scope1Source', details.scope1Source || 'fuel');
-            updateInput('fuelType', details.fuelType || 'DIESEL');
-            // Convert quantity to string for input field
-            updateInput('fuelQuantity', details.quantity !== undefined ? String(details.quantity) : '');
-            updateInput('fuelUnit', details.unit || 'L');
+        // Add a small delay before setting values to ensure form is reset
+        setTimeout(() => {
+          // Set common inputs
+          if (editingCalculation.details?.periodType) {
+            updateInput('periodType', editingCalculation.details.periodType);
           }
-        } else if (editingCalculation.scope === 'scope2') {
-          const details = editingCalculation.details;
-          if (details) {
-            updateInput('energyType', details.energyType || 'ELECTRICITY_IT');
-            // Convert quantity to string for input field
-            updateInput('energyQuantity', details.quantity !== undefined ? String(details.quantity) : '');
-            updateInput('renewablePercentage', details.renewablePercentage !== undefined ? details.renewablePercentage : 0);
-            updateInput('energyProvider', details.energyProvider || '');
-          }
-        } else if (editingCalculation.scope === 'scope3') {
-          const details = editingCalculation.details;
-          if (details) {
-            updateInput('scope3Category', details.scope3Category || 'transport');
-            
-            if (details.scope3Category === 'transport') {
-              updateInput('transportType', details.transportType || 'BUSINESS_TRAVEL_CAR');
-              // Convert quantity to string for input field
-              updateInput('transportDistance', details.quantity !== undefined ? String(details.quantity) : '');
+          
+          // Set scope-specific inputs
+          if (editingCalculation.scope === 'scope1') {
+            const details = editingCalculation.details;
+            if (details) {
+              updateInput('scope1Source', details.scope1Source || 'fuel');
+              updateInput('fuelType', details.fuelType || 'DIESEL');
               
-              // Vehicle details if available
-              if (details.vehicleType) {
-                updateInput('vehicleType', details.vehicleType);
-                updateInput('vehicleFuelType', details.vehicleFuelType || 'DIESEL');
-                updateInput('vehicleEnergyClass', details.vehicleEnergyClass || 'euro6');
-                updateInput('vehicleFuelConsumption', details.vehicleFuelConsumption ? String(details.vehicleFuelConsumption) : '');
-                updateInput('vehicleFuelConsumptionUnit', details.vehicleFuelConsumptionUnit || 'l_100km');
-              }
-            } else if (details.scope3Category === 'waste') {
-              updateInput('wasteType', details.wasteType || 'WASTE_LANDFILL');
-              // Convert quantity to string for input field
-              updateInput('wasteQuantity', details.quantity !== undefined ? String(details.quantity) : '');
-            } else if (details.scope3Category === 'purchases') {
-              updateInput('purchaseType', details.purchaseType || 'PURCHASED_GOODS');
-              // Convert quantity to string for input field
-              updateInput('purchaseQuantity', details.quantity !== undefined ? String(details.quantity) : '');
-              updateInput('purchaseDescription', details.purchaseDescription || '');
+              // For numerical inputs, use a short timeout to avoid race conditions
+              setTimeout(() => {
+                if (details.quantity !== undefined) {
+                  updateInput('fuelQuantity', String(details.quantity));
+                }
+                updateInput('fuelUnit', details.unit || 'L');
+              }, 50);
+            }
+          } else if (editingCalculation.scope === 'scope2') {
+            const details = editingCalculation.details;
+            if (details) {
+              updateInput('energyType', details.energyType || 'ELECTRICITY_IT');
+              
+              // For numerical inputs, use a short timeout to avoid race conditions
+              setTimeout(() => {
+                if (details.quantity !== undefined) {
+                  updateInput('energyQuantity', String(details.quantity));
+                }
+                if (details.renewablePercentage !== undefined) {
+                  updateInput('renewablePercentage', details.renewablePercentage);
+                }
+                updateInput('energyProvider', details.energyProvider || '');
+              }, 50);
+            }
+          } else if (editingCalculation.scope === 'scope3') {
+            const details = editingCalculation.details;
+            if (details) {
+              updateInput('scope3Category', details.scope3Category || 'transport');
+              
+              // For numerical inputs, use a short timeout to avoid race conditions
+              setTimeout(() => {
+                if (details.scope3Category === 'transport') {
+                  updateInput('transportType', details.transportType || 'BUSINESS_TRAVEL_CAR');
+                  
+                  if (details.quantity !== undefined) {
+                    updateInput('transportDistance', String(details.quantity));
+                  }
+                  
+                  // Vehicle details if available
+                  if (details.vehicleType) {
+                    updateInput('vehicleType', details.vehicleType);
+                    updateInput('vehicleFuelType', details.vehicleFuelType || 'DIESEL');
+                    updateInput('vehicleEnergyClass', details.vehicleEnergyClass || 'euro6');
+                    if (details.vehicleFuelConsumption) {
+                      updateInput('vehicleFuelConsumption', String(details.vehicleFuelConsumption));
+                    }
+                    updateInput('vehicleFuelConsumptionUnit', details.vehicleFuelConsumptionUnit || 'l_100km');
+                  }
+                } else if (details.scope3Category === 'waste') {
+                  updateInput('wasteType', details.wasteType || 'WASTE_LANDFILL');
+                  
+                  if (details.quantity !== undefined) {
+                    updateInput('wasteQuantity', String(details.quantity));
+                  }
+                } else if (details.scope3Category === 'purchases') {
+                  updateInput('purchaseType', details.purchaseType || 'PURCHASED_GOODS');
+                  
+                  if (details.quantity !== undefined) {
+                    updateInput('purchaseQuantity', String(details.quantity));
+                  }
+                  updateInput('purchaseDescription', details.purchaseDescription || '');
+                }
+              }, 50);
             }
           }
-        }
-        console.log('Filled input fields successfully for editing');
+          
+          console.log('Filled input fields successfully for editing');
+        }, 100);
       } catch (error) {
         console.error('Error loading calculation data:', error);
       }

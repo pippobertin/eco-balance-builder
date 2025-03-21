@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import { PeriodType, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
 import Scope1Form from '../Scope1Form';
@@ -18,7 +18,7 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
   updateInput
 }) => {
   // Debug inputs for specific fields to help diagnose issues
-  React.useEffect(() => {
+  useEffect(() => {
     console.log("Current inputs in CalculationTabsContent:", {
       fuelQuantity: inputs.fuelQuantity,
       energyQuantity: inputs.energyQuantity,
@@ -36,7 +36,7 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
                  setScope1Source={value => updateInput('scope1Source', value)} 
                  fuelType={typeof inputs.fuelType === 'string' ? inputs.fuelType as FuelType : 'DIESEL'} 
                  setFuelType={value => updateInput('fuelType', value)} 
-                 fuelQuantity={typeof inputs.fuelQuantity === 'string' ? inputs.fuelQuantity : ''} 
+                 fuelQuantity={inputs.fuelQuantity || ''} 
                  setFuelQuantity={value => updateInput('fuelQuantity', value)} 
                  fuelUnit={typeof inputs.fuelUnit === 'string' ? inputs.fuelUnit : 'L'} 
                  setFuelUnit={value => updateInput('fuelUnit', value)} 
@@ -46,7 +46,7 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
         return <Scope2Form 
                  energyType={typeof inputs.energyType === 'string' ? inputs.energyType as EnergyType : 'ELECTRICITY_IT'} 
                  setEnergyType={value => updateInput('energyType', value)} 
-                 energyQuantity={typeof inputs.energyQuantity === 'string' ? inputs.energyQuantity : ''} 
+                 energyQuantity={inputs.energyQuantity || ''} 
                  setEnergyQuantity={value => updateInput('energyQuantity', value)} 
                  renewablePercentage={typeof inputs.renewablePercentage === 'number' ? inputs.renewablePercentage : 0} 
                  setRenewablePercentage={value => updateInput('renewablePercentage', value)} 
@@ -60,15 +60,15 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
                  setScope3Category={value => updateInput('scope3Category', value)} 
                  transportType={typeof inputs.transportType === 'string' ? inputs.transportType as TransportType : 'BUSINESS_TRAVEL_CAR'} 
                  setTransportType={value => updateInput('transportType', value)} 
-                 transportDistance={typeof inputs.transportDistance === 'string' ? inputs.transportDistance : ''} 
+                 transportDistance={inputs.transportDistance || ''} 
                  setTransportDistance={value => updateInput('transportDistance', value)} 
                  wasteType={typeof inputs.wasteType === 'string' ? inputs.wasteType as WasteType : 'WASTE_LANDFILL'} 
                  setWasteType={value => updateInput('wasteType', value)} 
-                 wasteQuantity={typeof inputs.wasteQuantity === 'string' ? inputs.wasteQuantity : ''} 
+                 wasteQuantity={inputs.wasteQuantity || ''} 
                  setWasteQuantity={value => updateInput('wasteQuantity', value)} 
                  purchaseType={typeof inputs.purchaseType === 'string' ? inputs.purchaseType as PurchaseType : 'PURCHASED_GOODS'} 
                  setPurchaseType={value => updateInput('purchaseType', value)} 
-                 purchaseQuantity={typeof inputs.purchaseQuantity === 'string' ? inputs.purchaseQuantity : ''} 
+                 purchaseQuantity={inputs.purchaseQuantity || ''} 
                  setPurchaseQuantity={value => updateInput('purchaseQuantity', value)}
                  purchaseDescription={typeof inputs.purchaseDescription === 'string' ? inputs.purchaseDescription : ''}
                  setPurchaseDescription={value => updateInput('purchaseDescription', value)}
@@ -80,7 +80,7 @@ const CalculationTabsContent: React.FC<CalculationTabsContentProps> = ({
                  setVehicleFuelType={value => updateInput('vehicleFuelType', value)}
                  vehicleEnergyClass={typeof inputs.vehicleEnergyClass === 'string' ? inputs.vehicleEnergyClass : ''}
                  setVehicleEnergyClass={value => updateInput('vehicleEnergyClass', value)}
-                 vehicleFuelConsumption={typeof inputs.vehicleFuelConsumption === 'string' ? inputs.vehicleFuelConsumption : ''}
+                 vehicleFuelConsumption={inputs.vehicleFuelConsumption || ''}
                  setVehicleFuelConsumption={value => updateInput('vehicleFuelConsumption', value)}
                  vehicleFuelConsumptionUnit={typeof inputs.vehicleFuelConsumptionUnit === 'string' ? inputs.vehicleFuelConsumptionUnit : 'l_100km'}
                  setVehicleFuelConsumptionUnit={value => updateInput('vehicleFuelConsumptionUnit', value)}

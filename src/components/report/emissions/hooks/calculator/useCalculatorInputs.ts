@@ -49,23 +49,34 @@ export const useCalculatorInputs = () => {
     
     // Handle special input cases
     setInputs(prevInputs => {
+      let processedValue = value;
+      
       // Special case for numerical inputs to ensure they can be edited
       if (name === 'fuelQuantity' || 
           name === 'energyQuantity' || 
           name === 'transportDistance' || 
           name === 'wasteQuantity' || 
           name === 'purchaseQuantity' ||
-          name === 'vehicleFuelConsumption') {
-        // If it's a number coming in, convert to string for the input field
+          name === 'vehicleFuelConsumption' ||
+          name === 'renewablePercentage') {
+        
+        // Convert number to string for input fields
         if (typeof value === 'number') {
-          value = value.toString();
+          processedValue = value.toString();
         }
       }
       
-      return {
+      const updatedInputs = {
         ...prevInputs,
-        [name]: value
+        [name]: processedValue
       };
+      
+      // Add a slight delay to avoid immediate re-renders with same values
+      setTimeout(() => {
+        console.log(`Input '${name}' updated successfully to:`, processedValue);
+      }, 10);
+      
+      return updatedInputs;
     });
   };
 
