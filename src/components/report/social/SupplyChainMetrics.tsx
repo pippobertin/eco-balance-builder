@@ -1,9 +1,12 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { useReport } from '@/hooks/use-report-context';
+import { useSupplyChainData } from './supply-chain/hooks';
+import SaveButton from './supply-chain/SaveButton';
+import SupplyChainHeader from './supply-chain/SupplyChainHeader';
 
 type SupplyChainMetricsProps = {
   formValues: any;
@@ -12,11 +15,51 @@ type SupplyChainMetricsProps = {
 
 const SupplyChainMetrics = React.forwardRef<HTMLDivElement, SupplyChainMetricsProps>(
   ({ formValues, handleChange }, ref) => {
+    const { currentReport } = useReport();
+    const reportId = currentReport?.id;
+    
+    const { 
+      loading,
+      supplyChainData, 
+      saveSupplyChainData,
+      isSaving,
+      lastSaved
+    } = useSupplyChainData(reportId);
+
+    const syncToParentState = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      // Keep parent form state in sync
+      handleChange(e);
+      
+      // Update our local state
+      const { name, value } = e.target;
+      const key = name === 'supplyChainImpactProcess' ? 'impactProcessDescription' : 'identifiedImpacts';
+      const update = { [key]: value };
+      
+      console.log("Updating supply chain local state:", update);
+    };
+
+    const handleSaveData = async () => {
+      if (!supplyChainData && !formValues.socialMetrics) {
+        return;
+      }
+      
+      // Use either our local state or parent form state
+      const dataToSave = {
+        impactProcessDescription: formValues.socialMetrics?.supplyChainImpactProcess || supplyChainData?.impactProcessDescription || null,
+        identifiedImpacts: formValues.socialMetrics?.identifiedImpacts || supplyChainData?.identifiedImpacts || null
+      };
+      
+      await saveSupplyChainData(dataToSave);
+    };
+
     return (
       <GlassmorphicCard>
         <div className="flex items-center mb-4" ref={ref}>
-          <Link className="mr-2 h-5 w-5 text-purple-500" />
-          <h3 className="text-xl font-semibold">B11 - Lavoratori nella catena del valore, comunità e consumatori</h3>
+          <SupplyChainHeader 
+            reportId={reportId}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+          />
         </div>
         
         <div className="space-y-4">
@@ -36,7 +79,7 @@ const SupplyChainMetrics = React.forwardRef<HTMLDivElement, SupplyChainMetricsPr
               name="supplyChainImpactProcess" 
               placeholder="Descrivi il processo per identificare se ci sono lavoratori nella catena del valore, comunità interessate o consumatori e utilizzatori finali che sono o possono essere interessati da impatti negativi relativi alle operazioni dell'impresa." 
               value={formValues.socialMetrics?.supplyChainImpactProcess || ""} 
-              onChange={handleChange} 
+              onChange={syncToParentState} 
               className="min-h-[150px]" 
             />
           </div>
@@ -48,10 +91,12 @@ const SupplyChainMetrics = React.forwardRef<HTMLDivElement, SupplyChainMetricsPr
               name="identifiedImpacts" 
               placeholder="Se identificati, descrivi i tipi di impatti, compresi i luoghi in cui si verificano e i gruppi che ne sono interessati." 
               value={formValues.socialMetrics?.identifiedImpacts || ""} 
-              onChange={handleChange} 
+              onChange={syncToParentState} 
               className="min-h-[150px]" 
             />
           </div>
+          
+          <SaveButton onClick={handleSaveData} isLoading={isSaving} />
         </div>
       </GlassmorphicCard>
     );

@@ -926,6 +926,41 @@ export type Database = {
           },
         ]
       }
+      supply_chain_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          identified_impacts: string | null
+          impact_process_description: string | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identified_impacts?: string | null
+          impact_process_description?: string | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identified_impacts?: string | null
+          impact_process_description?: string | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supply_chain_metrics_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waste_management: {
         Row: {
           created_at: string
