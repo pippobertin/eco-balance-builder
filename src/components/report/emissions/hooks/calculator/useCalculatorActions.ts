@@ -20,7 +20,7 @@ export const useCalculatorActions = (
   const { calculateEmissions: performEmissionCalculation } = 
     useEmissionCalculation(reportId, inputs, calculationLogs, setCalculationLogs, calculatedEmissions, setCalculatedEmissions);
     
-  const { saveCalculation, handleRemoveCalculation, isSaving: isSavingRecord } = 
+  const { saveCalculation, updateCalculation: updateEmissionCalculation, handleRemoveCalculation, isSaving: isSavingRecord } = 
     useEmissionRecordManager(reportId, calculationLogs, setCalculationLogs, calculatedEmissions, setCalculatedEmissions);
     
   const { resetCalculation } = 
@@ -42,6 +42,21 @@ export const useCalculatorActions = (
     } else {
       console.error(`${scope} calculation failed, no result to save`);
     }
+    return calculationResult;
+  };
+  
+  // Update existing emission calculation
+  const updateCalculation = async (calculationId: string, scope: 'scope1' | 'scope2' | 'scope3') => {
+    console.log(`Updating ${scope} calculation with ID ${calculationId}`);
+    const calculationResult = await performEmissionCalculation(scope);
+    
+    if (calculationResult) {
+      console.log(`${scope} calculation successful, updating record:`, calculationResult);
+      await updateEmissionCalculation(calculationId, calculationResult);
+    } else {
+      console.error(`${scope} calculation update failed, no result to save`);
+    }
+    
     return calculationResult;
   };
   
@@ -76,6 +91,7 @@ export const useCalculatorActions = (
   
   return {
     calculateEmissions,
+    updateCalculation,
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,

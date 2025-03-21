@@ -95,6 +95,55 @@ export const useEmissionRecords = (reportId?: string) => {
   };
 
   /**
+   * Update an existing emission record
+   */
+  const updateEmissionRecord = async (record: EmissionCalculationRecord) => {
+    if (!record.id || !record.report_id) {
+      console.error('Cannot update emission record: id or report_id is undefined');
+      return null;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      console.log('Updating emission record:', record.id);
+      
+      // We don't update the date field here to preserve the original creation date
+      const { data, error } = await supabase
+        .from('emission_calculation_records')
+        .update({
+          source: record.source,
+          description: record.description,
+          quantity: record.quantity,
+          unit: record.unit,
+          emissions: record.emissions,
+          details: record.details
+        })
+        .eq('id', record.id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating emission record:', error);
+        throw error;
+      }
+      
+      console.log('Updated emission record:', data);
+      return data as EmissionCalculationRecord;
+    } catch (error: any) {
+      console.error('Unexpected error updating emission record:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile aggiornare il calcolo: ${error.message}`,
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
    * Delete an emission record
    */
   const deleteEmissionRecord = async (recordId: string) => {
@@ -179,6 +228,7 @@ export const useEmissionRecords = (reportId?: string) => {
     isSaving,
     loadEmissionRecords,
     saveEmissionRecord,
+    updateEmissionRecord,
     deleteEmissionRecord,
     calculateTotals,
     createRecord

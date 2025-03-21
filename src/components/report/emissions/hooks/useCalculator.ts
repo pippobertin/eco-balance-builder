@@ -37,6 +37,7 @@ export const useCalculator = (
   // Initialize calculator actions
   const {
     calculateEmissions,
+    updateCalculation,
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation
@@ -122,6 +123,7 @@ export const useCalculator = (
     updateInput,
     calculationLogs,
     calculateEmissions,
+    updateCalculation,
     handleRemoveCalculation,
     resetCalculation,
     handleSubmitCalculation,

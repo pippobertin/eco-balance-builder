@@ -25,13 +25,15 @@ interface EmissionsCalculationTableProps {
   scopeLabel: string;
   calculations: Calculation[];
   onRemoveCalculation: (id: string) => void;
+  onEditCalculation: (calculation: Calculation) => void;
 }
 
 const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
   scope,
   scopeLabel,
   calculations,
-  onRemoveCalculation
+  onRemoveCalculation,
+  onEditCalculation
 }) => {
   // If calculations are not an array or empty, display a message
   if (!Array.isArray(calculations) || calculations.length === 0) {
@@ -62,6 +64,7 @@ const EmissionsCalculationTable: React.FC<EmissionsCalculationTableProps> = ({
         <EmissionTableBody
           calculations={calculations}
           onRemoveCalculation={onRemoveCalculation}
+          onEditCalculation={onEditCalculation}
           getCategoryLabel={(calculation) => getCategoryLabel(calculation, scope)}
           formatDate={formatDate}
           formatNumber={formatNumber}

@@ -1,8 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calculator, Save } from 'lucide-react';
+import { Calculator, Save, Edit } from 'lucide-react';
 import { EmissionFactorSource, PeriodType, FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
 import { GHGEmissionsCalculatorProps } from './emissions/types';
 import { useCalculator } from './emissions/hooks/useCalculator';
@@ -27,6 +27,10 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   
   // Use a ref to track if we've already logged initial information
   const hasLoggedInitialInfo = React.useRef(false);
+
+  // State to track if we're in edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [editingCalculationId, setEditingCalculationId] = useState<string | null>(null);
   
   useEffect(() => {
     // Only log this information once when the component mounts, not on every render
@@ -47,6 +51,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     calculationLogs,
     handleRemoveCalculation,
     handleSubmitCalculation,
+    updateCalculation,
     isSaving,
     isLoadingExisting
   } = useCalculator(
@@ -83,6 +88,124 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       calculationLogCountRef.current = newCounts;
     }
   }, [calculationLogs]);
+
+  // Handle editing a calculation
+  const handleEditCalculation = (calculation: any) => {
+    console.log('Editing calculation:', calculation);
+    setEditMode(true);
+    setEditingCalculationId(calculation.id);
+    
+    // Set the active tab based on the calculation scope
+    setActiveTab(calculation.scope);
+    
+    // Populate the form fields with the calculation data
+    const details = calculation.details || {};
+    
+    // Common fields across all scopes
+    if (details.periodType) {
+      updateInput('periodType', details.periodType);
+    }
+    
+    // Scope-specific fields
+    if (calculation.scope === 'scope1') {
+      if (details.scope1Source) {
+        updateInput('scope1Source', details.scope1Source);
+      }
+      
+      if (details.fuelType) {
+        updateInput('fuelType', details.fuelType);
+      }
+      
+      if (details.quantity) {
+        updateInput('fuelQuantity', details.quantity.toString());
+      }
+      
+      if (details.unit) {
+        updateInput('fuelUnit', details.unit);
+      }
+    } 
+    else if (calculation.scope === 'scope2') {
+      if (details.energyType) {
+        updateInput('energyType', details.energyType);
+      }
+      
+      if (details.quantity) {
+        updateInput('energyQuantity', details.quantity.toString());
+      }
+      
+      if (details.renewablePercentage !== undefined) {
+        updateInput('renewablePercentage', details.renewablePercentage);
+      }
+      
+      if (details.energyProvider) {
+        updateInput('energyProvider', details.energyProvider);
+      }
+    } 
+    else if (calculation.scope === 'scope3') {
+      // Set the scope3 category
+      if (details.scope3Category) {
+        updateInput('scope3Category', details.scope3Category);
+      } else if (details.transportType) {
+        updateInput('scope3Category', 'transport');
+      } else if (details.wasteType) {
+        updateInput('scope3Category', 'waste');
+      } else if (details.purchaseType) {
+        updateInput('scope3Category', 'purchases');
+      }
+      
+      // Transport fields
+      if (details.transportType) {
+        updateInput('transportType', details.transportType);
+      }
+      
+      if (details.quantity && details.scope3Category === 'transport') {
+        updateInput('transportDistance', details.quantity.toString());
+      }
+      
+      // Vehicle details
+      if (details.vehicleType) {
+        updateInput('vehicleType', details.vehicleType);
+      }
+      
+      if (details.vehicleFuelType) {
+        updateInput('vehicleFuelType', details.vehicleFuelType);
+      }
+      
+      if (details.vehicleEnergyClass) {
+        updateInput('vehicleEnergyClass', details.vehicleEnergyClass);
+      }
+      
+      if (details.vehicleFuelConsumption) {
+        updateInput('vehicleFuelConsumption', details.vehicleFuelConsumption);
+      }
+      
+      if (details.vehicleFuelConsumptionUnit) {
+        updateInput('vehicleFuelConsumptionUnit', details.vehicleFuelConsumptionUnit);
+      }
+      
+      // Waste fields
+      if (details.wasteType) {
+        updateInput('wasteType', details.wasteType);
+      }
+      
+      if (details.quantity && details.scope3Category === 'waste') {
+        updateInput('wasteQuantity', details.quantity.toString());
+      }
+      
+      // Purchase fields
+      if (details.purchaseType) {
+        updateInput('purchaseType', details.purchaseType);
+      }
+      
+      if (details.quantity && details.scope3Category === 'purchases') {
+        updateInput('purchaseQuantity', details.quantity.toString());
+      }
+      
+      if (details.purchaseDescription) {
+        updateInput('purchaseDescription', details.purchaseDescription);
+      }
+    }
+  };
 
   const getActiveTabContent = () => {
     switch (activeTab) {
@@ -146,10 +269,39 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
-  const handleCalculateClick = () => {
+  const handleCalculateClick = async () => {
     console.log('Calculate button clicked for tab:', activeTab);
     console.log('Using reportId for calculation:', reportId);
-    calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
+    
+    if (editMode && editingCalculationId) {
+      // Update existing calculation
+      const scope = activeTab as 'scope1' | 'scope2' | 'scope3';
+      await updateCalculation(editingCalculationId, scope);
+      
+      // Reset edit mode
+      setEditMode(false);
+      setEditingCalculationId(null);
+    } else {
+      // Create new calculation
+      await calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditingCalculationId(null);
+    
+    // Clear form fields
+    // This depends on the active tab
+    if (activeTab === 'scope1') {
+      updateInput('fuelQuantity', '');
+    } else if (activeTab === 'scope2') {
+      updateInput('energyQuantity', '');
+    } else if (activeTab === 'scope3') {
+      updateInput('transportDistance', '');
+      updateInput('wasteQuantity', '');
+      updateInput('purchaseQuantity', '');
+    }
   };
 
   const handleSaveClick = () => {
@@ -170,6 +322,15 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   return <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod as EmissionFactorSource : EmissionFactorSource.DEFRA} setCalculationMethod={value => updateInput('calculationMethod', value)} />
       
+      {editMode && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex items-center">
+            <Edit className="h-5 w-5 text-blue-500 mr-2" />
+            <p className="text-blue-800 font-medium">Modalità modifica - Modifica il calcolo selezionato</p>
+          </div>
+        </div>
+      )}
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="scope1">Scope 1 - Emissioni Dirette</TabsTrigger>
@@ -186,8 +347,14 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         <div className="space-x-2">
           <Button onClick={handleCalculateClick} className="flex items-center">
             <Calculator className="mr-2 h-4 w-4" />
-            Calcola Emissioni
+            {editMode ? 'Aggiorna Calcolo' : 'Calcola Emissioni'}
           </Button>
+          
+          {editMode && (
+            <Button onClick={handleCancelEdit} variant="outline" className="flex items-center">
+              Annulla Modifica
+            </Button>
+          )}
           
           <Button onClick={handleSaveClick} disabled={isSaving} variant="outline" className="flex items-center text-center my-[10px] bg-emerald-500 hover:bg-emerald-400 text-stone-50">
             <Save className="mr-2 h-4 w-4" />
@@ -208,13 +375,13 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
          <p className="text-gray-500 text-sm">Nessun calcolo effettuato. Utilizzare il calcolatore per aggiungere emissioni.</p>}
         
         {calculationLogs?.scope1Calculations && calculationLogs.scope1Calculations.length > 0 && 
-         <EmissionsCalculationTable scope="scope1" scopeLabel="Scope 1 - Emissioni Dirette" calculations={calculationLogs.scope1Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+         <EmissionsCalculationTable scope="scope1" scopeLabel="Scope 1 - Emissioni Dirette" calculations={calculationLogs.scope1Calculations} onRemoveCalculation={handleRemoveCalculation} onEditCalculation={handleEditCalculation} />}
         
         {calculationLogs?.scope2Calculations && calculationLogs.scope2Calculations.length > 0 && 
-         <EmissionsCalculationTable scope="scope2" scopeLabel="Scope 2 - Energia" calculations={calculationLogs.scope2Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+         <EmissionsCalculationTable scope="scope2" scopeLabel="Scope 2 - Energia" calculations={calculationLogs.scope2Calculations} onRemoveCalculation={handleRemoveCalculation} onEditCalculation={handleEditCalculation} />}
         
         {calculationLogs?.scope3Calculations && calculationLogs.scope3Calculations.length > 0 && 
-         <EmissionsCalculationTable scope="scope3" scopeLabel="Scope 3 - Altre Emissioni" calculations={calculationLogs.scope3Calculations} onRemoveCalculation={handleRemoveCalculation} />}
+         <EmissionsCalculationTable scope="scope3" scopeLabel="Scope 3 - Altre Emissioni" calculations={calculationLogs.scope3Calculations} onRemoveCalculation={handleRemoveCalculation} onEditCalculation={handleEditCalculation} />}
       </div>
     </div>;
 };

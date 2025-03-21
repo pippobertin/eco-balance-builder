@@ -7,6 +7,7 @@ import { Calculation } from './tableUtils';
 interface EmissionTableBodyProps {
   calculations: Calculation[];
   onRemoveCalculation: (id: string) => void;
+  onEditCalculation: (calculation: Calculation) => void;
   getCategoryLabel: (calculation: Calculation) => string;
   formatDate: (dateString: string) => string;
   formatNumber: (num: number, precision?: number) => string;
@@ -18,6 +19,7 @@ interface EmissionTableBodyProps {
 const EmissionTableBody: React.FC<EmissionTableBodyProps> = ({
   calculations,
   onRemoveCalculation,
+  onEditCalculation,
   getCategoryLabel,
   formatDate,
   formatNumber,
@@ -44,6 +46,7 @@ const EmissionTableBody: React.FC<EmissionTableBodyProps> = ({
           key={calculation.id}
           calculation={calculation}
           onRemoveCalculation={onRemoveCalculation}
+          onEditCalculation={onEditCalculation}
           getCategoryLabel={getCategoryLabel}
           formatDate={formatDate}
           formatNumber={formatNumber}

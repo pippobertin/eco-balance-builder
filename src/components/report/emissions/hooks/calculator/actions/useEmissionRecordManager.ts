@@ -15,7 +15,7 @@ export const useEmissionRecordManager = (
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { currentReport } = useReport();
-  const { saveEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords();
+  const { saveEmissionRecord, updateEmissionRecord, deleteEmissionRecord, loadEmissionRecords, calculateTotals } = useEmissionRecords();
   
   // Save emission calculation after successful calculation
   const saveCalculation = async (calculationData: { 
@@ -123,6 +123,122 @@ export const useEmissionRecordManager = (
     return null;
   };
   
+  // Update an existing emission calculation
+  const updateCalculation = async (
+    calculationId: string,
+    calculationData: { 
+      emissionValue: number;
+      detailsObj: any;
+      description: string;
+      scope: 'scope1' | 'scope2' | 'scope3';
+      reportId: string | undefined;
+    }
+  ) => {
+    const effectiveReportId = calculationData.reportId || reportId || currentReport?.id;
+    
+    if (!effectiveReportId) {
+      console.error('Cannot update emission record: reportId is undefined.');
+      toast({
+        title: "Errore di aggiornamento",
+        description: "Impossibile aggiornare il calcolo: ID Report mancante",
+        variant: "destructive"
+      });
+      return null;
+    }
+    
+    const { emissionValue, detailsObj, description, scope } = calculationData;
+    
+    // Create record object with appropriate values based on scope
+    let sourceValue = '';
+    let quantityValue = 0;
+    let unitValue = '';
+    
+    if (scope === 'scope1' && detailsObj.fuelType) {
+      sourceValue = detailsObj.fuelType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'L';
+    } else if (scope === 'scope2' && detailsObj.energyType) {
+      sourceValue = detailsObj.energyType;
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || 'kWh';
+    } else if (scope === 'scope3') {
+      sourceValue = detailsObj.activityType || '';
+      quantityValue = detailsObj.quantity || 0;
+      unitValue = detailsObj.unit || '';
+    } else {
+      sourceValue = detailsObj.source || '';
+    }
+    
+    const recordUpdate = {
+      id: calculationId,
+      report_id: effectiveReportId,
+      scope,
+      source: sourceValue,
+      description,
+      quantity: quantityValue,
+      unit: unitValue,
+      emissions: emissionValue,
+      details: detailsObj
+    };
+    
+    console.log('Updating emission record:', recordUpdate);
+    setIsSaving(true);
+    
+    try {
+      const updatedRecord = await updateEmissionRecord(recordUpdate);
+      
+      if (updatedRecord) {
+        console.log('Updated record:', updatedRecord);
+        
+        // Find and update the record in the calculation logs
+        const updatedLogs = { ...calculationLogs };
+        
+        if (scope === 'scope1') {
+          updatedLogs.scope1Calculations = updatedLogs.scope1Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        } else if (scope === 'scope2') {
+          updatedLogs.scope2Calculations = updatedLogs.scope2Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        } else if (scope === 'scope3') {
+          updatedLogs.scope3Calculations = updatedLogs.scope3Calculations.map(calc => 
+            calc.id === calculationId ? updatedRecord : calc
+          );
+        }
+        
+        setCalculationLogs(updatedLogs);
+        
+        const records = [
+          ...(updatedLogs.scope1Calculations || []),
+          ...(updatedLogs.scope2Calculations || []),
+          ...(updatedLogs.scope3Calculations || [])
+        ];
+        
+        const totals = calculateTotals(records);
+        setCalculatedEmissions(totals);
+        
+        toast({
+          title: "Calcolo aggiornato",
+          description: `Emissioni ${scope} aggiornate con successo`,
+        });
+        
+        return updatedRecord;
+      }
+    } catch (error) {
+      console.error('Error updating emission record:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile aggiornare il calcolo: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+    
+    return null;
+  };
+  
   const handleRemoveCalculation = async (calculationId: string) => {
     try {
       console.log('Removing calculation:', calculationId);
@@ -192,6 +308,7 @@ export const useEmissionRecordManager = (
   
   return {
     saveCalculation,
+    updateCalculation,
     handleRemoveCalculation,
     isSaving
   };
