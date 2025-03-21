@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
-import { useAntiCorruptionData } from './anti-corruption/hooks';
+import { useAntiCorruptionData } from './anti-corruption/hooks/useAntiCorruptionData';
 import { AntiCorruptionHeader, SaveButton } from './anti-corruption';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
@@ -28,6 +28,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       lastSaved
     } = useAntiCorruptionData(reportId);
 
+    // Update form values when anti-corruption data is loaded
     useEffect(() => {
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);

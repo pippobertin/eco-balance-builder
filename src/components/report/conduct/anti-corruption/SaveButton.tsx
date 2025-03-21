@@ -17,7 +17,7 @@ const SaveButton: React.FC<SaveButtonProps> = ({ onClick, isLoading }) => {
         className="flex items-center gap-2"
       >
         <Save className="h-4 w-4" />
-        {isLoading ? "Salvataggio..." : "Salva dati anticorruzione"}
+        {isLoading ? "Salvataggio..." : "Salva dati anti-corruzione"}
       </Button>
     </div>
   );
