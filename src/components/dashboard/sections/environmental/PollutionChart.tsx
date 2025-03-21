@@ -83,7 +83,6 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
       categories={["value"]}
       colors={['#5AC8FA', '#0EA5E9', '#8B5CF6']}
       individualColors={true}
-      loading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
     />
   );
