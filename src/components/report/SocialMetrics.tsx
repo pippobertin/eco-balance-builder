@@ -39,21 +39,25 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
     const { name, value } = e.target;
     
-    // If we're updating the entire socialMetrics object (from WorkforceGeneral)
+    // If we're updating the entire socialMetrics object (from a component)
     if (name === 'socialMetrics' && typeof value === 'object') {
+      console.log("Updating entire socialMetrics object:", value);
+      
       setFormValues((prev: any) => ({
         ...prev,
         socialMetrics: {
-          ...prev.socialMetrics,
+          ...(prev.socialMetrics || {}),
           ...value
         }
       }));
     } else {
       // Normal field update
+      console.log(`Updating individual field ${name} with value:`, value);
+      
       setFormValues((prev: any) => ({
         ...prev,
         socialMetrics: {
-          ...prev.socialMetrics,
+          ...(prev.socialMetrics || {}),
           [name]: value
         }
       }));

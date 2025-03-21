@@ -12,29 +12,31 @@ import { useReport } from '@/hooks/use-report-context';
 
 type WorkforceGeneralProps = {
   formValues: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => void;
 };
 
 const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
     const { currentReport } = useReport();
     const reportId = currentReport?.id;
-    const { saveWorkforceData, isSaving, lastSaved, workforceData, loading } = useWorkforceData(reportId);
+    const { saveWorkforceData, isSaving, lastSaved, workforceData, loading, loadWorkforceData } = useWorkforceData(reportId);
 
     // Update form values when workforce data is loaded
     useEffect(() => {
       if (workforceData && !loading) {
+        console.log("Updating form with workforce data:", workforceData);
+        
         // Update parent component's form values with the loaded workforce data
         const updatedSocialMetrics = {
-          ...formValues.socialMetrics,
-          totalEmployees: workforceData.totalEmployees || '',
-          totalEmployeesFTE: workforceData.totalEmployeesFTE || '',
-          permanentEmployees: workforceData.permanentEmployees || '',
-          temporaryEmployees: workforceData.temporaryEmployees || '',
-          maleEmployees: workforceData.maleEmployees || '',
-          femaleEmployees: workforceData.femaleEmployees || '',
-          otherGenderEmployees: workforceData.otherGenderEmployees || '',
-          employeesByCountry: workforceData.employeesByCountry || ''
+          ...(formValues?.socialMetrics || {}),
+          totalEmployees: workforceData.totalEmployees,
+          totalEmployeesFTE: workforceData.totalEmployeesFTE,
+          permanentEmployees: workforceData.permanentEmployees,
+          temporaryEmployees: workforceData.temporaryEmployees,
+          maleEmployees: workforceData.maleEmployees,
+          femaleEmployees: workforceData.femaleEmployees,
+          otherGenderEmployees: workforceData.otherGenderEmployees,
+          employeesByCountry: workforceData.employeesByCountry
         };
         
         // Create a synthetic change event to update the form values
@@ -51,6 +53,14 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
       }
     }, [workforceData, loading]);
 
+    // Load workforce data when the report ID changes
+    useEffect(() => {
+      if (reportId) {
+        console.log("Loading workforce data due to report ID change:", reportId);
+        loadWorkforceData();
+      }
+    }, [reportId]);
+
     const handleSaveWorkforceData = async () => {
       if (!formValues?.socialMetrics) {
         console.error("Social metrics data is undefined. Cannot save workforce data.");
@@ -62,8 +72,19 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
         return;
       }
       
+      console.log("Saving workforce data with values:", formValues.socialMetrics);
+      
       // Call the saveWorkforceData function from our hook
-      await saveWorkforceData(formValues.socialMetrics);
+      await saveWorkforceData({
+        totalEmployees: formValues.socialMetrics.totalEmployees !== "" ? Number(formValues.socialMetrics.totalEmployees) : null,
+        totalEmployeesFTE: formValues.socialMetrics.totalEmployeesFTE !== "" ? Number(formValues.socialMetrics.totalEmployeesFTE) : null,
+        permanentEmployees: formValues.socialMetrics.permanentEmployees !== "" ? Number(formValues.socialMetrics.permanentEmployees) : null,
+        temporaryEmployees: formValues.socialMetrics.temporaryEmployees !== "" ? Number(formValues.socialMetrics.temporaryEmployees) : null,
+        maleEmployees: formValues.socialMetrics.maleEmployees !== "" ? Number(formValues.socialMetrics.maleEmployees) : null,
+        femaleEmployees: formValues.socialMetrics.femaleEmployees !== "" ? Number(formValues.socialMetrics.femaleEmployees) : null,
+        otherGenderEmployees: formValues.socialMetrics.otherGenderEmployees !== "" ? Number(formValues.socialMetrics.otherGenderEmployees) : null,
+        employeesByCountry: formValues.socialMetrics.employeesByCountry || null
+      });
     };
 
     return (
@@ -96,12 +117,12 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="totalEmployees">Numero totale di dipendenti</Label>
-              <Input id="totalEmployees" name="totalEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.totalEmployees || ""} onChange={handleChange} />
+              <Input id="totalEmployees" name="totalEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.totalEmployees ?? ""} onChange={handleChange} />
             </div>
             
             <div>
               <Label htmlFor="totalEmployeesFTE">Numero totale di equivalenti a tempo pieno (FTE)</Label>
-              <Input id="totalEmployeesFTE" name="totalEmployeesFTE" type="number" placeholder="0.0" value={formValues.socialMetrics?.totalEmployeesFTE || ""} onChange={handleChange} />
+              <Input id="totalEmployeesFTE" name="totalEmployeesFTE" type="number" placeholder="0.0" value={formValues.socialMetrics?.totalEmployeesFTE ?? ""} onChange={handleChange} />
             </div>
           </div>
           
@@ -109,12 +130,12 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="permanentEmployees">Dipendenti a tempo indeterminato</Label>
-              <Input id="permanentEmployees" name="permanentEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.permanentEmployees || ""} onChange={handleChange} />
+              <Input id="permanentEmployees" name="permanentEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.permanentEmployees ?? ""} onChange={handleChange} />
             </div>
             
             <div>
               <Label htmlFor="temporaryEmployees">Dipendenti a tempo determinato</Label>
-              <Input id="temporaryEmployees" name="temporaryEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.temporaryEmployees || ""} onChange={handleChange} />
+              <Input id="temporaryEmployees" name="temporaryEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.temporaryEmployees ?? ""} onChange={handleChange} />
             </div>
           </div>
           
@@ -122,17 +143,17 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="maleEmployees">Dipendenti di genere maschile</Label>
-              <Input id="maleEmployees" name="maleEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.maleEmployees || ""} onChange={handleChange} />
+              <Input id="maleEmployees" name="maleEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.maleEmployees ?? ""} onChange={handleChange} />
             </div>
             
             <div>
               <Label htmlFor="femaleEmployees">Dipendenti di genere femminile</Label>
-              <Input id="femaleEmployees" name="femaleEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.femaleEmployees || ""} onChange={handleChange} />
+              <Input id="femaleEmployees" name="femaleEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.femaleEmployees ?? ""} onChange={handleChange} />
             </div>
             
             <div>
               <Label htmlFor="otherGenderEmployees">Dipendenti di altri generi</Label>
-              <Input id="otherGenderEmployees" name="otherGenderEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.otherGenderEmployees || ""} onChange={handleChange} />
+              <Input id="otherGenderEmployees" name="otherGenderEmployees" type="number" placeholder="0" value={formValues.socialMetrics?.otherGenderEmployees ?? ""} onChange={handleChange} />
             </div>
           </div>
           
@@ -142,7 +163,7 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
               id="employeesByCountry" 
               name="employeesByCountry" 
               placeholder="Esempio: Sede centrale: 50, Stabilimento A: 20, Filiale B: 10" 
-              value={formValues.socialMetrics?.employeesByCountry || ""} 
+              value={formValues.socialMetrics?.employeesByCountry ?? ""} 
               onChange={handleChange} 
               className="min-h-[100px]" 
             />

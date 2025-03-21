@@ -62,14 +62,14 @@ export const useWorkforceData = (reportId: string | undefined) => {
         return formattedData;
       }
       
+      return null;
     } catch (error: any) {
       console.error("Error loading workforce data:", error);
       handleSupabaseError(error, "Impossibile caricare i dati della forza lavoro");
+      return null;
     } finally {
       setLoading(false);
     }
-    
-    return null;
   };
 
   // Save workforce data
@@ -92,13 +92,13 @@ export const useWorkforceData = (reportId: string | undefined) => {
       
       const workforcePayload = {
         report_id: reportId,
-        total_employees: values.totalEmployees || 0,
-        total_employees_fte: values.totalEmployeesFTE || 0,
-        permanent_employees: values.permanentEmployees || 0,
-        temporary_employees: values.temporaryEmployees || 0,
-        male_employees: values.maleEmployees || 0,
-        female_employees: values.femaleEmployees || 0,
-        other_gender_employees: values.otherGenderEmployees || 0,
+        total_employees: values.totalEmployees !== undefined ? values.totalEmployees : 0,
+        total_employees_fte: values.totalEmployeesFTE !== undefined ? values.totalEmployeesFTE : 0,
+        permanent_employees: values.permanentEmployees !== undefined ? values.permanentEmployees : 0,
+        temporary_employees: values.temporaryEmployees !== undefined ? values.temporaryEmployees : 0,
+        male_employees: values.maleEmployees !== undefined ? values.maleEmployees : 0,
+        female_employees: values.femaleEmployees !== undefined ? values.femaleEmployees : 0,
+        other_gender_employees: values.otherGenderEmployees !== undefined ? values.otherGenderEmployees : 0,
         distribution_notes: values.employeesByCountry || '',
         updated_at: new Date().toISOString()
       };
@@ -123,7 +123,8 @@ export const useWorkforceData = (reportId: string | undefined) => {
         const { data, error } = await supabase
           .from('workforce_distribution')
           .update(workforcePayload)
-          .eq('report_id', reportId);
+          .eq('report_id', reportId)
+          .select();
         
         if (error) throw error;
         result = data;
@@ -133,7 +134,8 @@ export const useWorkforceData = (reportId: string | undefined) => {
         
         const { data, error } = await supabase
           .from('workforce_distribution')
-          .insert(workforcePayload);
+          .insert(workforcePayload)
+          .select();
         
         if (error) throw error;
         result = data;
@@ -142,10 +144,10 @@ export const useWorkforceData = (reportId: string | undefined) => {
       console.log("Workforce data saved successfully:", result);
       
       // Update local state with the new values
-      setWorkforceData({
-        ...workforceData,
+      setWorkforceData(prev => ({
+        ...prev,
         ...values
-      });
+      }));
       
       // Mark as saved
       setNeedsSaving(false);
@@ -169,6 +171,7 @@ export const useWorkforceData = (reportId: string | undefined) => {
   // Initial data load
   useEffect(() => {
     if (reportId) {
+      console.log("Loading workforce data on mount for report:", reportId);
       loadWorkforceData();
     }
   }, [reportId]);
