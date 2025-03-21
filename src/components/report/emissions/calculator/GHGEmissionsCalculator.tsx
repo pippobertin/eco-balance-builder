@@ -5,6 +5,7 @@ import { GHGEmissionsCalculatorProps } from '../types';
 import { useCalculator } from '../hooks/useCalculator';
 import { useReport } from '@/hooks/use-report-context';
 import { useEditCalculation } from './useEditCalculation';
+import { EmissionFactorSource } from '@/lib/emissions-types';
 
 // Import refactored components
 import CalculatorHeader from '../CalculatorHeader';
@@ -111,7 +112,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   return (
     <div className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
-        calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod : 'DEFRA'} 
+        calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod as EmissionFactorSource : EmissionFactorSource.DEFRA} 
         setCalculationMethod={value => updateInput('calculationMethod', value)} 
       />
       
