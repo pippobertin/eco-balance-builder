@@ -38,7 +38,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     deleteRecord,
     editRecord,
     cancelEdit
-  } = usePollutionData(reportId);
+  } = usePollutionData({ reportId }); // Fix: Pass reportId as an object property
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
