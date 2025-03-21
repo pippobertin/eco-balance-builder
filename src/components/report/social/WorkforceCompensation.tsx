@@ -55,7 +55,7 @@ const WorkforceCompensation = React.forwardRef<HTMLDivElement, WorkforceCompensa
               <Label htmlFor="genderPayGap">Divario retributivo di genere (%)</Label>
               <Input id="genderPayGap" name="genderPayGap" type="number" placeholder="0.0" value={formValues.socialMetrics?.genderPayGap || ""} onChange={handleChange} />
               <p className="text-sm text-gray-500 mt-1">
-                Omettere questa informazione se il numero di dipendenti è inferiore a 150
+                Formula: (retribuzione uomini-retribuzione donne)/retribuzione uomini*100
               </p>
             </div>
           </div>
