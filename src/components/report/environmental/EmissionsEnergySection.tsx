@@ -1,6 +1,6 @@
 
 import React from 'react';
-import GHGEmissionsCalculator from '../GHGEmissionsCalculator';
+import GHGEmissionsCalculator from '../emissions/calculator/GHGEmissionsCalculator';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import EmissionsSectionHeader from './components/EmissionsSectionHeader';
 
