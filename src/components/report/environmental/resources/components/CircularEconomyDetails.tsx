@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useCircularEconomyDetails } from '../hooks/useCircularEconomyDetails';
-import { WasteNumericField } from './WasteNumericField';
+import WasteNumericField from './WasteNumericField';
 import { Loader2 } from 'lucide-react';
 
 interface CircularEconomyDetailsProps {
