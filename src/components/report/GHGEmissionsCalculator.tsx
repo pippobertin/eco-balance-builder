@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -25,15 +24,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   const { currentReport } = useReport();
   const reportId = currentReport?.id || formValues?.reportId;
   
-  // Use a ref to track if we've already logged initial information
   const hasLoggedInitialInfo = React.useRef(false);
 
-  // State to track if we're in edit mode
   const [editMode, setEditMode] = useState(false);
   const [editingCalculationId, setEditingCalculationId] = useState<string | null>(null);
   
   useEffect(() => {
-    // Only log this information once when the component mounts, not on every render
     if (!hasLoggedInitialInfo.current) {
       console.log('GHGEmissionsCalculator: Current reportId:', reportId);
       console.log('GHGEmissionsCalculator: formValues:', formValues);
@@ -60,7 +56,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     onResetClick
   );
 
-  // Only log calculation logs when they actually change, not on every render
   const calculationLogCountRef = React.useRef({
     scope1: 0,
     scope2: 0,
@@ -74,7 +69,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       scope3: calculationLogs.scope3Calculations?.length || 0
     };
     
-    // Only log if the counts have changed
     if (newCounts.scope1 !== calculationLogCountRef.current.scope1 ||
         newCounts.scope2 !== calculationLogCountRef.current.scope2 ||
         newCounts.scope3 !== calculationLogCountRef.current.scope3) {
@@ -84,29 +78,23 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       console.log("Scope2 calculations:", calculationLogs.scope2Calculations?.length || 0);
       console.log("Scope3 calculations:", calculationLogs.scope3Calculations?.length || 0);
       
-      // Update the ref with new counts
       calculationLogCountRef.current = newCounts;
     }
   }, [calculationLogs]);
 
-  // Handle editing a calculation
   const handleEditCalculation = (calculation: any) => {
     console.log('Editing calculation:', calculation);
     setEditMode(true);
     setEditingCalculationId(calculation.id);
     
-    // Set the active tab based on the calculation scope
     setActiveTab(calculation.scope);
     
-    // Populate the form fields with the calculation data
     const details = calculation.details || {};
     
-    // Common fields across all scopes
     if (details.periodType) {
       updateInput('periodType', details.periodType);
     }
     
-    // Scope-specific fields
     if (calculation.scope === 'scope1') {
       if (details.scope1Source) {
         updateInput('scope1Source', details.scope1Source);
@@ -142,7 +130,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       }
     } 
     else if (calculation.scope === 'scope3') {
-      // Set the scope3 category
       if (details.scope3Category) {
         updateInput('scope3Category', details.scope3Category);
       } else if (details.transportType) {
@@ -151,18 +138,35 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         updateInput('scope3Category', 'waste');
       } else if (details.purchaseType) {
         updateInput('scope3Category', 'purchases');
+      } else if (details.activityType) {
+        if (details.activityType.includes('WASTE')) {
+          updateInput('scope3Category', 'waste');
+        } else if (details.activityType.includes('PURCHASED')) {
+          updateInput('scope3Category', 'purchases');
+        } else {
+          updateInput('scope3Category', 'transport');
+        }
       }
       
-      // Transport fields
       if (details.transportType) {
         updateInput('transportType', details.transportType);
       }
       
-      if (details.quantity && details.scope3Category === 'transport') {
-        updateInput('transportDistance', details.quantity.toString());
+      if (details.quantity) {
+        const category = details.scope3Category || 
+                        (details.transportType ? 'transport' : 
+                         details.wasteType ? 'waste' : 
+                         details.purchaseType ? 'purchases' : null);
+                         
+        if (category === 'transport' || (category === null && details.transportType)) {
+          updateInput('transportDistance', details.quantity.toString());
+        } else if (category === 'waste' || (category === null && details.wasteType)) {
+          updateInput('wasteQuantity', details.quantity.toString());
+        } else if (category === 'purchases' || (category === null && details.purchaseType)) {
+          updateInput('purchaseQuantity', details.quantity.toString());
+        }
       }
       
-      // Vehicle details
       if (details.vehicleType) {
         updateInput('vehicleType', details.vehicleType);
       }
@@ -183,22 +187,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
         updateInput('vehicleFuelConsumptionUnit', details.vehicleFuelConsumptionUnit);
       }
       
-      // Waste fields
       if (details.wasteType) {
         updateInput('wasteType', details.wasteType);
       }
       
-      if (details.quantity && details.scope3Category === 'waste') {
-        updateInput('wasteQuantity', details.quantity.toString());
-      }
-      
-      // Purchase fields
       if (details.purchaseType) {
         updateInput('purchaseType', details.purchaseType);
-      }
-      
-      if (details.quantity && details.scope3Category === 'purchases') {
-        updateInput('purchaseQuantity', details.quantity.toString());
       }
       
       if (details.purchaseDescription) {
@@ -274,15 +268,12 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     console.log('Using reportId for calculation:', reportId);
     
     if (editMode && editingCalculationId) {
-      // Update existing calculation
       const scope = activeTab as 'scope1' | 'scope2' | 'scope3';
       await updateCalculation(editingCalculationId, scope);
       
-      // Reset edit mode
       setEditMode(false);
       setEditingCalculationId(null);
     } else {
-      // Create new calculation
       await calculateEmissions(activeTab as 'scope1' | 'scope2' | 'scope3');
     }
   };
@@ -291,8 +282,6 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     setEditMode(false);
     setEditingCalculationId(null);
     
-    // Clear form fields
-    // This depends on the active tab
     if (activeTab === 'scope1') {
       updateInput('fuelQuantity', '');
     } else if (activeTab === 'scope2') {
