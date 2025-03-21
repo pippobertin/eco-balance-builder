@@ -63,7 +63,11 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
         <Label htmlFor="releaseType">Mezzo di Rilascio</Label>
         <Select
           value={selectedMedium?.toString() || ""}
-          onValueChange={(value) => setSelectedMedium(parseInt(value))}
+          onValueChange={(value) => {
+            setSelectedMedium(parseInt(value));
+            // Reset pollutant when changing medium
+            setPollutantTypeId(null);
+          }}
           disabled={!reportId || isSubmitting}
         >
           <SelectTrigger id="releaseType">
@@ -90,15 +94,21 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
             <SelectValue placeholder={selectedMedium ? "Seleziona l'inquinante" : "Prima seleziona il mezzo di rilascio"} />
           </SelectTrigger>
           <SelectContent>
-            {filteredPollutants.map((pollutant) => (
-              <SelectItem 
-                key={pollutant.id} 
-                value={pollutant.id.toString()}
-                title={pollutant.description}
-              >
-                {pollutant.name}
+            {filteredPollutants.length > 0 ? (
+              filteredPollutants.map((pollutant) => (
+                <SelectItem 
+                  key={pollutant.id} 
+                  value={pollutant.id.toString()}
+                  title={pollutant.description}
+                >
+                  {pollutant.name}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="none" disabled>
+                Nessun inquinante disponibile per questo mezzo
               </SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
         

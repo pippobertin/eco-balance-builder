@@ -87,7 +87,11 @@ export const usePollutionData = (reportId?: string) => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('pollution_records')
-        .select('*')
+        .select(`
+          *,
+          pollutant_types (name, description),
+          pollution_release_mediums (name)
+        `)
         .eq('report_id', reportId);
       
       if (error) throw error;
@@ -112,7 +116,11 @@ export const usePollutionData = (reportId?: string) => {
       const { data, error } = await supabase
         .from('pollution_records')
         .insert([record])
-        .select();
+        .select(`
+          *,
+          pollutant_types (name, description),
+          pollution_release_mediums (name)
+        `);
       
       if (error) throw error;
       
@@ -165,9 +173,11 @@ export const usePollutionData = (reportId?: string) => {
 
   // Filter pollutants based on selected medium
   useEffect(() => {
-    if (selectedMedium) {
-      const filtered = pollutants.filter(p => 
-        p.release_medium_ids.includes(selectedMedium)
+    if (selectedMedium && pollutants.length > 0) {
+      // Filter pollutants that can be released in the selected medium
+      const filtered = pollutants.filter(pollutant => 
+        pollutant.release_medium_ids && 
+        pollutant.release_medium_ids.includes(selectedMedium)
       );
       setFilteredPollutants(filtered);
     } else {

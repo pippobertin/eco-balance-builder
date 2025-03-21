@@ -557,6 +557,42 @@ export type Database = {
           },
         ]
       }
+      pollution_records_backup: {
+        Row: {
+          created_at: string | null
+          details: string | null
+          id: string | null
+          pollutant_type_id: number | null
+          quantity: number | null
+          release_medium_id: number | null
+          report_id: string | null
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: string | null
+          id?: string | null
+          pollutant_type_id?: number | null
+          quantity?: number | null
+          release_medium_id?: number | null
+          report_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: string | null
+          id?: string | null
+          pollutant_type_id?: number | null
+          quantity?: number | null
+          release_medium_id?: number | null
+          report_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pollution_release_mediums: {
         Row: {
           created_at: string

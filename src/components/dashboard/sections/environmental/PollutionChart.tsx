@@ -40,24 +40,27 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
         if (error) throw error;
         
         // Group pollution data by medium of release
-        const groupedData: Record<string, number> = {};
+        const groupedData: Record<string, number> = {
+          'Aria': 0,
+          'Acqua': 0,
+          'Suolo': 0
+        };
         
         records?.forEach((record: any) => {
           const medium = record.pollution_release_mediums?.name;
           
-          if (medium) {
-            if (!groupedData[medium]) {
-              groupedData[medium] = 0;
-            }
+          if (medium && medium in groupedData) {
             groupedData[medium] += Number(record.quantity) || 0;
           }
         });
         
         // Convert to chart format
-        const chartData = Object.entries(groupedData).map(([name, value]) => ({
-          name,
-          value: parseFloat(value.toFixed(2))
-        }));
+        const chartData = Object.entries(groupedData)
+          .filter(([_, value]) => value > 0) // Only include mediums with values
+          .map(([name, value]) => ({
+            name,
+            value: parseFloat(value.toFixed(2))
+          }));
         
         setPollutionData(chartData);
       } catch (error) {
