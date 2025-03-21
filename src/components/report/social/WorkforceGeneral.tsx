@@ -1,13 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Users, Info, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { useWorkforceData } from './hooks/useWorkforceData';
 
@@ -18,62 +16,18 @@ type WorkforceGeneralProps = {
 
 const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
-    const { toast } = useToast();
-    const [isSaving, setIsSaving] = useState(false);
-    const { lastSaved, loadWorkforceData } = useWorkforceData(formValues?.id);
+    const { saveWorkforceData, isSaving, lastSaved } = useWorkforceData(formValues?.id);
 
     const handleSaveWorkforceData = async () => {
       if (!formValues?.socialMetrics) return;
       
-      try {
-        setIsSaving(true);
-        
-        const reportId = formValues.id;
-        if (!reportId) {
-          toast({
-            title: "Errore",
-            description: "ID Report non valido. Salva prima il report per continuare.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        // Save to the workforce_distribution table
-        const { error } = await supabase
-          .from('workforce_distribution')
-          .upsert({
-            report_id: reportId,
-            total_employees: formValues.socialMetrics.totalEmployees || 0,
-            total_employees_fte: formValues.socialMetrics.totalEmployeesFTE || 0,
-            permanent_employees: formValues.socialMetrics.permanentEmployees || 0,
-            temporary_employees: formValues.socialMetrics.temporaryEmployees || 0,
-            male_employees: formValues.socialMetrics.maleEmployees || 0,
-            female_employees: formValues.socialMetrics.femaleEmployees || 0,
-            other_gender_employees: formValues.socialMetrics.otherGenderEmployees || 0,
-            distribution_notes: formValues.socialMetrics.employeesByCountry || '',
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'report_id' });
-        
-        if (error) throw error;
-        
-        // Reload workforce data to get updated lastSaved timestamp
-        await loadWorkforceData();
-        
-        toast({
-          title: "Successo",
-          description: "Dati della forza lavoro salvati con successo"
-        });
-        
-      } catch (error: any) {
-        console.error("Error saving workforce data:", error);
-        toast({
-          title: "Errore",
-          description: error.message || "Errore durante il salvataggio dei dati",
-          variant: "destructive"
-        });
-      } finally {
-        setIsSaving(false);
+      if (!formValues.id) {
+        console.error("Report ID is undefined. Cannot save workforce data.");
+        return;
       }
+      
+      // Call the saveWorkforceData function from our hook
+      await saveWorkforceData(formValues.socialMetrics);
     };
 
     return (
