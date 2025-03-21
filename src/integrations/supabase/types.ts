@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      anti_corruption_metrics: {
+        Row: {
+          additional_details: string | null
+          convictions_number: number | null
+          created_at: string
+          id: string
+          report_id: string
+          sanctions_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          additional_details?: string | null
+          convictions_number?: number | null
+          created_at?: string
+          id?: string
+          report_id: string
+          sanctions_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          additional_details?: string | null
+          convictions_number?: number | null
+          created_at?: string
+          id?: string
+          report_id?: string
+          sanctions_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anti_corruption_metrics_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biodiversity_land_use: {
         Row: {
           area_unit: string
