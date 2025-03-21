@@ -8,16 +8,9 @@ interface BiodiversityChartProps {
   reportId?: string;
 }
 
-interface BiodiversityData {
-  category: string;
-  currentValue: number;
-  previousValue: number;
-  change: number;
-}
-
 const BiodiversityChart: React.FC<BiodiversityChartProps> = ({ reportId }) => {
   const navigate = useNavigate();
-  const [chartData, setChartData] = useState<BiodiversityData[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -31,76 +24,77 @@ const BiodiversityChart: React.FC<BiodiversityChartProps> = ({ reportId }) => {
   const loadBiodiversityData = async () => {
     setIsLoading(true);
     try {
+      // Fetch biodiversity data for the report
       const { data, error } = await supabase
         .from('biodiversity_land_use')
         .select('*')
         .eq('report_id', reportId)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
       if (data) {
-        // Create formatted data structure for the chart
-        const chartDataArray: BiodiversityData[] = [
-          {
-            category: "Superficie impermeabilizzata",
-            currentValue: data.current_impermeable_surface || 0,
-            previousValue: data.previous_impermeable_surface || 0,
-            change: calculateChange(data.current_impermeable_surface, data.previous_impermeable_surface)
-          },
-          {
-            category: "Superficie orientata alla natura (nel sito)",
-            currentValue: data.current_nature_surface_onsite || 0,
-            previousValue: data.previous_nature_surface_onsite || 0,
-            change: calculateChange(data.current_nature_surface_onsite, data.previous_nature_surface_onsite)
-          },
-          {
-            category: "Superficie orientata alla natura (fuori dal sito)",
-            currentValue: data.current_nature_surface_offsite || 0,
-            previousValue: data.previous_nature_surface_offsite || 0,
-            change: calculateChange(data.current_nature_surface_offsite, data.previous_nature_surface_offsite)
-          }
-        ];
+        const chartItems = [];
         
-        setChartData(chartDataArray);
+        if (data.current_total_land_use !== null) {
+          chartItems.push({
+            name: 'Uso Totale\nTerreno',
+            value: Number(data.current_total_land_use),
+            previousValue: data.previous_total_land_use ? Number(data.previous_total_land_use) : undefined
+          });
+        }
+        
+        if (data.current_impermeable_surface !== null) {
+          chartItems.push({
+            name: 'Superficie\nImpermeabilizzata',
+            value: Number(data.current_impermeable_surface),
+            previousValue: data.previous_impermeable_surface ? Number(data.previous_impermeable_surface) : undefined
+          });
+        }
+        
+        if (data.current_nature_surface_onsite !== null) {
+          chartItems.push({
+            name: 'Sup. Naturale\nIn Sito',
+            value: Number(data.current_nature_surface_onsite),
+            previousValue: data.previous_nature_surface_onsite ? Number(data.previous_nature_surface_onsite) : undefined
+          });
+        }
+        
+        if (data.current_nature_surface_offsite !== null) {
+          chartItems.push({
+            name: 'Sup. Naturale\nFuori Sito',
+            value: Number(data.current_nature_surface_offsite),
+            previousValue: data.previous_nature_surface_offsite ? Number(data.previous_nature_surface_offsite) : undefined
+          });
+        }
+        
+        setChartData(chartItems);
       } else {
         setChartData([]);
       }
     } catch (error) {
       console.error('Error loading biodiversity data:', error);
-      setChartData([]);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const calculateChange = (current: number | null, previous: number | null): number => {
-    if (!current || !previous || previous === 0) return 0;
-    return ((current - previous) / previous) * 100;
-  };
-
-  // Format data for the chart
-  const formattedData = chartData.map(item => ({
-    name: item.category,
-    value: item.currentValue,
-    compareValue: item.previousValue,
-    change: item.change
-  }));
 
   return (
     <MetricChart
-      title="B5 - Biodiversità e uso del suolo"
-      description="Superfici per tipologia e anno di riferimento"
-      type={formattedData.length > 0 ? "bar" : "empty"}
-      data={formattedData}
+      title="B5 - Biodiversità"
+      description="Uso del suolo e superficie (ettari)"
+      type={chartData.length > 0 ? "bar" : "empty"}
+      data={chartData}
       dataKey="name"
       categories={["value"]}
-      colors={['#34D399', '#60A5FA', '#A78BFA']}
+      colors={['#FF9500', '#FF3B30', '#34C759', '#30D158']}
       individualColors={true}
-      isLoading={isLoading}
+      loading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'biodiversity' } })}
       emptyStateMessage="Nessun dato sulla biodiversità registrato"
-      compareKey="compareValue"
+      compareKey="previousValue"
       categoryNames={["Anno corrente", "Anno precedente"]}
     />
   );

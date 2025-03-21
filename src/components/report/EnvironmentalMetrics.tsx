@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Leaf } from 'lucide-react';
 import EmissionsEnergySection from './environmental/EmissionsEnergySection';
@@ -73,7 +74,8 @@ const EnvironmentalMetrics: React.FC<EnvironmentalMetricsProps> = ({
       {/* B5 - Biodiversità */}
       <div ref={biodiversityRef}>
         <BiodiversitySection
-          reportId={formValues?.report_id}
+          formValues={formValues}
+          setFormValues={setFormValues}
         />
       </div>
       

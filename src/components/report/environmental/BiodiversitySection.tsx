@@ -1,327 +1,309 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Leaf, Info, Save, HelpCircle } from 'lucide-react';
+import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from 'lucide-react';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
+import { useReport } from '@/hooks/use-report-context';
 import { useBiodiversityLandUse } from './hooks/biodiversity';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle, Save } from "lucide-react";
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
 interface BiodiversitySectionProps {
-  reportId?: string;
+  formValues: any;
+  setFormValues: React.Dispatch<React.SetStateAction<any>> | ((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void);
 }
 
-const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({ reportId }) => {
-  const {
-    data,
-    isLoading,
-    isSaving,
-    lastSaved,
-    handleInputChange,
-    saveData,
-    calculateChanges
+const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
+  formValues,
+  setFormValues
+}) => {
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
+  
+  const { 
+    data, 
+    isLoading, 
+    isSaving, 
+    saveData, 
+    updateField,
+    percentageChanges
   } = useBiodiversityLandUse({ reportId });
-  
-  const changes = calculateChanges();
-  
-  const formatPercentChange = (value: number | null) => {
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Standard input handler for global state
+    if (typeof setFormValues === 'function' && setFormValues.length === 1) {
+      setFormValues(e);
+    } else {
+      const { name, value } = e.target;
+      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          [name]: value
+        }
+      }));
+    }
+  };
+
+  // Handler for local state (biodiversity specific fields)
+  const handleBiodiversityChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const numValue = name !== 'sensitiveSitesDetails' && name !== 'areaUnit' 
+      ? value === '' ? null : parseFloat(value)
+      : value;
+    
+    updateField(name as keyof typeof data, numValue);
+  };
+
+  const handleSaveData = async () => {
+    if (await saveData(data)) {
+      // Also update the global form state with the biodiversity data
+      if (typeof setFormValues !== 'function' || setFormValues.length !== 1) {
+        (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
+          ...prev,
+          environmentalMetrics: {
+            ...prev.environmentalMetrics,
+            biodiversityDetails: data.sensitiveSitesDetails
+          }
+        }));
+      }
+    }
+  };
+
+  // Format percentage change with sign and decimals
+  const formatPercentage = (value: number | null) => {
     if (value === null) return '-';
     const sign = value > 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
   };
-  
-  if (isLoading) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>B5. Biodiversità e Uso del Suolo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center items-center h-40">
-            <p className="text-gray-500">Caricamento dati in corso...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>B5. Biodiversità e Uso del Suolo</CardTitle>
-        <div className="flex items-center gap-2">
-          <AutoSaveIndicator lastSaved={lastSaved} needsSaving={isSaving} />
-          <Button 
-            onClick={saveData} 
-            disabled={isSaving || !reportId}
-            className="flex items-center gap-1"
-          >
-            <Save className="h-4 w-4" />
-            Salva
+
+  const renderTooltip = (title: string, content: string) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-5 w-5 ml-1 p-0">
+            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+            <span className="sr-only">Info about {title}</span>
           </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Aree Sensibili Sotto il Profilo della Biodiversità</h3>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-md p-4">
-                    <div className="space-y-2">
-                      <p className="font-semibold">Significato:</p>
-                      <p>Sono aree geografiche riconosciute a livello internazionale o europeo come particolarmente importanti per la conservazione della biodiversità. La biodiversità si riferisce alla varietà della vita sulla Terra, includendo specie animali, vegetali, ecosistemi e la loro diversità genetica.</p>
-                      <p className="font-semibold">Esempi:</p>
-                      <ul className="list-disc list-inside">
-                        <li>Rete Natura 2000 (Zone di Protezione Speciale, Siti di Importanza Comunitaria)</li>
-                        <li>Siti del Patrimonio Mondiale UNESCO</li>
-                        <li>Key Biodiversity Areas (KBA)</li>
-                        <li>Altre Aree Protette (Allegato II, Appendice D, Regolamento Delegato (UE) 2021/2139)</li>
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="sensitive_sites_details" className="flex items-center gap-2">
-                Dettagli sulle aree sensibili
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-md p-4">
-                      <div className="space-y-2">
-                        <p className="font-semibold">In Prossimità (di aree sensibili):</p>
-                        <p>"In prossimità" include due situazioni:</p>
-                        <ul className="list-disc list-inside">
-                          <li>Sovrapposizione (parziale): Il sito operativo dell'azienda si trova in parte all'interno di un'area sensibile.</li>
-                          <li>Adiacenza: Il sito operativo dell'azienda confina direttamente con un'area sensibile.</li>
-                        </ul>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Label>
-              <Textarea 
-                id="sensitive_sites_details"
-                placeholder="Descrivi qui se le attività aziendali si svolgono all'interno o in prossimità di aree sensibili sotto il profilo della biodiversità"
-                className="min-h-[100px]"
-                value={data.sensitive_sites_details || ''}
-                onChange={(e) => handleInputChange('sensitive_sites_details', e.target.value)}
-              />
-            </div>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-md p-4">
+          <div className="space-y-2">
+            <p className="font-medium text-sm">{title}</p>
+            <p className="text-xs">{content}</p>
           </div>
-          
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Uso del Suolo</h3>
-              <Select 
-                value={data.area_unit} 
-                onValueChange={(value) => handleInputChange('area_unit', value)}
-              >
-                <SelectTrigger className="w-20">
-                  <SelectValue placeholder="Unità" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ha">ha</SelectItem>
-                  <SelectItem value="m²">m²</SelectItem>
-                  <SelectItem value="km²">km²</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100 dark:bg-gray-800">
-                    <th className="border p-2 text-left">Tipologia di Superficie</th>
-                    <th className="border p-2 text-center w-28">Anno Corrente<br/>{data.area_unit}</th>
-                    <th className="border p-2 text-center w-28">Anno Precedente<br/>{data.area_unit}</th>
-                    <th className="border p-2 text-center w-28">Variazione</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border p-2 flex items-center gap-2">
-                      Superficie impermeabilizzata
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-gray-400" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-md p-4">
-                            <div className="space-y-2">
-                              <p className="font-semibold">Superficie Impermeabilizzata:</p>
-                              <p>Si riferisce all'area di terreno coperta da materiali impermeabili che impediscono all'acqua piovana di infiltrarsi nel suolo.</p>
-                              <p className="font-semibold">Esempi:</p>
-                              <ul className="list-disc list-inside">
-                                <li>Edifici (tetti, superfici esterne)</li>
-                                <li>Strade e parcheggi asfaltati o cementati</li>
-                                <li>Piazzali industriali pavimentati</li>
-                                <li>Marciapiedi e sentieri pavimentati</li>
-                              </ul>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.current_impermeable_surface === null ? '' : data.current_impermeable_surface}
-                        onChange={(e) => handleInputChange('current_impermeable_surface', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.previous_impermeable_surface === null ? '' : data.previous_impermeable_surface}
-                        onChange={(e) => handleInputChange('previous_impermeable_surface', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2 text-center">
-                      {formatPercentChange(changes.impermeable_surface_change)}
-                    </td>
-                  </tr>
-                  
-                  <tr>
-                    <td className="border p-2 flex items-center gap-2">
-                      Superficie orientata alla natura (nel sito)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-gray-400" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-md p-4">
-                            <div className="space-y-2">
-                              <p className="font-semibold">Orientata alla Natura (nel sito):</p>
-                              <p>Porzioni di terreno all'interno del sito operativo dell'azienda gestite o create per favorire la biodiversità e gli ecosistemi naturali.</p>
-                              <p className="font-semibold">Esempi:</p>
-                              <ul className="list-disc list-inside">
-                                <li>Giardini naturalistici con piante autoctone</li>
-                                <li>Stagni o zone umide artificiali</li>
-                                <li>Boschetti o aree boscate</li>
-                                <li>Tetti verdi</li>
-                                <li>Fasce tampone vegetate</li>
-                              </ul>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.current_nature_surface_onsite === null ? '' : data.current_nature_surface_onsite}
-                        onChange={(e) => handleInputChange('current_nature_surface_onsite', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.previous_nature_surface_onsite === null ? '' : data.previous_nature_surface_onsite}
-                        onChange={(e) => handleInputChange('previous_nature_surface_onsite', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2 text-center">
-                      {formatPercentChange(changes.nature_surface_onsite_change)}
-                    </td>
-                  </tr>
-                  
-                  <tr>
-                    <td className="border p-2 flex items-center gap-2">
-                      Superficie orientata alla natura (fuori dal sito)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-gray-400" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-md p-4">
-                            <div className="space-y-2">
-                              <p className="font-semibold">Orientata alla Natura (fuori dal sito):</p>
-                              <p>Azioni o progetti di conservazione e ripristino della biodiversità realizzati dall'azienda al di fuori del suo sito operativo.</p>
-                              <p className="font-semibold">Esempi:</p>
-                              <ul className="list-disc list-inside">
-                                <li>Progetti di riforestazione o ripristino di habitat</li>
-                                <li>Creazione o gestione di riserve naturali</li>
-                                <li>Progetti di conservazione di specie minacciate</li>
-                                <li>Corridoi ecologici</li>
-                                <li>Agricoltura sostenibile o biodiversa</li>
-                              </ul>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.current_nature_surface_offsite === null ? '' : data.current_nature_surface_offsite}
-                        onChange={(e) => handleInputChange('current_nature_surface_offsite', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.previous_nature_surface_offsite === null ? '' : data.previous_nature_surface_offsite}
-                        onChange={(e) => handleInputChange('previous_nature_surface_offsite', e.target.value, true)}
-                        className="text-center"
-                      />
-                    </td>
-                    <td className="border p-2 text-center">
-                      {formatPercentChange(changes.nature_surface_offsite_change)}
-                    </td>
-                  </tr>
-                  
-                  <tr className="font-semibold bg-gray-50 dark:bg-gray-900">
-                    <td className="border p-2">Totale</td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.current_total_land_use === null ? '' : data.current_total_land_use}
-                        onChange={(e) => handleInputChange('current_total_land_use', e.target.value, true)}
-                        className="text-center font-semibold"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <Input 
-                        type="text"
-                        value={data.previous_total_land_use === null ? '' : data.previous_total_land_use}
-                        onChange={(e) => handleInputChange('previous_total_land_use', e.target.value, true)}
-                        className="text-center font-semibold"
-                      />
-                    </td>
-                    <td className="border p-2 text-center">
-                      {formatPercentChange(changes.total_land_use_change)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div className="text-sm text-gray-500 mt-2">
-              Nota: Inserisci i valori numerici per ogni tipologia di superficie sia per l'anno corrente che per quello precedente. La variazione percentuale sarà calcolata automaticamente.
-            </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
+  return (
+    <GlassmorphicCard>
+      <div className="flex items-center mb-4">
+        <Leaf className="mr-2 h-5 w-5 text-emerald-500" />
+        <h3 className="text-xl font-semibold">B5 - Biodiversità e ecosistemi</h3>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="p-4 rounded-md mb-4 bg-emerald-100">
+          <div className="flex items-start">
+            <Info className="mt-0.5 mr-2 h-4 w-4 text-emerald-600" />
+            <p className="text-sm text-slate-600">
+              Indica i dati relativi agli impatti sulla biodiversità, sugli ecosistemi e sull'uso del suolo. I dati sono espressi in ettari (ha).
+            </p>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        
+        {!reportId && (
+          <Alert variant="warning">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Per registrare i dati sulla biodiversità è necessario prima salvare il report.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2 text-left">Metrica</th>
+                <th className="border p-2 text-center">Anno precedente</th>
+                <th className="border p-2 text-center">Anno corrente</th>
+                <th className="border p-2 text-center">Variazione %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border p-2 flex items-center">
+                  Uso totale del suolo
+                  {renderTooltip(
+                    "Uso totale del suolo", 
+                    "La superficie totale di terreno utilizzata dall'azienda per le sue attività, espressa in ettari (ha)."
+                  )}
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="previousTotalLandUse" 
+                    value={data.previousTotalLandUse ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="currentTotalLandUse" 
+                    value={data.currentTotalLandUse ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2 text-center">
+                  {formatPercentage(percentageChanges.totalLandUseChange)}
+                </td>
+              </tr>
+              <tr>
+                <td className="border p-2 flex items-center">
+                  Superficie impermeabilizzata
+                  {renderTooltip(
+                    "Superficie impermeabilizzata", 
+                    "Si riferisce all'area di terreno coperta da materiali impermeabili, che impediscono all'acqua piovana di infiltrarsi nel suolo naturale. Include edifici, superfici esterne, strade e parcheggi asfaltati o cementati, piazzali industriali pavimentati, marciapiedi e sentieri pavimentati."
+                  )}
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="previousImpermeableSurface" 
+                    value={data.previousImpermeableSurface ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="currentImpermeableSurface" 
+                    value={data.currentImpermeableSurface ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2 text-center">
+                  {formatPercentage(percentageChanges.impermeableSurfaceChange)}
+                </td>
+              </tr>
+              <tr>
+                <td className="border p-2 flex items-center">
+                  Superficie orientata alla natura in sito
+                  {renderTooltip(
+                    "Superficie orientata alla natura in sito", 
+                    "Si riferisce a porzioni di terreno all'interno del sito operativo dell'azienda gestite o create per favorire la biodiversità e gli ecosistemi naturali. Esempi includono giardini naturalistici con piante autoctone, stagni o zone umide artificiali, boschetti o aree boscate, tetti verdi, fasce tampone vegetate."
+                  )}
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="previousNatureSurfaceOnsite" 
+                    value={data.previousNatureSurfaceOnsite ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="currentNatureSurfaceOnsite" 
+                    value={data.currentNatureSurfaceOnsite ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2 text-center">
+                  {formatPercentage(percentageChanges.natureSurfaceOnsiteChange)}
+                </td>
+              </tr>
+              <tr>
+                <td className="border p-2 flex items-center">
+                  Superficie orientata alla natura fuori sito
+                  {renderTooltip(
+                    "Superficie orientata alla natura fuori sito", 
+                    "Si riferisce ad azioni o progetti di conservazione e ripristino della biodiversità realizzati dall'azienda al di fuori del suo sito operativo. Esempi includono progetti di riforestazione o ripristino di habitat, creazione o gestione di riserve naturali, progetti di conservazione di specie minacciate, corridoi ecologici."
+                  )}
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="previousNatureSurfaceOffsite" 
+                    value={data.previousNatureSurfaceOffsite ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2">
+                  <Input 
+                    type="number" 
+                    name="currentNatureSurfaceOffsite" 
+                    value={data.currentNatureSurfaceOffsite ?? ''} 
+                    onChange={handleBiodiversityChange} 
+                    step="0.01"
+                    className="text-center"
+                  />
+                </td>
+                <td className="border p-2 text-center">
+                  {formatPercentage(percentageChanges.natureSurfaceOffsiteChange)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6">
+          <div className="flex items-center">
+            <Label htmlFor="sensitiveSitesDetails" className="mr-2">
+              Numero e area (ha) dei siti in prossimità di aree sensibili
+            </Label>
+            {renderTooltip(
+              "Aree Sensibili Sotto il Profilo della Biodiversità", 
+              "Sono aree geografiche riconosciute a livello internazionale o europeo come particolarmente importanti per la conservazione della biodiversità. Include Rete Natura 2000, Siti del Patrimonio Mondiale UNESCO, Key Biodiversity Areas (KBA) e altre aree protette. 'In prossimità' significa che il sito operativo dell'azienda si trova in parte all'interno di un'area sensibile o confina direttamente con essa."
+            )}
+          </div>
+          <Textarea 
+            id="sensitiveSitesDetails" 
+            name="sensitiveSitesDetails" 
+            placeholder="Descrivi i siti di proprietà, affittati o gestiti all'interno o in prossimità di aree sensibili sotto il profilo della biodiversità" 
+            value={data.sensitiveSitesDetails} 
+            onChange={handleBiodiversityChange} 
+            className="min-h-[120px]" 
+          />
+        </div>
+
+        <Button 
+          onClick={handleSaveData} 
+          disabled={isSaving}
+          className="flex items-center"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {isSaving ? "Salvataggio in corso..." : "Salva dati biodiversità"}
+        </Button>
+      </div>
+    </GlassmorphicCard>
   );
 };
 

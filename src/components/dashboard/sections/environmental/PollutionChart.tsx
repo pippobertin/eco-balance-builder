@@ -102,7 +102,7 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
       categories={["value"]}
       colors={['#FF3B30', '#FF9500', '#5AC8FA']}
       individualColors={true}
-      isLoading={isLoading}
+      loading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
       emptyStateMessage="Nessun dato di inquinamento registrato"
     />
