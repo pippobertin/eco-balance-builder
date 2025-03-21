@@ -20,10 +20,12 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({
     return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
   }, [lastSaved]);
 
+  const baseClasses = needsSaving 
+    ? 'flex items-center text-sm gap-1 px-2 py-1 rounded-md text-amber-600 bg-amber-50' 
+    : 'flex items-center text-sm gap-1 px-2 py-1 rounded-md text-green-600 bg-green-50';
+
   return (
-    <div className={`flex items-center text-sm gap-1 px-2 py-1 rounded-md ${
-      needsSaving ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50'
-    } ${className}`}>
+    <div className={`${baseClasses} ${className}`}>
       {needsSaving ? (
         <>
           <Save className="h-3.5 w-3.5" />
