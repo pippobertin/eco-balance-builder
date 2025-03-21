@@ -10,6 +10,7 @@ import EditModeNotice from './EditModeNotice';
 import CalculatorTabs from './CalculatorTabs';
 import CalculatorControls from './CalculatorControls';
 import CalculationsOverview from './CalculationsOverview';
+import { EmissionFactorSource } from '@/lib/emissions-types';
 
 const EmissionsCalculatorContainer: React.FC<GHGEmissionsCalculatorProps> = ({
   formValues,
@@ -230,8 +231,8 @@ const EmissionsCalculatorContainer: React.FC<GHGEmissionsCalculatorProps> = ({
       <CalculatorHeader 
         calculationMethod={
           typeof inputs.calculationMethod === 'string' 
-            ? inputs.calculationMethod 
-            : 'DEFRA'
+            ? inputs.calculationMethod as EmissionFactorSource
+            : EmissionFactorSource.DEFRA
         } 
         setCalculationMethod={value => updateInput('calculationMethod', value)} 
       />
