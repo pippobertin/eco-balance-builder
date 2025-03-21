@@ -3,7 +3,6 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { TooltipRenderer } from '@/components/report/environmental/biodiversity/components';
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
 
 interface WaterTableRowProps {
   label: string;
@@ -69,7 +68,11 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
               rel="noopener noreferrer"
               aria-label={externalLink.ariaLabel}
             >
-              <ExternalLink className="h-3.5 w-3.5 text-blue-500" />
+              <img 
+                src="/lovable-uploads/bf31d396-a7a6-4861-86e0-33b07271cf30.png" 
+                alt="Aqueduct" 
+                className="h-5 w-auto"
+              />
             </a>
           </Button>
         )}
