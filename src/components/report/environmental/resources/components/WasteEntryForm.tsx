@@ -1,13 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { X, Save, Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/hooks/use-report-context';
-import { supabase } from '@/integrations/supabase/client';
+import { Save } from 'lucide-react';
+import { useWasteEntryForm } from '../hooks/useWasteEntryForm';
+import WasteNumericField from './WasteNumericField';
+import WasteFormHeader from './WasteFormHeader';
 
 interface WasteEntryFormProps {
   reportId: string | undefined;
@@ -30,110 +29,27 @@ const WasteEntryForm: React.FC<WasteEntryFormProps> = ({
   initialData,
   onCancel
 }) => {
-  const { toast } = useToast();
-  const { setNeedsSaving } = useReport();
-  
-  const [formData, setFormData] = useState({
-    waste_description: initialData?.waste_description || '',
-    total_waste: initialData?.total_waste || null,
-    recycled_waste: initialData?.recycled_waste || null,
-    disposal_waste: initialData?.disposal_waste || null
+  const {
+    formData,
+    isValid,
+    handleChange,
+    handleSubmit,
+    onCancel: handleCancel
+  } = useWasteEntryForm({
+    reportId,
+    wasteType,
+    initialData,
+    onSaved,
+    onCancel
   });
-  
-  const isValid = formData.waste_description.trim() !== '';
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    
-    if (name === 'waste_description') {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    } else {
-      // For numeric fields, convert to number or null if empty
-      const numValue = value === '' ? null : parseFloat(value);
-      setFormData(prev => ({ ...prev, [name]: numValue }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!reportId) {
-      toast({
-        title: "Errore",
-        description: "ID Report non valido",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      if (initialData?.id) {
-        // Update existing entry
-        const { error } = await supabase
-          .from('waste_management')
-          .update({
-            waste_description: formData.waste_description,
-            total_waste: formData.total_waste,
-            recycled_waste: formData.recycled_waste,
-            disposal_waste: formData.disposal_waste,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', initialData.id);
-          
-        if (error) throw error;
-        
-        toast({
-          title: "Successo",
-          description: "Dati dei rifiuti aggiornati con successo"
-        });
-      } else {
-        // Insert new entry
-        const { error } = await supabase
-          .from('waste_management')
-          .insert({
-            report_id: reportId,
-            waste_type: wasteType,
-            waste_description: formData.waste_description,
-            total_waste: formData.total_waste,
-            recycled_waste: formData.recycled_waste,
-            disposal_waste: formData.disposal_waste
-          });
-          
-        if (error) throw error;
-        
-        toast({
-          title: "Successo",
-          description: "Dati dei rifiuti salvati con successo"
-        });
-      }
-      
-      setNeedsSaving(true);
-      onSaved();
-    } catch (error: any) {
-      console.error("Error saving waste data:", error);
-      toast({
-        title: "Errore",
-        description: `Errore: ${error.message}`,
-        variant: "destructive"
-      });
-    }
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-md bg-white">
-      <div className="flex justify-between items-center mb-2">
-        <h4 className="font-medium">
-          {initialData ? 'Modifica' : 'Nuovo'} rifiuto {wasteType === 'hazardous' ? 'pericoloso' : 'non pericoloso'}
-        </h4>
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="sm" 
-          onClick={onCancel}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
+      <WasteFormHeader 
+        isEditing={!!initialData} 
+        wasteType={wasteType} 
+        onCancel={handleCancel} 
+      />
       
       <div>
         <Label htmlFor="waste_description">Descrizione Rifiuto</Label>
@@ -148,48 +64,33 @@ const WasteEntryForm: React.FC<WasteEntryFormProps> = ({
       </div>
       
       <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="total_waste">Totale Rifiuti (t)</Label>
-          <Input
-            id="total_waste"
-            name="total_waste"
-            type="number"
-            step="0.01"
-            value={formData.total_waste === null ? '' : formData.total_waste}
-            onChange={handleChange}
-            placeholder="0.00"
-          />
-        </div>
+        <WasteNumericField
+          id="total_waste"
+          name="total_waste"
+          label="Totale Rifiuti (t)"
+          value={formData.total_waste}
+          onChange={handleChange}
+        />
         
-        <div>
-          <Label htmlFor="recycled_waste">Destinati a Riciclo o Riutilizzo (t)</Label>
-          <Input
-            id="recycled_waste"
-            name="recycled_waste"
-            type="number"
-            step="0.01"
-            value={formData.recycled_waste === null ? '' : formData.recycled_waste}
-            onChange={handleChange}
-            placeholder="0.00"
-          />
-        </div>
+        <WasteNumericField
+          id="recycled_waste"
+          name="recycled_waste"
+          label="Destinati a Riciclo o Riutilizzo (t)"
+          value={formData.recycled_waste}
+          onChange={handleChange}
+        />
         
-        <div>
-          <Label htmlFor="disposal_waste">Destinati a Smaltimento (t)</Label>
-          <Input
-            id="disposal_waste"
-            name="disposal_waste"
-            type="number"
-            step="0.01"
-            value={formData.disposal_waste === null ? '' : formData.disposal_waste}
-            onChange={handleChange}
-            placeholder="0.00"
-          />
-        </div>
+        <WasteNumericField
+          id="disposal_waste"
+          name="disposal_waste"
+          label="Destinati a Smaltimento (t)"
+          value={formData.disposal_waste}
+          onChange={handleChange}
+        />
       </div>
       
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline" onClick={handleCancel}>
           Annulla
         </Button>
         <Button type="submit" disabled={!isValid}>
