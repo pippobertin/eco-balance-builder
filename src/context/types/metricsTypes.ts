@@ -30,6 +30,7 @@ export interface LocationEnvironmentalMetrics {
     totalWaste?: number;
     recycledWaste?: number;
     hazardousWaste?: number;
+    hazardousWasteRecycled?: number;
     recycledContent?: number;
     recyclableContent?: number;
     energyEmissionsDetails?: string;
@@ -72,6 +73,7 @@ export interface ReportData {
     totalWaste?: number;
     recycledWaste?: number;
     hazardousWaste?: number;
+    hazardousWasteRecycled?: number;
     recycledContent?: number;
     recyclableContent?: number;
     energyEmissionsDetails?: string;
