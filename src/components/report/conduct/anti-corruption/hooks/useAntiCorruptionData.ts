@@ -18,9 +18,10 @@ export const useAntiCorruptionData = (reportId: string | undefined) => {
     saveAntiCorruptionData
   } = useAntiCorruptionSave(reportId, setAntiCorruptionData);
 
-  // Load data when reportId changes
+  // Load data when reportId changes or on component mount
   useEffect(() => {
     if (reportId) {
+      console.log("Loading anti-corruption data for report ID:", reportId);
       loadAntiCorruptionData();
     }
   }, [reportId, loadAntiCorruptionData]);

@@ -67,12 +67,13 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
         additionalDetails: formValues.conductMetrics?.antiCorruptionDetails || null
       };
       
+      console.log("Saving anti-corruption data:", dataToSave);
       await saveAntiCorruptionData(dataToSave);
     };
 
     return (
       <GlassmorphicCard>
-        <div ref={ref}>
+        <div ref={ref} className="space-y-6">
           <AntiCorruptionHeader 
             reportId={reportId}
             isSaving={isSaving}
@@ -101,10 +102,10 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="antiCorruptionConvictions">Numero di condanne per corruzione</Label>
+                <Label htmlFor="conductMetrics.antiCorruptionConvictions">Numero di condanne per corruzione</Label>
                 <Input 
-                  id="antiCorruptionConvictions" 
-                  name="antiCorruptionConvictions" 
+                  id="conductMetrics.antiCorruptionConvictions" 
+                  name="conductMetrics.antiCorruptionConvictions" 
                   type="number" 
                   placeholder="0" 
                   value={formValues.conductMetrics?.antiCorruptionConvictions || ""} 
@@ -113,10 +114,10 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
               </div>
               
               <div>
-                <Label htmlFor="antiCorruptionSanctions">Importo totale delle sanzioni per corruzione (€)</Label>
+                <Label htmlFor="conductMetrics.antiCorruptionSanctions">Importo totale delle sanzioni per corruzione (€)</Label>
                 <Input 
-                  id="antiCorruptionSanctions" 
-                  name="antiCorruptionSanctions" 
+                  id="conductMetrics.antiCorruptionSanctions" 
+                  name="conductMetrics.antiCorruptionSanctions" 
                   type="number" 
                   placeholder="0.00" 
                   value={formValues.conductMetrics?.antiCorruptionSanctions || ""} 
@@ -126,10 +127,10 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
             </div>
             
             <div>
-              <Label htmlFor="antiCorruptionDetails">Dettagli sulle condanne e sanzioni (opzionale)</Label>
+              <Label htmlFor="conductMetrics.antiCorruptionDetails">Dettagli sulle condanne e sanzioni (opzionale)</Label>
               <Textarea 
-                id="antiCorruptionDetails" 
-                name="antiCorruptionDetails" 
+                id="conductMetrics.antiCorruptionDetails" 
+                name="conductMetrics.antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
                 value={formValues.conductMetrics?.antiCorruptionDetails || ""} 
                 onChange={syncToParentState} 
@@ -137,7 +138,9 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
               />
             </div>
             
-            <SaveButton onClick={handleSaveData} isLoading={isSaving} />
+            <div className="pt-4">
+              <SaveButton onClick={handleSaveData} isLoading={isSaving} />
+            </div>
           </div>
         </div>
       </GlassmorphicCard>
