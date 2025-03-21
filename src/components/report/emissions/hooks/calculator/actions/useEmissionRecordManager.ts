@@ -4,7 +4,6 @@ import { EmissionCalculationLogs, EmissionCalculationRecord, EmissionsResults } 
 import { useEmissionRecords } from '@/hooks/emissions-calculator/useEmissionRecords';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/hooks/use-report-context';
-import { FuelType, EnergyType, TransportType, WasteType, PurchaseType } from '@/lib/emissions-types';
 
 export const useEmissionRecordManager = (
   reportId: string | undefined,
@@ -70,8 +69,7 @@ export const useEmissionRecordManager = (
       quantity: quantityValue,
       unit: unitValue,
       emissions: emissionValue,
-      details: detailsObj,
-      date: new Date().toISOString() // Add date field
+      details: detailsObj
     };
     
     console.log('Saving emission record:', record);
@@ -180,8 +178,7 @@ export const useEmissionRecordManager = (
       quantity: quantityValue,
       unit: unitValue,
       emissions: emissionValue,
-      details: detailsObj,
-      date: new Date().toISOString() // Add date field
+      details: detailsObj
     };
     
     console.log('Updating emission record:', recordUpdate);

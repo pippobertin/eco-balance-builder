@@ -46,38 +46,10 @@ export const useCalculatorInputs = () => {
   // Function to update a specific input field with proper type handling
   const updateInput = (name: string, value: string | number | boolean) => {
     console.log(`Updating input '${name}' to:`, value);
-    
-    // Handle special input cases
-    setInputs(prevInputs => {
-      let processedValue = value;
-      
-      // Special case for numerical inputs to ensure they can be edited
-      if (name === 'fuelQuantity' || 
-          name === 'energyQuantity' || 
-          name === 'transportDistance' || 
-          name === 'wasteQuantity' || 
-          name === 'purchaseQuantity' ||
-          name === 'vehicleFuelConsumption' ||
-          name === 'renewablePercentage') {
-        
-        // Convert number to string for input fields
-        if (typeof value === 'number') {
-          processedValue = value.toString();
-        }
-      }
-      
-      const updatedInputs = {
-        ...prevInputs,
-        [name]: processedValue
-      };
-      
-      // Add a slight delay to avoid immediate re-renders with same values
-      setTimeout(() => {
-        console.log(`Input '${name}' updated successfully to:`, processedValue);
-      }, 10);
-      
-      return updatedInputs;
-    });
+    setInputs(prevInputs => ({
+      ...prevInputs,
+      [name]: value
+    }));
   };
 
   // Log inputs whenever they change (for debugging)
