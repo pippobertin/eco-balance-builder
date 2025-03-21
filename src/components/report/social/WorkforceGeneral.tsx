@@ -3,8 +3,11 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Users, Info } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Users, Info, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 type WorkforceGeneralProps = {
   formValues: any;
@@ -13,6 +16,59 @@ type WorkforceGeneralProps = {
 
 const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>(
   ({ formValues, handleChange }, ref) => {
+    const { toast } = useToast();
+    const [isSaving, setIsSaving] = React.useState(false);
+
+    const handleSaveWorkforceData = async () => {
+      if (!formValues?.socialMetrics) return;
+      
+      try {
+        setIsSaving(true);
+        
+        const reportId = formValues.id;
+        if (!reportId) {
+          toast({
+            title: "Errore",
+            description: "ID Report non valido. Salva prima il report per continuare.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        // Save to the workforce_distribution table
+        const { error } = await supabase
+          .from('workforce_distribution')
+          .upsert({
+            report_id: reportId,
+            total_employees: formValues.socialMetrics.totalEmployees || 0,
+            total_employees_fte: formValues.socialMetrics.totalEmployeesFTE || 0,
+            permanent_employees: formValues.socialMetrics.permanentEmployees || 0,
+            temporary_employees: formValues.socialMetrics.temporaryEmployees || 0,
+            male_employees: formValues.socialMetrics.maleEmployees || 0,
+            female_employees: formValues.socialMetrics.femaleEmployees || 0,
+            other_gender_employees: formValues.socialMetrics.otherGenderEmployees || 0,
+            distribution_notes: formValues.socialMetrics.employeesByCountry || '',
+          }, { onConflict: 'report_id' });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Dati della forza lavoro salvati con successo"
+        });
+        
+      } catch (error: any) {
+        console.error("Error saving workforce data:", error);
+        toast({
+          title: "Errore",
+          description: error.message || "Errore durante il salvataggio dei dati",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
     return (
       <GlassmorphicCard>
         <div className="flex items-center mb-4" ref={ref}>
@@ -75,8 +131,26 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
           </div>
           
           <div>
-            <Label htmlFor="employeesByCountry">Dipendenti per paese (se applicabile)</Label>
-            <Textarea id="employeesByCountry" name="employeesByCountry" placeholder="Esempio: Italia: 50, Francia: 20, Germania: 10" value={formValues.socialMetrics?.employeesByCountry || ""} onChange={handleChange} className="min-h-[100px]" />
+            <Label htmlFor="employeesByCountry">Dipendenti per azienda del gruppo e/o per sede/stabilimento</Label>
+            <Textarea 
+              id="employeesByCountry" 
+              name="employeesByCountry" 
+              placeholder="Esempio: Sede centrale: 50, Stabilimento A: 20, Filiale B: 10" 
+              value={formValues.socialMetrics?.employeesByCountry || ""} 
+              onChange={handleChange} 
+              className="min-h-[100px]" 
+            />
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <Button 
+              onClick={handleSaveWorkforceData} 
+              disabled={isSaving}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {isSaving ? "Salvataggio..." : "Salva dati forza lavoro"}
+            </Button>
           </div>
         </div>
       </GlassmorphicCard>

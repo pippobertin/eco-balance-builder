@@ -1023,6 +1023,65 @@ export type Database = {
           },
         ]
       }
+      workforce_distribution: {
+        Row: {
+          company_or_location_name: string | null
+          created_at: string
+          distribution_notes: string | null
+          employee_count: number | null
+          female_employees: number | null
+          id: string
+          male_employees: number | null
+          other_gender_employees: number | null
+          permanent_employees: number | null
+          report_id: string
+          temporary_employees: number | null
+          total_employees: number | null
+          total_employees_fte: number | null
+          updated_at: string
+        }
+        Insert: {
+          company_or_location_name?: string | null
+          created_at?: string
+          distribution_notes?: string | null
+          employee_count?: number | null
+          female_employees?: number | null
+          id?: string
+          male_employees?: number | null
+          other_gender_employees?: number | null
+          permanent_employees?: number | null
+          report_id: string
+          temporary_employees?: number | null
+          total_employees?: number | null
+          total_employees_fte?: number | null
+          updated_at?: string
+        }
+        Update: {
+          company_or_location_name?: string | null
+          created_at?: string
+          distribution_notes?: string | null
+          employee_count?: number | null
+          female_employees?: number | null
+          id?: string
+          male_employees?: number | null
+          other_gender_employees?: number | null
+          permanent_employees?: number | null
+          report_id?: string
+          temporary_employees?: number | null
+          total_employees?: number | null
+          total_employees_fte?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workforce_distribution_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
