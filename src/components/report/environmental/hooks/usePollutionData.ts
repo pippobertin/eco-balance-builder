@@ -44,7 +44,9 @@ export const usePollutionData = (reportId?: string) => {
         .order('name');
       
       if (error) throw error;
-      setMediums(data || []);
+      
+      // Use explicit type assertion to help TypeScript understand the data structure
+      setMediums(data as PollutionMedium[]);
     } catch (error) {
       console.error('Error fetching pollution mediums:', error);
       toast({
@@ -64,7 +66,9 @@ export const usePollutionData = (reportId?: string) => {
         .order('name');
       
       if (error) throw error;
-      setPollutants(data || []);
+      
+      // Use explicit type assertion
+      setPollutants(data as PollutantType[]);
     } catch (error) {
       console.error('Error fetching pollutant types:', error);
       toast({
@@ -87,7 +91,9 @@ export const usePollutionData = (reportId?: string) => {
         .eq('report_id', reportId);
       
       if (error) throw error;
-      setRecords(data || []);
+      
+      // Use explicit type assertion
+      setRecords(data as PollutionRecord[]);
     } catch (error) {
       console.error('Error fetching pollution records:', error);
       toast({
@@ -101,7 +107,7 @@ export const usePollutionData = (reportId?: string) => {
   };
 
   // Add a new pollution record
-  const addRecord = async (record: PollutionRecord) => {
+  const addRecord = async (record: PollutionRecord): Promise<PollutionRecord | null> => {
     try {
       const { data, error } = await supabase
         .from('pollution_records')
@@ -110,12 +116,15 @@ export const usePollutionData = (reportId?: string) => {
       
       if (error) throw error;
       
-      setRecords(prev => [...prev, data[0]]);
-      toast({
-        title: 'Successo',
-        description: 'Inquinante aggiunto con successo',
-      });
-      return data[0];
+      if (data && data.length > 0) {
+        setRecords(prev => [...prev, data[0] as PollutionRecord]);
+        toast({
+          title: 'Successo',
+          description: 'Inquinante aggiunto con successo',
+        });
+        return data[0] as PollutionRecord;
+      }
+      return null;
     } catch (error) {
       console.error('Error adding pollution record:', error);
       toast({
@@ -128,7 +137,7 @@ export const usePollutionData = (reportId?: string) => {
   };
 
   // Delete a pollution record
-  const deleteRecord = async (id: string) => {
+  const deleteRecord = async (id: string): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('pollution_records')

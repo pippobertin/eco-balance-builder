@@ -475,6 +475,106 @@ export type Database = {
           },
         ]
       }
+      pollutant_types: {
+        Row: {
+          created_at: string
+          description: string
+          id: number
+          name: string
+          release_medium_ids: number[]
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: number
+          name: string
+          release_medium_ids: number[]
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: number
+          name?: string
+          release_medium_ids?: number[]
+        }
+        Relationships: []
+      }
+      pollution_records: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          pollutant_type_id: number
+          quantity: number
+          release_medium_id: number
+          report_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          pollutant_type_id: number
+          quantity: number
+          release_medium_id: number
+          report_id: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          pollutant_type_id?: number
+          quantity?: number
+          release_medium_id?: number
+          report_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pollution_records_pollutant_type_id_fkey"
+            columns: ["pollutant_type_id"]
+            isOneToOne: false
+            referencedRelation: "pollutant_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pollution_records_release_medium_id_fkey"
+            columns: ["release_medium_id"]
+            isOneToOne: false
+            referencedRelation: "pollution_release_mediums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pollution_records_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pollution_release_mediums: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

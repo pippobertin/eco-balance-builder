@@ -8,9 +8,14 @@ interface PollutionChartProps {
   reportId?: string;
 }
 
+interface PollutionData {
+  name: string;
+  value: number;
+}
+
 const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
   const navigate = useNavigate();
-  const [pollutionData, setPollutionData] = useState<any[]>([]);
+  const [pollutionData, setPollutionData] = useState<PollutionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -20,13 +25,15 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
       setIsLoading(true);
       
       try {
-        // Fetch pollution records
+        // Fetch pollution records - use explicit typing to help TypeScript
         const { data: records, error } = await supabase
           .from('pollution_records')
           .select(`
             quantity,
-            pollutant_types(name),
-            pollution_release_mediums(name)
+            pollutant_type_id,
+            release_medium_id,
+            pollutant_types (name),
+            pollution_release_mediums (name)
           `)
           .eq('report_id', reportId);
         
@@ -73,7 +80,7 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
       categories={["value"]}
       colors={['#5AC8FA', '#0EA5E9', '#8B5CF6']}
       individualColors={true}
-      isLoading={isLoading}
+      loading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
     />
   );
