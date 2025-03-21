@@ -1,2 +1,3 @@
 
-export { useWorkforceData } from './useWorkforceData';
+export * from './useWorkforceData';
+export * from './useWorkforceSafetyData';

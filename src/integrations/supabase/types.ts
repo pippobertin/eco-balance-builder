@@ -1082,6 +1082,50 @@ export type Database = {
           },
         ]
       }
+      workforce_safety: {
+        Row: {
+          created_at: string
+          id: string
+          report_id: string
+          total_hours_worked: number | null
+          updated_at: string
+          work_accident_deaths: number | null
+          work_accidents_number: number | null
+          work_accidents_rate: number | null
+          work_disease_deaths: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          report_id: string
+          total_hours_worked?: number | null
+          updated_at?: string
+          work_accident_deaths?: number | null
+          work_accidents_number?: number | null
+          work_accidents_rate?: number | null
+          work_disease_deaths?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          report_id?: string
+          total_hours_worked?: number | null
+          updated_at?: string
+          work_accident_deaths?: number | null
+          work_accidents_number?: number | null
+          work_accidents_rate?: number | null
+          work_disease_deaths?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workforce_safety_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
