@@ -4,176 +4,173 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface BiodiversityLandUseData {
-  currentTotalLandUse: number | null;
-  currentImpermeableSurface: number | null;
-  currentNatureSurfaceOnsite: number | null;
-  currentNatureSurfaceOffsite: number | null;
   previousTotalLandUse: number | null;
+  currentTotalLandUse: number | null;
   previousImpermeableSurface: number | null;
+  currentImpermeableSurface: number | null;
   previousNatureSurfaceOnsite: number | null;
+  currentNatureSurfaceOnsite: number | null;
   previousNatureSurfaceOffsite: number | null;
+  currentNatureSurfaceOffsite: number | null;
   sensitiveSitesDetails: string;
   areaUnit: string;
 }
 
-interface UseBiodiversityLandUseProps {
-  reportId: string | undefined;
+const defaultData: BiodiversityLandUseData = {
+  previousTotalLandUse: null,
+  currentTotalLandUse: null,
+  previousImpermeableSurface: null,
+  currentImpermeableSurface: null,
+  previousNatureSurfaceOnsite: null,
+  currentNatureSurfaceOnsite: null,
+  previousNatureSurfaceOffsite: null,
+  currentNatureSurfaceOffsite: null,
+  sensitiveSitesDetails: '',
+  areaUnit: 'ha'
+};
+
+interface BiodiversityLandUseOptions {
+  reportId?: string;
 }
 
-export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps) => {
-  const [data, setData] = useState<BiodiversityLandUseData>({
-    currentTotalLandUse: null,
-    currentImpermeableSurface: null,
-    currentNatureSurfaceOnsite: null,
-    currentNatureSurfaceOffsite: null,
-    previousTotalLandUse: null,
-    previousImpermeableSurface: null,
-    previousNatureSurfaceOnsite: null,
-    previousNatureSurfaceOffsite: null,
-    sensitiveSitesDetails: '',
-    areaUnit: 'ha'
-  });
-  
+export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions) => {
+  const { toast } = useToast();
+  const [data, setData] = useState<BiodiversityLandUseData>(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { toast } = useToast();
 
   // Calculate percentage changes
-  const calculatePercentageChanges = () => {
-    const changes = {
-      totalLandUseChange: calculateChange(data.previousTotalLandUse, data.currentTotalLandUse),
-      impermeableSurfaceChange: calculateChange(data.previousImpermeableSurface, data.currentImpermeableSurface),
-      natureSurfaceOnsiteChange: calculateChange(data.previousNatureSurfaceOnsite, data.currentNatureSurfaceOnsite),
-      natureSurfaceOffsiteChange: calculateChange(data.previousNatureSurfaceOffsite, data.currentNatureSurfaceOffsite),
-    };
-    return changes;
+  const percentageChanges = {
+    totalLandUseChange: calculatePercentageChange(
+      data.previousTotalLandUse,
+      data.currentTotalLandUse
+    ),
+    impermeableSurfaceChange: calculatePercentageChange(
+      data.previousImpermeableSurface,
+      data.currentImpermeableSurface
+    ),
+    natureSurfaceOnsiteChange: calculatePercentageChange(
+      data.previousNatureSurfaceOnsite,
+      data.currentNatureSurfaceOnsite
+    ),
+    natureSurfaceOffsiteChange: calculatePercentageChange(
+      data.previousNatureSurfaceOffsite,
+      data.currentNatureSurfaceOffsite
+    )
   };
 
-  const calculateChange = (previous: number | null, current: number | null): number | null => {
-    if (previous === null || current === null || previous === 0) return null;
-    return ((current - previous) / previous) * 100;
-  };
-
-  // Load biodiversity data from database
+  // Load data when report ID changes
   useEffect(() => {
     if (reportId) {
-      loadData();
+      loadData(reportId);
     }
   }, [reportId]);
 
   // Load data from Supabase
-  const loadData = async () => {
-    if (!reportId) return;
-    
+  const loadData = async (reportId: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: biodiversityData, error } = await supabase
         .from('biodiversity_land_use')
         .select('*')
         .eq('report_id', reportId)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
-        throw error;
-      }
-      
-      if (data) {
-        setData({
-          currentTotalLandUse: data.current_total_land_use,
-          currentImpermeableSurface: data.current_impermeable_surface,
-          currentNatureSurfaceOnsite: data.current_nature_surface_onsite,
-          currentNatureSurfaceOffsite: data.current_nature_surface_offsite,
-          previousTotalLandUse: data.previous_total_land_use,
-          previousImpermeableSurface: data.previous_impermeable_surface,
-          previousNatureSurfaceOnsite: data.previous_nature_surface_onsite,
-          previousNatureSurfaceOffsite: data.previous_nature_surface_offsite,
-          sensitiveSitesDetails: data.sensitive_sites_details || '',
-          areaUnit: data.area_unit || 'ha'
-        });
+        .maybeSingle();
 
-        if (data.updated_at) {
-          setLastSaved(new Date(data.updated_at));
-        }
+      if (error) throw error;
+
+      if (biodiversityData) {
+        setData({
+          previousTotalLandUse: biodiversityData.previous_total_land_use,
+          currentTotalLandUse: biodiversityData.current_total_land_use,
+          previousImpermeableSurface: biodiversityData.previous_impermeable_surface,
+          currentImpermeableSurface: biodiversityData.current_impermeable_surface,
+          previousNatureSurfaceOnsite: biodiversityData.previous_nature_surface_onsite,
+          currentNatureSurfaceOnsite: biodiversityData.current_nature_surface_onsite,
+          previousNatureSurfaceOffsite: biodiversityData.previous_nature_surface_offsite,
+          currentNatureSurfaceOffsite: biodiversityData.current_nature_surface_offsite,
+          sensitiveSitesDetails: biodiversityData.sensitive_sites_details || '',
+          areaUnit: biodiversityData.area_unit || 'ha'
+        });
+        setLastSaved(new Date(biodiversityData.updated_at));
       }
     } catch (error) {
-      console.error('Error loading biodiversity land use data:', error);
+      console.error('Error loading biodiversity data:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i dati sulla biodiversità",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   // Save data to Supabase
-  const saveData = async (newData: BiodiversityLandUseData): Promise<boolean> => {
-    if (!reportId) return false;
-    
+  const saveData = async (dataToSave: BiodiversityLandUseData): Promise<boolean> => {
+    if (!reportId) {
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare i dati sulla biodiversità: ID report mancante",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     setIsSaving(true);
     try {
-      // Check if record exists
-      const { data: existingData } = await supabase
+      // Check if data already exists for this report
+      const { data: existingData, error: checkError } = await supabase
         .from('biodiversity_land_use')
         .select('id')
         .eq('report_id', reportId)
-        .single();
-      
-      let result;
-      const now = new Date();
-      
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      const dbData = {
+        report_id: reportId,
+        previous_total_land_use: dataToSave.previousTotalLandUse,
+        current_total_land_use: dataToSave.currentTotalLandUse,
+        previous_impermeable_surface: dataToSave.previousImpermeableSurface,
+        current_impermeable_surface: dataToSave.currentImpermeableSurface,
+        previous_nature_surface_onsite: dataToSave.previousNatureSurfaceOnsite,
+        current_nature_surface_onsite: dataToSave.currentNatureSurfaceOnsite,
+        previous_nature_surface_offsite: dataToSave.previousNatureSurfaceOffsite,
+        current_nature_surface_offsite: dataToSave.currentNatureSurfaceOffsite,
+        sensitive_sites_details: dataToSave.sensitiveSitesDetails,
+        area_unit: dataToSave.areaUnit
+      };
+
+      let saveError;
       if (existingData) {
         // Update existing record
-        result = await supabase
+        const { error } = await supabase
           .from('biodiversity_land_use')
-          .update({
-            current_total_land_use: newData.currentTotalLandUse,
-            current_impermeable_surface: newData.currentImpermeableSurface,
-            current_nature_surface_onsite: newData.currentNatureSurfaceOnsite,
-            current_nature_surface_offsite: newData.currentNatureSurfaceOffsite,
-            previous_total_land_use: newData.previousTotalLandUse,
-            previous_impermeable_surface: newData.previousImpermeableSurface,
-            previous_nature_surface_onsite: newData.previousNatureSurfaceOnsite,
-            previous_nature_surface_offsite: newData.previousNatureSurfaceOffsite,
-            sensitive_sites_details: newData.sensitiveSitesDetails,
-            area_unit: newData.areaUnit,
-            updated_at: now.toISOString()
-          })
-          .eq('report_id', reportId);
+          .update(dbData)
+          .eq('id', existingData.id);
+        saveError = error;
       } else {
         // Insert new record
-        result = await supabase
+        const { error } = await supabase
           .from('biodiversity_land_use')
-          .insert({
-            report_id: reportId,
-            current_total_land_use: newData.currentTotalLandUse,
-            current_impermeable_surface: newData.currentImpermeableSurface,
-            current_nature_surface_onsite: newData.currentNatureSurfaceOnsite,
-            current_nature_surface_offsite: newData.currentNatureSurfaceOffsite,
-            previous_total_land_use: newData.previousTotalLandUse,
-            previous_impermeable_surface: newData.previousImpermeableSurface,
-            previous_nature_surface_onsite: newData.previousNatureSurfaceOnsite,
-            previous_nature_surface_offsite: newData.previousNatureSurfaceOffsite,
-            sensitive_sites_details: newData.sensitiveSitesDetails,
-            area_unit: newData.areaUnit,
-            updated_at: now.toISOString()
-          });
+          .insert(dbData);
+        saveError = error;
       }
-      
-      if (result.error) throw result.error;
-      
-      // Update local state
-      setData(newData);
-      setLastSaved(now);
-      
+
+      if (saveError) throw saveError;
+
+      setLastSaved(new Date());
       toast({
-        title: "Salvato con successo",
-        description: "I dati sulla biodiversità e l'uso del suolo sono stati salvati",
+        title: "Salvato",
+        description: "I dati sulla biodiversità sono stati salvati con successo"
       });
-      
       return true;
     } catch (error) {
-      console.error('Error saving biodiversity land use data:', error);
+      console.error('Error saving biodiversity data:', error);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio dei dati",
+        description: "Impossibile salvare i dati sulla biodiversità",
         variant: "destructive"
       });
       return false;
@@ -182,7 +179,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
     }
   };
 
-  // Handle field updates
+  // Update a field in the state
   const updateField = (field: keyof BiodiversityLandUseData, value: any) => {
     setData(prev => ({
       ...prev,
@@ -194,9 +191,18 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
     data,
     isLoading,
     isSaving,
+    percentageChanges,
     saveData,
     updateField,
-    percentageChanges: calculatePercentageChanges(),
     lastSaved
   };
 };
+
+// Helper function to calculate percentage change
+function calculatePercentageChange(previous: number | null, current: number | null): number | null {
+  if (previous === null || current === null) return null;
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / Math.abs(previous)) * 100;
+}
+
+export default useBiodiversityLandUse;

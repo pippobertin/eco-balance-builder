@@ -1,10 +1,13 @@
 
 import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Droplets, Info } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Save, Droplets, Info, HelpCircle } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { useReport } from '@/hooks/use-report-context';
+import { useWaterMetrics } from './hooks/water';
+import WaterHeader from './water/WaterHeader';
+import WaterTable from './water/WaterTable';
+import WaterDetails from './water/WaterDetails';
 
 interface WaterSectionProps {
   formValues: any;
@@ -15,90 +18,72 @@ const WaterSection: React.FC<WaterSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // Check if setFormValues is a function that accepts an event directly (for location-specific metrics)
-    if (typeof setFormValues === 'function' && setFormValues.length === 1) {
-      setFormValues(e);
-    } else {
-      // This is the standard approach for global metrics
-      const { name, value } = e.target;
-      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          [name]: value
-        }
-      }));
+  const { currentReport } = useReport();
+  const reportId = currentReport?.id;
+  
+  const { 
+    data, 
+    isLoading, 
+    isSaving, 
+    saveData, 
+    updateField,
+    percentageChanges,
+    lastSaved
+  } = useWaterMetrics({ reportId });
+
+  // Handler for local state (water specific fields)
+  const handleWaterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const numValue = name !== 'waterDetails' && name !== 'areaUnit' 
+      ? value === '' ? null : parseFloat(value)
+      : value;
+    
+    updateField(name as keyof typeof data, numValue);
+  };
+
+  const handleSaveData = async () => {
+    if (await saveData(data)) {
+      // Also update the global form state with the water data
+      if (typeof setFormValues !== 'function' || setFormValues.length !== 1) {
+        (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
+          ...prev,
+          environmentalMetrics: {
+            ...prev.environmentalMetrics,
+            waterDetails: data.waterDetails
+          }
+        }));
+      }
     }
   };
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center mb-4">
-        <Droplets className="mr-2 h-5 w-5 text-blue-500" />
-        <h3 className="text-xl font-semibold">B6 - Acqua</h3>
-      </div>
+      <WaterHeader 
+        reportId={reportId} 
+        isSaving={isSaving} 
+        lastSaved={lastSaved} 
+      />
       
-      <div className="space-y-4">
-        <div className="p-4 rounded-md mb-4 bg-blue-100">
-          <div className="flex items-start">
-            <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-            <p className="text-sm text-slate-600">
-              Indica il prelievo idrico totale, e il consumo idrico (differenza tra prelievo e scarico). 
-              I dati sono espressi in metri cubi (m³).
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="waterUsage">Prelievo idrico totale (m³)</Label>
-            <Input 
-              id="waterUsage" 
-              name="waterUsage" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.waterUsage || ""} 
-              onChange={handleChange} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="waterConsumption">Consumo idrico (m³)</Label>
-            <Input 
-              id="waterConsumption" 
-              name="waterConsumption" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.waterConsumption || ""} 
-              onChange={handleChange} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="waterStressAreas">Prelievo idrico in aree a elevato stress idrico (m³)</Label>
-            <Input 
-              id="waterStressAreas" 
-              name="waterStressAreas" 
-              type="number" 
-              placeholder="0.0" 
-              value={formValues.environmentalMetrics?.waterStressAreas || ""} 
-              onChange={handleChange} 
-            />
-          </div>
-        </div>
-        
-        <div>
-          <Label htmlFor="waterDetails">Dettagli sulla gestione dell'acqua (opzionale)</Label>
-          <Textarea 
-            id="waterDetails" 
-            name="waterDetails" 
-            placeholder="Fornisci dettagli sulla gestione dell'acqua e sulle pratiche di risparmio idrico" 
-            value={formValues.environmentalMetrics?.waterDetails || ""} 
-            onChange={handleChange} 
-            className="min-h-[120px]" 
-          />
-        </div>
+      <div className="space-y-6">
+        <WaterTable 
+          data={data} 
+          handleChange={handleWaterChange} 
+          percentageChanges={percentageChanges} 
+        />
+
+        <WaterDetails 
+          value={data.waterDetails} 
+          onChange={handleWaterChange} 
+        />
+
+        <Button 
+          onClick={handleSaveData} 
+          disabled={isSaving}
+          className="flex items-center"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {isSaving ? "Salvataggio in corso..." : "Salva dati acqua"}
+        </Button>
       </div>
     </GlassmorphicCard>
   );

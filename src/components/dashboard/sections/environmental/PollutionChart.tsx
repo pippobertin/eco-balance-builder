@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -96,15 +95,15 @@ const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
     <MetricChart
       title="B4 - Inquinamento"
       description="Inquinanti per media di rilascio"
-      type={formattedData.length > 0 ? "bar" : "empty"}
-      data={formattedData}
-      dataKey="name"
+      type="bar"
+      data={chartData}
+      dataKey="value"
       categories={["value"]}
       colors={['#FF3B30', '#FF9500', '#5AC8FA']}
       individualColors={true}
-      loading={isLoading}
+      isLoading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
-      emptyStateMessage="Nessun dato di inquinamento registrato"
+      emptyStateMessage="Nessun dato sull'inquinamento disponibile"
     />
   );
 };
