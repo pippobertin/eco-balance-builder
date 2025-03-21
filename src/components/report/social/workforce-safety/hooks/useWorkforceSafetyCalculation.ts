@@ -16,7 +16,8 @@ export const useWorkforceSafetyCalculation = () => {
     
     // Formula: (Number of accidents / Total hours worked) x 1720
     // Utilizziamo il fattore 1720 per ottenere un valore percentuale corretto
-    return (accidents / hours) * 1720;
+    // Dividiamo per 100 per ottenere il valore percentuale corretto
+    return ((accidents / hours) * 1720) / 100;
   }, []);
 
   return {

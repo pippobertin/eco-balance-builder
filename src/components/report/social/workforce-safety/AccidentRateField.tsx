@@ -23,7 +23,7 @@ const AccidentRateField = ({ value, onChange }: AccidentRateFieldProps) => {
         className="bg-gray-50"
       />
       <p className="text-sm text-gray-500 mt-1">
-        Calcolato come (N. infortuni / Ore totali lavorate) x 1.720
+        Calcolato come (N. infortuni / Ore totali lavorate) x 1.720 / 100
       </p>
     </div>
   );
