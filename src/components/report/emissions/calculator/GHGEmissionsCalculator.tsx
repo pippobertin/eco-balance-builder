@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GHGEmissionsCalculatorProps } from '../types';
 import { useCalculator } from '../hooks/useCalculator';
@@ -24,6 +24,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   const reportId = currentReport?.id || formValues?.reportId;
   
   const hasLoggedInitialInfo = React.useRef(false);
+  const calculatorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!hasLoggedInitialInfo.current) {
@@ -83,8 +84,25 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     editMode,
     editingCalculationId,
     handleEditCalculation,
-    handleCancelEdit
+    handleCancelEdit,
+    setEditMode,
+    setEditingCalculationId
   } = useEditCalculation({ updateInput, setActiveTab });
+
+  // Custom handler for editing calculations that also scrolls to top
+  const handleEditWithScroll = (calculation: any) => {
+    handleEditCalculation(calculation);
+    
+    // Scroll to the top of the calculator component with smooth animation
+    setTimeout(() => {
+      if (calculatorRef.current) {
+        calculatorRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start'
+        });
+      }
+    }, 100); // Small delay to ensure state updates first
+  };
 
   const handleCalculateClick = async () => {
     console.log('Calculate button clicked for tab:', activeTab);
@@ -110,7 +128,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   }
 
   return (
-    <div className="border rounded-md p-4 bg-white/80">
+    <div ref={calculatorRef} className="border rounded-md p-4 bg-white/80">
       <CalculatorHeader 
         calculationMethod={typeof inputs.calculationMethod === 'string' ? inputs.calculationMethod as EmissionFactorSource : EmissionFactorSource.DEFRA} 
         setCalculationMethod={value => updateInput('calculationMethod', value)} 
@@ -147,7 +165,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       <CalculatorSummary 
         calculationLogs={calculationLogs}
         handleRemoveCalculation={handleRemoveCalculation}
-        handleEditCalculation={handleEditCalculation}
+        handleEditCalculation={handleEditWithScroll}
       />
     </div>
   );
