@@ -36,6 +36,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { toast } = useToast();
 
   // Calculate percentage changes
@@ -90,6 +91,10 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
           sensitiveSitesDetails: data.sensitive_sites_details || '',
           areaUnit: data.area_unit || 'ha'
         });
+
+        if (data.updated_at) {
+          setLastSaved(new Date(data.updated_at));
+        }
       }
     } catch (error) {
       console.error('Error loading biodiversity land use data:', error);
@@ -112,6 +117,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
         .single();
       
       let result;
+      const now = new Date();
       
       if (existingData) {
         // Update existing record
@@ -128,7 +134,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
             previous_nature_surface_offsite: newData.previousNatureSurfaceOffsite,
             sensitive_sites_details: newData.sensitiveSitesDetails,
             area_unit: newData.areaUnit,
-            updated_at: new Date().toISOString()
+            updated_at: now.toISOString()
           })
           .eq('report_id', reportId);
       } else {
@@ -146,7 +152,8 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
             previous_nature_surface_onsite: newData.previousNatureSurfaceOnsite,
             previous_nature_surface_offsite: newData.previousNatureSurfaceOffsite,
             sensitive_sites_details: newData.sensitiveSitesDetails,
-            area_unit: newData.areaUnit
+            area_unit: newData.areaUnit,
+            updated_at: now.toISOString()
           });
       }
       
@@ -154,6 +161,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
       
       // Update local state
       setData(newData);
+      setLastSaved(now);
       
       toast({
         title: "Salvato con successo",
@@ -188,6 +196,7 @@ export const useBiodiversityLandUse = ({ reportId }: UseBiodiversityLandUseProps
     isSaving,
     saveData,
     updateField,
-    percentageChanges: calculatePercentageChanges()
+    percentageChanges: calculatePercentageChanges(),
+    lastSaved
   };
 };

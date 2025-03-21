@@ -91,7 +91,7 @@ const BiodiversityChart: React.FC<BiodiversityChartProps> = ({ reportId }) => {
       categories={["value"]}
       colors={['#FF9500', '#FF3B30', '#34C759', '#30D158']}
       individualColors={true}
-      loading={isLoading}
+      isLoading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'biodiversity' } })}
       emptyStateMessage="Nessun dato sulla biodiversità registrato"
       compareKey="previousValue"
