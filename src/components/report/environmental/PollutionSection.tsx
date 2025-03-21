@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Wind, Info, AlertCircle } from 'lucide-react';
+import { Wind, Info, AlertCircle, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { usePollutionData } from './hooks/usePollutionData';
 import PollutionRecordForm from './pollution/PollutionRecordForm';
 import PollutionRecordsList from './pollution/PollutionRecordsList';
 import { useReport } from '@/hooks/use-report-context';
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface PollutionSectionProps {
   formValues: any;
@@ -20,8 +22,13 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const { currentReport } = useReport();
+  const { currentReport, saveCurrentReport } = useReport();
   const reportId = currentReport?.id;
+  const { toast } = useToast();
+  const [pollutionDetails, setPollutionDetails] = useState<string>(
+    formValues.environmentalMetrics?.pollutionDetails || ""
+  );
+  const [isSaving, setIsSaving] = useState(false);
   
   const {
     mediums,
@@ -54,6 +61,41 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
           [name]: value
         }
       }));
+    }
+  };
+
+  const handleDetailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPollutionDetails(e.target.value);
+  };
+
+  const saveDetails = async () => {
+    setIsSaving(true);
+    try {
+      // Update form values with the new pollution details
+      (setFormValues as React.Dispatch<React.SetStateAction<any>>)((prev: any) => ({
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          pollutionDetails: pollutionDetails
+        }
+      }));
+
+      // Save to database
+      await saveCurrentReport();
+      
+      toast({
+        title: "Salvato con successo",
+        description: "I dettagli sul sistema di gestione degli inquinanti sono stati salvati",
+      });
+    } catch (error) {
+      console.error("Errore durante il salvataggio dei dettagli:", error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -121,16 +163,26 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
         
         <div className="mt-6">
           <h4 className="font-medium mb-2">Note aggiuntive sull'inquinamento</h4>
-          <div>
-            <Label htmlFor="pollutionDetails">Dettagli sul sistema di gestione degli inquinanti (opzionale)</Label>
-            <Textarea 
-              id="pollutionDetails" 
-              name="pollutionDetails" 
-              placeholder="Fornisci dettagli sui sistemi di gestione ambientale adottati e ulteriori informazioni sugli inquinanti." 
-              value={formValues.environmentalMetrics?.pollutionDetails || ""} 
-              onChange={handleChange} 
-              className="min-h-[120px]" 
-            />
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="pollutionDetails">Dettagli sul sistema di gestione degli inquinanti (opzionale)</Label>
+              <Textarea 
+                id="pollutionDetails" 
+                name="pollutionDetails" 
+                placeholder="Fornisci dettagli sui sistemi di gestione ambientale adottati e ulteriori informazioni sugli inquinanti." 
+                value={pollutionDetails} 
+                onChange={handleDetailsChange} 
+                className="min-h-[120px]" 
+              />
+            </div>
+            <Button 
+              onClick={saveDetails} 
+              disabled={isSaving}
+              className="flex items-center"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {isSaving ? "Salvataggio in corso..." : "Salva dettagli"}
+            </Button>
           </div>
         </div>
       </div>
