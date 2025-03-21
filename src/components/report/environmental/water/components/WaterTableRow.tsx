@@ -2,6 +2,8 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { TooltipRenderer } from '@/components/report/environmental/biodiversity/components';
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface WaterTableRowProps {
   label: string;
@@ -13,6 +15,10 @@ interface WaterTableRowProps {
   previousFieldName: string;
   currentFieldName: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  externalLink?: {
+    url: string;
+    ariaLabel: string;
+  };
 }
 
 const WaterTableRow: React.FC<WaterTableRowProps> = ({
@@ -24,7 +30,8 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
   percentageChange,
   previousFieldName,
   currentFieldName,
-  handleChange
+  handleChange,
+  externalLink
 }) => {
   const renderPercentageChange = (change: number | null) => {
     if (change === null) return null;
@@ -49,6 +56,23 @@ const WaterTableRow: React.FC<WaterTableRowProps> = ({
           title={tooltipTitle}
           content={tooltipContent}
         />
+        {externalLink && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 ml-1 p-0"
+            asChild
+          >
+            <a
+              href={externalLink.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={externalLink.ariaLabel}
+            >
+              <ExternalLink className="h-3.5 w-3.5 text-blue-500" />
+            </a>
+          </Button>
+        )}
       </td>
       <td className="p-2">
         <Input

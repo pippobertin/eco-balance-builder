@@ -64,6 +64,10 @@ const WaterTable: React.FC<WaterTableProps> = ({
             previousFieldName="previousWaterStressAreas"
             currentFieldName="currentWaterStressAreas"
             handleChange={handleChange}
+            externalLink={{
+              url: "https://www.wri.org/applications/aqueduct/water-risk-atlas/#/?advanced=false&basemap=hydro&indicator=w_awr_def_tot_cat&lat=30&lng=-80&mapMode=view&month=1&opacity=0.5&ponderation=DEF&predefined=false&projection=absolute&scenario=optimistic&scope=baseline&threshold&timeScale=annual&year=baseline&zoom=3",
+              ariaLabel: "Apri Water Risk Atlas"
+            }}
           />
         </tbody>
       </table>
