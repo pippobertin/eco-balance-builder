@@ -1,89 +1,110 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MetricChart from '@/components/dashboard/MetricChart';
 import { supabase } from '@/integrations/supabase/client';
+import MetricChart from '@/components/dashboard/MetricChart';
 
 interface PollutionChartProps {
   reportId?: string;
 }
 
-interface PollutionData {
-  name: string;
-  value: number;
+interface PollutantData {
+  medium: string;
+  count: number;
+  totalQuantity: number;
 }
 
 const PollutionChart: React.FC<PollutionChartProps> = ({ reportId }) => {
   const navigate = useNavigate();
-  const [pollutionData, setPollutionData] = useState<PollutionData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [chartData, setChartData] = useState<PollutantData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchPollutionData = async () => {
-      if (!reportId) return;
-      
-      setIsLoading(true);
-      
-      try {
-        // Fetch pollution records - use explicit typing to help TypeScript
-        const { data: records, error } = await supabase
-          .from('pollution_records')
-          .select(`
-            quantity,
-            pollutant_type_id,
-            release_medium_id,
-            pollutant_types (name),
-            pollution_release_mediums (name)
-          `)
-          .eq('report_id', reportId);
-        
-        if (error) throw error;
-        
-        // Group pollution data by medium of release
-        const groupedData: Record<string, number> = {
-          'Aria': 0,
-          'Acqua': 0,
-          'Suolo': 0
-        };
-        
-        records?.forEach((record: any) => {
-          const medium = record.pollution_release_mediums?.name;
-          
-          if (medium && medium in groupedData) {
-            groupedData[medium] += Number(record.quantity) || 0;
-          }
-        });
-        
-        // Convert to chart format
-        const chartData = Object.entries(groupedData)
-          .filter(([_, value]) => value > 0) // Only include mediums with values
-          .map(([name, value]) => ({
-            name,
-            value: parseFloat(value.toFixed(2))
-          }));
-        
-        setPollutionData(chartData);
-      } catch (error) {
-        console.error('Error fetching pollution data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchPollutionData();
+    if (reportId) {
+      loadPollutionData();
+    } else {
+      setIsLoading(false);
+    }
   }, [reportId]);
+
+  const loadPollutionData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch pollution records
+      const { data: pollutionRecords, error: recordsError } = await supabase
+        .from('pollution_records')
+        .select('quantity, release_medium_id')
+        .eq('report_id', reportId);
+
+      if (recordsError) throw recordsError;
+
+      if (!pollutionRecords || pollutionRecords.length === 0) {
+        setChartData([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch release mediums for names
+      const { data: mediums, error: mediumsError } = await supabase
+        .from('pollution_release_mediums')
+        .select('id, name');
+
+      if (mediumsError) throw mediumsError;
+
+      // Create a map of medium ids to names
+      const mediumMap = new Map();
+      mediums?.forEach(medium => {
+        mediumMap.set(medium.id, medium.name);
+      });
+
+      // Aggregate data by medium
+      const aggregatedData = pollutionRecords.reduce((acc: Record<string, PollutantData>, record) => {
+        const mediumName = mediumMap.get(record.release_medium_id) || 'Sconosciuto';
+        
+        if (!acc[mediumName]) {
+          acc[mediumName] = {
+            medium: mediumName,
+            count: 0,
+            totalQuantity: 0
+          };
+        }
+        
+        acc[mediumName].count += 1;
+        acc[mediumName].totalQuantity += Number(record.quantity) || 0;
+        
+        return acc;
+      }, {});
+
+      // Convert to array for chart
+      const chartDataArray = Object.values(aggregatedData);
+      setChartData(chartDataArray);
+    } catch (error) {
+      console.error('Error loading pollution data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Create formatted data for the chart
+  const formattedData = chartData.map(item => ({
+    name: item.medium,
+    value: item.totalQuantity,
+    count: item.count
+  }));
 
   return (
     <MetricChart
       title="B4 - Inquinamento"
-      description="Emissioni di inquinanti in aria, acqua e suolo"
-      type={pollutionData.length > 0 ? "bar" : "empty"}
-      data={pollutionData}
+      description="Inquinanti per media di rilascio"
+      type={formattedData.length > 0 ? "bar" : "empty"}
+      data={formattedData}
       dataKey="name"
       categories={["value"]}
-      colors={['#5AC8FA', '#0EA5E9', '#8B5CF6']}
+      colors={['#FF3B30', '#FF9500', '#5AC8FA']}
       individualColors={true}
+      loading={isLoading}
       onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'pollution' } })}
+      emptyStateMessage="Nessun dato di inquinamento registrato"
     />
   );
 };

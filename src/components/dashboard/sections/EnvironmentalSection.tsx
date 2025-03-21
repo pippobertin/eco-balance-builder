@@ -6,6 +6,7 @@ import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
 import EmissionsChart from './environmental/EmissionsChart';
 import PollutionChart from './environmental/PollutionChart';
+import BiodiversityChart from './environmental/BiodiversityChart';
 
 interface EnvironmentalSectionProps {
   reportData: ReportData;
@@ -85,12 +86,6 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({
     recyclableContent
   } = getAggregatedMetrics() || {};
 
-  const biodiversityData = [];
-  if (landUse) biodiversityData.push({ name: 'Uso Totale\nTerreno', value: landUse });
-  if (impermeableSurface) biodiversityData.push({ name: 'Superficie\nImpermeabilizzata', value: impermeableSurface });
-  if (natureSurfaceOnSite) biodiversityData.push({ name: 'Sup. Naturale\nIn Sito', value: natureSurfaceOnSite });
-  if (natureSurfaceOffSite) biodiversityData.push({ name: 'Sup. Naturale\nFuori Sito', value: natureSurfaceOffSite });
-
   const waterData = [];
   if (waterUsage) waterData.push({ name: 'Prelievo\nIdrico', value: waterUsage });
   if (waterConsumption) waterData.push({ name: 'Consumo\nIdrico', value: waterConsumption });
@@ -127,17 +122,7 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({
         
         <PollutionChart reportId={reportId} />
 
-        <MetricChart
-          title="B5 - Biodiversità"
-          description="Uso del suolo e superficie (ettari)"
-          type={biodiversityData.length > 0 ? "bar" : "empty"}
-          data={biodiversityData}
-          dataKey="name"
-          categories={["value"]}
-          colors={['#FF9500', '#FF3B30', '#34C759', '#30D158']}
-          individualColors={true}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'environmental', field: 'biodiversity' } })}
-        />
+        <BiodiversityChart reportId={reportId} />
         
         <MetricChart
           title="B6 - Acqua"

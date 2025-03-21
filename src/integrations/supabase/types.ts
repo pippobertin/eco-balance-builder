@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      biodiversity_land_use: {
+        Row: {
+          area_unit: string
+          created_at: string
+          current_impermeable_surface: number | null
+          current_nature_surface_offsite: number | null
+          current_nature_surface_onsite: number | null
+          current_total_land_use: number | null
+          id: string
+          previous_impermeable_surface: number | null
+          previous_nature_surface_offsite: number | null
+          previous_nature_surface_onsite: number | null
+          previous_total_land_use: number | null
+          report_id: string
+          sensitive_sites_details: string | null
+          updated_at: string
+        }
+        Insert: {
+          area_unit?: string
+          created_at?: string
+          current_impermeable_surface?: number | null
+          current_nature_surface_offsite?: number | null
+          current_nature_surface_onsite?: number | null
+          current_total_land_use?: number | null
+          id?: string
+          previous_impermeable_surface?: number | null
+          previous_nature_surface_offsite?: number | null
+          previous_nature_surface_onsite?: number | null
+          previous_total_land_use?: number | null
+          report_id: string
+          sensitive_sites_details?: string | null
+          updated_at?: string
+        }
+        Update: {
+          area_unit?: string
+          created_at?: string
+          current_impermeable_surface?: number | null
+          current_nature_surface_offsite?: number | null
+          current_nature_surface_onsite?: number | null
+          current_total_land_use?: number | null
+          id?: string
+          previous_impermeable_surface?: number | null
+          previous_nature_surface_offsite?: number | null
+          previous_nature_surface_onsite?: number | null
+          previous_total_land_use?: number | null
+          report_id?: string
+          sensitive_sites_details?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "biodiversity_land_use_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string | null
