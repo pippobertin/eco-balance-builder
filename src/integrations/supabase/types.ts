@@ -888,6 +888,59 @@ export type Database = {
           },
         ]
       }
+      water_metrics: {
+        Row: {
+          area_unit: string
+          created_at: string
+          current_water_consumption: number | null
+          current_water_stress_areas: number | null
+          current_water_withdrawal: number | null
+          id: string
+          previous_water_consumption: number | null
+          previous_water_stress_areas: number | null
+          previous_water_withdrawal: number | null
+          report_id: string
+          updated_at: string
+          water_details: string | null
+        }
+        Insert: {
+          area_unit?: string
+          created_at?: string
+          current_water_consumption?: number | null
+          current_water_stress_areas?: number | null
+          current_water_withdrawal?: number | null
+          id?: string
+          previous_water_consumption?: number | null
+          previous_water_stress_areas?: number | null
+          previous_water_withdrawal?: number | null
+          report_id: string
+          updated_at?: string
+          water_details?: string | null
+        }
+        Update: {
+          area_unit?: string
+          created_at?: string
+          current_water_consumption?: number | null
+          current_water_stress_areas?: number | null
+          current_water_withdrawal?: number | null
+          id?: string
+          previous_water_consumption?: number | null
+          previous_water_stress_areas?: number | null
+          previous_water_withdrawal?: number | null
+          report_id?: string
+          updated_at?: string
+          water_details?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "water_metrics_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
