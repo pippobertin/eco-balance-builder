@@ -9,6 +9,7 @@ const EditModeNotice: React.FC = () => {
         <Edit className="h-5 w-5 text-blue-500 mr-2" />
         <p className="text-blue-800 font-medium">Modalità modifica - Modifica il calcolo selezionato</p>
       </div>
+      <p className="text-blue-600 text-sm mt-1 ml-7">Apporta le modifiche necessarie e clicca "Aggiorna Calcolo" per salvare</p>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { Calculator, Save, Trash2 } from 'lucide-react';
 
 interface CalculatorActionsProps {
@@ -19,37 +19,37 @@ const CalculatorActions: React.FC<CalculatorActionsProps> = ({
   isSaving
 }) => {
   return (
-    <div className="mt-6 flex justify-between items-center">
-      <div className="flex space-x-3">
+    <div className="flex gap-3 items-center">
+      <Button 
+        onClick={handleCalculateClick} 
+        className="min-w-[140px] h-10"
+        disabled={isSaving}
+      >
+        <Calculator className="mr-2 h-4 w-4" />
+        {editMode ? 'Aggiorna Calcolo' : 'Calcola Emissioni'}
+      </Button>
+      
+      {editMode && (
         <Button 
-          onClick={handleCalculateClick} 
-          className="h-10 w-48 flex items-center justify-center"
+          onClick={handleCancelEdit} 
+          variant="secondary" 
+          className="min-w-[140px] h-10 bg-gray-200 hover:bg-gray-300"
+          disabled={isSaving}
         >
-          <Calculator className="mr-2 h-4 w-4" />
-          {editMode ? 'Aggiorna Calcolo' : 'Calcola Emissioni'}
+          <Trash2 className="mr-2 h-4 w-4" />
+          Annulla Modifica
         </Button>
-        
-        {editMode && (
-          <Button 
-            onClick={handleCancelEdit} 
-            variant="outline" 
-            className="h-10 w-48 flex items-center justify-center bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-800 border-gray-300"
-          >
-            <Trash2 className="mr-2 h-4 w-4 text-gray-600" />
-            Annulla Modifica
-          </Button>
-        )}
-        
-        <Button 
-          onClick={handleSaveClick} 
-          disabled={isSaving} 
-          variant="outline" 
-          className="h-10 w-48 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-stone-50"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {isSaving ? 'Salvando...' : 'Salva Emissioni'}
-        </Button>
-      </div>
+      )}
+      
+      <Button 
+        onClick={handleSaveClick} 
+        variant="outline" 
+        className="min-w-[140px] h-10"
+        disabled={isSaving}
+      >
+        <Save className="mr-2 h-4 w-4" />
+        {isSaving ? 'Salvataggio...' : 'Salva Report'}
+      </Button>
     </div>
   );
 };

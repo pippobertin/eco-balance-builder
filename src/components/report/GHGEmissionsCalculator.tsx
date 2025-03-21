@@ -37,6 +37,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   const {
     editMode,
     editingCalculationId,
+    editingCalculation,
     handleEditCalculation,
     handleCancelEdit,
     setEditMode,
@@ -99,6 +100,60 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       calculationLogCountRef.current = newCounts;
     }
   }, [calculationLogs]);
+
+  // When entering edit mode, load the calculation data into the inputs
+  useEffect(() => {
+    if (editMode && editingCalculation) {
+      console.log('Loading calculation data for editing:', editingCalculation);
+      
+      // Set the active tab based on the calculation scope
+      setActiveTab(editingCalculation.scope);
+      
+      // Set common inputs
+      if (editingCalculation.details?.periodType) {
+        updateInput('periodType', editingCalculation.details.periodType);
+      }
+      
+      // Set scope-specific inputs
+      if (editingCalculation.scope === 'scope1') {
+        const details = editingCalculation.details;
+        updateInput('scope1Source', details?.scope1Source || 'fuel');
+        updateInput('fuelType', details?.fuelType || 'DIESEL');
+        updateInput('fuelQuantity', details?.quantity?.toString() || '');
+        updateInput('fuelUnit', details?.unit || 'L');
+      } else if (editingCalculation.scope === 'scope2') {
+        const details = editingCalculation.details;
+        updateInput('energyType', details?.energyType || 'ELECTRICITY_IT');
+        updateInput('energyQuantity', details?.quantity?.toString() || '');
+        updateInput('renewablePercentage', details?.renewablePercentage || 0);
+        updateInput('energyProvider', details?.energyProvider || '');
+      } else if (editingCalculation.scope === 'scope3') {
+        const details = editingCalculation.details;
+        updateInput('scope3Category', details?.scope3Category || 'transport');
+        
+        if (details?.scope3Category === 'transport') {
+          updateInput('transportType', details?.transportType || 'BUSINESS_TRAVEL_CAR');
+          updateInput('transportDistance', details?.quantity?.toString() || '');
+          
+          // Vehicle details if available
+          if (details?.vehicleType) {
+            updateInput('vehicleType', details.vehicleType);
+            updateInput('vehicleFuelType', details.vehicleFuelType || 'DIESEL');
+            updateInput('vehicleEnergyClass', details.vehicleEnergyClass || 'euro6');
+            updateInput('vehicleFuelConsumption', details.vehicleFuelConsumption?.toString() || '');
+            updateInput('vehicleFuelConsumptionUnit', details.vehicleFuelConsumptionUnit || 'l_100km');
+          }
+        } else if (details?.scope3Category === 'waste') {
+          updateInput('wasteType', details?.wasteType || 'WASTE_LANDFILL');
+          updateInput('wasteQuantity', details?.quantity?.toString() || '');
+        } else if (details?.scope3Category === 'purchases') {
+          updateInput('purchaseType', details?.purchaseType || 'PURCHASED_GOODS');
+          updateInput('purchaseQuantity', details?.quantity?.toString() || '');
+          updateInput('purchaseDescription', details?.purchaseDescription || '');
+        }
+      }
+    }
+  }, [editMode, editingCalculation, updateInput, setActiveTab]);
 
   const handleCalculateClick = async () => {
     console.log('Calculate button clicked for tab:', activeTab);
