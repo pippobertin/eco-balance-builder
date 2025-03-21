@@ -268,7 +268,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
             {editMode ? 'Aggiorna Calcolo' : 'Calcola Emissioni'}
           </Button>
           
-          {editMode && <Button onClick={handleCancelEdit} variant="outline" className="flex items-center my-[10px]">
+          {editMode && <Button onClick={handleCancelEdit} variant="outline" className="flex items-center my-[10px] text-yellow-100 bg-red-600 hover:bg-red-500">
               Annulla Modifica
             </Button>}
           
