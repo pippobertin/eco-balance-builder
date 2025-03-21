@@ -2,7 +2,9 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from 'lucide-react';
-import { 
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -11,11 +13,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useReport } from '@/hooks/use-report-context';
 
 interface WasteEntryRowProps {
   id: string;
@@ -39,8 +38,7 @@ const WasteEntryRow: React.FC<WasteEntryRowProps> = ({
   isHazardous = false
 }) => {
   const { toast } = useToast();
-  const { setNeedsSaving } = useReport();
-  
+
   const handleDelete = async () => {
     try {
       const { error } = await supabase
@@ -52,51 +50,52 @@ const WasteEntryRow: React.FC<WasteEntryRowProps> = ({
       
       toast({
         title: "Successo",
-        description: "Rifiuto eliminato con successo"
+        description: "Voce di rifiuto eliminata con successo",
       });
       
-      setNeedsSaving(true);
       onDeleted();
     } catch (error: any) {
       console.error("Error deleting waste entry:", error);
       toast({
         title: "Errore",
-        description: `Errore: ${error.message}`,
+        description: `Errore nell'eliminazione: ${error.message}`,
         variant: "destructive"
       });
     }
   };
-
+  
   return (
     <tr className={`hover:bg-gray-50 ${isHazardous ? 'bg-red-50' : ''}`}>
-      <td className="p-2">
-        <span className={`font-medium text-sm ${isHazardous ? 'text-red-700' : ''}`}>{description}</span>
-      </td>
-      <td className="p-2 text-right">{totalWaste !== null ? totalWaste : '-'}</td>
-      <td className="p-2 text-right">{recycledWaste !== null ? recycledWaste : '-'}</td>
-      <td className="p-2 text-right">{disposalWaste !== null ? disposalWaste : '-'}</td>
-      <td className="p-2 text-center">
+      <td className="p-2 text-sm">{description}</td>
+      <td className="p-2 text-right text-sm">{totalWaste ?? "-"}</td>
+      <td className="p-2 text-right text-sm">{recycledWaste ?? "-"}</td>
+      <td className="p-2 text-right text-sm">{disposalWaste ?? "-"}</td>
+      <td className="p-2 text-right">
         <div className="flex justify-end space-x-2">
-          <Button variant="ghost" size="sm" onClick={onEdit}>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onEdit}
+          >
             <Edit className="h-4 w-4" />
           </Button>
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="icon">
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+                <AlertDialogTitle>Eliminare questa voce?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Questa azione non può essere annullata. Il rifiuto verrà eliminato permanentemente.
+                  Questa azione non può essere annullata. Vuoi procedere con l'eliminazione?
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annulla</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+                <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
                   Elimina
                 </AlertDialogAction>
               </AlertDialogFooter>
