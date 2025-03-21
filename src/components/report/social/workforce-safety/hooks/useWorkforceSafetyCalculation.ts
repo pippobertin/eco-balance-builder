@@ -14,9 +14,8 @@ export const useWorkforceSafetyCalculation = () => {
       return null;
     }
     
-    // Formula: (Number of accidents / Total hours worked) x 1000
-    // Modifichiamo il moltiplicatore da 172000 a 1000 per ottenere il valore corretto
-    return (accidents / hours) * 1000;
+    // Formula: (Number of accidents / Total hours worked) x 1720
+    return (accidents / hours) * 1720;
   }, []);
 
   return {
