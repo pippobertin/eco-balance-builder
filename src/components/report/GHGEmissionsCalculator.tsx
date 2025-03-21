@@ -262,17 +262,31 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
       </Tabs>
       
       <div className="mt-6 flex justify-between items-center">
-        <div className="space-x-2">
-          <Button onClick={handleCalculateClick} className="flex items-center">
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={handleCalculateClick} 
+            className="flex items-center justify-center w-[200px] h-12"
+          >
             <Calculator className="mr-2 h-4 w-4" />
             {editMode ? 'Aggiorna Calcolo' : 'Calcola Emissioni'}
           </Button>
           
-          {editMode && <Button onClick={handleCancelEdit} variant="outline" className="flex items-center my-[10px] text-yellow-100 bg-red-600 hover:bg-red-500">
+          {editMode && (
+            <Button 
+              onClick={handleCancelEdit} 
+              variant="outline" 
+              className="flex items-center justify-center w-[200px] h-12 text-yellow-100 bg-red-600 hover:bg-red-500"
+            >
               Annulla Modifica
-            </Button>}
+            </Button>
+          )}
           
-          <Button onClick={handleSaveClick} disabled={isSaving} variant="outline" className="flex items-center text-center my-[10px] bg-emerald-500 hover:bg-emerald-400 text-stone-50">
+          <Button 
+            onClick={handleSaveClick} 
+            disabled={isSaving} 
+            variant="outline" 
+            className="flex items-center justify-center w-[200px] h-12 bg-emerald-500 hover:bg-emerald-400 text-stone-50"
+          >
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? 'Salvando...' : 'Salva Emissioni'}
           </Button>
