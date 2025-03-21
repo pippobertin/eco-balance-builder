@@ -9,6 +9,11 @@ interface AccidentRateFieldProps {
 }
 
 const AccidentRateField = ({ value, onChange }: AccidentRateFieldProps) => {
+  // Format the value to ensure it displays correctly with decimal places
+  const displayValue = value !== null && value !== "" ? 
+    (typeof value === 'number' ? value : parseFloat(value as string)) : 
+    "";
+
   return (
     <div>
       <Label htmlFor="workAccidentsRate">Tasso di infortuni sul lavoro</Label>
@@ -17,9 +22,10 @@ const AccidentRateField = ({ value, onChange }: AccidentRateFieldProps) => {
         name="workAccidentsRate" 
         type="number" 
         placeholder="0.0" 
-        value={value || ""} 
+        value={displayValue} 
         onChange={onChange} 
         readOnly={true}
+        step="0.001"
         className="bg-gray-50"
       />
       <p className="text-sm text-gray-500 mt-1">
