@@ -5,9 +5,20 @@ import { useToast } from '@/hooks/use-toast';
 import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
 import { useReport } from '@/hooks/use-report-context';
 
+export interface WorkforceData {
+  totalEmployees: number | null;
+  totalEmployeesFTE: number | null;
+  permanentEmployees: number | null;
+  temporaryEmployees: number | null;
+  maleEmployees: number | null;
+  femaleEmployees: number | null;
+  otherGenderEmployees: number | null;
+  employeesByCountry: string | null;
+}
+
 export const useWorkforceData = (reportId: string | undefined) => {
   const [loading, setLoading] = useState(false);
-  const [workforceData, setWorkforceData] = useState<any>(null);
+  const [workforceData, setWorkforceData] = useState<WorkforceData | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -35,9 +46,20 @@ export const useWorkforceData = (reportId: string | undefined) => {
       console.log("Workforce data loaded:", data);
       
       if (data) {
-        setWorkforceData(data);
+        const formattedData: WorkforceData = {
+          totalEmployees: data.total_employees,
+          totalEmployeesFTE: data.total_employees_fte,
+          permanentEmployees: data.permanent_employees,
+          temporaryEmployees: data.temporary_employees,
+          maleEmployees: data.male_employees,
+          femaleEmployees: data.female_employees,
+          otherGenderEmployees: data.other_gender_employees,
+          employeesByCountry: data.distribution_notes
+        };
+        
+        setWorkforceData(formattedData);
         setLastSaved(new Date(data.updated_at));
-        return data;
+        return formattedData;
       }
       
     } catch (error: any) {
@@ -51,9 +73,14 @@ export const useWorkforceData = (reportId: string | undefined) => {
   };
 
   // Save workforce data
-  const saveWorkforceData = async (values: any) => {
-    if (!reportId || !values) {
-      console.error("Cannot save workforce data: reportId or values is undefined", { reportId, values });
+  const saveWorkforceData = async (values: Partial<WorkforceData>) => {
+    if (!reportId) {
+      console.error("Cannot save workforce data: reportId is undefined");
+      return false;
+    }
+    
+    if (!values) {
+      console.error("Cannot save workforce data: values is undefined");
       return false;
     }
     
@@ -114,8 +141,11 @@ export const useWorkforceData = (reportId: string | undefined) => {
       
       console.log("Workforce data saved successfully:", result);
       
-      // Reload workforce data
-      await loadWorkforceData();
+      // Update local state with the new values
+      setWorkforceData({
+        ...workforceData,
+        ...values
+      });
       
       // Mark as saved
       setNeedsSaving(false);

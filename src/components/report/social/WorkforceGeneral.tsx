@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +19,37 @@ const WorkforceGeneral = React.forwardRef<HTMLDivElement, WorkforceGeneralProps>
   ({ formValues, handleChange }, ref) => {
     const { currentReport } = useReport();
     const reportId = currentReport?.id;
-    const { saveWorkforceData, isSaving, lastSaved } = useWorkforceData(reportId);
+    const { saveWorkforceData, isSaving, lastSaved, workforceData, loading } = useWorkforceData(reportId);
+
+    // Update form values when workforce data is loaded
+    useEffect(() => {
+      if (workforceData && !loading) {
+        // Update parent component's form values with the loaded workforce data
+        const updatedSocialMetrics = {
+          ...formValues.socialMetrics,
+          totalEmployees: workforceData.totalEmployees || '',
+          totalEmployeesFTE: workforceData.totalEmployeesFTE || '',
+          permanentEmployees: workforceData.permanentEmployees || '',
+          temporaryEmployees: workforceData.temporaryEmployees || '',
+          maleEmployees: workforceData.maleEmployees || '',
+          femaleEmployees: workforceData.femaleEmployees || '',
+          otherGenderEmployees: workforceData.otherGenderEmployees || '',
+          employeesByCountry: workforceData.employeesByCountry || ''
+        };
+        
+        // Create a synthetic change event to update the form values
+        const syntheticEvent = {
+          target: {
+            name: 'socialMetrics',
+            value: updatedSocialMetrics
+          }
+        } as any;
+        
+        handleChange(syntheticEvent);
+        
+        console.log("Updated form values with workforce data:", updatedSocialMetrics);
+      }
+    }, [workforceData, loading]);
 
     const handleSaveWorkforceData = async () => {
       if (!formValues?.socialMetrics) {

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Users } from 'lucide-react';
 import WorkforceGeneral from './social/WorkforceGeneral';
@@ -35,15 +36,28 @@ const SocialMetrics: React.FC<SocialMetricsProps> = ({
     }
   }, [initialField]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
     const { name, value } = e.target;
-    setFormValues((prev: any) => ({
-      ...prev,
-      socialMetrics: {
-        ...prev.socialMetrics,
-        [name]: value
-      }
-    }));
+    
+    // If we're updating the entire socialMetrics object (from WorkforceGeneral)
+    if (name === 'socialMetrics' && typeof value === 'object') {
+      setFormValues((prev: any) => ({
+        ...prev,
+        socialMetrics: {
+          ...prev.socialMetrics,
+          ...value
+        }
+      }));
+    } else {
+      // Normal field update
+      setFormValues((prev: any) => ({
+        ...prev,
+        socialMetrics: {
+          ...prev.socialMetrics,
+          [name]: value
+        }
+      }));
+    }
   };
 
   return (
