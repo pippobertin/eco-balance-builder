@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useReport } from '@/hooks/use-report-context';
 
 interface UsePollutionManagementProps {
   reportId: string | undefined;
@@ -11,7 +12,9 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
   const [details, setDetails] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { toast } = useToast();
+  const { setLastSaved: setGlobalLastSaved } = useReport();
 
   // Load pollution management details
   useEffect(() => {
@@ -28,9 +31,9 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
     try {
       const { data, error } = await supabase
         .from('pollution_management_details')
-        .select('details')
+        .select('details, updated_at')
         .eq('report_id', reportId)
-        .single();
+        .maybeSingle();
       
       if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
         throw error;
@@ -38,6 +41,9 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
       
       if (data) {
         setDetails(data.details || '');
+        if (data.updated_at) {
+          setLastSaved(new Date(data.updated_at));
+        }
       }
     } catch (error) {
       console.error('Error loading pollution management details:', error);
@@ -52,12 +58,15 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
     
     setIsSaving(true);
     try {
+      const now = new Date();
+      const isoDate = now.toISOString();
+
       // Check if record exists
       const { data: existingData } = await supabase
         .from('pollution_management_details')
         .select('id')
         .eq('report_id', reportId)
-        .single();
+        .maybeSingle();
       
       let result;
       
@@ -67,7 +76,7 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
           .from('pollution_management_details')
           .update({
             details: newDetails,
-            updated_at: new Date().toISOString()
+            updated_at: isoDate
           })
           .eq('report_id', reportId);
       } else {
@@ -76,7 +85,8 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
           .from('pollution_management_details')
           .insert({
             report_id: reportId,
-            details: newDetails
+            details: newDetails,
+            updated_at: isoDate
           });
       }
       
@@ -84,6 +94,10 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
       
       // Update local state
       setDetails(newDetails);
+      
+      // Update both local and global timestamps
+      setLastSaved(now);
+      setGlobalLastSaved(now);
       
       toast({
         title: "Salvato con successo",
@@ -109,6 +123,7 @@ export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps
     setDetails,
     isLoading,
     isSaving,
-    saveDetails
+    saveDetails,
+    lastSaved
   };
 };

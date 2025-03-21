@@ -1,56 +1,35 @@
 
 import React from 'react';
-import { Leaf, Info } from 'lucide-react';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from 'lucide-react';
-import AutoSaveIndicator from '../../AutoSaveIndicator';
+import { Sprout, Info } from 'lucide-react';
+import SectionAutoSaveIndicator from '../components/SectionAutoSaveIndicator';
 
 interface BiodiversityHeaderProps {
-  reportId?: string;
+  reportId: string | undefined;
   isSaving: boolean;
   lastSaved: Date | null;
 }
 
-const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ 
-  reportId, 
-  isSaving, 
-  lastSaved 
-}) => {
+const BiodiversityHeader: React.FC<BiodiversityHeaderProps> = ({ reportId, isSaving, lastSaved }) => {
   return (
-    <>
-      <div className="flex items-center mb-4">
-        <Leaf className="mr-2 h-5 w-5 text-emerald-500" />
-        <h3 className="text-xl font-semibold">B5 - Biodiversità e ecosistemi</h3>
+    <div className="mb-4">
+      <div className="flex items-center mb-2">
+        <Sprout className="mr-2 h-5 w-5 text-green-500" />
+        <h3 className="text-xl font-semibold">B5 - Biodiversità</h3>
       </div>
       
-      <div className="space-y-6">
-        <div className="p-4 rounded-md mb-4 bg-emerald-100">
-          <div className="flex items-start">
-            <Info className="mt-0.5 mr-2 h-4 w-4 text-emerald-600" />
-            <p className="text-sm text-slate-600">
-              Indica i dati relativi agli impatti sulla biodiversità, sugli ecosistemi e sull'uso del suolo. I dati sono espressi in ettari (ha).
-            </p>
-          </div>
+      <SectionAutoSaveIndicator className="mb-4" />
+      
+      <div className="p-4 rounded-md mb-4 bg-green-100">
+        <div className="flex items-start">
+          <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+          <p className="text-sm text-slate-600">
+            Indica l'impatto dell'attività sul territorio e su siti sensibili dal punto di vista della 
+            biodiversità. Se non disponibili i dati precisi, puoi inserire stime o indicare la superficie 
+            totale dei siti interessati.
+          </p>
         </div>
-        
-        {!reportId && (
-          <Alert variant="warning">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Per registrare i dati sulla biodiversità è necessario prima salvare il report.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {lastSaved && (
-          <AutoSaveIndicator 
-            needsSaving={Boolean(isSaving)} 
-            lastSaved={lastSaved} 
-            className="mb-4" 
-          />
-        )}
       </div>
-    </>
+    </div>
   );
 };
 
