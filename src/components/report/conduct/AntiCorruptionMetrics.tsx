@@ -51,6 +51,27 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       }
     }, [antiCorruptionData, loading]);
 
+    // Create a custom handler for direct field changes
+    const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      
+      const fieldName = name.split('.')[1]; // Extract the field name after 'conductMetrics.'
+      
+      const updatedConductMetrics = {
+        ...(formValues?.conductMetrics || {}),
+        [fieldName]: value
+      };
+      
+      const syntheticEvent = {
+        target: {
+          name: 'conductMetrics',
+          value: updatedConductMetrics
+        }
+      } as any;
+      
+      handleChange(syntheticEvent);
+    };
+
     const handleSaveData = async () => {
       if (!formValues.conductMetrics) {
         return;
@@ -99,38 +120,38 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="conductMetrics.antiCorruptionConvictions">Numero di condanne per corruzione</Label>
+                <Label htmlFor="antiCorruptionConvictions">Numero di condanne per corruzione</Label>
                 <Input 
-                  id="conductMetrics.antiCorruptionConvictions" 
-                  name="conductMetrics.antiCorruptionConvictions" 
+                  id="antiCorruptionConvictions" 
+                  name="antiCorruptionConvictions" 
                   type="number" 
                   placeholder="0" 
                   value={formValues.conductMetrics?.antiCorruptionConvictions || ""} 
-                  onChange={handleChange} 
+                  onChange={handleFieldChange} 
                 />
               </div>
               
               <div>
-                <Label htmlFor="conductMetrics.antiCorruptionSanctions">Importo totale delle sanzioni per corruzione (€)</Label>
+                <Label htmlFor="antiCorruptionSanctions">Importo totale delle sanzioni per corruzione (€)</Label>
                 <Input 
-                  id="conductMetrics.antiCorruptionSanctions" 
-                  name="conductMetrics.antiCorruptionSanctions" 
+                  id="antiCorruptionSanctions" 
+                  name="antiCorruptionSanctions" 
                   type="number" 
                   placeholder="0.00" 
                   value={formValues.conductMetrics?.antiCorruptionSanctions || ""} 
-                  onChange={handleChange} 
+                  onChange={handleFieldChange} 
                 />
               </div>
             </div>
             
             <div>
-              <Label htmlFor="conductMetrics.antiCorruptionDetails">Dettagli sulle condanne e sanzioni (opzionale)</Label>
+              <Label htmlFor="antiCorruptionDetails">Dettagli sulle condanne e sanzioni (opzionale)</Label>
               <Textarea 
-                id="conductMetrics.antiCorruptionDetails" 
-                name="conductMetrics.antiCorruptionDetails" 
+                id="antiCorruptionDetails" 
+                name="antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
                 value={formValues.conductMetrics?.antiCorruptionDetails || ""} 
-                onChange={handleChange} 
+                onChange={handleFieldChange} 
                 className="min-h-[100px]" 
               />
             </div>
