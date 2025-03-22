@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -24,8 +23,10 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     const { name, value } = e.target;
     
     if (handleChange) {
+      console.log("ComplianceForm - Calling parent handleChange for field:", name, value);
       handleChange(e);
     } else {
+      console.log("ComplianceForm - Using local setFormData for field:", name, value);
       setFormData(prev => ({
         ...prev,
         [name]: value
@@ -33,11 +34,25 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     }
   };
   
-  const displayData: ComplianceFormData = formValues?.conductMetrics || formData;
+  const displayData = formValues || formData;
   
   useEffect(() => {
     console.log("ComplianceForm rendering with data:", displayData);
   }, [displayData]);
+
+  const handleSave = async () => {
+    console.log("ComplianceForm - Save button clicked with data:", displayData);
+    
+    if (handleChange) {
+      const dataToSave = {
+        complianceStandards: displayData.complianceStandards || '',
+        complianceMonitoring: displayData.complianceMonitoring || ''
+      };
+      await saveData(dataToSave);
+    } else {
+      await saveData();
+    }
+  };
   
   if (isLoading) {
     return (
@@ -75,7 +90,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
       </div>
       
       <div className="flex justify-end mt-6">
-        <SaveButton onClick={saveData} isLoading={isSaving} />
+        <SaveButton onClick={handleSave} isLoading={isSaving} />
       </div>
     </div>
   );

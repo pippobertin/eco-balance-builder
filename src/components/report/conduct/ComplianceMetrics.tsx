@@ -1,6 +1,5 @@
 
-import React from 'react';
-import { ClipboardCheck } from 'lucide-react';
+import React, { useEffect } from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
 import ComplianceForm from './compliance/ComplianceForm';
@@ -16,7 +15,18 @@ interface ComplianceMetricsProps {
 const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handleChange }) => {
   const { currentReport } = useReport();
   const reportId = currentReport?.id;
-  const { lastSaved, isSaving } = useComplianceData(reportId || '');
+  const { lastSaved, isSaving, formData, loadData } = useComplianceData(reportId || '');
+
+  // Load data when the component mounts or reportId changes
+  useEffect(() => {
+    if (reportId) {
+      console.log("ComplianceMetrics - Loading data for reportId:", reportId);
+      loadData();
+    }
+  }, [reportId, loadData]);
+
+  // Check if there are existing values in the parent form or use local state
+  const displayValues = formValues?.conductMetrics || formData;
 
   return (
     <GlassmorphicCard>
@@ -26,7 +36,7 @@ const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handl
         
         <ComplianceForm 
           reportId={reportId} 
-          formValues={formValues}
+          formValues={displayValues}
           handleChange={handleChange}
         />
       </div>

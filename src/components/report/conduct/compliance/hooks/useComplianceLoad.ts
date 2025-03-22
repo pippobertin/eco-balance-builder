@@ -36,7 +36,8 @@ export const useComplianceLoad = (
           description: "Impossibile caricare i dati di compliance",
           variant: "destructive"
         });
-        throw error;
+        setIsLoading(false);
+        return;
       }
 
       console.log("Compliance data loaded:", data);
@@ -52,9 +53,20 @@ export const useComplianceLoad = (
         }
       } else {
         console.log("No compliance data found for this report");
+        // Reset form to empty values
+        setFormData({
+          complianceStandards: '',
+          complianceMonitoring: ''
+        });
+        setLastSaved(null);
       }
     } catch (error) {
       console.error('Error in compliance data loading:', error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il caricamento dei dati",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }

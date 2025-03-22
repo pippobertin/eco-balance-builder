@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ComplianceFormData } from './types';
 import { useReport } from '@/hooks/use-report-context';
 import { useComplianceLoad } from './useComplianceLoad';
@@ -18,22 +18,24 @@ export const useComplianceData = (reportId: string) => {
   // Load data
   const { loadData } = useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
   
-  useEffect(() => {
-    if (reportId) {
-      loadData();
-    }
-  }, [reportId, loadData]);
-  
   // Get save function
   const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
-    if (!isLoading && lastSaved) {
-      console.log("Setting needsSaving flag due to form data change");
+    if (!isLoading && formData && (formData.complianceStandards || formData.complianceMonitoring)) {
+      console.log("Setting needsSaving flag due to form data change in useComplianceData");
       setNeedsSaving(true);
     }
-  }, [formData, isLoading, setNeedsSaving, lastSaved]);
+  }, [formData, isLoading, setNeedsSaving]);
+
+  // Expose the loadData function so it can be called by parent components
+  const handleLoadData = useCallback(() => {
+    console.log("useComplianceData - handleLoadData called for reportId:", reportId);
+    if (reportId) {
+      loadData();
+    }
+  }, [reportId, loadData]);
 
   return {
     formData,
@@ -41,6 +43,7 @@ export const useComplianceData = (reportId: string) => {
     isLoading,
     isSaving,
     lastSaved,
-    saveData
+    saveData,
+    loadData: handleLoadData
   };
 };

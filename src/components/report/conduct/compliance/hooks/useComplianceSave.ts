@@ -14,7 +14,7 @@ export const useComplianceSave = (
   const { setNeedsSaving } = useReport();
   const { toast } = useToast();
 
-  const saveData = useCallback(async () => {
+  const saveData = useCallback(async (dataToSave?: ComplianceFormData) => {
     if (!reportId) {
       console.error("Cannot save compliance data: reportId is undefined");
       toast({
@@ -26,7 +26,11 @@ export const useComplianceSave = (
     }
     
     setIsSaving(true);
-    console.log("Saving compliance data for reportId:", reportId, formData);
+    
+    // Use provided data or fall back to formData from the hook
+    const dataToSubmit = dataToSave || formData;
+    
+    console.log("Saving compliance data for reportId:", reportId, dataToSubmit);
 
     try {
       // Verifica se esiste già un record
@@ -36,7 +40,7 @@ export const useComplianceSave = (
         .eq('report_id', reportId)
         .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') { // Not found error code
+      if (checkError) {
         console.error("Error checking existing compliance data:", checkError);
         throw checkError;
       }
@@ -50,8 +54,8 @@ export const useComplianceSave = (
         result = await supabase
           .from('compliance_standards')
           .update({
-            compliance_standards: formData.complianceStandards,
-            compliance_monitoring: formData.complianceMonitoring,
+            compliance_standards: dataToSubmit.complianceStandards,
+            compliance_monitoring: dataToSubmit.complianceMonitoring,
             updated_at: timestamp
           })
           .eq('report_id', reportId);
@@ -62,8 +66,8 @@ export const useComplianceSave = (
           .from('compliance_standards')
           .insert({
             report_id: reportId,
-            compliance_standards: formData.complianceStandards,
-            compliance_monitoring: formData.complianceMonitoring,
+            compliance_standards: dataToSubmit.complianceStandards,
+            compliance_monitoring: dataToSubmit.complianceMonitoring,
             updated_at: timestamp
           });
       }
@@ -81,6 +85,8 @@ export const useComplianceSave = (
         title: "Successo",
         description: "Dati di compliance salvati con successo"
       });
+      
+      return true;
     } catch (error: any) {
       console.error('Error saving compliance data:', error);
       
@@ -89,6 +95,8 @@ export const useComplianceSave = (
         description: "Errore durante il salvataggio dei dati di compliance: " + (error.message || error),
         variant: "destructive"
       });
+      
+      return false;
     } finally {
       setIsSaving(false);
     }
