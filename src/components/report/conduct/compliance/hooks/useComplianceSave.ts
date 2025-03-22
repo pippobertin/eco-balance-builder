@@ -7,6 +7,7 @@ import { useReport } from '@/context/ReportContext';
 
 export const useComplianceSave = (reportId: string, formData: ComplianceFormData) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
 
   const saveData = async () => {
@@ -32,6 +33,7 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
       }
 
       setNeedsSaving(false);
+      setLastSaved(new Date());
       toast.success('Dati salvati con successo');
     } catch (error) {
       console.error('Error in save operation:', error);
@@ -41,5 +43,5 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
     }
   };
 
-  return { saveData, isSaving };
+  return { saveData, isSaving, lastSaved };
 };

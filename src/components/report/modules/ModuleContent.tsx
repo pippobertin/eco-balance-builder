@@ -1,16 +1,27 @@
+
 import React, { useState } from 'react';
 import { useReport } from '@/context/ReportContext';
 
 export interface ModuleContentProps {
-  module: string;
+  activeSection?: string;
+  module?: string;
   formValues?: any;
   setFormValues?: React.Dispatch<React.SetStateAction<any>>;
+  showNarrativeModule?: boolean;
+  showBusinessPartnersModule?: boolean;
+  initialSection?: string;
+  initialField?: string;
 }
 
 const ModuleContent: React.FC<ModuleContentProps> = ({ 
-  module, 
+  module,
+  activeSection,
   formValues, 
-  setFormValues
+  setFormValues,
+  showNarrativeModule,
+  showBusinessPartnersModule,
+  initialSection,
+  initialField
 }) => {
   const { currentReport } = useReport();
   const [activeTab, setActiveTab] = useState('basic');
@@ -23,11 +34,11 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
 
     return (
       <div className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Modulo: {module}</h3>
+        <h3 className="text-xl font-semibold mb-4">Modulo: {module || activeSection}</h3>
         
         <div className="bg-white p-4 rounded-lg border">
           <p>
-            Contenuto del modulo {module} qui. Tab attivo: {activeTab}
+            Contenuto del modulo {module || activeSection} qui. Tab attivo: {activeTab}
           </p>
           
           {formValues && (

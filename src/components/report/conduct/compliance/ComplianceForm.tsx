@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import SaveButton from './SaveButton';
-import { useComplianceData, useComplianceLoad } from './hooks';
+import { useComplianceData } from './hooks';
 import { ComplianceFormData } from './hooks/types';
 
 interface ComplianceFormProps {
@@ -17,8 +18,6 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   handleChange
 }) => {
   const { formData, setFormData, saveData, isSaving, isLoading } = useComplianceData(reportId || '');
-  
-  useComplianceLoad(reportId || '', setFormData);
   
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;

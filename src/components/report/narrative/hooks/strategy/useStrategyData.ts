@@ -1,7 +1,6 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { StrategyFormData } from '../types';
-import { useReport } from '@/context/ReportContext';
 
 export const useStrategyData = (reportId: string) => {
   const [formData, setFormData] = useState<StrategyFormData>({
@@ -11,19 +10,17 @@ export const useStrategyData = (reportId: string) => {
     sustainabilityStrategy: ''
   });
   const [isLoading, setIsLoading] = useState(true);
-  const { setNeedsSaving } = useReport();
-
-  // Monitor changes to formData to set needsSaving flag
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData, isLoading, setNeedsSaving]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   return {
     formData,
     setFormData,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    isSaving,
+    setIsSaving,
+    lastSaved,
+    setLastSaved
   };
 };

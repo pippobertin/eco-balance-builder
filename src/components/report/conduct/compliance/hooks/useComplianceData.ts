@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { ComplianceData, ComplianceFormData } from './types';
 import { useReport } from '@/context/ReportContext';
+import { useComplianceLoad } from './useComplianceLoad';
+import { useComplianceSave } from './useComplianceSave';
 
 export const useComplianceData = (reportId: string) => {
   const [formData, setFormData] = useState<ComplianceFormData>({
@@ -9,7 +11,15 @@ export const useComplianceData = (reportId: string) => {
     complianceMonitoring: ''
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
+
+  // Load data
+  useComplianceLoad(reportId, setFormData, setIsLoading);
+  
+  // Get save function
+  const { saveData } = useComplianceSave(reportId, formData);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
@@ -22,6 +32,11 @@ export const useComplianceData = (reportId: string) => {
     formData,
     setFormData,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    isSaving,
+    setIsSaving,
+    lastSaved,
+    setLastSaved,
+    saveData
   };
 };
