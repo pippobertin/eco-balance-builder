@@ -12,8 +12,12 @@ export const useComplianceLoad = (
 ) => {
   useEffect(() => {
     const loadData = async () => {
+      if (!reportId) return;
+      
       try {
         setIsLoading(true);
+        console.log("Loading compliance data for reportId:", reportId);
+        
         const { data, error } = await supabase
           .from('compliance_standards')
           .select('*')
@@ -25,6 +29,7 @@ export const useComplianceLoad = (
         }
 
         if (data) {
+          console.log("Compliance data loaded:", data);
           const apiData = data as ComplianceAPIData;
           setFormData({
             complianceStandards: apiData.compliance_standards || '',
@@ -35,6 +40,7 @@ export const useComplianceLoad = (
             setLastSaved(new Date(apiData.updated_at));
           }
         } else {
+          console.log("No compliance data found for this report");
           setFormData({
             complianceStandards: '',
             complianceMonitoring: ''
