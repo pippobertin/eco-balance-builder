@@ -287,6 +287,41 @@ export type Database = {
           },
         ]
       }
+      compliance_standards: {
+        Row: {
+          compliance_monitoring: string | null
+          compliance_standards: string | null
+          created_at: string
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          compliance_monitoring?: string | null
+          compliance_standards?: string | null
+          created_at?: string
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          compliance_monitoring?: string | null
+          compliance_standards?: string | null
+          created_at?: string
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_standards_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emission_calculation_records: {
         Row: {
           date: string
