@@ -33,31 +33,18 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);
         
-        const updatedConductMetrics = {
-          ...(formValues?.conductMetrics || {}),
-          antiCorruptionConvictions: antiCorruptionData.convictionsNumber,
-          antiCorruptionSanctions: antiCorruptionData.sanctionsAmount,
-          antiCorruptionDetails: antiCorruptionData.additionalDetails
-        };
-        
-        const syntheticEvent = {
-          target: {
-            name: 'conductMetrics',
-            value: updatedConductMetrics
-          }
-        } as any;
-        
-        handleChange(syntheticEvent);
+        // Create a synthetic event for each field to update them properly
+        updateFormField('antiCorruptionConvictions', antiCorruptionData.convictionsNumber);
+        updateFormField('antiCorruptionSanctions', antiCorruptionData.sanctionsAmount);
+        updateFormField('antiCorruptionDetails', antiCorruptionData.additionalDetails);
       }
-    }, [antiCorruptionData, loading, formValues, handleChange]);
+    }, [antiCorruptionData, loading]);
 
-    // Function to handle form value changes
-    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      
+    // Helper function to update individual form fields
+    const updateFormField = (fieldName: string, value: any) => {
       const updatedConductMetrics = {
         ...(formValues?.conductMetrics || {}),
-        [name]: value
+        [fieldName]: value
       };
       
       const syntheticEvent = {
@@ -68,6 +55,12 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       } as any;
       
       handleChange(syntheticEvent);
+    };
+
+    // Handle direct field changes
+    const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      updateFormField(name, value);
     };
 
     const handleSaveData = async () => {
@@ -122,10 +115,11 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 <Input 
                   id="antiCorruptionConvictions" 
                   name="antiCorruptionConvictions" 
-                  type="number" 
+                  type="text"
+                  inputMode="numeric"
                   placeholder="0" 
-                  value={formValues.conductMetrics?.antiCorruptionConvictions || ""} 
-                  onChange={handleFormChange} 
+                  value={formValues.conductMetrics?.antiCorruptionConvictions || ""}
+                  onChange={handleFieldChange}
                 />
               </div>
               
@@ -134,10 +128,11 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 <Input 
                   id="antiCorruptionSanctions" 
                   name="antiCorruptionSanctions" 
-                  type="number" 
+                  type="text"
+                  inputMode="numeric"
                   placeholder="0.00" 
-                  value={formValues.conductMetrics?.antiCorruptionSanctions || ""} 
-                  onChange={handleFormChange} 
+                  value={formValues.conductMetrics?.antiCorruptionSanctions || ""}
+                  onChange={handleFieldChange}
                 />
               </div>
             </div>
@@ -148,8 +143,8 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 id="antiCorruptionDetails" 
                 name="antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
-                value={formValues.conductMetrics?.antiCorruptionDetails || ""} 
-                onChange={handleFormChange} 
+                value={formValues.conductMetrics?.antiCorruptionDetails || ""}
+                onChange={handleFieldChange}
                 className="min-h-[100px]" 
               />
             </div>
