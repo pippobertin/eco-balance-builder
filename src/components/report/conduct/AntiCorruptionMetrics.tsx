@@ -33,32 +33,40 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);
         
-        // Create the update object with the new values
-        const updatedConductMetrics = {
-          antiCorruptionConvictions: antiCorruptionData.convictionsNumber !== null 
-            ? String(antiCorruptionData.convictionsNumber) 
-            : '',
-          antiCorruptionSanctions: antiCorruptionData.sanctionsAmount !== null 
-            ? String(antiCorruptionData.sanctionsAmount) 
-            : '',
-          antiCorruptionDetails: antiCorruptionData.additionalDetails || ''
-        };
+        // Only update if the form fields are empty or null
+        const shouldUpdate = 
+          !formValues.conductMetrics?.antiCorruptionConvictions &&
+          !formValues.conductMetrics?.antiCorruptionSanctions &&
+          !formValues.conductMetrics?.antiCorruptionDetails;
         
-        // Create a synthetic event with the proper structure
-        const syntheticEvent = {
-          target: {
-            name: 'conductMetrics',
-            value: updatedConductMetrics
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        
-        // Pass the event to the parent handler
-        handleChange(syntheticEvent);
+        if (shouldUpdate) {
+          // Create the update object with the new values
+          const conductMetricsUpdate = {
+            antiCorruptionConvictions: antiCorruptionData.convictionsNumber !== null 
+              ? String(antiCorruptionData.convictionsNumber) 
+              : '',
+            antiCorruptionSanctions: antiCorruptionData.sanctionsAmount !== null 
+              ? String(antiCorruptionData.sanctionsAmount) 
+              : '',
+            antiCorruptionDetails: antiCorruptionData.additionalDetails || ''
+          };
+          
+          // Use the normal handleChange for each field to avoid type errors
+          Object.entries(conductMetricsUpdate).forEach(([fieldName, fieldValue]) => {
+            const syntheticEvent = {
+              target: {
+                name: fieldName,
+                value: fieldValue
+              }
+            } as React.ChangeEvent<HTMLInputElement>;
+            
+            handleChange(syntheticEvent);
+          });
+        }
       }
-    }, [antiCorruptionData, loading]); // Remove formValues and handleChange from dependencies
+    }, [antiCorruptionData, loading]); // Removed formValues and handleChange
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
       handleChange(e);
     };
 

@@ -38,8 +38,8 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
         const updatedValues = {
           ...prev,
           conductMetrics: {
-            ...prev.conductMetrics,
-            ...value
+            ...prev.conductMetrics || {},
+            ...(value as object)
           }
         };
         console.log("Updated conductMetrics:", updatedValues);
@@ -51,7 +51,7 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
         const updatedValues = {
           ...prev,
           conductMetrics: {
-            ...prev.conductMetrics,
+            ...prev.conductMetrics || {},
             [name]: value
           }
         };

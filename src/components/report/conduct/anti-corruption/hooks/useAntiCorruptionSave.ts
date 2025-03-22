@@ -33,12 +33,12 @@ export const useAntiCorruptionSave = (
       
       console.log("Saving anti-corruption data for report:", reportId, values);
       
-      // Convert values to numbers before saving
-      const convictionsNumber = values.convictionsNumber !== null && values.convictionsNumber !== undefined 
+      // Convert values to numbers before saving, ensuring we have valid numbers or null
+      const convictionsNumber = values.convictionsNumber !== undefined && values.convictionsNumber !== null 
         ? Number(values.convictionsNumber) 
         : null;
         
-      const sanctionsAmount = values.sanctionsAmount !== null && values.sanctionsAmount !== undefined 
+      const sanctionsAmount = values.sanctionsAmount !== undefined && values.sanctionsAmount !== null 
         ? Number(values.sanctionsAmount) 
         : null;
       
@@ -46,7 +46,7 @@ export const useAntiCorruptionSave = (
         report_id: reportId,
         convictions_number: convictionsNumber,
         sanctions_amount: sanctionsAmount,
-        additional_details: values.additionalDetails,
+        additional_details: values.additionalDetails || null,
         updated_at: new Date().toISOString()
       };
       
@@ -93,11 +93,13 @@ export const useAntiCorruptionSave = (
       console.log("Anti-corruption data saved successfully:", result);
       
       // Update local state with the new values
-      setAntiCorruptionData({
+      const updatedData: AntiCorruptionData = {
         convictionsNumber: convictionsNumber,
         sanctionsAmount: sanctionsAmount,
-        additionalDetails: values.additionalDetails
-      });
+        additionalDetails: values.additionalDetails || null
+      };
+      
+      setAntiCorruptionData(updatedData);
       
       // Mark as saved
       setNeedsSaving(false);
