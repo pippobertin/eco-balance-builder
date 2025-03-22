@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
 import { useGovernanceData, useGovernanceLoad, useGovernanceSave } from './hooks';
 import { useReport } from '@/context/ReportContext';
 
@@ -14,9 +14,9 @@ interface GovernanceSectionProps {
 }
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading } = useGovernanceData(reportId);
-  const { needsSaving, lastSaved } = useReport();
-  const { saveData, isSaving } = useGovernanceSave(reportId, formData);
+  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useGovernanceData(reportId);
+  const { needsSaving } = useReport();
+  const { saveData } = useGovernanceSave(reportId, formData);
 
   // Load data
   useGovernanceLoad(reportId, setFormData, setIsLoading);
@@ -35,13 +35,12 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <Building className="mr-2 h-5 w-5 text-indigo-500" />
-          <h3 className="text-xl font-semibold">N5 - Governance: responsabilità in materia di sostenibilità</h3>
-        </div>
-        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
+      <div className="flex items-center mb-4">
+        <Building className="mr-2 h-5 w-5 text-indigo-500" />
+        <h3 className="text-xl font-semibold">N5 - Governance: responsabilità in materia di sostenibilità</h3>
       </div>
+      
+      <SectionAutoSaveIndicator className="mb-4"/>
       
       <div className="space-y-4">
         <div>

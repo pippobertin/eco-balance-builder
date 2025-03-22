@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileText } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
 import { useIssuesManagementData, useIssuesManagementLoad, useIssuesManagementSave } from './hooks';
 import { useReport } from '@/context/ReportContext';
 
@@ -14,9 +14,9 @@ interface MaterialIssuesManagementSectionProps {
 }
 
 const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading } = useIssuesManagementData(reportId);
-  const { needsSaving, lastSaved } = useReport();
-  const { saveData, isSaving } = useIssuesManagementSave(reportId, formData);
+  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useIssuesManagementData(reportId);
+  const { needsSaving } = useReport();
+  const { saveData } = useIssuesManagementSave(reportId, formData);
 
   // Load data
   useIssuesManagementLoad(reportId, setFormData, setIsLoading);
@@ -35,13 +35,12 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <FileText className="mr-2 h-5 w-5 text-indigo-500" />
-          <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
-        </div>
-        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
+      <div className="flex items-center mb-4">
+        <FileText className="mr-2 h-5 w-5 text-indigo-500" />
+        <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
       </div>
+      
+      <SectionAutoSaveIndicator className="mb-4"/>
       
       <div className="space-y-4">
         <div>

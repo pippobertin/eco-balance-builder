@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Target } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
 import { useMaterialIssuesData, useMaterialIssuesLoad, useMaterialIssuesSave } from './hooks';
 import { useReport } from '@/context/ReportContext';
 
@@ -14,9 +14,9 @@ interface MaterialIssuesSectionProps {
 }
 
 const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading } = useMaterialIssuesData(reportId);
-  const { needsSaving, lastSaved } = useReport();
-  const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData);
+  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useMaterialIssuesData(reportId);
+  const { needsSaving } = useReport();
+  const { saveData } = useMaterialIssuesSave(reportId, formData);
 
   // Load data
   useMaterialIssuesLoad(reportId, setFormData, setIsLoading);
@@ -35,13 +35,12 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <Target className="mr-2 h-5 w-5 text-indigo-500" />
-          <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
-        </div>
-        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
+      <div className="flex items-center mb-4">
+        <Target className="mr-2 h-5 w-5 text-indigo-500" />
+        <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
       </div>
+      
+      <SectionAutoSaveIndicator className="mb-4"/>
       
       <div className="space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">

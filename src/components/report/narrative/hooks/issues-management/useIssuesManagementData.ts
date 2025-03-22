@@ -13,6 +13,7 @@ export const useIssuesManagementData = (reportId: string) => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   return {
     formData,
@@ -20,6 +21,8 @@ export const useIssuesManagementData = (reportId: string) => {
     isLoading,
     setIsLoading,
     isSaving,
-    setIsSaving
+    setIsSaving,
+    lastSaved,
+    setLastSaved
   };
 };

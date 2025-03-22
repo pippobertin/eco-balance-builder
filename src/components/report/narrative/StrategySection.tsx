@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { BriefcaseBusiness } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
 import { useStrategyData, useStrategyLoad, useStrategySave } from './hooks';
 import { useReport } from '@/context/ReportContext';
 
@@ -14,9 +14,9 @@ interface StrategySectionProps {
 }
 
 const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading } = useStrategyData(reportId);
-  const { needsSaving, lastSaved } = useReport();
-  const { saveData, isSaving } = useStrategySave(reportId, formData);
+  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useStrategyData(reportId);
+  const { needsSaving } = useReport();
+  const { saveData } = useStrategySave(reportId, formData);
 
   // Load data
   useStrategyLoad(reportId, setFormData, setIsLoading);
@@ -35,13 +35,12 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
 
   return (
     <GlassmorphicCard>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <BriefcaseBusiness className="mr-2 h-5 w-5 text-indigo-500" />
-          <h3 className="text-xl font-semibold">N1 - Strategia: modello aziendale e iniziative di sostenibilità</h3>
-        </div>
-        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
+      <div className="flex items-center mb-4">
+        <BriefcaseBusiness className="mr-2 h-5 w-5 text-indigo-500" />
+        <h3 className="text-xl font-semibold">N1 - Strategia: modello aziendale e iniziative di sostenibilità</h3>
       </div>
+      
+      <SectionAutoSaveIndicator className="mb-4"/>
       
       <div className="space-y-4">
         <div>
