@@ -46,12 +46,14 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     console.log("ComplianceForm - Save button clicked with data:", displayData);
     
     if (handleChange) {
+      // We're in a parent-controlled mode, so we need to extract the compliance data
       const dataToSave = {
         complianceStandards: displayData.complianceStandards || '',
         complianceMonitoring: displayData.complianceMonitoring || ''
       };
       await saveData(dataToSave);
     } else {
+      // We're in local state mode
       await saveData();
     }
   };

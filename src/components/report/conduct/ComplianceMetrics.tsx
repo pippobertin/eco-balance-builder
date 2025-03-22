@@ -34,7 +34,7 @@ const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handl
         ) : (
           <ComplianceForm 
             reportId={reportId} 
-            formValues={formValues}
+            formValues={formValues?.conductMetrics || formValues}
             handleChange={handleChange}
           />
         )}
