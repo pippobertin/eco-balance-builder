@@ -16,7 +16,7 @@ interface ComplianceMetricsProps {
 const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handleChange }) => {
   const { currentReport } = useReport();
   const reportId = currentReport?.id;
-  const { isSaving, lastSaved } = useComplianceData(reportId || '');
+  const { lastSaved, isSaving } = useComplianceData(reportId || '');
 
   return (
     <GlassmorphicCard>

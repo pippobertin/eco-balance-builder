@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ComplianceFormData } from './types';
 import { useToast } from '@/hooks/use-toast';
@@ -46,7 +46,7 @@ export const useComplianceSave = (
       
       if (existingData) {
         // Aggiornamento di un record esistente
-        console.log("Updating existing compliance record");
+        console.log("Updating existing compliance record with ID:", existingData.id);
         result = await supabase
           .from('compliance_standards')
           .update({
@@ -57,7 +57,7 @@ export const useComplianceSave = (
           .eq('report_id', reportId);
       } else {
         // Creazione di un nuovo record
-        console.log("Creating new compliance record");
+        console.log("Creating new compliance record for reportId:", reportId);
         result = await supabase
           .from('compliance_standards')
           .insert({

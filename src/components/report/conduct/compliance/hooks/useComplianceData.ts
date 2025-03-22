@@ -16,7 +16,13 @@ export const useComplianceData = (reportId: string) => {
   const { setNeedsSaving } = useReport();
 
   // Load data
-  useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  const { loadData } = useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  
+  useEffect(() => {
+    if (reportId) {
+      loadData();
+    }
+  }, [reportId, loadData]);
   
   // Get save function
   const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);
