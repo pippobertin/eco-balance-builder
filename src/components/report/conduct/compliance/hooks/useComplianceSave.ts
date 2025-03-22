@@ -1,51 +1,89 @@
 
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ComplianceFormData } from './types';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/hooks/use-report-context';
-import { useCallback } from 'react';
 
 export const useComplianceSave = (
-  reportId: string, 
+  reportId: string,
   formData: ComplianceFormData,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
   const { setNeedsSaving } = useReport();
+  const { toast } = useToast();
 
   const saveData = useCallback(async () => {
-    if (!reportId) return;
+    if (!reportId) {
+      console.error("Cannot save compliance data: reportId is undefined");
+      return;
+    }
     
     setIsSaving(true);
     console.log("Saving compliance data for reportId:", reportId);
 
     try {
-      const { error } = await supabase
-        .from('compliance_standards')
-        .upsert({
-          report_id: reportId,
-          compliance_standards: formData.complianceStandards,
-          compliance_monitoring: formData.complianceMonitoring,
-          updated_at: new Date().toISOString()
-        });
+      // Verifica se esiste già un record
+      const { data: existingData, error: checkError } = await supabase
+        .from('compliance_metrics')
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error saving compliance data:', error);
-        toast.error('Errore durante il salvataggio');
-        return;
+      if (checkError && checkError.code !== 'PGRST116') { // Not found error code
+        throw checkError;
+      }
+
+      let result;
+      
+      if (existingData) {
+        // Aggiornamento di un record esistente
+        result = await supabase
+          .from('compliance_metrics')
+          .update({
+            compliance_standards: formData.complianceStandards,
+            compliance_monitoring: formData.complianceMonitoring,
+            updated_at: new Date().toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Creazione di un nuovo record
+        result = await supabase
+          .from('compliance_metrics')
+          .insert({
+            report_id: reportId,
+            compliance_standards: formData.complianceStandards,
+            compliance_monitoring: formData.complianceMonitoring,
+            updated_at: new Date().toISOString()
+          });
+      }
+
+      if (result.error) {
+        throw result.error;
       }
 
       setNeedsSaving(false);
       setLastSaved(new Date());
-      toast.success('Dati salvati con successo');
+      
+      toast({
+        title: "Successo",
+        description: "Dati di compliance salvati con successo"
+      });
+      
       console.log("Compliance data saved successfully");
-    } catch (error) {
-      console.error('Error in save operation:', error);
-      toast.error('Errore durante il salvataggio');
+    } catch (error: any) {
+      console.error('Error saving compliance data:', error);
+      
+      toast({
+        title: "Errore",
+        description: "Errore durante il salvataggio dei dati di compliance",
+        variant: "destructive"
+      });
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setIsSaving, setLastSaved, setNeedsSaving]);
+  }, [reportId, formData, setIsSaving, setLastSaved, setNeedsSaving, toast]);
 
   return { saveData };
 };
