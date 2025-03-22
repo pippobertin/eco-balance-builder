@@ -66,7 +66,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
       
       {!handleChange && (
         <div className="flex justify-end mt-6">
-          <SaveButton onClick={() => saveData()} isLoading={isSaving} />
+          <SaveButton onClick={saveData} isLoading={isSaving} />
         </div>
       )}
     </div>

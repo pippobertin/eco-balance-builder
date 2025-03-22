@@ -2,15 +2,14 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ComplianceAPIData, ComplianceFormData } from './types';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export const useComplianceLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<ComplianceFormData>>,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
-  const { toast } = useToast();
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -21,7 +20,7 @@ export const useComplianceLoad = (
           .eq('report_id', reportId)
           .maybeSingle();
 
-        if (error) {
+        if (error && error.code !== 'PGRST116') {
           throw error;
         }
 
@@ -31,14 +30,20 @@ export const useComplianceLoad = (
             complianceStandards: apiData.compliance_standards || '',
             complianceMonitoring: apiData.compliance_monitoring || ''
           });
+          
+          if (apiData.updated_at) {
+            setLastSaved(new Date(apiData.updated_at));
+          }
+        } else {
+          setFormData({
+            complianceStandards: '',
+            complianceMonitoring: ''
+          });
+          setLastSaved(null);
         }
       } catch (error: any) {
         console.error('Error loading compliance data:', error.message);
-        toast({
-          title: "Errore",
-          description: `Impossibile caricare i dati di conformità: ${error.message}`,
-          variant: "destructive"
-        });
+        toast.error(`Impossibile caricare i dati di conformità: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
@@ -47,5 +52,5 @@ export const useComplianceLoad = (
     if (reportId) {
       loadData();
     }
-  }, [reportId, setFormData, setIsLoading, toast]);
+  }, [reportId, setFormData, setIsLoading, setLastSaved]);
 };

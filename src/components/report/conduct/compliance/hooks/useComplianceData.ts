@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { ComplianceData, ComplianceFormData } from './types';
+import { ComplianceFormData } from './types';
 import { useReport } from '@/context/ReportContext';
 import { useComplianceLoad } from './useComplianceLoad';
 import { useComplianceSave } from './useComplianceSave';
@@ -16,7 +16,7 @@ export const useComplianceData = (reportId: string) => {
   const { setNeedsSaving } = useReport();
 
   // Load data
-  useComplianceLoad(reportId, setFormData, setIsLoading);
+  useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
   
   // Get save function
   const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);

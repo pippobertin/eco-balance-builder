@@ -12,4 +12,5 @@ export interface ComplianceFormData {
 export interface ComplianceAPIData {
   compliance_standards: string | null;
   compliance_monitoring: string | null;
+  updated_at?: string;
 }

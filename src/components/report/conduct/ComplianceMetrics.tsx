@@ -3,7 +3,6 @@ import React from 'react';
 import { ClipboardCheck } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
-import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
 import ComplianceForm from './compliance/ComplianceForm';
 import ComplianceHeader from './compliance/ComplianceHeader';
 import { useComplianceData } from './compliance/hooks';
@@ -22,8 +21,6 @@ const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handl
     <GlassmorphicCard>
       <div className="space-y-6">
         <ComplianceHeader isSaving={isSaving} lastSaved={lastSaved} />
-        
-        <SectionAutoSaveIndicator className="mb-4"/>
         
         <ComplianceForm 
           reportId={reportId} 
