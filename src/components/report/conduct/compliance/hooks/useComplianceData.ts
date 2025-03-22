@@ -19,7 +19,7 @@ export const useComplianceData = (reportId: string) => {
   useComplianceLoad(reportId, setFormData, setIsLoading);
   
   // Get save function
-  const { saveData } = useComplianceSave(reportId, formData);
+  const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {

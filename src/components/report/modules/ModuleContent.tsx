@@ -1,6 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useReport } from '@/context/ReportContext';
+import EnvironmentalMetrics from '../EnvironmentalMetrics';
+import SocialMetrics from '../SocialMetrics'; 
+import ConductMetrics from '../ConductMetrics';
+import NarrativePATMetrics from '../NarrativePATMetrics';
+import BusinessPartnersMetrics from '../BusinessPartnersMetrics';
 
 export interface ModuleContentProps {
   activeSection?: string;
@@ -14,8 +19,8 @@ export interface ModuleContentProps {
 }
 
 const ModuleContent: React.FC<ModuleContentProps> = ({ 
-  module,
   activeSection,
+  module,
   formValues, 
   setFormValues,
   showNarrativeModule,
@@ -24,7 +29,6 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
   initialField
 }) => {
   const { currentReport } = useReport();
-  const [activeTab, setActiveTab] = useState('basic');
 
   // Placeholder for module content
   const renderContent = () => {
@@ -32,26 +36,61 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
       return <div className="p-6 text-center">Seleziona un report per visualizzarne il contenuto</div>;
     }
 
-    return (
-      <div className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Modulo: {module || activeSection}</h3>
-        
-        <div className="bg-white p-4 rounded-lg border">
-          <p>
-            Contenuto del modulo {module || activeSection} qui. Tab attivo: {activeTab}
-          </p>
-          
-          {formValues && (
-            <div className="mt-4">
-              <p>Form values disponibili: {Object.keys(formValues).join(', ')}</p>
+    // Render the appropriate component based on activeSection
+    switch (activeSection) {
+      case 'environmental':
+        return <EnvironmentalMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialField} 
+        />;
+      case 'social':
+        return <SocialMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialField} 
+        />;
+      case 'conduct':
+        return <ConductMetrics 
+          formValues={formValues} 
+          setFormValues={setFormValues} 
+          initialField={initialField} 
+        />;
+      case 'narrative':
+        if (showNarrativeModule) {
+          return <NarrativePATMetrics 
+            formValues={formValues} 
+            setFormValues={setFormValues} 
+            initialField={initialField} 
+          />;
+        }
+        return <div className="p-6 text-center">Modulo narrativo non disponibile per questo tipo di report</div>;
+      case 'business-partners':
+        if (showBusinessPartnersModule) {
+          return <BusinessPartnersMetrics 
+            formValues={formValues} 
+            setFormValues={setFormValues} 
+            initialField={initialField} 
+          />;
+        }
+        return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;
+      default:
+        return (
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-4">Modulo: {module || activeSection}</h3>
+            <div className="bg-white p-4 rounded-lg border">
+              <p>Seleziona una sezione dal menu sopra per visualizzarne il contenuto</p>
             </div>
-          )}
-        </div>
-      </div>
-    );
+          </div>
+        );
+    }
   };
 
-  return renderContent();
+  return (
+    <div className="bg-white shadow-sm rounded-lg p-6">
+      {renderContent()}
+    </div>
+  );
 };
 
 export default ModuleContent;

@@ -1,16 +1,19 @@
 
-import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ComplianceFormData } from './types';
 import { toast } from 'sonner';
 import { useReport } from '@/context/ReportContext';
+import { useCallback } from 'react';
 
-export const useComplianceSave = (reportId: string, formData: ComplianceFormData) => {
-  const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+export const useComplianceSave = (
+  reportId: string, 
+  formData: ComplianceFormData,
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+) => {
   const { setNeedsSaving } = useReport();
 
-  const saveData = async () => {
+  const saveData = useCallback(async () => {
     if (!reportId) return;
     
     setIsSaving(true);
@@ -41,7 +44,7 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [reportId, formData, setIsSaving, setLastSaved, setNeedsSaving]);
 
-  return { saveData, isSaving, lastSaved };
+  return { saveData };
 };
