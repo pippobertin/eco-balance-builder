@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { ComplianceFormData } from './types';
 import { toast } from 'sonner';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 import { useCallback } from 'react';
 
 export const useComplianceSave = (
@@ -17,6 +17,7 @@ export const useComplianceSave = (
     if (!reportId) return;
     
     setIsSaving(true);
+    console.log("Saving compliance data for reportId:", reportId);
 
     try {
       const { error } = await supabase
@@ -26,8 +27,7 @@ export const useComplianceSave = (
           compliance_standards: formData.complianceStandards,
           compliance_monitoring: formData.complianceMonitoring,
           updated_at: new Date().toISOString()
-        })
-        .select();
+        });
 
       if (error) {
         console.error('Error saving compliance data:', error);
@@ -38,6 +38,7 @@ export const useComplianceSave = (
       setNeedsSaving(false);
       setLastSaved(new Date());
       toast.success('Dati salvati con successo');
+      console.log("Compliance data saved successfully");
     } catch (error) {
       console.error('Error in save operation:', error);
       toast.error('Errore durante il salvataggio');

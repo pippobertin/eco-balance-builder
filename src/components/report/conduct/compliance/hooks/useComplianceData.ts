@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ComplianceFormData } from './types';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 import { useComplianceLoad } from './useComplianceLoad';
 import { useComplianceSave } from './useComplianceSave';
 
@@ -32,11 +32,8 @@ export const useComplianceData = (reportId: string) => {
     formData,
     setFormData,
     isLoading,
-    setIsLoading,
     isSaving,
-    setIsSaving,
     lastSaved,
-    setLastSaved,
     saveData
   };
 };

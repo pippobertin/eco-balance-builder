@@ -2,14 +2,10 @@
 import React from 'react';
 import { ClipboardCheck } from 'lucide-react';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useReport } from '@/hooks/use-report-context';
 
-interface ComplianceHeaderProps {
-  isSaving: boolean;
-  lastSaved: Date | null;
-}
-
-const ComplianceHeader: React.FC<ComplianceHeaderProps> = ({ isSaving, lastSaved }) => {
-  const needsSaving = isSaving;
+const ComplianceHeader: React.FC = () => {
+  const { needsSaving, lastSaved } = useReport();
 
   return (
     <div className="flex items-center justify-between mb-4">
