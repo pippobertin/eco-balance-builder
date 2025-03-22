@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { StrategyAPIData, StrategyFormData } from '../types';
@@ -19,7 +20,7 @@ export const useStrategyLoad = (
         setIsLoading(true);
         console.log("Loading strategy data for report:", reportId);
         
-        // First, check if we have duplicate entries and clean them up
+        // Get all entries to check for duplicates
         const { data: allEntries, error: countError } = await supabase
           .from('narrative_strategy')
           .select('*')
@@ -27,23 +28,20 @@ export const useStrategyLoad = (
           
         if (countError) {
           console.error("Error checking strategy entries:", countError);
-        } else if (allEntries && allEntries.length > 1) {
-          // Keep only the most recent entry and delete the rest
+          throw countError;
+        } 
+        
+        // If there are duplicates, we should handle them in the database with SQL
+        if (allEntries && allEntries.length > 1) {
+          console.warn(`Found ${allEntries.length} strategy entries for report ${reportId} - using most recent`);
+          
+          // For now, just use the most recent entry (we'll clean up duplicates with SQL)
           const sortedEntries = [...allEntries].sort((a, b) => 
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            new Date(b.updated_at || '').getTime() - new Date(a.updated_at || '').getTime()
           );
           
           const latestEntry = sortedEntries[0];
           
-          // Delete older entries
-          for (let i = 1; i < sortedEntries.length; i++) {
-            await supabase
-              .from('narrative_strategy')
-              .delete()
-              .eq('id', sortedEntries[i].id);
-          }
-          
-          // Use the latest entry data
           const apiData = latestEntry as StrategyAPIData;
           setFormData({
             productsServices: apiData.products_services || '',

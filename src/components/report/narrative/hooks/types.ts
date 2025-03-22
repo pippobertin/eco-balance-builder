@@ -1,4 +1,3 @@
-
 // Common types for all narrative sections
 export interface SaveButtonProps {
   onClick: () => Promise<void>;
@@ -25,6 +24,7 @@ export interface StrategyAPIData {
   markets: string | null;
   business_relations: string | null;
   sustainability_strategy: string | null;
+  updated_at?: string | null;
 }
 
 // N2 - Material Issues
@@ -38,6 +38,7 @@ export interface MaterialIssuesFormData {
 
 export interface MaterialIssuesAPIData {
   material_issues_description: string | null;
+  updated_at?: string | null;
 }
 
 // N3 - Issues Management
