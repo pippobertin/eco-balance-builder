@@ -1,11 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
 import ComplianceForm from './compliance/ComplianceForm';
 import ComplianceHeader from './compliance/ComplianceHeader';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
-import { useComplianceData } from './compliance/hooks';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ComplianceMetricsProps {
   formValues?: any;
@@ -13,32 +13,31 @@ interface ComplianceMetricsProps {
 }
 
 const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handleChange }) => {
-  const { currentReport } = useReport();
+  const { currentReport, needsSaving, lastSaved } = useReport();
   const reportId = currentReport?.id;
-  const { lastSaved, isSaving, formData, loadData } = useComplianceData(reportId || '');
-
-  // Load data when the component mounts or reportId changes
-  useEffect(() => {
-    if (reportId) {
-      console.log("ComplianceMetrics - Loading data for reportId:", reportId);
-      loadData();
-    }
-  }, [reportId, loadData]);
-
-  // Check if there are existing values in the parent form or use local state
-  const displayValues = formValues?.conductMetrics || formData;
 
   return (
     <GlassmorphicCard>
       <div className="space-y-6">
         <ComplianceHeader />
-        <AutoSaveIndicator needsSaving={isSaving} lastSaved={lastSaved} />
         
-        <ComplianceForm 
-          reportId={reportId} 
-          formValues={displayValues}
-          handleChange={handleChange}
-        />
+        {lastSaved && (
+          <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
+        )}
+        
+        {!reportId ? (
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        ) : (
+          <ComplianceForm 
+            reportId={reportId} 
+            formValues={formValues}
+            handleChange={handleChange}
+          />
+        )}
       </div>
     </GlassmorphicCard>
   );

@@ -21,6 +21,14 @@ export const useComplianceData = (reportId: string) => {
   // Get save function
   const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);
 
+  // Initial load when the component mounts
+  useEffect(() => {
+    if (reportId) {
+      console.log("useComplianceData - Initial load for reportId:", reportId);
+      loadData();
+    }
+  }, [reportId, loadData]);
+
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
     if (!isLoading && formData && (formData.complianceStandards || formData.complianceMonitoring)) {

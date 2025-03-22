@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     }
   };
   
+  // Determine which data to display - use parent form values if provided, otherwise use local state
   const displayData = formValues || formData;
   
   useEffect(() => {

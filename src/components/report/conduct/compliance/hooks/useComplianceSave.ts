@@ -22,7 +22,7 @@ export const useComplianceSave = (
         description: "ID Report mancante, impossibile salvare",
         variant: "destructive"
       });
-      return;
+      return false;
     }
     
     setIsSaving(true);
@@ -33,7 +33,7 @@ export const useComplianceSave = (
     console.log("Saving compliance data for reportId:", reportId, dataToSubmit);
 
     try {
-      // Verifica se esiste già un record
+      // Check if a record already exists
       const { data: existingData, error: checkError } = await supabase
         .from('compliance_standards')
         .select('id')
@@ -49,7 +49,7 @@ export const useComplianceSave = (
       const timestamp = new Date().toISOString();
       
       if (existingData) {
-        // Aggiornamento di un record esistente
+        // Update an existing record
         console.log("Updating existing compliance record with ID:", existingData.id);
         result = await supabase
           .from('compliance_standards')
@@ -60,7 +60,7 @@ export const useComplianceSave = (
           })
           .eq('report_id', reportId);
       } else {
-        // Creazione di un nuovo record
+        // Create a new record
         console.log("Creating new compliance record for reportId:", reportId);
         result = await supabase
           .from('compliance_standards')
