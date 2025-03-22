@@ -31,8 +31,8 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
     const { name, value } = e.target;
     console.log(`ConductMetrics - Updating field ${name} with value:`, value);
     
-    // Only apply the update if it's the 'conductMetrics' field
-    if (name === 'conductMetrics') {
+    // For structured updates (from child components)
+    if (name === 'conductMetrics' && typeof value === 'object') {
       setFormValues((prev: any) => {
         // Properly merge the conductMetrics object
         const updatedValues = {
@@ -46,7 +46,7 @@ const ConductMetrics: React.FC<ConductMetricsProps> = ({
         return updatedValues;
       });
     } else {
-      // For any other fields, handle them normally
+      // For direct field updates
       setFormValues((prev: any) => {
         const updatedValues = {
           ...prev,

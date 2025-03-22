@@ -33,54 +33,38 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);
         
-        // Only update if the form doesn't already have values
-        if (!formValues?.conductMetrics?.antiCorruptionConvictions && 
-            !formValues?.conductMetrics?.antiCorruptionSanctions && 
-            !formValues?.conductMetrics?.antiCorruptionDetails) {
-              
-          const updatedConductMetrics = {
-            ...(formValues?.conductMetrics || {}),
-            antiCorruptionConvictions: antiCorruptionData.convictionsNumber,
-            antiCorruptionSanctions: antiCorruptionData.sanctionsAmount,
-            antiCorruptionDetails: antiCorruptionData.additionalDetails
-          };
-          
-          const syntheticEvent = {
-            target: {
-              name: 'conductMetrics',
-              value: updatedConductMetrics
-            }
-          } as React.ChangeEvent<HTMLInputElement>;
-          
-          handleChange(syntheticEvent);
-        }
+        // Create the update object with the new values
+        const updatedConductMetrics = {
+          antiCorruptionConvictions: antiCorruptionData.convictionsNumber !== null 
+            ? String(antiCorruptionData.convictionsNumber) 
+            : '',
+          antiCorruptionSanctions: antiCorruptionData.sanctionsAmount !== null 
+            ? String(antiCorruptionData.sanctionsAmount) 
+            : '',
+          antiCorruptionDetails: antiCorruptionData.additionalDetails || ''
+        };
+        
+        // Create a synthetic event with the proper structure
+        const syntheticEvent = {
+          target: {
+            name: 'conductMetrics',
+            value: updatedConductMetrics
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        // Pass the event to the parent handler
+        handleChange(syntheticEvent);
       }
     }, [antiCorruptionData, loading]); // Remove formValues and handleChange from dependencies
 
-    // Handle field changes properly
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
-      
-      // Create an updated conductMetrics object with the new value
-      const updatedConductMetrics = {
-        ...(formValues?.conductMetrics || {}),
-        [name]: value
-      };
-      
-      // Create a synthetic event with the proper structure
-      const syntheticEvent = {
-        target: {
-          name: 'conductMetrics',
-          value: updatedConductMetrics
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      
-      // Pass the event to the parent handler
-      handleChange(syntheticEvent);
+      handleChange(e);
     };
 
     const handleSaveData = async () => {
       if (!formValues?.conductMetrics) {
+        console.log("No conduct metrics data to save");
         return;
       }
       
@@ -135,7 +119,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="text"
                   inputMode="numeric"
                   placeholder="0" 
-                  value={formValues.conductMetrics?.antiCorruptionConvictions || ""}
+                  value={formValues.conductMetrics?.antiCorruptionConvictions || ''}
                   onChange={handleFieldChange}
                 />
               </div>
@@ -148,7 +132,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="text"
                   inputMode="numeric"
                   placeholder="0.00" 
-                  value={formValues.conductMetrics?.antiCorruptionSanctions || ""}
+                  value={formValues.conductMetrics?.antiCorruptionSanctions || ''}
                   onChange={handleFieldChange}
                 />
               </div>
@@ -160,7 +144,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 id="antiCorruptionDetails" 
                 name="antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
-                value={formValues.conductMetrics?.antiCorruptionDetails || ""}
+                value={formValues.conductMetrics?.antiCorruptionDetails || ''}
                 onChange={handleFieldChange}
                 className="min-h-[100px]" 
               />
