@@ -16,7 +16,7 @@ export const useComplianceLoad = (
     if (!reportId) {
       console.log("No reportId provided to useComplianceLoad");
       setIsLoading(false);
-      return;
+      return false;
     }
 
     setIsLoading(true);
@@ -37,7 +37,7 @@ export const useComplianceLoad = (
           variant: "destructive"
         });
         setIsLoading(false);
-        return;
+        return false;
       }
 
       console.log("Compliance data loaded:", data);
@@ -51,6 +51,9 @@ export const useComplianceLoad = (
         if (data.updated_at) {
           setLastSaved(new Date(data.updated_at));
         }
+        
+        setIsLoading(false);
+        return true;
       } else {
         console.log("No compliance data found for this report");
         // Reset form to empty values
@@ -59,6 +62,8 @@ export const useComplianceLoad = (
           complianceMonitoring: ''
         });
         setLastSaved(null);
+        setIsLoading(false);
+        return false;
       }
     } catch (error) {
       console.error('Error in compliance data loading:', error);
@@ -67,8 +72,8 @@ export const useComplianceLoad = (
         description: "Si è verificato un errore durante il caricamento dei dati",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
+      return false;
     }
   }, [reportId, setFormData, setIsLoading, setLastSaved, toast]);
 

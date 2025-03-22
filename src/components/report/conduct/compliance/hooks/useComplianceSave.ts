@@ -1,9 +1,8 @@
 
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ComplianceFormData } from './types';
 import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/hooks/use-report-context';
+import { ComplianceFormData } from './types';
 
 export const useComplianceSave = (
   reportId: string,
@@ -11,90 +10,84 @@ export const useComplianceSave = (
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
-  const { setNeedsSaving } = useReport();
   const { toast } = useToast();
 
-  const saveData = useCallback(async (dataToSave?: ComplianceFormData) => {
+  const saveData = useCallback(async (customData?: ComplianceFormData) => {
     if (!reportId) {
-      console.error("Cannot save compliance data: reportId is undefined");
+      console.error("Cannot save: Report ID is missing");
       toast({
         title: "Errore",
-        description: "ID Report mancante, impossibile salvare",
+        description: "Impossibile salvare: ID report mancante",
         variant: "destructive"
       });
       return false;
     }
+
+    const dataToSave = customData || formData;
     
+    console.log("Saving compliance data:", dataToSave);
     setIsSaving(true);
-    
-    // Use provided data or fall back to formData from the hook
-    const dataToSubmit = dataToSave || formData;
-    
-    console.log("Saving compliance data for reportId:", reportId, dataToSubmit);
 
     try {
-      // Check if a record already exists
+      // First check if a record exists
       const { data: existingData, error: checkError } = await supabase
         .from('compliance_standards')
         .select('id')
         .eq('report_id', reportId)
         .maybeSingle();
 
-      if (checkError) {
-        console.error("Error checking existing compliance data:", checkError);
+      if (checkError && checkError.code !== 'PGRST116') {
         throw checkError;
       }
 
+      const now = new Date().toISOString();
       let result;
-      const timestamp = new Date().toISOString();
-      
+
       if (existingData) {
-        // Update an existing record
-        console.log("Updating existing compliance record with ID:", existingData.id);
-        result = await supabase
+        // Update existing record
+        const { data, error } = await supabase
           .from('compliance_standards')
           .update({
-            compliance_standards: dataToSubmit.complianceStandards,
-            compliance_monitoring: dataToSubmit.complianceMonitoring,
-            updated_at: timestamp
+            compliance_standards: dataToSave.complianceStandards,
+            compliance_monitoring: dataToSave.complianceMonitoring,
+            updated_at: now
           })
-          .eq('report_id', reportId);
+          .eq('report_id', reportId)
+          .select();
+
+        if (error) throw error;
+        result = data;
       } else {
-        // Create a new record
-        console.log("Creating new compliance record for reportId:", reportId);
-        result = await supabase
+        // Insert new record
+        const { data, error } = await supabase
           .from('compliance_standards')
           .insert({
             report_id: reportId,
-            compliance_standards: dataToSubmit.complianceStandards,
-            compliance_monitoring: dataToSubmit.complianceMonitoring,
-            updated_at: timestamp
-          });
+            compliance_standards: dataToSave.complianceStandards,
+            compliance_monitoring: dataToSave.complianceMonitoring,
+            updated_at: now
+          })
+          .select();
+
+        if (error) throw error;
+        result = data;
       }
 
-      if (result.error) {
-        console.error("Error saving compliance data:", result.error);
-        throw result.error;
-      }
-
-      console.log("Compliance data saved successfully");
-      setNeedsSaving(false);
-      
-      const now = new Date();
-      setLastSaved(now);
+      console.log("Compliance data saved successfully:", result);
+      setLastSaved(new Date(now));
       
       toast({
-        title: "Successo",
-        description: "Dati di compliance salvati con successo"
+        title: "Salvato con successo",
+        description: "I dati di compliance sono stati salvati"
       });
       
       return true;
     } catch (error: any) {
-      console.error('Error saving compliance data:', error);
+      console.error("Error saving compliance data:", error);
       
       toast({
-        title: "Errore",
-        description: "Errore durante il salvataggio dei dati di compliance: " + (error.message || error),
+        title: "Errore di salvataggio",
+        description: error.message || "Si è verificato un errore durante il salvataggio dei dati",
         variant: "destructive"
       });
       
@@ -102,7 +95,7 @@ export const useComplianceSave = (
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setIsSaving, setLastSaved, setNeedsSaving, toast]);
+  }, [reportId, formData, setIsSaving, setLastSaved, toast]);
 
   return { saveData };
 };
