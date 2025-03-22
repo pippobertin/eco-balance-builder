@@ -671,7 +671,7 @@ export type Database = {
           {
             foreignKeyName: "narrative_governance_report_id_fkey"
             columns: ["report_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },
@@ -718,7 +718,7 @@ export type Database = {
           {
             foreignKeyName: "narrative_issues_management_report_id_fkey"
             columns: ["report_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },
@@ -750,7 +750,7 @@ export type Database = {
           {
             foreignKeyName: "narrative_material_issues_report_id_fkey"
             columns: ["report_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },
@@ -791,7 +791,7 @@ export type Database = {
           {
             foreignKeyName: "narrative_stakeholders_report_id_fkey"
             columns: ["report_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },
@@ -832,7 +832,7 @@ export type Database = {
           {
             foreignKeyName: "narrative_strategy_report_id_fkey"
             columns: ["report_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },

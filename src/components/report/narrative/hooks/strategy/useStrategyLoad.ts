@@ -20,45 +20,6 @@ export const useStrategyLoad = (
         setIsLoading(true);
         console.log("Loading strategy data for report:", reportId);
         
-        // Get all entries to check for duplicates
-        const { data: allEntries, error: countError } = await supabase
-          .from('narrative_strategy')
-          .select('*')
-          .eq('report_id', reportId);
-          
-        if (countError) {
-          console.error("Error checking strategy entries:", countError);
-          throw countError;
-        } 
-        
-        // If there are duplicates, we should handle them in the database with SQL
-        if (allEntries && allEntries.length > 1) {
-          console.warn(`Found ${allEntries.length} strategy entries for report ${reportId} - using most recent`);
-          
-          // For now, just use the most recent entry (we'll clean up duplicates with SQL)
-          const sortedEntries = [...allEntries].sort((a, b) => 
-            new Date(b.updated_at || '').getTime() - new Date(a.updated_at || '').getTime()
-          );
-          
-          const latestEntry = sortedEntries[0];
-          
-          const apiData = latestEntry as StrategyAPIData;
-          setFormData({
-            productsServices: apiData.products_services || '',
-            markets: apiData.markets || '',
-            businessRelations: apiData.business_relations || '',
-            sustainabilityStrategy: apiData.sustainability_strategy || ''
-          });
-          
-          if (apiData.updated_at) {
-            setLastSaved(new Date(apiData.updated_at));
-          }
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // Normal case - fetch single entry
         const { data, error } = await supabase
           .from('narrative_strategy')
           .select('*')

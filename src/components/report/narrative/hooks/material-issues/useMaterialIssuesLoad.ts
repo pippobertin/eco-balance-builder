@@ -19,42 +19,6 @@ export const useMaterialIssuesLoad = (
       try {
         setIsLoading(true);
         
-        // Get all entries to check for duplicates
-        const { data: allEntries, error: countError } = await supabase
-          .from('narrative_material_issues')
-          .select('*')
-          .eq('report_id', reportId);
-          
-        if (countError) {
-          console.error("Error checking material issues entries:", countError);
-          throw countError;
-        }
-        
-        // If there are duplicates, we should handle them in the database with SQL
-        if (allEntries && allEntries.length > 1) {
-          console.warn(`Found ${allEntries.length} material issues entries for report ${reportId} - using most recent`);
-          
-          // For now, just use the most recent entry (we'll clean up duplicates with SQL)
-          const sortedEntries = [...allEntries].sort((a, b) => 
-            new Date(b.updated_at || '').getTime() - new Date(a.updated_at || '').getTime()
-          );
-          
-          const latestEntry = sortedEntries[0];
-          
-          const apiData = latestEntry as MaterialIssuesAPIData;
-          setFormData({
-            materialIssuesDescription: apiData.material_issues_description || ''
-          });
-          
-          if (apiData.updated_at) {
-            setLastSaved(new Date(apiData.updated_at));
-          }
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // Normal case - fetch single entry
         const { data, error } = await supabase
           .from('narrative_material_issues')
           .select('*')

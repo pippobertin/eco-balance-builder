@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { GovernanceFormData } from '../types';
 import { toast } from 'sonner';
@@ -13,7 +13,7 @@ export const useGovernanceSave = (
   const [isSaving, setIsSaving] = useState(false);
   const { setNeedsSaving } = useReport();
 
-  const saveData = async () => {
+  const saveData = useCallback(async () => {
     if (!reportId) return;
     
     setIsSaving(true);
@@ -67,7 +67,7 @@ export const useGovernanceSave = (
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [reportId, formData, setLastSaved, setNeedsSaving]);
 
   return { saveData, isSaving };
 };

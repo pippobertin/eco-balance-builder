@@ -1,3 +1,4 @@
+
 // Common types for all narrative sections
 export interface SaveButtonProps {
   onClick: () => Promise<void>;
@@ -67,6 +68,7 @@ export interface IssuesManagementAPIData {
   energy_efficiency_actions: string | null;
   stakeholders_impacts: string | null;
   anti_corruption_measures: string | null;
+  updated_at?: string | null;
 }
 
 // N4 - Stakeholders
@@ -83,6 +85,7 @@ export interface StakeholdersFormData {
 export interface StakeholdersAPIData {
   stakeholder_categories: string | null;
   engagement_methods: string | null;
+  updated_at?: string | null;
 }
 
 // N5 - Governance
@@ -96,4 +99,5 @@ export interface GovernanceFormData {
 
 export interface GovernanceAPIData {
   sustainability_governance: string | null;
+  updated_at?: string | null;
 }

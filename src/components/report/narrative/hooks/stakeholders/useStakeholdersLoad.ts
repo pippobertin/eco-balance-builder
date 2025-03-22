@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { StakeholdersFormData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,45 +17,6 @@ export const useStakeholdersLoad = (
       try {
         setIsLoading(true);
         
-        // First, check if we have duplicate entries and clean them up
-        const { data: allEntries, error: countError } = await supabase
-          .from('narrative_stakeholders')
-          .select('*')
-          .eq('report_id', reportId);
-          
-        if (countError) {
-          console.error("Error checking stakeholders entries:", countError);
-        } else if (allEntries && allEntries.length > 1) {
-          // Keep only the most recent entry and delete the rest
-          const sortedEntries = [...allEntries].sort((a, b) => 
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-          );
-          
-          const latestEntry = sortedEntries[0];
-          
-          // Delete older entries
-          for (let i = 1; i < sortedEntries.length; i++) {
-            await supabase
-              .from('narrative_stakeholders')
-              .delete()
-              .eq('id', sortedEntries[i].id);
-          }
-          
-          // Use the latest entry data
-          setFormData({
-            keyStakeholders: latestEntry.stakeholder_categories || '',
-            stakeholderEngagement: latestEntry.engagement_methods || ''
-          });
-          
-          if (latestEntry.updated_at) {
-            setLastSaved(new Date(latestEntry.updated_at));
-          }
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // Normal case - fetch single entry
         const { data, error } = await supabase
           .from('narrative_stakeholders')
           .select('*')
