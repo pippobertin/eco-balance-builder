@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { MaterialIssuesFormData } from '../types';
 import { useReport } from '@/context/ReportContext';
-import { useMaterialIssuesLoad } from './useMaterialIssuesLoad';
-import { useMaterialIssuesSave } from './useMaterialIssuesSave';
 
 export const useMaterialIssuesData = (reportId: string) => {
   const [formData, setFormData] = useState<MaterialIssuesFormData>({
@@ -14,12 +12,6 @@ export const useMaterialIssuesData = (reportId: string) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
   
-  // Load data
-  useMaterialIssuesLoad(reportId, setFormData, setIsLoading);
-  
-  // Get save function
-  const { saveData } = useMaterialIssuesSave(reportId, formData);
-
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
     if (!isLoading) {
@@ -35,7 +27,6 @@ export const useMaterialIssuesData = (reportId: string) => {
     isSaving,
     setIsSaving,
     lastSaved,
-    setLastSaved,
-    saveData
+    setLastSaved
   };
 };

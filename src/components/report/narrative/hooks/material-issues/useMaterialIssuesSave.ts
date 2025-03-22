@@ -7,6 +7,7 @@ import { useReport } from '@/context/ReportContext';
 
 export const useMaterialIssuesSave = (reportId: string, formData: MaterialIssuesFormData) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
 
   const saveData = async () => {
@@ -15,14 +16,17 @@ export const useMaterialIssuesSave = (reportId: string, formData: MaterialIssues
     setIsSaving(true);
 
     try {
+      console.log('Saving material issues data for report:', reportId);
+      
       const { error } = await supabase
         .from('narrative_material_issues')
         .upsert({
           report_id: reportId,
           material_issues_description: formData.materialIssuesDescription,
           updated_at: new Date().toISOString()
-        })
-        .select();
+        }, {
+          onConflict: 'report_id'
+        });
 
       if (error) {
         console.error('Error saving material issues data:', error);
@@ -30,6 +34,8 @@ export const useMaterialIssuesSave = (reportId: string, formData: MaterialIssues
         return;
       }
 
+      const newSavedTime = new Date();
+      setLastSaved(newSavedTime);
       setNeedsSaving(false);
       toast.success('Dati salvati con successo');
     } catch (error) {
@@ -40,5 +46,5 @@ export const useMaterialIssuesSave = (reportId: string, formData: MaterialIssues
     }
   };
 
-  return { saveData, isSaving };
+  return { saveData, isSaving, lastSaved };
 };

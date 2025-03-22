@@ -6,7 +6,9 @@ import { BriefcaseBusiness } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
-import { useStrategyData, useStrategyLoad, useStrategySave } from './hooks';
+import { useStrategyData } from './hooks/strategy/useStrategyData';
+import { useStrategyLoad } from './hooks/strategy/useStrategyLoad';
+import { useStrategySave } from './hooks/strategy/useStrategySave';
 import { useReport } from '@/context/ReportContext';
 
 interface StrategySectionProps {
@@ -14,12 +16,14 @@ interface StrategySectionProps {
 }
 
 const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useStrategyData(reportId);
+  const { formData, setFormData, isLoading, setIsLoading, isSaving, setIsSaving, lastSaved, setLastSaved } = useStrategyData(reportId);
   const { needsSaving } = useReport();
-  const { saveData } = useStrategySave(reportId, formData);
-
+  
   // Load data
   useStrategyLoad(reportId, setFormData, setIsLoading);
+  
+  // Get save function
+  const { saveData } = useStrategySave(reportId, formData);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -27,6 +31,12 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    await saveData();
+    setIsSaving(false);
   };
 
   if (isLoading) {
@@ -40,7 +50,7 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
         <h3 className="text-xl font-semibold">N1 - Strategia: modello aziendale e iniziative di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4"/>
+      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
       
       <div className="space-y-4">
         <div>
@@ -92,7 +102,7 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
         </div>
 
         <div className="flex justify-end">
-          <SaveButton onClick={saveData} isLoading={isSaving} />
+          <SaveButton onClick={handleSave} isLoading={isSaving} />
         </div>
       </div>
     </GlassmorphicCard>

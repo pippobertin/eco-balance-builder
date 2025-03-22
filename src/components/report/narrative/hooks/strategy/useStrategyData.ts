@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { StrategyFormData } from '../types';
 import { useReport } from '@/context/ReportContext';
-import { useStrategyLoad } from './useStrategyLoad';
-import { useStrategySave } from './useStrategySave';
 
 export const useStrategyData = (reportId: string) => {
   const [formData, setFormData] = useState<StrategyFormData>({
@@ -17,12 +15,6 @@ export const useStrategyData = (reportId: string) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
   
-  // Load data
-  useStrategyLoad(reportId, setFormData, setIsLoading);
-  
-  // Get save function
-  const { saveData } = useStrategySave(reportId, formData);
-
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
     if (!isLoading) {
@@ -38,7 +30,6 @@ export const useStrategyData = (reportId: string) => {
     isSaving,
     setIsSaving,
     lastSaved,
-    setLastSaved,
-    saveData
+    setLastSaved
   };
 };

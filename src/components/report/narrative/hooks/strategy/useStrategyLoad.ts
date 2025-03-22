@@ -13,8 +13,11 @@ export const useStrategyLoad = (
 
   useEffect(() => {
     const loadData = async () => {
+      if (!reportId) return;
+      
       try {
         setIsLoading(true);
+        console.log("Loading strategy data for report:", reportId);
         
         // Query the database for strategy data
         const { data, error } = await supabase
@@ -29,12 +32,22 @@ export const useStrategyLoad = (
 
         // If data exists, update the form data
         if (data) {
+          console.log("Strategy data loaded:", data);
           const apiData = data as StrategyAPIData;
           setFormData({
             productsServices: apiData.products_services || '',
             markets: apiData.markets || '',
             businessRelations: apiData.business_relations || '',
             sustainabilityStrategy: apiData.sustainability_strategy || ''
+          });
+        } else {
+          console.log("No strategy data found for report ID:", reportId);
+          // Reset to empty values if no data found
+          setFormData({
+            productsServices: '',
+            markets: '',
+            businessRelations: '',
+            sustainabilityStrategy: ''
           });
         }
       } catch (error: any) {
