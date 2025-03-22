@@ -6,20 +6,22 @@ import { Building } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
-import { useGovernanceData, useGovernanceLoad, useGovernanceSave } from './hooks';
-import { useReport } from '@/context/ReportContext';
+import { useGovernanceData } from './hooks/governance/useGovernanceData';
+import { useGovernanceLoad } from './hooks/governance/useGovernanceLoad';
+import { useGovernanceSave } from './hooks/governance/useGovernanceSave';
 
 interface GovernanceSectionProps {
   reportId: string;
 }
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useGovernanceData(reportId);
-  const { needsSaving } = useReport();
-  const { saveData } = useGovernanceSave(reportId, formData);
-
+  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useGovernanceData(reportId);
+  
   // Load data
-  useGovernanceLoad(reportId, setFormData, setIsLoading);
+  useGovernanceLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  
+  // Get save function
+  const { saveData, isSaving } = useGovernanceSave(reportId, formData, setLastSaved);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,7 +42,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
         <h3 className="text-xl font-semibold">N5 - Governance: responsabilità in materia di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4"/>
+      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
       
       <div className="space-y-4">
         <div>

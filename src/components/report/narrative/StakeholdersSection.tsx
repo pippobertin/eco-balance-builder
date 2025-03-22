@@ -6,20 +6,22 @@ import { Users } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
-import { useStakeholdersData, useStakeholdersLoad, useStakeholdersSave } from './hooks';
-import { useReport } from '@/context/ReportContext';
+import { useStakeholdersData } from './hooks/stakeholders/useStakeholdersData';
+import { useStakeholdersLoad } from './hooks/stakeholders/useStakeholdersLoad';
+import { useStakeholdersSave } from './hooks/stakeholders/useStakeholdersSave';
 
 interface StakeholdersSectionProps {
   reportId: string;
 }
 
 const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useStakeholdersData(reportId);
-  const { needsSaving } = useReport();
-  const { saveData } = useStakeholdersSave(reportId, formData);
-
+  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useStakeholdersData(reportId);
+  
   // Load data
-  useStakeholdersLoad(reportId, setFormData, setIsLoading);
+  useStakeholdersLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  
+  // Get save function
+  const { saveData, isSaving } = useStakeholdersSave(reportId, formData, setLastSaved);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,7 +42,7 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) =
         <h3 className="text-xl font-semibold">N4 - Principali portatori di interessi</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4"/>
+      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
       
       <div className="space-y-4">
         <div>

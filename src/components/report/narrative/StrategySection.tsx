@@ -16,14 +16,13 @@ interface StrategySectionProps {
 }
 
 const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, setIsSaving, lastSaved, setLastSaved } = useStrategyData(reportId);
-  const { needsSaving } = useReport();
+  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useStrategyData(reportId);
   
   // Load data
-  useStrategyLoad(reportId, setFormData, setIsLoading);
+  useStrategyLoad(reportId, setFormData, setIsLoading, setLastSaved);
   
   // Get save function
-  const { saveData } = useStrategySave(reportId, formData);
+  const { saveData, isSaving } = useStrategySave(reportId, formData, setLastSaved);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,12 +30,6 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await saveData();
-    setIsSaving(false);
   };
 
   if (isLoading) {
@@ -102,7 +95,7 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
         </div>
 
         <div className="flex justify-end">
-          <SaveButton onClick={handleSave} isLoading={isSaving} />
+          <SaveButton onClick={saveData} isLoading={isSaving} />
         </div>
       </div>
     </GlassmorphicCard>

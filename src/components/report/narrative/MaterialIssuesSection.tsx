@@ -6,20 +6,22 @@ import { Target } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
-import { useMaterialIssuesData, useMaterialIssuesLoad, useMaterialIssuesSave } from './hooks';
-import { useReport } from '@/context/ReportContext';
+import { useMaterialIssuesData } from './hooks/material-issues/useMaterialIssuesData';
+import { useMaterialIssuesLoad } from './hooks/material-issues/useMaterialIssuesLoad';
+import { useMaterialIssuesSave } from './hooks/material-issues/useMaterialIssuesSave';
 
 interface MaterialIssuesSectionProps {
   reportId: string;
 }
 
 const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useMaterialIssuesData(reportId);
-  const { needsSaving } = useReport();
-  const { saveData } = useMaterialIssuesSave(reportId, formData);
-
+  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useMaterialIssuesData(reportId);
+  
   // Load data
-  useMaterialIssuesLoad(reportId, setFormData, setIsLoading);
+  useMaterialIssuesLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  
+  // Get save function
+  const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData, setLastSaved);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,7 +42,7 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
         <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4"/>
+      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
       
       <div className="space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">

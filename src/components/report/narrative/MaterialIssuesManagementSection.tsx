@@ -6,20 +6,22 @@ import { FileText } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSaveIndicator';
-import { useIssuesManagementData, useIssuesManagementLoad, useIssuesManagementSave } from './hooks';
-import { useReport } from '@/context/ReportContext';
+import { useIssuesManagementData } from './hooks/issues-management/useIssuesManagementData';
+import { useIssuesManagementLoad } from './hooks/issues-management/useIssuesManagementLoad';
+import { useIssuesManagementSave } from './hooks/issues-management/useIssuesManagementSave';
 
 interface MaterialIssuesManagementSectionProps {
   reportId: string;
 }
 
 const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, isSaving, lastSaved } = useIssuesManagementData(reportId);
-  const { needsSaving } = useReport();
-  const { saveData } = useIssuesManagementSave(reportId, formData);
-
+  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useIssuesManagementData(reportId);
+  
   // Load data
-  useIssuesManagementLoad(reportId, setFormData, setIsLoading);
+  useIssuesManagementLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  
+  // Get save function
+  const { saveData, isSaving } = useIssuesManagementSave(reportId, formData, setLastSaved);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,7 +42,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
         <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4"/>
+      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
       
       <div className="space-y-4">
         <div>

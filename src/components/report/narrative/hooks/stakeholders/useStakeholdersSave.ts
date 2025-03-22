@@ -5,7 +5,11 @@ import { StakeholdersFormData } from '../types';
 import { toast } from 'sonner';
 import { useReport } from '@/context/ReportContext';
 
-export const useStakeholdersSave = (reportId: string, formData: StakeholdersFormData) => {
+export const useStakeholdersSave = (
+  reportId: string, 
+  formData: StakeholdersFormData,
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+) => {
   const [isSaving, setIsSaving] = useState(false);
   const { setNeedsSaving } = useReport();
 
@@ -15,22 +19,48 @@ export const useStakeholdersSave = (reportId: string, formData: StakeholdersForm
     setIsSaving(true);
 
     try {
-      const { error } = await supabase
+      // First, check if a record already exists
+      const { data: existingData, error: checkError } = await supabase
         .from('narrative_stakeholders')
-        .upsert({
-          report_id: reportId,
-          stakeholder_categories: formData.keyStakeholders,
-          engagement_methods: formData.stakeholderEngagement,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-
-      if (error) {
-        console.error('Error saving stakeholders data:', error);
-        toast.error('Errore durante il salvataggio');
-        return;
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      const now = new Date().toISOString();
+      
+      let result;
+      if (existingData) {
+        // Update existing record
+        result = await supabase
+          .from('narrative_stakeholders')
+          .update({
+            stakeholder_categories: formData.keyStakeholders,
+            engagement_methods: formData.stakeholderEngagement,
+            updated_at: now
+          })
+          .eq('id', existingData.id);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('narrative_stakeholders')
+          .insert({
+            report_id: reportId,
+            stakeholder_categories: formData.keyStakeholders,
+            engagement_methods: formData.stakeholderEngagement,
+            updated_at: now
+          });
       }
 
+      if (result.error) {
+        throw result.error;
+      }
+
+      const newSavedTime = new Date();
+      setLastSaved(newSavedTime);
       setNeedsSaving(false);
       toast.success('Dati salvati con successo');
     } catch (error) {
