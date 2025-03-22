@@ -21,7 +21,7 @@ export const useStrategyData = (reportId: string) => {
   useStrategyLoad(reportId, setFormData, setIsLoading);
   
   // Get save function
-  const { saveData } = useStrategySave(reportId, formData, setIsSaving, setLastSaved);
+  const { saveData } = useStrategySave(reportId, formData);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {

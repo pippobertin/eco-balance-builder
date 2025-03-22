@@ -13,12 +13,12 @@ export const useMaterialIssuesData = (reportId: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
-
-  // Load data using the load hook
+  
+  // Load data
   useMaterialIssuesLoad(reportId, setFormData, setIsLoading);
   
-  // Get save function from the save hook
-  const { saveData } = useMaterialIssuesSave(reportId, formData, setIsSaving, setLastSaved);
+  // Get save function
+  const { saveData } = useMaterialIssuesSave(reportId, formData);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {

@@ -15,20 +15,56 @@ export const useStrategySave = (reportId: string, formData: StrategyFormData) =>
     setIsSaving(true);
 
     try {
-      const { error } = await supabase
+      // First, check if a record already exists
+      const { data: existingData, error: checkError } = await supabase
         .from('narrative_strategy')
-        .upsert({
-          report_id: reportId,
-          products_services: formData.productsServices,
-          markets: formData.markets,
-          business_relations: formData.businessRelations,
-          sustainability_strategy: formData.sustainabilityStrategy,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-
-      if (error) {
-        console.error('Error saving strategy data:', error);
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      if (checkError && checkError.code !== 'PGRST116') { // Not found error code
+        console.error('Error checking existing strategy data:', checkError);
+        toast.error('Errore durante il controllo dei dati esistenti');
+        setIsSaving(false);
+        return;
+      }
+      
+      let saveError;
+      
+      if (existingData) {
+        // If record exists, update it
+        console.log('Updating existing strategy record for report:', reportId);
+        const { error } = await supabase
+          .from('narrative_strategy')
+          .update({
+            products_services: formData.productsServices,
+            markets: formData.markets,
+            business_relations: formData.businessRelations,
+            sustainability_strategy: formData.sustainabilityStrategy,
+            updated_at: new Date().toISOString()
+          })
+          .eq('report_id', reportId);
+        
+        saveError = error;
+      } else {
+        // If no record exists, create a new one
+        console.log('Creating new strategy record for report:', reportId);
+        const { error } = await supabase
+          .from('narrative_strategy')
+          .insert({
+            report_id: reportId,
+            products_services: formData.productsServices,
+            markets: formData.markets,
+            business_relations: formData.businessRelations,
+            sustainability_strategy: formData.sustainabilityStrategy,
+            updated_at: new Date().toISOString()
+          });
+        
+        saveError = error;
+      }
+      
+      if (saveError) {
+        console.error('Error saving strategy data:', saveError);
         toast.error('Errore durante il salvataggio');
         return;
       }

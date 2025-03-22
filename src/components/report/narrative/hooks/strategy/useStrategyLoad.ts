@@ -15,6 +15,8 @@ export const useStrategyLoad = (
     const loadData = async () => {
       try {
         setIsLoading(true);
+        
+        // Query the database for strategy data
         const { data, error } = await supabase
           .from('narrative_strategy')
           .select('*')
@@ -25,6 +27,7 @@ export const useStrategyLoad = (
           throw error;
         }
 
+        // If data exists, update the form data
         if (data) {
           const apiData = data as StrategyAPIData;
           setFormData({
