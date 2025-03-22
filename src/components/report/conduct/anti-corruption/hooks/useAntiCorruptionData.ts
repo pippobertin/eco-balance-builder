@@ -1,15 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
 import { useReport } from '@/hooks/use-report-context';
-
-export interface AntiCorruptionData {
-  convictionsNumber: number | null;
-  sanctionsAmount: number | null;
-  additionalDetails: string | null;
-}
+import { AntiCorruptionData } from './types';
 
 export const useAntiCorruptionData = (reportId: string | undefined) => {
   const [loading, setLoading] = useState(false);
