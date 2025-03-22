@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import SaveButton from './SaveButton';
 import { useComplianceData } from './hooks';
 import { ComplianceFormData } from './hooks/types';
+import { Loader2 } from 'lucide-react';
 
 interface ComplianceFormProps {
   reportId: string | undefined;
@@ -34,8 +35,17 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   
   const displayData: ComplianceFormData = formValues?.conductMetrics || formData;
   
+  useEffect(() => {
+    console.log("ComplianceForm rendering with data:", displayData);
+  }, [displayData]);
+  
   if (isLoading) {
-    return <div className="p-4 text-center">Caricamento dati compliance...</div>;
+    return (
+      <div className="p-4 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+        <p>Caricamento dati compliance...</p>
+      </div>
+    );
   }
 
   return (

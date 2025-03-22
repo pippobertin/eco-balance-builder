@@ -21,7 +21,6 @@ export const useComplianceLoad = (
       console.log("Loading compliance data for reportId:", reportId);
 
       try {
-        // We're using compliance_standards table based on errors
         const { data, error } = await supabase
           .from('compliance_standards')
           .select('compliance_standards, compliance_monitoring, updated_at')
@@ -44,6 +43,8 @@ export const useComplianceLoad = (
           if (data.updated_at) {
             setLastSaved(new Date(data.updated_at));
           }
+        } else {
+          console.log("No compliance data found for this report");
         }
       } catch (error) {
         console.error('Error in compliance data loading:', error);

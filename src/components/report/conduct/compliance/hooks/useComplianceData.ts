@@ -23,10 +23,11 @@ export const useComplianceData = (reportId: string) => {
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && lastSaved) {
+      console.log("Setting needsSaving flag due to form data change");
       setNeedsSaving(true);
     }
-  }, [formData, isLoading, setNeedsSaving]);
+  }, [formData, isLoading, setNeedsSaving, lastSaved]);
 
   return {
     formData,
