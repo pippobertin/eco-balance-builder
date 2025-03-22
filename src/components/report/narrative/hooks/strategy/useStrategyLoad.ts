@@ -1,12 +1,12 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ComplianceAPIData, ComplianceFormData } from './types';
+import { StrategyAPIData, StrategyFormData } from '../types';
 import { useToast } from '@/hooks/use-toast';
 
-export const useComplianceLoad = (
+export const useStrategyLoad = (
   reportId: string,
-  setFormData: React.Dispatch<React.SetStateAction<ComplianceFormData>>,
+  setFormData: React.Dispatch<React.SetStateAction<StrategyFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const { toast } = useToast();
@@ -16,7 +16,7 @@ export const useComplianceLoad = (
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('compliance_standards')
+          .from('narrative_strategy')
           .select('*')
           .eq('report_id', reportId)
           .maybeSingle();
@@ -26,17 +26,19 @@ export const useComplianceLoad = (
         }
 
         if (data) {
-          const apiData = data as ComplianceAPIData;
+          const apiData = data as StrategyAPIData;
           setFormData({
-            complianceStandards: apiData.compliance_standards || '',
-            complianceMonitoring: apiData.compliance_monitoring || ''
+            productsServices: apiData.products_services || '',
+            markets: apiData.markets || '',
+            businessRelations: apiData.business_relations || '',
+            sustainabilityStrategy: apiData.sustainability_strategy || ''
           });
         }
       } catch (error: any) {
-        console.error('Error loading compliance data:', error.message);
+        console.error('Error loading strategy data:', error.message);
         toast({
           title: "Errore",
-          description: `Impossibile caricare i dati di conformità: ${error.message}`,
+          description: `Impossibile caricare i dati della strategia: ${error.message}`,
           variant: "destructive"
         });
       } finally {

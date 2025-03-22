@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ComplianceFormData } from './types';
+import { StrategyFormData } from '../types';
 import { useToast } from '@/hooks/use-toast';
 import { useReport } from '@/context/ReportContext';
 
-export const useComplianceSave = (reportId: string, formData: ComplianceFormData) => {
+export const useStrategySave = (reportId: string, formData: StrategyFormData) => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { setNeedsSaving, setLastSaved } = useReport();
@@ -19,13 +19,15 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
       // Transform form data to API format
       const apiData = {
         report_id: reportId,
-        compliance_standards: formData.complianceStandards || null,
-        compliance_monitoring: formData.complianceMonitoring || null
+        products_services: formData.productsServices || null,
+        markets: formData.markets || null,
+        business_relations: formData.businessRelations || null,
+        sustainability_strategy: formData.sustainabilityStrategy || null
       };
       
       // Check if a record already exists
       const { data: existingData, error: checkError } = await supabase
-        .from('compliance_standards')
+        .from('narrative_strategy')
         .select('id')
         .eq('report_id', reportId)
         .maybeSingle();
@@ -37,7 +39,7 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
       if (existingData?.id) {
         // Update existing record
         const { error: updateError } = await supabase
-          .from('compliance_standards')
+          .from('narrative_strategy')
           .update(apiData)
           .eq('id', existingData.id);
           
@@ -47,7 +49,7 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
       } else {
         // Insert new record
         const { error: insertError } = await supabase
-          .from('compliance_standards')
+          .from('narrative_strategy')
           .insert([apiData]);
           
         if (insertError) {
@@ -61,14 +63,14 @@ export const useComplianceSave = (reportId: string, formData: ComplianceFormData
       
       toast({
         title: "Salvato",
-        description: "I dati di conformità sono stati salvati con successo."
+        description: "I dati della strategia sono stati salvati con successo."
       });
       
     } catch (error: any) {
-      console.error('Error saving compliance data:', error.message);
+      console.error('Error saving strategy data:', error.message);
       toast({
         title: "Errore",
-        description: `Impossibile salvare i dati di conformità: ${error.message}`,
+        description: `Impossibile salvare i dati della strategia: ${error.message}`,
         variant: "destructive"
       });
     } finally {

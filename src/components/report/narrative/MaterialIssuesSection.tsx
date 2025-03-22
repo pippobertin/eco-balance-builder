@@ -4,21 +4,43 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Target } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import SaveButton from './components/SaveButton';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useMaterialIssuesData, useMaterialIssuesLoad, useMaterialIssuesSave } from './hooks';
+import { useReport } from '@/context/ReportContext';
 
 interface MaterialIssuesSectionProps {
-  formValues: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  reportId: string;
 }
 
-const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ 
-  formValues, 
-  handleChange 
-}) => {
+const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId }) => {
+  const { formData, setFormData, isLoading, setIsLoading } = useMaterialIssuesData(reportId);
+  const { needsSaving, lastSaved } = useReport();
+  const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData);
+
+  // Load data
+  useMaterialIssuesLoad(reportId, setFormData, setIsLoading);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-6">Caricamento dati in corso...</div>;
+  }
+
   return (
     <GlassmorphicCard>
-      <div className="flex items-center mb-4">
-        <Target className="mr-2 h-5 w-5 text-indigo-500" />
-        <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Target className="mr-2 h-5 w-5 text-indigo-500" />
+          <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
+        </div>
+        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
       </div>
       
       <div className="space-y-4">
@@ -35,10 +57,14 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({
             id="materialIssuesDescription"
             name="materialIssuesDescription"
             placeholder="Descrivi le questioni di sostenibilità rilevanti identificate attraverso l'analisi di materialità"
-            value={formValues.narrativePATMetrics?.materialIssuesDescription || ""}
+            value={formData.materialIssuesDescription}
             onChange={handleChange}
             className="min-h-[150px]"
           />
+        </div>
+
+        <div className="flex justify-end">
+          <SaveButton onClick={saveData} isLoading={isSaving} />
         </div>
       </div>
     </GlassmorphicCard>

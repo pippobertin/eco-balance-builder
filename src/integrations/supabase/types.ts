@@ -645,6 +645,199 @@ export type Database = {
           },
         ]
       }
+      narrative_governance: {
+        Row: {
+          created_at: string
+          id: string
+          report_id: string
+          sustainability_governance: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          report_id: string
+          sustainability_governance?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          report_id?: string
+          sustainability_governance?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_governance_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      narrative_issues_management: {
+        Row: {
+          actions_description: string | null
+          anti_corruption_measures: string | null
+          created_at: string
+          energy_efficiency_actions: string | null
+          id: string
+          policies_actions: string | null
+          policies_description: string | null
+          report_id: string
+          stakeholders_impacts: string | null
+          updated_at: string
+        }
+        Insert: {
+          actions_description?: string | null
+          anti_corruption_measures?: string | null
+          created_at?: string
+          energy_efficiency_actions?: string | null
+          id?: string
+          policies_actions?: string | null
+          policies_description?: string | null
+          report_id: string
+          stakeholders_impacts?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actions_description?: string | null
+          anti_corruption_measures?: string | null
+          created_at?: string
+          energy_efficiency_actions?: string | null
+          id?: string
+          policies_actions?: string | null
+          policies_description?: string | null
+          report_id?: string
+          stakeholders_impacts?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_issues_management_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      narrative_material_issues: {
+        Row: {
+          created_at: string
+          id: string
+          material_issues_description: string | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_issues_description?: string | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_issues_description?: string | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_material_issues_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      narrative_stakeholders: {
+        Row: {
+          created_at: string
+          engagement_frequency: string | null
+          engagement_methods: string | null
+          engagement_outcomes: string | null
+          id: string
+          report_id: string
+          stakeholder_categories: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          engagement_frequency?: string | null
+          engagement_methods?: string | null
+          engagement_outcomes?: string | null
+          id?: string
+          report_id: string
+          stakeholder_categories?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          engagement_frequency?: string | null
+          engagement_methods?: string | null
+          engagement_outcomes?: string | null
+          id?: string
+          report_id?: string
+          stakeholder_categories?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_stakeholders_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      narrative_strategy: {
+        Row: {
+          business_relations: string | null
+          created_at: string
+          id: string
+          markets: string | null
+          products_services: string | null
+          report_id: string
+          sustainability_strategy: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_relations?: string | null
+          created_at?: string
+          id?: string
+          markets?: string | null
+          products_services?: string | null
+          report_id: string
+          sustainability_strategy?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_relations?: string | null
+          created_at?: string
+          id?: string
+          markets?: string | null
+          products_services?: string | null
+          report_id?: string
+          sustainability_strategy?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_strategy_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pollutant_types: {
         Row: {
           created_at: string

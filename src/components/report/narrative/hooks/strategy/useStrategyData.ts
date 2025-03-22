@@ -1,12 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { ComplianceData, ComplianceFormData } from './types';
+import { StrategyFormData } from '../types';
 import { useReport } from '@/context/ReportContext';
 
-export const useComplianceData = (reportId: string) => {
-  const [formData, setFormData] = useState<ComplianceFormData>({
-    complianceStandards: '',
-    complianceMonitoring: ''
+export const useStrategyData = (reportId: string) => {
+  const [formData, setFormData] = useState<StrategyFormData>({
+    productsServices: '',
+    markets: '',
+    businessRelations: '',
+    sustainabilityStrategy: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const { setNeedsSaving } = useReport();

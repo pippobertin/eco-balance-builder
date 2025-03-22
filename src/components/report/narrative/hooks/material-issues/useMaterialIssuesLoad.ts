@@ -1,12 +1,12 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ComplianceAPIData, ComplianceFormData } from './types';
+import { MaterialIssuesAPIData, MaterialIssuesFormData } from '../types';
 import { useToast } from '@/hooks/use-toast';
 
-export const useComplianceLoad = (
+export const useMaterialIssuesLoad = (
   reportId: string,
-  setFormData: React.Dispatch<React.SetStateAction<ComplianceFormData>>,
+  setFormData: React.Dispatch<React.SetStateAction<MaterialIssuesFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const { toast } = useToast();
@@ -16,7 +16,7 @@ export const useComplianceLoad = (
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('compliance_standards')
+          .from('narrative_material_issues')
           .select('*')
           .eq('report_id', reportId)
           .maybeSingle();
@@ -26,17 +26,16 @@ export const useComplianceLoad = (
         }
 
         if (data) {
-          const apiData = data as ComplianceAPIData;
+          const apiData = data as MaterialIssuesAPIData;
           setFormData({
-            complianceStandards: apiData.compliance_standards || '',
-            complianceMonitoring: apiData.compliance_monitoring || ''
+            materialIssuesDescription: apiData.material_issues_description || ''
           });
         }
       } catch (error: any) {
-        console.error('Error loading compliance data:', error.message);
+        console.error('Error loading material issues data:', error.message);
         toast({
           title: "Errore",
-          description: `Impossibile caricare i dati di conformità: ${error.message}`,
+          description: `Impossibile caricare i dati delle questioni materiali: ${error.message}`,
           variant: "destructive"
         });
       } finally {
