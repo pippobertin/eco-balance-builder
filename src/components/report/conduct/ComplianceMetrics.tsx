@@ -32,6 +32,7 @@ const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handl
         
         <SectionAutoSaveIndicator 
           lastSaved={localLastSaved} 
+          needsSaving={localNeedsSaving}
           className="mt-4"
         />
         

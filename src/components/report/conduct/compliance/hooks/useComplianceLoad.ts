@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ComplianceFormData } from './types';
+import { ComplianceFormData, ComplianceAPIData } from './types';
 import { useToast } from '@/hooks/use-toast';
 
 export const useComplianceLoad = (
@@ -14,7 +14,7 @@ export const useComplianceLoad = (
   
   const loadData = useCallback(async () => {
     if (!reportId) {
-      console.log("No reportId provided to useComplianceLoad");
+      console.error("No reportId provided to useComplianceLoad");
       setIsLoading(false);
       return false;
     }
@@ -43,13 +43,16 @@ export const useComplianceLoad = (
       console.log("Compliance data loaded:", data);
 
       if (data) {
+        const apiData = data as ComplianceAPIData;
+        
+        // Important: Set form data with nullish coalescing to ensure empty strings
         setFormData({
-          complianceStandards: data.compliance_standards || '',
-          complianceMonitoring: data.compliance_monitoring || ''
+          complianceStandards: apiData.compliance_standards ?? '',
+          complianceMonitoring: apiData.compliance_monitoring ?? ''
         });
         
-        if (data.updated_at) {
-          setLastSaved(new Date(data.updated_at));
+        if (apiData.updated_at) {
+          setLastSaved(new Date(apiData.updated_at));
         }
         
         setIsLoading(false);
