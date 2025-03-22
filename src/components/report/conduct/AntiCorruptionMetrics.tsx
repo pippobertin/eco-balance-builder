@@ -49,17 +49,15 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
         
         handleChange(syntheticEvent);
       }
-    }, [antiCorruptionData, loading]);
+    }, [antiCorruptionData, loading, formValues, handleChange]);
 
-    // Create a custom handler for direct field changes
-    const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Function to handle form value changes
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
-      
-      const fieldName = name.split('.')[1]; // Extract the field name after 'conductMetrics.'
       
       const updatedConductMetrics = {
         ...(formValues?.conductMetrics || {}),
-        [fieldName]: value
+        [name]: value
       };
       
       const syntheticEvent = {
@@ -73,7 +71,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
     };
 
     const handleSaveData = async () => {
-      if (!formValues.conductMetrics) {
+      if (!formValues?.conductMetrics) {
         return;
       }
       
@@ -127,7 +125,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="number" 
                   placeholder="0" 
                   value={formValues.conductMetrics?.antiCorruptionConvictions || ""} 
-                  onChange={handleFieldChange} 
+                  onChange={handleFormChange} 
                 />
               </div>
               
@@ -139,7 +137,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="number" 
                   placeholder="0.00" 
                   value={formValues.conductMetrics?.antiCorruptionSanctions || ""} 
-                  onChange={handleFieldChange} 
+                  onChange={handleFormChange} 
                 />
               </div>
             </div>
@@ -151,7 +149,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 name="antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
                 value={formValues.conductMetrics?.antiCorruptionDetails || ""} 
-                onChange={handleFieldChange} 
+                onChange={handleFormChange} 
                 className="min-h-[100px]" 
               />
             </div>
