@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { StrategyFormData } from '../types';
+import { GovernanceFormData } from '../types';
 import { toast } from 'sonner';
 import { useReport } from '@/context/ReportContext';
 
-export const useStrategySave = (reportId: string, formData: StrategyFormData) => {
+export const useGovernanceSave = (reportId: string, formData: GovernanceFormData) => {
   const [isSaving, setIsSaving] = useState(false);
   const { setNeedsSaving } = useReport();
 
@@ -16,19 +16,16 @@ export const useStrategySave = (reportId: string, formData: StrategyFormData) =>
 
     try {
       const { error } = await supabase
-        .from('narrative_strategy')
+        .from('narrative_governance')
         .upsert({
           report_id: reportId,
-          products_services: formData.productsServices,
-          markets: formData.markets,
-          business_relations: formData.businessRelations,
-          sustainability_strategy: formData.sustainabilityStrategy,
+          sustainability_governance: formData.sustainabilityGovernance,
           updated_at: new Date().toISOString()
         })
         .select();
 
       if (error) {
-        console.error('Error saving strategy data:', error);
+        console.error('Error saving governance data:', error);
         toast.error('Errore durante il salvataggio');
         return;
       }

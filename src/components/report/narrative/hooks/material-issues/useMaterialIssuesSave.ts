@@ -2,81 +2,43 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MaterialIssuesFormData } from '../types';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useReport } from '@/context/ReportContext';
 
 export const useMaterialIssuesSave = (reportId: string, formData: MaterialIssuesFormData) => {
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const { setNeedsSaving, setLastSaved } = useReport();
+  const { setNeedsSaving } = useReport();
 
   const saveData = async () => {
     if (!reportId) return;
     
     setIsSaving(true);
-    
+
     try {
-      // Transform form data to API format
-      const apiData = {
-        report_id: reportId,
-        material_issues_description: formData.materialIssuesDescription || null
-      };
-      
-      // Check if a record already exists
-      const { data: existingData, error: checkError } = await supabase
+      const { error } = await supabase
         .from('narrative_material_issues')
-        .select('id')
-        .eq('report_id', reportId)
-        .maybeSingle();
-        
-      if (checkError) {
-        throw checkError;
+        .upsert({
+          report_id: reportId,
+          material_issues_description: formData.materialIssuesDescription,
+          updated_at: new Date().toISOString()
+        })
+        .select();
+
+      if (error) {
+        console.error('Error saving material issues data:', error);
+        toast.error('Errore durante il salvataggio');
+        return;
       }
-      
-      if (existingData?.id) {
-        // Update existing record
-        const { error: updateError } = await supabase
-          .from('narrative_material_issues')
-          .update(apiData)
-          .eq('id', existingData.id);
-          
-        if (updateError) {
-          throw updateError;
-        }
-      } else {
-        // Insert new record
-        const { error: insertError } = await supabase
-          .from('narrative_material_issues')
-          .insert([apiData]);
-          
-        if (insertError) {
-          throw insertError;
-        }
-      }
-      
-      // Successfully saved
+
       setNeedsSaving(false);
-      setLastSaved(new Date());
-      
-      toast({
-        title: "Salvato",
-        description: "Le questioni materiali sono state salvate con successo."
-      });
-      
-    } catch (error: any) {
-      console.error('Error saving material issues data:', error.message);
-      toast({
-        title: "Errore",
-        description: `Impossibile salvare le questioni materiali: ${error.message}`,
-        variant: "destructive"
-      });
+      toast.success('Dati salvati con successo');
+    } catch (error) {
+      console.error('Error in save operation:', error);
+      toast.error('Errore durante il salvataggio');
     } finally {
       setIsSaving(false);
     }
   };
-  
-  return {
-    saveData,
-    isSaving
-  };
+
+  return { saveData, isSaving };
 };

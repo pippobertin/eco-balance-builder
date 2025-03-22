@@ -4,29 +4,55 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Users } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import SaveButton from './components/SaveButton';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useStakeholdersData, useStakeholdersLoad, useStakeholdersSave } from './hooks';
+import { useReport } from '@/context/ReportContext';
 
 interface StakeholdersSectionProps {
-  formValues: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  stakeholdersByCategory: Record<string, any[]>;
-  surveyStats: {
-    total: number;
-    sent: number;
-    completed: number;
-  };
+  reportId: string;
 }
 
-const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ 
-  formValues, 
-  handleChange,
-  stakeholdersByCategory,
-  surveyStats
-}) => {
+const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) => {
+  const { formData, setFormData, isLoading, setIsLoading } = useStakeholdersData(reportId);
+  const { needsSaving, lastSaved } = useReport();
+  const { saveData, isSaving } = useStakeholdersSave(reportId, formData);
+  const [stakeholdersByCategory, setStakeholdersByCategory] = React.useState<Record<string, any[]>>({});
+  const [surveyStats, setSurveyStats] = React.useState({
+    total: 0,
+    sent: 0,
+    completed: 0
+  });
+
+  // Load data
+  useStakeholdersLoad(reportId, setFormData, setIsLoading);
+
+  // Dummy function to simulate loading stakeholder data from materiality analysis
+  React.useEffect(() => {
+    // In a real implementation, this would load data from the materiality analysis
+    // For now, we'll leave this empty as it would be connected to the materiality module
+  }, [reportId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-6">Caricamento dati in corso...</div>;
+  }
+
   return (
     <GlassmorphicCard>
-      <div className="flex items-center mb-4">
-        <Users className="mr-2 h-5 w-5 text-indigo-500" />
-        <h3 className="text-xl font-semibold">N4 - Principali portatori di interessi</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Users className="mr-2 h-5 w-5 text-indigo-500" />
+          <h3 className="text-xl font-semibold">N4 - Principali portatori di interessi</h3>
+        </div>
+        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
       </div>
       
       <div className="space-y-4">
@@ -96,7 +122,7 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({
                   id="stakeholderEngagement"
                   name="stakeholderEngagement"
                   placeholder="Descrivi altre attività di coinvolgimento degli stakeholder (workshop, interviste, focus group, ecc.)"
-                  value={formValues.narrativePATMetrics?.stakeholderEngagement || ""}
+                  value={formData.stakeholderEngagement}
                   onChange={handleChange}
                   className="min-h-[100px]"
                 />
@@ -118,7 +144,7 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({
                 id="keyStakeholders"
                 name="keyStakeholders"
                 placeholder="Elenca le categorie di portatori di interessi chiave considerate (es. investitori, banche, partner commerciali, sindacati, ONG)"
-                value={formValues.narrativePATMetrics?.keyStakeholders || ""}
+                value={formData.keyStakeholders}
                 onChange={handleChange}
                 className="min-h-[100px]"
               />
@@ -130,13 +156,17 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({
                 id="stakeholderEngagement"
                 name="stakeholderEngagement"
                 placeholder="Descrivi brevemente le attività di coinvolgimento dei portatori di interesse"
-                value={formValues.narrativePATMetrics?.stakeholderEngagement || ""}
+                value={formData.stakeholderEngagement}
                 onChange={handleChange}
                 className="min-h-[100px]"
               />
             </div>
           </div>
         )}
+
+        <div className="flex justify-end">
+          <SaveButton onClick={saveData} isLoading={isSaving} />
+        </div>
       </div>
     </GlassmorphicCard>
   );

@@ -4,21 +4,43 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import SaveButton from './components/SaveButton';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { useIssuesManagementData, useIssuesManagementLoad, useIssuesManagementSave } from './hooks';
+import { useReport } from '@/context/ReportContext';
 
 interface MaterialIssuesManagementSectionProps {
-  formValues: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  reportId: string;
 }
 
-const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionProps> = ({ 
-  formValues, 
-  handleChange 
-}) => {
+const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionProps> = ({ reportId }) => {
+  const { formData, setFormData, isLoading, setIsLoading } = useIssuesManagementData(reportId);
+  const { needsSaving, lastSaved } = useReport();
+  const { saveData, isSaving } = useIssuesManagementSave(reportId, formData);
+
+  // Load data
+  useIssuesManagementLoad(reportId, setFormData, setIsLoading);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-6">Caricamento dati in corso...</div>;
+  }
+
   return (
     <GlassmorphicCard>
-      <div className="flex items-center mb-4">
-        <FileText className="mr-2 h-5 w-5 text-indigo-500" />
-        <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <FileText className="mr-2 h-5 w-5 text-indigo-500" />
+          <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
+        </div>
+        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
       </div>
       
       <div className="space-y-4">
@@ -28,7 +50,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="policiesActions"
             name="policiesActions"
             placeholder="Descrivi le politiche o azioni adottate per prevenire, mitigare e/o rimediare ad impatti negativi"
-            value={formValues.narrativePATMetrics?.policiesActions || ""}
+            value={formData.policiesActions}
             onChange={handleChange}
             className="min-h-[120px]"
           />
@@ -40,7 +62,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="policiesDescription"
             name="policiesDescription"
             placeholder="Se sono state adottate politiche, descrivi: obiettivi, ambito di applicazione, portatori di interesse coinvolti, riferimenti a principi/iniziative di terzi, obiettivi di monitoraggio"
-            value={formValues.narrativePATMetrics?.policiesDescription || ""}
+            value={formData.policiesDescription}
             onChange={handleChange}
             className="min-h-[120px]"
           />
@@ -52,7 +74,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="actionsDescription"
             name="actionsDescription"
             placeholder="Se sono state intraprese azioni, descrivi: azioni chiave intraprese nell'anno di riferimento, ambito di applicazione, orizzonte temporale, obiettivi di monitoraggio"
-            value={formValues.narrativePATMetrics?.actionsDescription || ""}
+            value={formData.actionsDescription}
             onChange={handleChange}
             className="min-h-[120px]"
           />
@@ -64,7 +86,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="energyEfficiencyActions"
             name="energyEfficiencyActions"
             placeholder="Descrivi le azioni intraprese per migliorare l'efficienza energetica e ridurre le emissioni di gas serra (se rilevante)"
-            value={formValues.narrativePATMetrics?.energyEfficiencyActions || ""}
+            value={formData.energyEfficiencyActions}
             onChange={handleChange}
             className="min-h-[100px]"
           />
@@ -76,7 +98,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="stakeholdersImpacts"
             name="stakeholdersImpacts"
             placeholder="Se rilevante, descrivi le politiche e azioni adottate per gestire gli impatti sui lavoratori nella catena del valore, consumatori e comunità interessate"
-            value={formValues.narrativePATMetrics?.stakeholdersImpacts || ""}
+            value={formData.stakeholdersImpacts}
             onChange={handleChange}
             className="min-h-[100px]"
           />
@@ -88,10 +110,14 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
             id="antiCorruptionMeasures"
             name="antiCorruptionMeasures"
             placeholder="Se rilevante, descrivi le misure adottate per prevenire episodi di corruzione (separazione delle funzioni, formazione dipendenti, azioni per affrontare violazioni)"
-            value={formValues.narrativePATMetrics?.antiCorruptionMeasures || ""}
+            value={formData.antiCorruptionMeasures}
             onChange={handleChange}
             className="min-h-[100px]"
           />
+        </div>
+
+        <div className="flex justify-end">
+          <SaveButton onClick={saveData} isLoading={isSaving} />
         </div>
       </div>
     </GlassmorphicCard>

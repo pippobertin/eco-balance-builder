@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ComplianceForm from './compliance/ComplianceForm';
-import { SaveButton, ComplianceHeader } from './compliance';
-import { useComplianceData, useComplianceLoad, useComplianceSave } from './compliance/hooks';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/context/ReportContext';
+import { ComplianceHeader, ComplianceForm, SaveButton } from './compliance';
+import { useComplianceData, useComplianceLoad, useComplianceSave } from './compliance/hooks';
 
 interface ComplianceMetricsProps {
   reportId: string;
@@ -13,29 +13,58 @@ interface ComplianceMetricsProps {
 
 const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ reportId }) => {
   const { formData, setFormData, isLoading, setIsLoading } = useComplianceData(reportId);
-  const { needsSaving, lastSaved } = useReport();
+  const { lastSaved } = useReport();
   const { saveData, isSaving } = useComplianceSave(reportId, formData);
-  
+
   // Load data
   useComplianceLoad(reportId, setFormData, setIsLoading);
 
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-6">Caricamento dati in corso...</div>;
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <ComplianceHeader />
-        <AutoSaveIndicator needsSaving={needsSaving} lastSaved={lastSaved} />
-      </div>
+    <GlassmorphicCard>
+      <ComplianceHeader isSaving={isSaving} lastSaved={lastSaved} />
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Standard di conformità e monitoraggio</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ComplianceForm reportId={reportId} />
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="complianceStandards">Standard di condotta adottati</Label>
+          <Textarea
+            id="complianceStandards"
+            name="complianceStandards"
+            placeholder="Descrivi gli standard di condotta adottati dall'impresa (es. codice etico, politiche aziendali)"
+            value={formData.complianceStandards}
+            onChange={handleChange}
+            className="min-h-[120px]"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="complianceMonitoring">Monitoraggio della compliance</Label>
+          <Textarea
+            id="complianceMonitoring"
+            name="complianceMonitoring"
+            placeholder="Descrivi come viene monitorato il rispetto degli standard di condotta (es. audit, whistleblowing, formazione)"
+            value={formData.complianceMonitoring}
+            onChange={handleChange}
+            className="min-h-[120px]"
+          />
+        </div>
+
+        <div className="flex justify-end">
           <SaveButton onClick={saveData} isLoading={isSaving} />
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </GlassmorphicCard>
   );
 };
 
