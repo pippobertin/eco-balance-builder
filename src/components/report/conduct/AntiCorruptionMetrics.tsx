@@ -33,34 +33,46 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);
         
-        // Create a synthetic event for each field to update them properly
-        updateFormField('antiCorruptionConvictions', antiCorruptionData.convictionsNumber);
-        updateFormField('antiCorruptionSanctions', antiCorruptionData.sanctionsAmount);
-        updateFormField('antiCorruptionDetails', antiCorruptionData.additionalDetails);
+        // Create a proper conductMetrics object with all the data
+        const updatedConductMetrics = {
+          ...(formValues?.conductMetrics || {}),
+          antiCorruptionConvictions: antiCorruptionData.convictionsNumber,
+          antiCorruptionSanctions: antiCorruptionData.sanctionsAmount,
+          antiCorruptionDetails: antiCorruptionData.additionalDetails
+        };
+        
+        // Use a single update with the complete object
+        const syntheticEvent = {
+          target: {
+            name: 'conductMetrics',
+            value: updatedConductMetrics
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        handleChange(syntheticEvent);
       }
-    }, [antiCorruptionData, loading]);
+    }, [antiCorruptionData, loading, formValues, handleChange]);
 
-    // Helper function to update individual form fields
-    const updateFormField = (fieldName: string, value: any) => {
+    // Handle field changes properly
+    const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      
+      // Create an updated conductMetrics object with the new value
       const updatedConductMetrics = {
         ...(formValues?.conductMetrics || {}),
-        [fieldName]: value
+        [name]: value
       };
       
+      // Create a synthetic event with the proper structure
       const syntheticEvent = {
         target: {
           name: 'conductMetrics',
           value: updatedConductMetrics
         }
-      } as any;
+      } as React.ChangeEvent<HTMLInputElement>;
       
+      // Pass the event to the parent handler
       handleChange(syntheticEvent);
-    };
-
-    // Handle direct field changes
-    const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      updateFormField(name, value);
     };
 
     const handleSaveData = async () => {
@@ -68,6 +80,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
         return;
       }
       
+      // Extract the values from formValues.conductMetrics
       const dataToSave = {
         convictionsNumber: formValues.conductMetrics?.antiCorruptionConvictions ? 
           Number(formValues.conductMetrics.antiCorruptionConvictions) : null,

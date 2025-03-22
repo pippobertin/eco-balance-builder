@@ -33,13 +33,24 @@ export const useAntiCorruptionSave = (
       
       console.log("Saving anti-corruption data for report:", reportId, values);
       
+      // Convert values to integers/floats before saving
+      const convictionsNumber = values.convictionsNumber !== null && values.convictionsNumber !== undefined 
+        ? Number(values.convictionsNumber) 
+        : null;
+        
+      const sanctionsAmount = values.sanctionsAmount !== null && values.sanctionsAmount !== undefined 
+        ? Number(values.sanctionsAmount) 
+        : null;
+      
       const dataPayload = {
         report_id: reportId,
-        convictions_number: values.convictionsNumber,
-        sanctions_amount: values.sanctionsAmount,
+        convictions_number: convictionsNumber,
+        sanctions_amount: sanctionsAmount,
         additional_details: values.additionalDetails,
         updated_at: new Date().toISOString()
       };
+      
+      console.log("Data payload being sent to Supabase:", dataPayload);
       
       // Check if record exists
       const { data: existingData, error: checkError } = await supabase
@@ -84,7 +95,9 @@ export const useAntiCorruptionSave = (
       // Update local state with the new values
       setAntiCorruptionData(prev => ({
         ...prev,
-        ...values
+        convictionsNumber: convictionsNumber,
+        sanctionsAmount: sanctionsAmount,
+        additionalDetails: values.additionalDetails
       }));
       
       // Mark as saved
