@@ -28,30 +28,34 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
       lastSaved
     } = useAntiCorruptionData(reportId);
 
-    // Update form values when anti-corruption data is loaded
+    // Update form values when anti-corruption data is loaded - ONCE
     useEffect(() => {
       if (antiCorruptionData && !loading) {
         console.log("Updating form with anti-corruption data:", antiCorruptionData);
         
-        // Create a proper conductMetrics object with all the data
-        const updatedConductMetrics = {
-          ...(formValues?.conductMetrics || {}),
-          antiCorruptionConvictions: antiCorruptionData.convictionsNumber,
-          antiCorruptionSanctions: antiCorruptionData.sanctionsAmount,
-          antiCorruptionDetails: antiCorruptionData.additionalDetails
-        };
-        
-        // Use a single update with the complete object
-        const syntheticEvent = {
-          target: {
-            name: 'conductMetrics',
-            value: updatedConductMetrics
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        
-        handleChange(syntheticEvent);
+        // Only update if the form doesn't already have values
+        if (!formValues?.conductMetrics?.antiCorruptionConvictions && 
+            !formValues?.conductMetrics?.antiCorruptionSanctions && 
+            !formValues?.conductMetrics?.antiCorruptionDetails) {
+              
+          const updatedConductMetrics = {
+            ...(formValues?.conductMetrics || {}),
+            antiCorruptionConvictions: antiCorruptionData.convictionsNumber,
+            antiCorruptionSanctions: antiCorruptionData.sanctionsAmount,
+            antiCorruptionDetails: antiCorruptionData.additionalDetails
+          };
+          
+          const syntheticEvent = {
+            target: {
+              name: 'conductMetrics',
+              value: updatedConductMetrics
+            }
+          } as React.ChangeEvent<HTMLInputElement>;
+          
+          handleChange(syntheticEvent);
+        }
       }
-    }, [antiCorruptionData, loading, formValues, handleChange]);
+    }, [antiCorruptionData, loading]); // Remove formValues and handleChange from dependencies
 
     // Handle field changes properly
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
