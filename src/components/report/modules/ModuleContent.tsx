@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useReport } from '@/context/ReportContext';
 import EnvironmentalMetrics from '../EnvironmentalMetrics';
@@ -39,39 +38,19 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
     // Render the appropriate component based on activeSection
     switch (activeSection) {
       case 'environmental':
-        return <EnvironmentalMetrics 
-          formValues={formValues} 
-          setFormValues={setFormValues} 
-          initialField={initialField} 
-        />;
+        return <EnvironmentalMetrics />;
       case 'social':
-        return <SocialMetrics 
-          formValues={formValues} 
-          setFormValues={setFormValues} 
-          initialField={initialField} 
-        />;
+        return <SocialMetrics />;
       case 'conduct':
-        return <ConductMetrics 
-          formValues={formValues} 
-          setFormValues={setFormValues} 
-          initialField={initialField} 
-        />;
+        return <ConductMetrics />;
       case 'narrative':
         if (showNarrativeModule) {
-          return <NarrativePATMetrics 
-            formValues={formValues} 
-            setFormValues={setFormValues} 
-            initialField={initialField} 
-          />;
+          return <NarrativePATMetrics />;
         }
         return <div className="p-6 text-center">Modulo narrativo non disponibile per questo tipo di report</div>;
       case 'business-partners':
         if (showBusinessPartnersModule) {
-          return <BusinessPartnersMetrics 
-            formValues={formValues} 
-            setFormValues={setFormValues} 
-            initialField={initialField} 
-          />;
+          return <BusinessPartnersMetrics />;
         }
         return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;
       default:
