@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
-import { useAntiCorruptionData } from './anti-corruption/hooks/useAntiCorruptionData';
+import { useAntiCorruptionData } from './anti-corruption/hooks';
 import { AntiCorruptionHeader, SaveButton } from './anti-corruption';
 import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
@@ -50,10 +50,6 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
         handleChange(syntheticEvent);
       }
     }, [antiCorruptionData, loading]);
-
-    const syncToParentState = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      handleChange(e);
-    };
 
     const handleSaveData = async () => {
       if (!formValues.conductMetrics) {
@@ -110,7 +106,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="number" 
                   placeholder="0" 
                   value={formValues.conductMetrics?.antiCorruptionConvictions || ""} 
-                  onChange={syncToParentState} 
+                  onChange={handleChange} 
                 />
               </div>
               
@@ -122,7 +118,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                   type="number" 
                   placeholder="0.00" 
                   value={formValues.conductMetrics?.antiCorruptionSanctions || ""} 
-                  onChange={syncToParentState} 
+                  onChange={handleChange} 
                 />
               </div>
             </div>
@@ -134,7 +130,7 @@ const AntiCorruptionMetrics = React.forwardRef<HTMLDivElement, AntiCorruptionMet
                 name="conductMetrics.antiCorruptionDetails" 
                 placeholder="Fornisci dettagli aggiuntivi sulle condanne e sanzioni per corruzione, se applicabile." 
                 value={formValues.conductMetrics?.antiCorruptionDetails || ""} 
-                onChange={syncToParentState} 
+                onChange={handleChange} 
                 className="min-h-[100px]" 
               />
             </div>
