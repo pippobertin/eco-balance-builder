@@ -4,7 +4,6 @@ import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useReport } from '@/hooks/use-report-context';
 import ComplianceForm from './compliance/ComplianceForm';
 import ComplianceHeader from './compliance/ComplianceHeader';
-import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 import { Skeleton } from '@/components/ui/skeleton';
 import SectionAutoSaveIndicator from '@/components/report/environmental/components/SectionAutoSaveIndicator';
 
@@ -14,14 +13,17 @@ interface ComplianceMetricsProps {
 }
 
 const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handleChange }) => {
-  const { currentReport, needsSaving, lastSaved } = useReport();
+  const { currentReport } = useReport();
   const reportId = currentReport?.id;
   const [localLastSaved, setLocalLastSaved] = useState<Date | null>(null);
   const [localNeedsSaving, setLocalNeedsSaving] = useState(false);
 
-  // Use either context-provided values or local state for the save indicator
-  const showNeedsSaving = handleChange ? needsSaving : localNeedsSaving;
-  const showLastSaved = handleChange ? lastSaved : localLastSaved;
+  // Log any changes to report ID to help with debugging
+  useEffect(() => {
+    if (reportId) {
+      console.log("ComplianceMetrics - reportId updated:", reportId);
+    }
+  }, [reportId]);
 
   return (
     <GlassmorphicCard>
@@ -29,7 +31,7 @@ const ComplianceMetrics: React.FC<ComplianceMetricsProps> = ({ formValues, handl
         <ComplianceHeader />
         
         <SectionAutoSaveIndicator 
-          lastSaved={showLastSaved} 
+          lastSaved={localLastSaved} 
           className="mt-4"
         />
         

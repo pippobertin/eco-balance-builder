@@ -28,8 +28,17 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     saveData, 
     isSaving, 
     isLoading, 
-    lastSaved 
+    lastSaved,
+    loadData
   } = useComplianceData(reportId || '');
+  
+  // Force reload when reportId changes
+  useEffect(() => {
+    if (reportId) {
+      console.log("ComplianceForm - reportId changed, reloading data:", reportId);
+      loadData();
+    }
+  }, [reportId, loadData]);
   
   // Update local state when form data changes
   useEffect(() => {
@@ -66,11 +75,13 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   
   // Determine which data to display - use parent form values if provided, otherwise use local state
   const displayData = formValues || formData;
-  
-  useEffect(() => {
-    console.log("ComplianceForm rendering with data:", displayData);
-  }, [displayData]);
 
+  // Log data for debugging
+  useEffect(() => {
+    console.log("ComplianceForm - Current formData:", formData);
+    console.log("ComplianceForm - Display data:", displayData);
+  }, [formData, displayData]);
+  
   const handleSave = async () => {
     console.log("ComplianceForm - Save button clicked with data:", displayData);
     
