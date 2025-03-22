@@ -13,10 +13,10 @@ const SaveButton: React.FC<SaveButtonProps> = ({ onClick, isLoading }) => {
     <Button 
       onClick={onClick} 
       disabled={isLoading}
-      className="ml-auto"
+      className="bg-blue-500 hover:bg-blue-600 text-white"
     >
       <Save className="mr-2 h-4 w-4" />
-      {isLoading ? "Salvataggio..." : "Salva modifiche"}
+      {isLoading ? "Salvataggio..." : "Salva dati compliance"}
     </Button>
   );
 };

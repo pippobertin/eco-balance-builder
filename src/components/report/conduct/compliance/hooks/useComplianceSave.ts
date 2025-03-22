@@ -26,7 +26,7 @@ export const useComplianceSave = (
     try {
       // Verifica se esiste già un record
       const { data: existingData, error: checkError } = await supabase
-        .from('compliance_metrics')
+        .from('compliance_standards')
         .select('id')
         .eq('report_id', reportId)
         .maybeSingle();
@@ -40,7 +40,7 @@ export const useComplianceSave = (
       if (existingData) {
         // Aggiornamento di un record esistente
         result = await supabase
-          .from('compliance_metrics')
+          .from('compliance_standards')
           .update({
             compliance_standards: formData.complianceStandards,
             compliance_monitoring: formData.complianceMonitoring,
@@ -50,7 +50,7 @@ export const useComplianceSave = (
       } else {
         // Creazione di un nuovo record
         result = await supabase
-          .from('compliance_metrics')
+          .from('compliance_standards')
           .insert({
             report_id: reportId,
             compliance_standards: formData.complianceStandards,

@@ -21,8 +21,9 @@ export const useComplianceLoad = (
       console.log("Loading compliance data for reportId:", reportId);
 
       try {
+        // We're using compliance_standards table based on errors
         const { data, error } = await supabase
-          .from('compliance_metrics')
+          .from('compliance_standards')
           .select('compliance_standards, compliance_monitoring, updated_at')
           .eq('report_id', reportId)
           .maybeSingle();
