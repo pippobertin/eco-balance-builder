@@ -27,7 +27,7 @@ export const useComplianceData = (reportId: string) => {
       console.log("useComplianceData - Initial load for reportId:", reportId);
       loadData();
     }
-  }, [reportId, loadData]);
+  }, [reportId]);
 
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {

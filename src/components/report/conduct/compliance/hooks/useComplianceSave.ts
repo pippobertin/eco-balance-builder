@@ -79,7 +79,9 @@ export const useComplianceSave = (
 
       console.log("Compliance data saved successfully");
       setNeedsSaving(false);
-      setLastSaved(new Date());
+      
+      const now = new Date();
+      setLastSaved(now);
       
       toast({
         title: "Successo",

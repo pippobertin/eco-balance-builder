@@ -11,14 +11,39 @@ interface ComplianceFormProps {
   reportId: string | undefined;
   formValues?: any;
   handleChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  setLocalLastSaved?: React.Dispatch<React.SetStateAction<Date | null>>;
+  setLocalNeedsSaving?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ComplianceForm: React.FC<ComplianceFormProps> = ({ 
   reportId,
   formValues,
-  handleChange
+  handleChange,
+  setLocalLastSaved,
+  setLocalNeedsSaving
 }) => {
-  const { formData, setFormData, saveData, isSaving, isLoading } = useComplianceData(reportId || '');
+  const { 
+    formData, 
+    setFormData, 
+    saveData, 
+    isSaving, 
+    isLoading, 
+    lastSaved 
+  } = useComplianceData(reportId || '');
+  
+  // Update local state when form data changes
+  useEffect(() => {
+    if (setLocalNeedsSaving && (formData.complianceStandards || formData.complianceMonitoring)) {
+      setLocalNeedsSaving(true);
+    }
+  }, [formData, setLocalNeedsSaving]);
+
+  // Update local last saved when saving is complete
+  useEffect(() => {
+    if (setLocalLastSaved && lastSaved) {
+      setLocalLastSaved(lastSaved);
+    }
+  }, [lastSaved, setLocalLastSaved]);
   
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -32,6 +57,10 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
         ...prev,
         [name]: value
       }));
+      
+      if (setLocalNeedsSaving) {
+        setLocalNeedsSaving(true);
+      }
     }
   };
   
@@ -51,10 +80,18 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
         complianceStandards: displayData.complianceStandards || '',
         complianceMonitoring: displayData.complianceMonitoring || ''
       };
-      await saveData(dataToSave);
+      const success = await saveData(dataToSave);
+      
+      if (success && setLocalNeedsSaving) {
+        setLocalNeedsSaving(false);
+      }
     } else {
       // We're in local state mode
-      await saveData();
+      const success = await saveData();
+      
+      if (success && setLocalNeedsSaving) {
+        setLocalNeedsSaving(false);
+      }
     }
   };
   
