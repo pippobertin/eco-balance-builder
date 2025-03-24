@@ -80,21 +80,14 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
 
   // Build the list of pollutants to display in the dropdown
   const getDisplayablePollutants = () => {
-    // Start with an empty array
-    let displayPollutants: PollutantType[] = [];
+    // Start with filtered pollutants as the base
+    let displayPollutants = [...filteredPollutants];
     
-    // Always add the current pollutant first (if in edit mode and it exists)
-    if (editingRecord && currentEditingPollutant) {
-      displayPollutants.push(currentEditingPollutant);
-    }
-    
-    // Then add all filtered pollutants (except the current one to avoid duplicates)
-    if (filteredPollutants.length > 0) {
-      filteredPollutants.forEach(pollutant => {
-        if (!editingRecord || pollutant.id !== pollutantTypeId) {
-          displayPollutants.push(pollutant);
-        }
-      });
+    // If we're in edit mode and the current pollutant exists but is not in the filtered list
+    if (editingRecord && currentEditingPollutant && 
+        !filteredPollutants.some(p => p.id === currentEditingPollutant.id)) {
+      // Add the current editing pollutant to the top of the list
+      displayPollutants = [currentEditingPollutant, ...displayPollutants];
     }
     
     return displayPollutants;
@@ -110,7 +103,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
           value={selectedMedium?.toString() || ""}
           onValueChange={(value) => {
             setSelectedMedium(parseInt(value));
-            // Don't reset the pollutant when changing the medium during editing
+            // Only reset the pollutant if we're not in edit mode or if the medium changed
             if (!editingRecord && pollutantTypeId) {
               setPollutantTypeId(null);
             }

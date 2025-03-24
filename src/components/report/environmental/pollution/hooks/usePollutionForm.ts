@@ -17,7 +17,7 @@ export const usePollutionForm = ({ editingRecord, setSelectedMedium }: UsePollut
     if (editingRecord) {
       console.log("Editing record:", editingRecord);
       
-      // Set the medium (handled by the parent component via setSelectedMedium)
+      // Set the medium first (handled by the parent component via setSelectedMedium)
       setSelectedMedium(editingRecord.release_medium_id);
       
       // Set the pollutant type
