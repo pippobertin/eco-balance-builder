@@ -127,7 +127,8 @@ export const useReportLoad = (
           socialMetrics: safeJsonParse(result.report.social_metrics, {}),
           conductMetrics: safeJsonParse(result.report.conduct_metrics, {}),
           materialityAnalysis: safeJsonParse(result.report.materiality_analysis, { issues: [], stakeholders: [] }),
-          narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {})
+          narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {}),
+          businessPartnersMetrics: safeJsonParse(result.report.business_partners_metrics, {})
         };
         
         console.log("Parsed report data:", {
@@ -142,6 +143,12 @@ export const useReportLoad = (
             : "Empty object",
           materialityAnalysis: Object.keys(newReportData.materialityAnalysis).length > 0 
             ? "Populated object with " + Object.keys(newReportData.materialityAnalysis).length + " keys" 
+            : "Empty object",
+          narrativePATMetrics: Object.keys(newReportData.narrativePATMetrics).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.narrativePATMetrics).length + " keys" 
+            : "Empty object",
+          businessPartnersMetrics: Object.keys(newReportData.businessPartnersMetrics || {}).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.businessPartnersMetrics || {}).length + " keys" 
             : "Empty object"
         });
         

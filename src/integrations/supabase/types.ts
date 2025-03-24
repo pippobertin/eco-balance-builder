@@ -106,6 +106,460 @@ export type Database = {
           },
         ]
       }
+      bp1_revenue_sectors: {
+        Row: {
+          chemicals: boolean | null
+          chemicals_revenue: number | null
+          coal_revenue: number | null
+          controversial_weapons: boolean | null
+          controversial_weapons_revenue: number | null
+          created_at: string
+          fossil_fuels: boolean | null
+          gas_revenue: number | null
+          id: string
+          oil_revenue: number | null
+          report_id: string
+          tobacco: boolean | null
+          tobacco_revenue: number | null
+          updated_at: string
+        }
+        Insert: {
+          chemicals?: boolean | null
+          chemicals_revenue?: number | null
+          coal_revenue?: number | null
+          controversial_weapons?: boolean | null
+          controversial_weapons_revenue?: number | null
+          created_at?: string
+          fossil_fuels?: boolean | null
+          gas_revenue?: number | null
+          id?: string
+          oil_revenue?: number | null
+          report_id: string
+          tobacco?: boolean | null
+          tobacco_revenue?: number | null
+          updated_at?: string
+        }
+        Update: {
+          chemicals?: boolean | null
+          chemicals_revenue?: number | null
+          coal_revenue?: number | null
+          controversial_weapons?: boolean | null
+          controversial_weapons_revenue?: number | null
+          created_at?: string
+          fossil_fuels?: boolean | null
+          gas_revenue?: number | null
+          id?: string
+          oil_revenue?: number | null
+          report_id?: string
+          tobacco?: boolean | null
+          tobacco_revenue?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp1_revenue_sectors_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp10_work_life_balance: {
+        Row: {
+          created_at: string
+          female_family_leave_eligible: number | null
+          female_family_leave_used: number | null
+          id: string
+          male_family_leave_eligible: number | null
+          male_family_leave_used: number | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          female_family_leave_eligible?: number | null
+          female_family_leave_used?: number | null
+          id?: string
+          male_family_leave_eligible?: number | null
+          male_family_leave_used?: number | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          female_family_leave_eligible?: number | null
+          female_family_leave_used?: number | null
+          id?: string
+          male_family_leave_eligible?: number | null
+          male_family_leave_used?: number | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp10_work_life_balance_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp11_apprentices: {
+        Row: {
+          apprentices_number: number | null
+          apprentices_percentage: number | null
+          created_at: string
+          has_apprentices: boolean | null
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          apprentices_number?: number | null
+          apprentices_percentage?: number | null
+          created_at?: string
+          has_apprentices?: boolean | null
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          apprentices_number?: number | null
+          apprentices_percentage?: number | null
+          created_at?: string
+          has_apprentices?: boolean | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp11_apprentices_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp2_gender_diversity: {
+        Row: {
+          created_at: string
+          female_governance_members: number | null
+          gender_diversity_index: number | null
+          id: string
+          male_governance_members: number | null
+          other_gender_governance_members: number | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          female_governance_members?: number | null
+          gender_diversity_index?: number | null
+          id?: string
+          male_governance_members?: number | null
+          other_gender_governance_members?: number | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          female_governance_members?: number | null
+          gender_diversity_index?: number | null
+          id?: string
+          male_governance_members?: number | null
+          other_gender_governance_members?: number | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp2_gender_diversity_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp3_ghg_targets: {
+        Row: {
+          created_at: string
+          ghg_reduction_baseline_year: number | null
+          ghg_reduction_target_scope1: number | null
+          ghg_reduction_target_scope2: number | null
+          ghg_reduction_target_scope3: number | null
+          ghg_reduction_target_year: number | null
+          has_ghg_reduction_targets: boolean | null
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ghg_reduction_baseline_year?: number | null
+          ghg_reduction_target_scope1?: number | null
+          ghg_reduction_target_scope2?: number | null
+          ghg_reduction_target_scope3?: number | null
+          ghg_reduction_target_year?: number | null
+          has_ghg_reduction_targets?: boolean | null
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ghg_reduction_baseline_year?: number | null
+          ghg_reduction_target_scope1?: number | null
+          ghg_reduction_target_scope2?: number | null
+          ghg_reduction_target_scope3?: number | null
+          ghg_reduction_target_year?: number | null
+          has_ghg_reduction_targets?: boolean | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp3_ghg_targets_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp4_transition_plan: {
+        Row: {
+          created_at: string
+          has_transition_plan: boolean | null
+          id: string
+          report_id: string
+          transition_plan_details: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          has_transition_plan?: boolean | null
+          id?: string
+          report_id: string
+          transition_plan_details?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          has_transition_plan?: boolean | null
+          id?: string
+          report_id?: string
+          transition_plan_details?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp4_transition_plan_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp5_physical_risks: {
+        Row: {
+          adaptation_coverage: number | null
+          assets_at_risk_amount: number | null
+          assets_at_risk_percentage: number | null
+          created_at: string
+          has_physical_climate_risks: boolean | null
+          id: string
+          real_estate_energy_efficiency: string | null
+          report_id: string
+          revenue_at_risk_percentage: number | null
+          risk_assets_location: string | null
+          updated_at: string
+        }
+        Insert: {
+          adaptation_coverage?: number | null
+          assets_at_risk_amount?: number | null
+          assets_at_risk_percentage?: number | null
+          created_at?: string
+          has_physical_climate_risks?: boolean | null
+          id?: string
+          real_estate_energy_efficiency?: string | null
+          report_id: string
+          revenue_at_risk_percentage?: number | null
+          risk_assets_location?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adaptation_coverage?: number | null
+          assets_at_risk_amount?: number | null
+          assets_at_risk_percentage?: number | null
+          created_at?: string
+          has_physical_climate_risks?: boolean | null
+          id?: string
+          real_estate_energy_efficiency?: string | null
+          report_id?: string
+          revenue_at_risk_percentage?: number | null
+          risk_assets_location?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp5_physical_risks_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp6_hazardous_waste: {
+        Row: {
+          created_at: string
+          has_hazardous_waste: boolean | null
+          hazardous_waste_total: number | null
+          id: string
+          radioactive_waste_total: number | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          has_hazardous_waste?: boolean | null
+          hazardous_waste_total?: number | null
+          id?: string
+          radioactive_waste_total?: number | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          has_hazardous_waste?: boolean | null
+          hazardous_waste_total?: number | null
+          id?: string
+          radioactive_waste_total?: number | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp6_hazardous_waste_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp7_policy_alignment: {
+        Row: {
+          aligned_instruments: string | null
+          created_at: string
+          has_policies_aligned: boolean | null
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          aligned_instruments?: string | null
+          created_at?: string
+          has_policies_aligned?: boolean | null
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          aligned_instruments?: string | null
+          created_at?: string
+          has_policies_aligned?: boolean | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp7_policy_alignment_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp8_compliance_processes: {
+        Row: {
+          compliance_processes_details: string | null
+          created_at: string
+          has_compliance_processes: boolean | null
+          id: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          compliance_processes_details?: string | null
+          created_at?: string
+          has_compliance_processes?: boolean | null
+          id?: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          compliance_processes_details?: string | null
+          created_at?: string
+          has_compliance_processes?: boolean | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp8_compliance_processes_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bp9_violations: {
+        Row: {
+          created_at: string
+          has_violations: boolean | null
+          id: string
+          report_id: string
+          updated_at: string
+          violations_details: string | null
+        }
+        Insert: {
+          created_at?: string
+          has_violations?: boolean | null
+          id?: string
+          report_id: string
+          updated_at?: string
+          violations_details?: string | null
+        }
+        Update: {
+          created_at?: string
+          has_violations?: boolean | null
+          id?: string
+          report_id?: string
+          updated_at?: string
+          violations_details?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bp9_violations_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circular_economy_details: {
         Row: {
           created_at: string

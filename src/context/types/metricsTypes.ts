@@ -1,163 +1,90 @@
 
-// Define environmental metrics by location
-export interface LocationEnvironmentalMetrics {
-  location_id: string;
-  location_name?: string;
-  location_type?: string;
-  metrics: {
-    carbonEmissions?: number;
-    energyConsumption?: number;
-    fossilFuelEnergy?: number;
-    renewableEnergy?: number;
-    wasteGeneration?: number;
-    waterUsage?: number;
-    waterConsumption?: number;
-    waterStressAreas?: number;
-    scope1Data?: any;
-    scope2Data?: any;
-    scope3Data?: any;
-    totalScope1Emissions?: number;
-    totalScope2Emissions?: number;
-    totalScope3Emissions?: number;
-    totalScopeEmissions?: number;
-    airPollution?: number;
-    waterPollution?: number;
-    soilPollution?: number;
-    landUse?: number;
-    impermeableSurface?: number;
-    natureSurfaceOnSite?: number;
-    natureSurfaceOffSite?: number;
-    totalWaste?: number;
-    recycledWaste?: number;
-    hazardousWaste?: number;
-    hazardousWasteRecycled?: number;
-    recycledContent?: number;
-    recyclableContent?: number;
-    energyEmissionsDetails?: string;
-    pollutionDetails?: string;
-    biodiversityDetails?: string;
-    waterDetails?: string;
-    resourcesDetails?: string;
-  };
+import { BP1FormData, BP2FormData, BP3FormData, BP4FormData, BP5FormData, BP6FormData, BP7FormData, BP8FormData, BP9FormData, BP10FormData, BP11FormData } from '@/components/report/business-partners/hooks/types';
+
+// Environmental metrics
+export interface EnvironmentalMetrics {
+  [key: string]: any;
 }
 
-// Import Materiality types
-import { MaterialityIssue, Stakeholder } from '@/components/report/materiality/types';
+// Social metrics
+export interface SocialMetrics {
+  [key: string]: any;
+}
 
-// Define the structure of report data
+// Conduct metrics
+export interface ConductMetrics {
+  [key: string]: any;
+}
+
+// Narrative PAT metrics
+export interface NarrativePATMetrics {
+  [key: string]: any;
+}
+
+// Business Partners metrics
+export interface BusinessPartnersMetrics {
+  bp1?: BP1FormData;
+  bp2?: BP2FormData;
+  bp3?: BP3FormData;
+  bp4?: BP4FormData;
+  bp5?: BP5FormData;
+  bp6?: BP6FormData;
+  bp7?: BP7FormData;
+  bp8?: BP8FormData;
+  bp9?: BP9FormData;
+  bp10?: BP10FormData;
+  bp11?: BP11FormData;
+  [key: string]: any;
+}
+
+// Materiality analysis
+export interface StakeholderData {
+  id: string;
+  name: string;
+  category: string;
+  influence: number;
+  interest: number;
+  contact?: string;
+  email?: string;
+  notes?: string;
+}
+
+export interface MaterialityIssue {
+  id: string;
+  name: string;
+  description?: string;
+  isCustom?: boolean;
+  category?: string;
+  subcategory?: string;
+  financialRelevance: number;
+  impactRelevance: number;
+  stakeholderRelevance: number;
+  isMaterial: boolean;
+  isSelected?: boolean;
+}
+
+export interface MaterialityAnalysis {
+  issues: MaterialityIssue[];
+  stakeholders: StakeholderData[];
+}
+
+// Combined Report Data
 export interface ReportData {
-  environmentalMetrics: {
-    carbonEmissions?: number;
-    energyConsumption?: number;
-    fossilFuelEnergy?: number;
-    renewableEnergy?: number;
-    wasteGeneration?: number;
-    waterUsage?: number;
-    waterConsumption?: number;
-    waterStressAreas?: number;
-    scope1Data?: any;
-    scope2Data?: any;
-    scope3Data?: any;
-    totalScope1Emissions?: number;
-    totalScope2Emissions?: number;
-    totalScope3Emissions?: number;
-    totalScopeEmissions?: number;
-    emissionCalculationLogs?: string;
-    airPollution?: number;
-    waterPollution?: number;
-    soilPollution?: number;
-    landUse?: number;
-    impermeableSurface?: number;
-    natureSurfaceOnSite?: number;
-    natureSurfaceOffSite?: number;
-    totalWaste?: number;
-    recycledWaste?: number;
-    hazardousWaste?: number;
-    hazardousWasteRecycled?: number;
-    recycledContent?: number;
-    recyclableContent?: number;
-    energyEmissionsDetails?: string;
-    pollutionDetails?: string;
-    biodiversityDetails?: string;
-    waterDetails?: string;
-    resourcesDetails?: string;
-    
-    locationMetrics?: LocationEnvironmentalMetrics[];
-  };
-  socialMetrics: {
-    employeeDiversity?: number;
-    trainingHours?: number;
-    communityEngagement?: number;
-    employeeSatisfaction?: number;
-    genderRatio?: number;
-    permanentEmployeePercentage?: number;
-    maleEmployees?: number;
-    femaleEmployees?: number;
-    otherGenderEmployees?: number;
-    totalEmployees?: number;
-    permanentEmployees?: number;
-    temporaryEmployees?: number;
-    fullTimeEmployees?: number;
-    partTimeEmployees?: number;
-    avgTrainingHoursMale?: number;
-    avgTrainingHoursFemale?: number;
-    employeesByCountry?: string;
-    workAccidentsNumber?: number;
-    totalHoursWorked?: number;
-    workAccidentsRate?: number;
-    workAccidentDeaths?: number;
-    workDiseaseDeaths?: number;
-    entryWage?: number;
-    localMinimumWage?: number;
-    entryWageToMinimumWageRatio?: number;
-    genderPayGap?: number;
-    collectiveBargainingCoverage?: number;
-    totalEmployeesFTE?: number;
-    supplyChainImpactProcess?: string;
-    identifiedImpacts?: string;
-    employeeTurnover?: number;
-    workAccidents?: number;
-  };
-  conductMetrics: {
-    governanceCompliance?: number;
-    policyAdherence?: number;
-    riskManagement?: number;
-    codeOfConductViolations?: number;
-    antiCorruptionTraining?: number;
-    boardDiversity?: number;
-    executivePayRatio?: number;
-    sustainabilityCommittee?: number;
-    antiCorruptionConvictions?: number;
-    antiCorruptionSanctions?: number;
-  };
-  businessPartnersMetrics?: {
-    totalSuppliers?: number;
-    localSuppliers?: number;
-    internationalSuppliers?: number;
-    certifiedSuppliers?: number;
-    suppliersWithEsgRating?: number;
-    criticalSuppliers?: number;
-    avgPaymentTime?: number;
-    avgContractDuration?: number;
-    positiveEsgImpactSuppliers?: number;
-    negativeEsgImpactSuppliers?: number;
-    totalSuppliersScreened?: number;
-  };
-  materialityAnalysis: {
-    issues?: MaterialityIssue[];
-    stakeholders?: Stakeholder[];
-    esgScore?: number;
-  };
-  narrativePATMetrics?: any;
+  environmentalMetrics: EnvironmentalMetrics;
+  socialMetrics: SocialMetrics;
+  conductMetrics: ConductMetrics;
+  narrativePATMetrics: NarrativePATMetrics;
+  businessPartnersMetrics?: BusinessPartnersMetrics;
+  materialityAnalysis: MaterialityAnalysis;
+  [key: string]: any;
 }
 
-// Default empty report data
+// Default state
 export const defaultReportData: ReportData = {
-  environmentalMetrics: {
-    locationMetrics: []
-  },
+  environmentalMetrics: {},
   socialMetrics: {},
   conductMetrics: {},
+  narrativePATMetrics: {},
   businessPartnersMetrics: {},
   materialityAnalysis: {
     issues: [],
