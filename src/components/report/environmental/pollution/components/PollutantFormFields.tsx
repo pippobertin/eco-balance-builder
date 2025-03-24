@@ -59,6 +59,10 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
     return allPollutant?.description;
   };
 
+  // Find the current editing pollutant from all pollutants if in edit mode
+  const currentEditingPollutant = editingRecord && pollutantTypeId ? 
+    pollutants.find(p => p.id === pollutantTypeId) : null;
+
   // Function to check if quantity and details fields should be enabled
   const areDetailFieldsEnabled = () => {
     return !!selectedMedium && !!pollutantTypeId && !!reportId && !isSubmitting;
@@ -104,12 +108,12 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
           </SelectTrigger>
           <SelectContent>
             {/* Always include the current pollutant when editing, even if it's not in the filtered list */}
-            {editingRecord && pollutantTypeId && !filteredPollutants.some(p => p.id === pollutantTypeId) && (
+            {editingRecord && currentEditingPollutant && !filteredPollutants.some(p => p.id === pollutantTypeId) && (
               <SelectItem 
                 key={`current-${pollutantTypeId}`} 
-                value={pollutantTypeId.toString()}
+                value={currentEditingPollutant.id.toString()}
               >
-                {pollutants.find(p => p.id === pollutantTypeId)?.name || "Inquinante selezionato"}
+                {currentEditingPollutant.name}
               </SelectItem>
             )}
             
@@ -125,7 +129,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
               ))
             ) : (
               <SelectItem value="none" disabled>
-                Nessun inquinante disponibile per questo mezzo
+                {editingRecord ? "Seleziona un inquinante" : "Nessun inquinante disponibile per questo mezzo"}
               </SelectItem>
             )}
           </SelectContent>
