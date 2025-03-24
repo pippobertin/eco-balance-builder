@@ -11,7 +11,6 @@ export const useMaterialIssuesSave = (
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
   const [isSaving, setIsSaving] = useState(false);
-  const { setNeedsSaving } = useReport();
 
   const saveData = useCallback(async () => {
     if (!reportId) return;
@@ -62,7 +61,7 @@ export const useMaterialIssuesSave = (
         result = data;
       }
 
-      setNeedsSaving(false);
+      // Only update this module's state
       setLastSaved(new Date());
       toast.success('Dati salvati con successo');
     } catch (error: any) {
@@ -71,7 +70,7 @@ export const useMaterialIssuesSave = (
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setLastSaved, setNeedsSaving]);
+  }, [reportId, formData, setLastSaved]);
 
   return { saveData, isSaving };
 };

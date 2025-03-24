@@ -70,7 +70,7 @@ export const useStrategySave = (
         result = data;
       }
 
-      setNeedsSaving(false);
+      // Only update this module's state, not the global needsSaving state
       setLastSaved(new Date());
       toast.success('Dati salvati con successo');
     } catch (error: any) {
@@ -79,7 +79,7 @@ export const useStrategySave = (
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setLastSaved, setNeedsSaving]);
+  }, [reportId, formData, setLastSaved]);
 
   return { saveData, isSaving };
 };

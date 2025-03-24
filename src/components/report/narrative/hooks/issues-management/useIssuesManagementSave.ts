@@ -3,7 +3,6 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { IssuesManagementFormData } from '../types';
 import { toast } from 'sonner';
-import { useReport } from '@/context/ReportContext';
 
 export const useIssuesManagementSave = (
   reportId: string, 
@@ -11,7 +10,6 @@ export const useIssuesManagementSave = (
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
   const [isSaving, setIsSaving] = useState(false);
-  const { setNeedsSaving } = useReport();
 
   const saveData = useCallback(async () => {
     if (!reportId) return;
@@ -67,9 +65,8 @@ export const useIssuesManagementSave = (
         throw result.error;
       }
 
-      const newSavedTime = new Date();
-      setLastSaved(newSavedTime);
-      setNeedsSaving(false);
+      // Only update this module's state
+      setLastSaved(new Date());
       toast.success('Dati salvati con successo');
     } catch (error) {
       console.error('Error in save operation:', error);
@@ -77,7 +74,7 @@ export const useIssuesManagementSave = (
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setLastSaved, setNeedsSaving]);
+  }, [reportId, formData, setLastSaved]);
 
   return { saveData, isSaving };
 };
