@@ -148,26 +148,9 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
       </GlassmorphicCard>
 
       <GlassmorphicCard>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-blue-500" />
-            <h2 className="text-xl font-semibold">Informativa B 2 - Pratiche per la transizione verso un'economia più sostenibile</h2>
-          </div>
-          <Button 
-            onClick={handleSavePractices}
-            disabled={isSaving || isLoading}
-            size="sm"
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>Salvataggio<span className="ml-2 inline-block animate-spin">⏳</span></>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Salva
-              </>
-            )}
-          </Button>
+        <div className="flex items-center mb-4">
+          <FileText className="mr-2 h-5 w-5 text-blue-500" />
+          <h2 className="text-xl font-semibold">Informativa B 2 - Pratiche per la transizione verso un'economia più sostenibile</h2>
         </div>
         
         <div className="space-y-4">
@@ -188,6 +171,24 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               onChange={e => setSustainabilityPractices(e.target.value)} 
             />
           )}
+          
+          <div className="flex justify-start mt-2">
+            <Button 
+              onClick={handleSavePractices}
+              disabled={isSaving || isLoading}
+              size="sm"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white"
+            >
+              {isSaving ? (
+                <>Salvataggio<span className="ml-2 inline-block animate-spin">⏳</span></>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Salva Dettagli
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </GlassmorphicCard>
       
