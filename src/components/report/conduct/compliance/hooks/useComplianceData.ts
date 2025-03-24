@@ -15,29 +15,30 @@ export const useComplianceData = (reportId: string) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
 
-  // Load data
+  // Get load function - pass in the state setters
   const { loadData } = useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
   
-  // Get save function
+  // Get save function - pass in the current form data
   const { saveData } = useComplianceSave(reportId, formData, setIsSaving, setLastSaved);
 
-  // Initial load when the component mounts
+  // Initial load when component mounts or reportId changes
   useEffect(() => {
     if (reportId) {
-      console.log("useComplianceData - Initial load for reportId:", reportId);
+      console.log("useComplianceData - Loading data for reportId:", reportId);
       loadData();
     }
   }, [reportId, loadData]);
 
-  // Monitor changes to formData to set needsSaving flag only when data has loaded and changed
+  // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
+    // Only set needsSaving if we're not in the initial loading state
     if (!isLoading) {
       console.log("Setting needsSaving flag due to form data change in useComplianceData");
       setNeedsSaving(true);
     }
   }, [formData, isLoading, setNeedsSaving]);
 
-  // Expose the loadData function so it can be called by parent components
+  // Expose the loadData function so it can be called by parent components if needed
   const handleLoadData = useCallback(() => {
     console.log("useComplianceData - handleLoadData called for reportId:", reportId);
     if (reportId) {

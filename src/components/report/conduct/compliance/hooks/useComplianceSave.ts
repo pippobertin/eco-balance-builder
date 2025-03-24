@@ -1,8 +1,9 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ComplianceFormData } from './types';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useComplianceSave = (
   reportId: string,
@@ -11,6 +12,7 @@ export const useComplianceSave = (
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
 ) => {
   const { toast } = useToast();
+  const { setNeedsSaving } = useReport();
 
   const saveData = useCallback(async (customData?: ComplianceFormData) => {
     if (!reportId) {
@@ -74,7 +76,12 @@ export const useComplianceSave = (
       }
 
       console.log("Compliance data saved successfully:", result);
+      
+      // Update last saved time
       setLastSaved(new Date(now));
+      
+      // Reset the needsSaving flag
+      setNeedsSaving(false);
       
       toast({
         title: "Salvato con successo",
@@ -95,7 +102,7 @@ export const useComplianceSave = (
     } finally {
       setIsSaving(false);
     }
-  }, [reportId, formData, setIsSaving, setLastSaved, toast]);
+  }, [reportId, formData, setIsSaving, setLastSaved, setNeedsSaving, toast]);
 
   return { saveData };
 };
