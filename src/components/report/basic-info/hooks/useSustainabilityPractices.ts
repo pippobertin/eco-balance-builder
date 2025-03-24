@@ -11,6 +11,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
   const [practices, setPractices] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { toast } = useToast();
 
   // Load sustainability practices when the report ID changes
@@ -23,7 +24,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
         console.log(`Loading sustainability practices for report: ${reportId}`);
         const { data, error } = await supabase
           .from('sustainability_practices')
-          .select('practices_description')
+          .select('practices_description, updated_at')
           .eq('report_id', reportId)
           .single();
           
@@ -40,6 +41,9 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
         if (data) {
           console.log("Loaded sustainability practices:", data.practices_description);
           setPractices(data.practices_description || '');
+          if (data.updated_at) {
+            setLastSaved(new Date(data.updated_at));
+          }
         }
       } catch (error) {
         console.error("Exception loading sustainability practices:", error);
@@ -74,6 +78,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
         .maybeSingle();
       
       let result;
+      const now = new Date().toISOString();
       
       if (existingData) {
         // Update existing record
@@ -81,7 +86,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
           .from('sustainability_practices')
           .update({ 
             practices_description: practicesText,
-            updated_at: new Date().toISOString()
+            updated_at: now
           })
           .eq('report_id', reportId);
       } else {
@@ -90,7 +95,8 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
           .from('sustainability_practices')
           .insert({ 
             report_id: reportId,
-            practices_description: practicesText
+            practices_description: practicesText,
+            updated_at: now
           });
       }
       
@@ -105,6 +111,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
       }
       
       setPractices(practicesText);
+      setLastSaved(new Date());
       toast({
         title: "Salvato",
         description: "Pratiche per la sostenibilità salvate con successo"
@@ -129,6 +136,7 @@ export const useSustainabilityPractices = ({ reportId }: UseSustainabilityPracti
     setPractices,
     isLoading,
     isSaving,
-    savePractices
+    savePractices,
+    lastSaved
   };
 };

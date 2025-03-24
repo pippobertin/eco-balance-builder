@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Subsidiary } from '@/context/ReportContext';
 import { Report } from '@/context/types';
 import { useSustainabilityPractices } from './basic-info/hooks/useSustainabilityPractices';
+import AutoSaveIndicator from './AutoSaveIndicator';
+
 interface BasicInfoSectionProps {
   isConsolidated: boolean;
   subsidiaries: Subsidiary[];
@@ -55,7 +57,8 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     setPractices,
     isLoading,
     isSaving,
-    savePractices
+    savePractices,
+    lastSaved
   } = useSustainabilityPractices({
     reportId: currentReport?.id
   });
@@ -135,6 +138,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             Descrivi brevemente le pratiche specifiche adottate dall'impresa per la transizione verso un'economia più sostenibile. 
             Non includere attività filantropiche, ma piuttosto iniziative concrete per migliorare l'impatto ambientale e sociale dell'impresa.
           </p>
+          
+          {/* Auto Save Indicator */}
+          <div className="flex justify-end mb-4">
+            <AutoSaveIndicator 
+              needsSaving={false} 
+              lastSaved={lastSaved} 
+              className="w-full bg-green-50 py-2 px-3 rounded-md"
+            />
+          </div>
           
           {isLoading ? <div className="flex justify-center py-8">
               <div className="animate-spin h-6 w-6 border-2 border-blue-500 rounded-full border-t-transparent"></div>
