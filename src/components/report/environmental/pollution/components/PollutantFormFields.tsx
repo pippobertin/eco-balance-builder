@@ -80,17 +80,20 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
 
   // Build the list of pollutants to display in the dropdown
   const getDisplayablePollutants = () => {
-    // Start with filtered pollutants as the base
-    let displayPollutants = [...filteredPollutants];
+    // Start with filtered pollutants for the selected medium
+    let displayablePollutants = [...filteredPollutants];
     
-    // If we're in edit mode and the current pollutant exists but is not in the filtered list
-    if (editingRecord && currentEditingPollutant && 
-        !filteredPollutants.some(p => p.id === currentEditingPollutant.id)) {
-      // Add the current editing pollutant to the top of the list
-      displayPollutants = [currentEditingPollutant, ...displayPollutants];
+    // In edit mode, make sure the current pollutant is included
+    if (editingRecord && currentEditingPollutant) {
+      // Check if the current pollutant is not already in the filtered list
+      if (!displayablePollutants.some(p => p.id === currentEditingPollutant.id)) {
+        console.log("Adding current editing pollutant to displayable list:", currentEditingPollutant.name);
+        // Add it to the beginning of the array
+        displayablePollutants = [currentEditingPollutant, ...displayablePollutants];
+      }
     }
     
-    return displayPollutants;
+    return displayablePollutants;
   };
 
   const displayablePollutants = getDisplayablePollutants();
@@ -102,10 +105,26 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
         <Select
           value={selectedMedium?.toString() || ""}
           onValueChange={(value) => {
-            setSelectedMedium(parseInt(value));
-            // Only reset the pollutant if we're not in edit mode or if the medium changed
-            if (!editingRecord && pollutantTypeId) {
+            const mediumId = parseInt(value);
+            setSelectedMedium(mediumId);
+            
+            // Reset pollutant only if we're not in edit mode
+            if (!editingRecord) {
               setPollutantTypeId(null);
+            } else {
+              // In edit mode, check if the current pollutant is valid for this medium
+              const isPollutantValidForMedium = pollutants
+                .filter(p => p.id === pollutantTypeId)
+                .some(p => {
+                  const applicableToMedium = p.applicable_to?.includes(mediumId) || false;
+                  const inMediumIds = p.release_medium_ids?.includes(mediumId) || false;
+                  return applicableToMedium || inMediumIds;
+                });
+              
+              if (!isPollutantValidForMedium) {
+                console.log("Pollutant not valid for new medium, resetting");
+                setPollutantTypeId(null);
+              }
             }
           }}
           disabled={!reportId || isSubmitting}
@@ -146,7 +165,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
               ))
             ) : (
               <SelectItem value="none" disabled>
-                {editingRecord ? "Seleziona un inquinante" : "Nessun inquinante disponibile per questo mezzo"}
+                {selectedMedium ? "Nessun inquinante disponibile per questo mezzo" : "Prima seleziona il mezzo di rilascio"}
               </SelectItem>
             )}
           </SelectContent>

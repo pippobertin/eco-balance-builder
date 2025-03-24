@@ -24,7 +24,7 @@ export const usePollutantFilter = (pollutants: PollutantType[]) => {
         return isApplicableByProperty || isApplicableByMediumIds;
       });
       
-      console.log(`Found ${filtered.length} pollutants for medium ${selectedMedium}`);
+      console.log(`Found ${filtered.length} pollutants for medium ${selectedMedium}`, filtered);
       setFilteredPollutants(filtered);
     } else {
       console.log("No medium selected, clearing filtered pollutants");
