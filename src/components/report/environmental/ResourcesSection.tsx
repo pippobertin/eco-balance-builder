@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Recycle, Info } from 'lucide-react';
+import { Recycle, Info, Save } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import WasteManagementTable from './resources/WasteManagementTable';
 import { useReport } from '@/hooks/use-report-context';
@@ -16,8 +17,9 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const { currentReport, needsSaving, lastSaved } = useReport();
+  const { currentReport, needsSaving, lastSaved, saveCurrentReport, setNeedsSaving } = useReport();
   const reportId = currentReport?.id;
+  const [isSaving, setIsSaving] = useState(false);
   const [localLastSaved, setLocalLastSaved] = useState<Date | null>(lastSaved);
 
   // Sync with global last saved timestamp when it changes
@@ -26,6 +28,19 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
       setLocalLastSaved(lastSaved);
     }
   }, [lastSaved]);
+
+  const handleSaveData = async () => {
+    setIsSaving(true);
+    
+    try {
+      await saveCurrentReport();
+      setLocalLastSaved(new Date());
+    } catch (error) {
+      console.error("Error saving resources data:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <GlassmorphicCard>
@@ -42,7 +57,7 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
         />
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-4 mt-6">
         <div className="p-4 rounded-md mb-4 bg-green-100">
           <div className="flex items-start">
             <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
@@ -52,6 +67,15 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
             </p>
           </div>
         </div>
+        
+        <Button 
+          onClick={handleSaveData} 
+          disabled={isSaving || !needsSaving}
+          className="flex items-center"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {isSaving ? "Salvataggio in corso..." : "Salva dati risorse"}
+        </Button>
         
         {/* Tabella dei rifiuti */}
         <WasteManagementTable formValues={formValues} handleChange={setFormValues} />
