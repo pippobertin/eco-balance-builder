@@ -12,22 +12,22 @@ export const usePollutionForm = ({ editingRecord, setSelectedMedium }: UsePollut
   const [quantity, setQuantity] = useState<string>("");
   const [details, setDetails] = useState<string>("");
   
-  // Aggiorna i campi del form quando cambia il record in modifica
+  // Update form fields when the editing record changes
   useEffect(() => {
     if (editingRecord) {
       console.log("Editing record:", editingRecord);
       
-      // Imposta il mezzo (gestito nel componente genitore tramite setSelectedMedium)
+      // Set the medium (handled by the parent component via setSelectedMedium)
       setSelectedMedium(editingRecord.release_medium_id);
       
-      // Imposta il tipo di inquinante
+      // Set the pollutant type
       console.log("Setting pollutant type to:", editingRecord.pollutant_type_id);
       setPollutantTypeId(editingRecord.pollutant_type_id);
       
-      // Imposta la quantità (convertita in stringa per il campo input)
+      // Set the quantity (converted to string for the input field)
       setQuantity(editingRecord.quantity.toString());
       
-      // Imposta i dettagli (se disponibili)
+      // Set the details (if available)
       setDetails(editingRecord.details || "");
     } else {
       resetForm();

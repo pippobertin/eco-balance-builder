@@ -10,7 +10,7 @@ export * from './types';
 export { usePollutionManagement };
 
 export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollutionDataOutput => {
-  // Usa l'hook di fetch per gestire il caricamento dei dati
+  // Use the fetch hook to handle data loading
   const {
     mediums,
     pollutants,
@@ -22,14 +22,14 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     fetchRecords
   } = usePollutionFetch(reportId);
 
-  // Inizializza prima l'hook del filtro per evitare dipendenze circolari
+  // Initialize the filter hook first to prevent circular dependencies
   const {
     selectedMedium,
     setSelectedMedium,
     filteredPollutants
   } = usePollutantFilter(pollutants);
 
-  // Inizializza l'hook dei record con la funzione setSelectedMedium
+  // Initialize the records hook with the setSelectedMedium function
   const {
     isSubmitting,
     editingRecord,
@@ -40,7 +40,7 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     cancelEdit
   } = usePollutionRecords(records, setRecords, setSelectedMedium);
 
-  // Aggiorna il mezzo selezionato in base al record in modifica, se presente
+  // Update the selected medium based on the editing record, if present
   useEffect(() => {
     if (editingRecord && editingRecord.release_medium_id) {
       console.log("Setting selected medium from editing record:", editingRecord.release_medium_id);
@@ -48,7 +48,7 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     }
   }, [editingRecord, setSelectedMedium]);
 
-  // Carica i dati iniziali
+  // Load initial data
   useEffect(() => {
     const loadData = async () => {
       console.log("Loading pollution data for report:", reportId);
