@@ -21,8 +21,8 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({
   }, [lastSaved]);
 
   const baseClasses = needsSaving 
-    ? 'flex items-center text-sm gap-1 px-2 py-1 rounded-md text-amber-600 bg-amber-50' 
-    : 'flex items-center text-sm gap-1 px-2 py-1 rounded-md text-green-600 bg-green-50';
+    ? 'flex items-center text-sm gap-1 px-3 py-2 rounded-md text-amber-600 bg-amber-50 border border-amber-200' 
+    : 'flex items-center text-sm gap-1 px-3 py-2 rounded-md text-green-600 bg-green-50 border border-green-200';
 
   return (
     <div className={`${baseClasses} ${className}`}>

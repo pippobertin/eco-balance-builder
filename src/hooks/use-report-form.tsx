@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useReport } from '@/hooks/use-report-context';
 import { useSubsidiaries } from './use-subsidiaries';
 
 export const useReportForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const {
     reportData,
     updateReportData,
@@ -100,17 +99,10 @@ export const useReportForm = () => {
       console.log("Saving report data");
       updateReportData(formValues);
       await saveCurrentReport();
-      toast({
-        title: "Report salvato",
-        description: "Tutte le modifiche sono state salvate con successo"
-      });
+      toast.success("Report salvato con successo");
     } catch (error) {
       console.error("Error saving report:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio del report",
-        variant: "destructive"
-      });
+      toast.error("Si è verificato un errore durante il salvataggio del report");
     }
   };
 
@@ -121,19 +113,12 @@ export const useReportForm = () => {
         await saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
       }
       
-      toast({
-        title: "Informazioni salvate",
-        description: "Le informazioni di base sono state salvate con successo."
-      });
+      toast.success("Informazioni salvate con successo");
       setActiveTab('metrics');
       return true;
     } catch (error) {
       console.error("Error saving basic info:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio delle informazioni di base",
-        variant: "destructive"
-      });
+      toast.error("Si è verificato un errore durante il salvataggio delle informazioni di base");
       return false;
     }
   };
@@ -143,18 +128,11 @@ export const useReportForm = () => {
       console.log("Saving metrics");
       updateReportData(formValues);
       await saveCurrentReport();
-      toast({
-        title: "Report completato",
-        description: "Il report V-SME è stato compilato e salvato con successo."
-      });
+      toast.success("Report completato con successo");
       return true;
     } catch (error) {
       console.error("Error saving metrics:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio delle metriche",
-        variant: "destructive"
-      });
+      toast.error("Si è verificato un errore durante il salvataggio delle metriche");
       return false;
     }
   };

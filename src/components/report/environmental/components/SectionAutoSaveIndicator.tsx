@@ -24,7 +24,7 @@ const SectionAutoSaveIndicator: React.FC<SectionAutoSaveIndicatorProps> = ({
       <AutoSaveIndicator 
         needsSaving={needsSaving} 
         lastSaved={lastSaved || null} 
-        className="w-full bg-green-50 py-2 px-3 rounded-md"
+        className="w-full"
       />
     </div>
   );

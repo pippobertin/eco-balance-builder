@@ -3,7 +3,7 @@ import React from 'react';
 import { Droplets, Info } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
-import AutoSaveIndicator from '../../AutoSaveIndicator';
+import SectionAutoSaveIndicator from '../../environmental/components/SectionAutoSaveIndicator';
 
 interface WaterHeaderProps {
   reportId?: string;
@@ -43,13 +43,11 @@ const WaterHeader: React.FC<WaterHeaderProps> = ({
           </Alert>
         )}
 
-        {lastSaved && (
-          <AutoSaveIndicator 
-            needsSaving={Boolean(isSaving)} 
-            lastSaved={lastSaved} 
-            className="mb-4" 
-          />
-        )}
+        <SectionAutoSaveIndicator 
+          lastSaved={lastSaved} 
+          needsSaving={Boolean(isSaving)} 
+          className="mb-4" 
+        />
       </div>
     </>
   );

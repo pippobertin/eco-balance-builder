@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Report, ReportData, Subsidiary } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export const useReportSave = (
   currentReport: Report | null,
@@ -12,7 +12,6 @@ export const useReportSave = (
 ) => {
   const [loading, setLoading] = useState(false);
   const { saveReportData, saveSubsidiaries } = useReportOperations();
-  const { toast } = useToast();
 
   // Save current report
   const saveCurrentReport = async (): Promise<void> => {
@@ -36,31 +35,19 @@ export const useReportSave = (
           console.log("Report saved to database successfully");
           setNeedsSaving(false);
           setLastSaved(new Date());
-          // Only show toast for manual saves, not auto-saves
-          // Auto-saves happen automatically without notification
+          // Show success toast
+          toast.success("Dati salvati con successo");
         } else {
           console.error("Failed to save report data");
-          toast({
-            title: "Errore",
-            description: "Non è stato possibile salvare il report",
-            variant: "destructive"
-          });
+          toast.error("Non è stato possibile salvare il report");
         }
       } else {
         console.error("Report ID is undefined, cannot save");
-        toast({
-          title: "Errore",
-          description: "ID Report non valido, impossibile salvare",
-          variant: "destructive"
-        });
+        toast.error("ID Report non valido, impossibile salvare");
       }
     } catch (error) {
       console.error("Error saving report:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio del report",
-        variant: "destructive"
-      });
+      toast.error("Si è verificato un errore durante il salvataggio del report");
     } finally {
       // Always reset loading state
       setLoading(false);
@@ -79,17 +66,10 @@ export const useReportSave = (
     try {
       console.log(`Saving ${subsidiaries.length} subsidiaries for report ${currentReport.id}`);
       await saveSubsidiaries(subsidiaries, currentReport.id);
-      toast({
-        title: "Successo",
-        description: "Controllate salvate con successo",
-      });
+      toast.success("Controllate salvate con successo");
     } catch (error) {
       console.error("Error saving subsidiaries:", error);
-      toast({
-        title: "Errore",
-        description: "Non è stato possibile salvare le controllate",
-        variant: "destructive"
-      });
+      toast.error("Non è stato possibile salvare le controllate");
     } finally {
       setLoading(false);
     }
