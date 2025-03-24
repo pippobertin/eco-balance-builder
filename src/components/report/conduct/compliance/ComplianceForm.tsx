@@ -41,18 +41,22 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   
   // Update local state when form data changes
   useEffect(() => {
-    if (setLocalNeedsSaving && (formData.complianceStandards || formData.complianceMonitoring)) {
-      setLocalNeedsSaving(true);
-    }
-  }, [formData, setLocalNeedsSaving]);
-
-  // Update local last saved when saving is complete
-  useEffect(() => {
+    console.log("ComplianceForm - lastSaved updated:", lastSaved);
     if (setLocalLastSaved && lastSaved) {
       setLocalLastSaved(lastSaved);
     }
   }, [lastSaved, setLocalLastSaved]);
   
+  // Reset needsSaving when data is loaded
+  useEffect(() => {
+    if (setLocalNeedsSaving) {
+      if (isLoading) {
+        // When loading, don't mark as needing save
+        setLocalNeedsSaving(false);
+      }
+    }
+  }, [isLoading, setLocalNeedsSaving]);
+
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     

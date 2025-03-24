@@ -32,7 +32,7 @@ export const useComplianceData = (reportId: string) => {
   // Monitor changes to formData to set needsSaving flag
   useEffect(() => {
     // Only set needsSaving if we're not in the initial loading state
-    if (!isLoading) {
+    if (!isLoading && formData.complianceStandards !== '' && formData.complianceMonitoring !== '') {
       console.log("Setting needsSaving flag due to form data change in useComplianceData");
       setNeedsSaving(true);
     }

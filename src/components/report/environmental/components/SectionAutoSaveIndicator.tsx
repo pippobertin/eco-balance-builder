@@ -6,13 +6,13 @@ import AutoSaveIndicator from '../../AutoSaveIndicator';
 interface SectionAutoSaveIndicatorProps {
   className?: string;
   lastSaved?: Date | null;
-  needsSaving?: boolean; // Add this prop to match how we're using it
+  needsSaving?: boolean; 
 }
 
 const SectionAutoSaveIndicator: React.FC<SectionAutoSaveIndicatorProps> = ({ 
   className = '',
   lastSaved,
-  needsSaving: localNeedsSaving // Accept the prop
+  needsSaving: localNeedsSaving 
 }) => {
   const { needsSaving: globalNeedsSaving } = useReport();
   
