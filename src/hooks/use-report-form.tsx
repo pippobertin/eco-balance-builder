@@ -35,7 +35,8 @@ export const useReportForm = () => {
     socialMetrics: reportData.socialMetrics || {},
     conductMetrics: reportData.conductMetrics || {},
     narrativePATMetrics: reportData.narrativePATMetrics || {},
-    materialityAnalysis: reportData.materialityAnalysis || {}
+    businessPartnersMetrics: reportData.businessPartnersMetrics || {},
+    materialityAnalysis: reportData.materialityAnalysis || { issues: [], stakeholders: [] }
   });
 
   useEffect(() => {
@@ -44,7 +45,8 @@ export const useReportForm = () => {
       socialMetrics: reportData.socialMetrics || {},
       conductMetrics: reportData.conductMetrics || {},
       narrativePATMetrics: reportData.narrativePATMetrics || {},
-      materialityAnalysis: reportData.materialityAnalysis || {}
+      businessPartnersMetrics: reportData.businessPartnersMetrics || {},
+      materialityAnalysis: reportData.materialityAnalysis || { issues: [], stakeholders: [] }
     });
   }, [reportData]);
 

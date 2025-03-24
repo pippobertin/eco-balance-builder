@@ -6,6 +6,14 @@ export interface EnvironmentalMetrics {
   [key: string]: any;
 }
 
+// Location Environmental Metrics
+export interface LocationEnvironmentalMetrics {
+  locationId: string;
+  locationName: string;
+  locationType?: string;
+  metrics: Record<string, any>;
+}
+
 // Social metrics
 export interface SocialMetrics {
   [key: string]: any;
@@ -66,6 +74,7 @@ export interface MaterialityIssue {
 export interface MaterialityAnalysis {
   issues: MaterialityIssue[];
   stakeholders: StakeholderData[];
+  esgScore?: number; // Added esgScore property
 }
 
 // Combined Report Data

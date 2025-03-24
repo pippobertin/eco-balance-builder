@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ReportData } from '@/context/types';
 import { Building2 } from 'lucide-react';
@@ -24,30 +23,30 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
   // BP1 data for chart
   const sectorData = [];
   
-  if (bp1.controversialWeapons && bp1.controversialWeaponsRevenue) {
+  if (bp1?.controversialWeapons && bp1?.controversialWeaponsRevenue) {
     sectorData.push({ name: 'Armi controverse', value: bp1.controversialWeaponsRevenue });
   }
   
-  if (bp1.tobacco && bp1.tobaccoRevenue) {
+  if (bp1?.tobacco && bp1?.tobaccoRevenue) {
     sectorData.push({ name: 'Tabacco', value: bp1.tobaccoRevenue });
   }
   
-  if (bp1.fossilFuels) {
-    const fossilFuelsTotal = (bp1.coalRevenue || 0) + (bp1.oilRevenue || 0) + (bp1.gasRevenue || 0);
+  if (bp1?.fossilFuels) {
+    const fossilFuelsTotal = (bp1?.coalRevenue || 0) + (bp1?.oilRevenue || 0) + (bp1?.gasRevenue || 0);
     if (fossilFuelsTotal > 0) {
       sectorData.push({ name: 'Combustibili fossili', value: fossilFuelsTotal });
     }
   }
   
-  if (bp1.chemicals && bp1.chemicalsRevenue) {
+  if (bp1?.chemicals && bp1?.chemicalsRevenue) {
     sectorData.push({ name: 'Sostanze chimiche', value: bp1.chemicalsRevenue });
   }
   
   // BP2 gender diversity data
   const genderData = [];
-  const maleMembers = bp2.maleGovernanceMembers || 0;
-  const femaleMembers = bp2.femaleGovernanceMembers || 0;
-  const otherMembers = bp2.otherGenderGovernanceMembers || 0;
+  const maleMembers = bp2?.maleGovernanceMembers || 0;
+  const femaleMembers = bp2?.femaleGovernanceMembers || 0;
+  const otherMembers = bp2?.otherGenderGovernanceMembers || 0;
   
   if (maleMembers > 0) {
     genderData.push({ name: 'Uomini', value: maleMembers });
@@ -63,44 +62,44 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
   
   // BP3 ghg reduction targets
   const emissionsData = [];
-  if (bp3.hasGhgReductionTargets) {
-    if (bp3.ghgReductionTargetScope1 !== undefined) {
+  if (bp3?.hasGhgReductionTargets) {
+    if (bp3?.ghgReductionTargetScope1 !== undefined) {
       emissionsData.push({ name: 'Ambito 1', value: bp3.ghgReductionTargetScope1 });
     }
     
-    if (bp3.ghgReductionTargetScope2 !== undefined) {
+    if (bp3?.ghgReductionTargetScope2 !== undefined) {
       emissionsData.push({ name: 'Ambito 2', value: bp3.ghgReductionTargetScope2 });
     }
     
-    if (bp3.ghgReductionTargetScope3 !== undefined) {
+    if (bp3?.ghgReductionTargetScope3 !== undefined) {
       emissionsData.push({ name: 'Ambito 3', value: bp3.ghgReductionTargetScope3 });
     }
   }
   
   // BP6 hazardous waste
   const wasteData = [];
-  if (bp6.hasHazardousWaste) {
-    if (bp6.hazardousWasteTotal !== undefined) {
+  if (bp6?.hasHazardousWaste) {
+    if (bp6?.hazardousWasteTotal !== undefined) {
       wasteData.push({ name: 'Rifiuti pericolosi', value: bp6.hazardousWasteTotal });
     }
     
-    if (bp6.radioactiveWasteTotal !== undefined) {
+    if (bp6?.radioactiveWasteTotal !== undefined) {
       wasteData.push({ name: 'Rifiuti radioattivi', value: bp6.radioactiveWasteTotal });
     }
   }
   
   // BP10-11 Work-life balance and apprentices
   const workLifeData = [];
-  if (bp10.maleFamilyLeaveEligible !== undefined || bp10.femaleFamilyLeaveEligible !== undefined) {
+  if (bp10?.maleFamilyLeaveEligible !== undefined || bp10?.femaleFamilyLeaveEligible !== undefined) {
     workLifeData.push({ 
       name: 'Congedo familiare',
-      male: bp10.maleFamilyLeaveUsed || 0,
-      female: bp10.femaleFamilyLeaveUsed || 0
+      male: bp10?.maleFamilyLeaveUsed || 0,
+      female: bp10?.femaleFamilyLeaveUsed || 0
     });
   }
   
   const apprenticesData = [];
-  if (bp11.hasApprentices && bp11.apprenticesNumber !== undefined) {
+  if (bp11?.hasApprentices && bp11?.apprenticesNumber !== undefined) {
     apprenticesData.push({ name: 'Apprendisti', value: bp11.apprenticesNumber });
   }
 

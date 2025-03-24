@@ -14,6 +14,7 @@ export interface Report {
   social_metrics: any;
   conduct_metrics: any;
   narrative_pat_metrics?: any;
+  business_partners_metrics?: any;
   materiality_analysis?: any;
   status: string;
   created_at?: string;
