@@ -64,7 +64,7 @@ const WaterSection: React.FC<WaterSectionProps> = ({
         lastSaved={lastSaved} 
       />
       
-      <div className="space-y-6">
+      <div className="space-y-6 mt-6">
         <WaterTable 
           data={data} 
           handleChange={handleWaterChange} 
