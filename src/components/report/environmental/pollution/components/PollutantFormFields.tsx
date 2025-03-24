@@ -39,13 +39,10 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
   isSubmitting,
   editingRecord
 }) => {
-  // This effect ensures that if a pollutant type is selected but not in the filtered list
-  // (which can happen when editing a record), we still enable the quantity and details fields
+  // When editing, we need to make sure the form fields are properly enabled
   useEffect(() => {
-    if (editingRecord && pollutantTypeId && selectedMedium) {
-      // The record is already validated, so we should enable the form fields
-      // even if the pollutant type is not in the filtered list
-      console.log("Editing record with pollutantTypeId:", pollutantTypeId);
+    if (editingRecord && pollutantTypeId) {
+      console.log("Form in edit mode with pollutantTypeId:", pollutantTypeId);
     }
   }, [editingRecord, pollutantTypeId, selectedMedium]);
 
@@ -60,6 +57,11 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
     // If not found, check in all pollutants (for edit mode)
     const allPollutant = pollutants.find(p => p.id === pollutantTypeId);
     return allPollutant?.description;
+  };
+
+  // Function to check if quantity and details fields should be enabled
+  const areDetailFieldsEnabled = () => {
+    return !!selectedMedium && !!pollutantTypeId && !!reportId && !isSubmitting;
   };
 
   return (
@@ -101,12 +103,11 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
             <SelectValue placeholder={selectedMedium ? "Seleziona l'inquinante" : "Prima seleziona il mezzo di rilascio"} />
           </SelectTrigger>
           <SelectContent>
-            {/* When editing, we should include the current pollutant even if it's not in the filtered list */}
+            {/* Always include the current pollutant when editing, even if it's not in the filtered list */}
             {editingRecord && pollutantTypeId && !filteredPollutants.some(p => p.id === pollutantTypeId) && (
               <SelectItem 
                 key={`current-${pollutantTypeId}`} 
                 value={pollutantTypeId.toString()}
-                title={pollutants.find(p => p.id === pollutantTypeId)?.description || ""}
               >
                 {pollutants.find(p => p.id === pollutantTypeId)?.name || "Inquinante selezionato"}
               </SelectItem>
@@ -147,7 +148,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
           placeholder="Inserisci la quantità"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          disabled={!selectedMedium || !pollutantTypeId || !reportId || isSubmitting}
+          disabled={!areDetailFieldsEnabled()}
         />
       </div>
       
@@ -158,7 +159,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
           placeholder="Dettagli opzionali sull'inquinante"
           value={details}
           onChange={(e) => setDetails(e.target.value)}
-          disabled={!selectedMedium || !pollutantTypeId || !reportId || isSubmitting}
+          disabled={!areDetailFieldsEnabled()}
         />
       </div>
     </>
