@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 import { useSubsidiaries } from './use-subsidiaries';
 
 export const useReportForm = () => {
@@ -36,7 +36,6 @@ export const useReportForm = () => {
     materialityAnalysis: reportData.materialityAnalysis || {}
   });
 
-  // Synchronize formValues with reportData whenever reportData changes
   useEffect(() => {
     setFormValues({
       environmentalMetrics: reportData.environmentalMetrics || {},
@@ -47,11 +46,9 @@ export const useReportForm = () => {
     });
   }, [reportData]);
 
-  // Make sure we have company data
   useEffect(() => {
     const ensureData = async () => {
       try {
-        // If we don't have companies, load them
         if (!currentCompany) {
           console.log("No current company, loading companies");
           await loadCompanies();
@@ -61,7 +58,6 @@ export const useReportForm = () => {
           console.log("Current report exists:", currentReport.id);
           setIsConsolidated(currentReport.is_consolidated || false);
           
-          // If the report doesn't have complete company data, reload it
           if (currentReport.id && (!currentReport.company || !currentReport.company.name)) {
             console.log("Report missing company data, reloading full report:", currentReport.id);
             await loadReport(currentReport.id);
@@ -102,12 +98,8 @@ export const useReportForm = () => {
   const handleSaveReport = async (): Promise<void> => {
     try {
       console.log("Saving report data");
-      // First update the context with the latest form values
       updateReportData(formValues);
-      
-      // Then save the updated data to the database
       await saveCurrentReport();
-      
       toast({
         title: "Report salvato",
         description: "Tutte le modifiche sono state salvate con successo"
@@ -149,12 +141,8 @@ export const useReportForm = () => {
   const saveMetrics = async () => {
     try {
       console.log("Saving metrics");
-      // First update the context with the latest form values
       updateReportData(formValues);
-      
-      // Then save the updated data to the database
       await saveCurrentReport();
-      
       toast({
         title: "Report completato",
         description: "Il report V-SME è stato compilato e salvato con successo."

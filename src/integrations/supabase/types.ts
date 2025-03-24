@@ -1227,6 +1227,38 @@ export type Database = {
           },
         ]
       }
+      sustainability_practices: {
+        Row: {
+          created_at: string
+          id: string
+          practices_description: string | null
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          practices_description?: string | null
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          practices_description?: string | null
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sustainability_practices_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waste_management: {
         Row: {
           created_at: string

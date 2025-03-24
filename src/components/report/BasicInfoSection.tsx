@@ -1,14 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Info, FileText, CheckCircle2 } from 'lucide-react';
+import { Info, FileText, CheckCircle2, Save } from 'lucide-react';
 import { Textarea } from "@/components/ui/textarea";
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useToast } from '@/hooks/use-toast';
 import { Subsidiary } from '@/context/ReportContext';
 import { Report } from '@/context/types';
+import { useSustainabilityPractices } from './basic-info/hooks/useSustainabilityPractices';
 
 interface BasicInfoSectionProps {
   isConsolidated: boolean;
@@ -39,6 +40,29 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   const containerAnimation = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5 } }
+  };
+
+  // Use our custom hook for sustainability practices
+  const { 
+    practices, 
+    setPractices, 
+    isLoading, 
+    isSaving, 
+    savePractices 
+  } = useSustainabilityPractices({ 
+    reportId: currentReport?.id 
+  });
+
+  // Sync the practices from DB with the form state
+  useEffect(() => {
+    if (practices && practices !== sustainabilityPractices) {
+      setSustainabilityPractices(practices);
+    }
+  }, [practices, setSustainabilityPractices]);
+
+  // Handler for saving practices
+  const handleSavePractices = async () => {
+    await savePractices(sustainabilityPractices);
   };
 
   return (
@@ -124,9 +148,26 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
       </GlassmorphicCard>
 
       <GlassmorphicCard>
-        <div className="flex items-center mb-4">
-          <FileText className="mr-2 h-5 w-5 text-blue-500" />
-          <h2 className="text-xl font-semibold">Informativa B 2 - Pratiche per la transizione verso un'economia più sostenibile</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-blue-500" />
+            <h2 className="text-xl font-semibold">Informativa B 2 - Pratiche per la transizione verso un'economia più sostenibile</h2>
+          </div>
+          <Button 
+            onClick={handleSavePractices}
+            disabled={isSaving || isLoading}
+            size="sm"
+            className="flex items-center"
+          >
+            {isSaving ? (
+              <>Salvataggio<span className="ml-2 inline-block animate-spin">⏳</span></>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Salva
+              </>
+            )}
+          </Button>
         </div>
         
         <div className="space-y-4">
@@ -135,12 +176,18 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             Non includere attività filantropiche, ma piuttosto iniziative concrete per migliorare l'impatto ambientale e sociale dell'impresa.
           </p>
           
-          <textarea 
-            className="w-full min-h-[200px] p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-            placeholder="Descrivi qui le pratiche adottate dalla tua impresa..." 
-            value={sustainabilityPractices} 
-            onChange={e => setSustainabilityPractices(e.target.value)} 
-          />
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin h-6 w-6 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+            </div>
+          ) : (
+            <textarea 
+              className="w-full min-h-[200px] p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              placeholder="Descrivi qui le pratiche adottate dalla tua impresa..." 
+              value={sustainabilityPractices} 
+              onChange={e => setSustainabilityPractices(e.target.value)} 
+            />
+          )}
         </div>
       </GlassmorphicCard>
       
