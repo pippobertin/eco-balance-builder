@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -33,6 +32,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   
   // Track if parent form updates are in progress to prevent loops
   const [isUpdatingParent, setIsUpdatingParent] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   // Force reload when reportId changes
   useEffect(() => {
@@ -44,7 +44,6 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   
   // Update local state when form data changes
   useEffect(() => {
-    console.log("ComplianceForm - lastSaved updated:", lastSaved);
     if (setLocalLastSaved && lastSaved) {
       setLocalLastSaved(lastSaved);
     }
@@ -63,36 +62,42 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   // Update parent form values when compliance data is loaded and available
   useEffect(() => {
     if (!isLoading && formData && handleChange && !isUpdatingParent) {
-      console.log("ComplianceForm - Updating parent with loaded compliance data:", formData);
-      setIsUpdatingParent(true);
-      
-      // Create synthetic events to update parent form
-      if (formData.complianceStandards !== undefined) {
-        const standardsEvent = {
-          target: {
-            name: 'complianceStandards',
-            value: formData.complianceStandards
-          }
-        } as React.ChangeEvent<HTMLTextAreaElement>;
-        handleChange(standardsEvent);
+      // Only sync to parent on initial load, not on every formData change
+      if (isInitialLoad) {
+        console.log("ComplianceForm - Updating parent with loaded compliance data:", formData);
+        setIsUpdatingParent(true);
+        
+        // Create synthetic events to update parent form
+        if (formData.complianceStandards !== undefined) {
+          const standardsEvent = {
+            target: {
+              name: 'complianceStandards',
+              value: formData.complianceStandards
+            }
+          } as React.ChangeEvent<HTMLTextAreaElement>;
+          handleChange(standardsEvent);
+        }
+        
+        if (formData.complianceMonitoring !== undefined) {
+          const monitoringEvent = {
+            target: {
+              name: 'complianceMonitoring',
+              value: formData.complianceMonitoring
+            }
+          } as React.ChangeEvent<HTMLTextAreaElement>;
+          handleChange(monitoringEvent);
+        }
+        
+        // Mark initial load as complete
+        setIsInitialLoad(false);
+        
+        // Small delay to avoid loops
+        setTimeout(() => {
+          setIsUpdatingParent(false);
+        }, 100);
       }
-      
-      if (formData.complianceMonitoring !== undefined) {
-        const monitoringEvent = {
-          target: {
-            name: 'complianceMonitoring',
-            value: formData.complianceMonitoring
-          }
-        } as React.ChangeEvent<HTMLTextAreaElement>;
-        handleChange(monitoringEvent);
-      }
-      
-      // Small delay to avoid loops
-      setTimeout(() => {
-        setIsUpdatingParent(false);
-      }, 100);
     }
-  }, [formData, isLoading, handleChange, isUpdatingParent]);
+  }, [formData, isLoading, handleChange, isUpdatingParent, isInitialLoad]);
 
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -100,33 +105,29 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     // Stop if we're in the process of updating parent
     if (isUpdatingParent) return;
     
+    // Update local form data
+    console.log("ComplianceForm - Updating local form data for field:", name, value);
+    setFormData({ [name]: value });
+    
     if (handleChange) {
       console.log("ComplianceForm - Calling parent handleChange for field:", name, value);
       handleChange(e);
     }
-    
-    // Always update the local form data too
-    console.log("ComplianceForm - Updating local form data for field:", name, value);
-    setFormData({ [name]: value });
     
     if (setLocalNeedsSaving) {
       setLocalNeedsSaving(true);
     }
   };
   
-  // Get the correct value to display - prioritize form values from parent if they exist
+  // Get the correct value to display - always from parent if available, otherwise from local
   const getDisplayValue = (fieldName: string) => {
+    // If parent value exists and is not undefined, use it
     if (formValues && fieldName in formValues && formValues[fieldName] !== undefined) {
       return formValues[fieldName];
     }
+    // Otherwise fall back to local form data
     return formData[fieldName as keyof typeof formData] || '';
   };
-
-  // Log data for debugging
-  useEffect(() => {
-    console.log("ComplianceForm - Current formData:", formData);
-    console.log("ComplianceForm - Parent formValues:", formValues);
-  }, [formData, formValues]);
   
   const handleSave = async () => {
     console.log("ComplianceForm - Save button clicked");
