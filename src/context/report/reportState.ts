@@ -102,9 +102,10 @@ export const useReportState = () => {
     currentCompany,
     currentReport,
     loading: isLoading,
-    needsSaving, // Added this property
-    setNeedsSaving, // Added this property
-    lastSaved, // Added this property
+    needsSaving,
+    setNeedsSaving,
+    lastSaved,
+    setLastSaved,
     // Methods
     updateReportData,
     resetReportData,

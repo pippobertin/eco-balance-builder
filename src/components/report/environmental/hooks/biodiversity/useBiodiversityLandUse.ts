@@ -39,7 +39,7 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
   const [data, setData] = useState<BiodiversityLandUseData>(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLocalLastSaved] = useState<Date | null>(null);
+  const [localLastSaved, setLocalLastSaved] = useState<Date | null>(null);
 
   // Calculate percentage changes
   const percentageChanges = {

@@ -42,4 +42,5 @@ export interface ReportContextType {
   needsSaving: boolean;
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>;
   lastSaved: Date | null;
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>;
 }

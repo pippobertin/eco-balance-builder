@@ -30,7 +30,8 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     saveCurrentReport: state.saveCurrentReport,
     needsSaving: state.needsSaving,
     setNeedsSaving: state.setNeedsSaving,
-    lastSaved: state.lastSaved
+    lastSaved: state.lastSaved,
+    setLastSaved: state.setLastSaved
   };
 
   return (
