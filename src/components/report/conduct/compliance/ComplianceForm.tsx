@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -59,7 +58,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
 
   // Update parent form values when compliance data is loaded and available
   useEffect(() => {
-    if (!isLoading && formData && handleChange && formData.complianceStandards && formData.complianceMonitoring) {
+    if (!isLoading && formData && handleChange && formData.complianceStandards !== undefined && formData.complianceMonitoring !== undefined) {
       console.log("ComplianceForm - Updating parent with loaded compliance data:", formData);
       
       // Create synthetic events to update parent form
@@ -102,37 +101,38 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     }
   };
   
-  // Determine which data to display - use parent form values if provided, otherwise use local state
-  // Important - prioritize the parent form values for the display
-  const displayData = formValues || formData;
+  // Determine which values to display in the form inputs
+  // We need to make sure we're showing the latest values whether they come from parent or local state
+  const getDisplayValue = (fieldName: string) => {
+    // If we have parent form values and this field exists in them, use that
+    if (formValues && fieldName in formValues) {
+      return formValues[fieldName] || '';
+    }
+    // Otherwise use our local form data
+    return formData[fieldName as keyof typeof formData] || '';
+  };
 
   // Log data for debugging
   useEffect(() => {
     console.log("ComplianceForm - Current formData:", formData);
-    console.log("ComplianceForm - Display data:", displayData);
-  }, [formData, displayData]);
+    console.log("ComplianceForm - Parent formValues:", formValues);
+  }, [formData, formValues]);
   
   const handleSave = async () => {
-    console.log("ComplianceForm - Save button clicked with data:", displayData);
+    console.log("ComplianceForm - Save button clicked");
     
-    if (handleChange) {
-      // We're in a parent-controlled mode, so we need to extract the compliance data
-      const dataToSave = {
-        complianceStandards: displayData.complianceStandards || '',
-        complianceMonitoring: displayData.complianceMonitoring || ''
-      };
-      const success = await saveData(dataToSave);
-      
-      if (success && setLocalNeedsSaving) {
-        setLocalNeedsSaving(false);
-      }
-    } else {
-      // We're in local state mode
-      const success = await saveData();
-      
-      if (success && setLocalNeedsSaving) {
-        setLocalNeedsSaving(false);
-      }
+    // Get the most up-to-date data to save
+    const dataToSave = {
+      complianceStandards: getDisplayValue('complianceStandards'),
+      complianceMonitoring: getDisplayValue('complianceMonitoring')
+    };
+    
+    console.log("ComplianceForm - Saving data:", dataToSave);
+    
+    const success = await saveData(dataToSave);
+    
+    if (success && setLocalNeedsSaving) {
+      setLocalNeedsSaving(false);
     }
   };
   
@@ -153,7 +153,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
           id="complianceStandards"
           name="complianceStandards"
           placeholder="Descrivi gli standard, codici di condotta, linee guida o altri strumenti adottati dall'azienda per assicurare la compliance"
-          value={displayData.complianceStandards || ''}
+          value={getDisplayValue('complianceStandards')}
           onChange={handleLocalChange}
           className="min-h-[120px]"
         />
@@ -165,7 +165,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
           id="complianceMonitoring"
           name="complianceMonitoring"
           placeholder="Descrivi come l'azienda monitora il rispetto degli standard di compliance (es. audit interni, certificazioni esterne)"
-          value={displayData.complianceMonitoring || ''}
+          value={getDisplayValue('complianceMonitoring')}
           onChange={handleLocalChange}
           className="min-h-[120px]"
         />
