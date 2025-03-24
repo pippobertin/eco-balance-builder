@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { PollutionRecord } from '../../hooks/pollution/types';
 
@@ -11,11 +12,19 @@ export const usePollutionForm = ({ editingRecord, setSelectedMedium }: UsePollut
   const [quantity, setQuantity] = useState<string>("");
   const [details, setDetails] = useState<string>("");
   
+  // Update form fields when editing record changes
   useEffect(() => {
     if (editingRecord) {
+      // Set medium (handled in parent component via setSelectedMedium)
       setSelectedMedium(editingRecord.release_medium_id);
+      
+      // Set pollutant type
       setPollutantTypeId(editingRecord.pollutant_type_id);
+      
+      // Set quantity (convert to string for the input field)
       setQuantity(editingRecord.quantity.toString());
+      
+      // Set details (if available)
       setDetails(editingRecord.details || "");
     } else {
       resetForm();
