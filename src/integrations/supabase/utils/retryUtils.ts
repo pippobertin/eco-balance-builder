@@ -1,5 +1,5 @@
 
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 // Improved retry logic with exponential backoff and better error handling
 export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) => {
@@ -67,10 +67,8 @@ export const withRetry = async (operation, maxRetries = 3, initialDelay = 500) =
       if (retries > maxRetries) {
         // If this appears to be a service issue, show a helpful toast message
         if (isServiceIssue) {
-          toast({
-            title: "Problemi di connessione con Supabase",
+          toast.error("Problemi di connessione con Supabase", {
             description: "Supabase sta attualmente riscontrando problemi. Riprova più tardi.",
-            variant: "destructive",
             duration: 5000
           });
           console.error("Problema del servizio Supabase rilevato dopo più tentativi");

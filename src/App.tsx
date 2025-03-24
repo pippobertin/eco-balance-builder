@@ -24,9 +24,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <ReportProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+          <AuthProvider>
+            <ReportProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
@@ -62,10 +62,10 @@ function App() {
                 } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
-            <Toaster position="top-right" expand={true} richColors />
-          </ReportProvider>
-        </AuthProvider>
+              <Toaster position="top-right" expand={true} richColors />
+            </ReportProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>
   );
