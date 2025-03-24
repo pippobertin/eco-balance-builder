@@ -7,12 +7,17 @@ import { Button } from "@/components/ui/button";
 import { useCircularEconomyDetails } from '../hooks/useCircularEconomyDetails';
 import WasteNumericField from './WasteNumericField';
 import { Loader2, Save } from 'lucide-react';
+import { useReport } from '@/hooks/use-report-context';
 
 interface CircularEconomyDetailsProps {
   reportId: string | undefined;
+  onSaveComplete?: (date: Date) => void;
 }
 
-const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportId }) => {
+const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ 
+  reportId,
+  onSaveComplete 
+}) => {
   const { 
     details, 
     setDetails, 
@@ -20,6 +25,8 @@ const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportI
     isSaving, 
     saveDetails 
   } = useCircularEconomyDetails(reportId);
+  
+  const { setNeedsSaving } = useReport();
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -35,10 +42,18 @@ const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportI
         [name]: value
       }));
     }
+    
+    // Mark as needing saving when changes are made
+    setNeedsSaving(true);
   };
   
   const handleSave = async () => {
-    await saveDetails(details);
+    const success = await saveDetails(details);
+    if (success && onSaveComplete) {
+      const now = new Date();
+      onSaveComplete(now);
+      setNeedsSaving(false);
+    }
   };
   
   if (isLoading) {
@@ -86,7 +101,7 @@ const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportI
         />
       </div>
       
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <Button 
           onClick={handleSave} 
           disabled={isSaving}

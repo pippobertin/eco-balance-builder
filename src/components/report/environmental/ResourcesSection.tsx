@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Recycle, Info, Save } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Recycle, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import WasteManagementTable from './resources/WasteManagementTable';
 import { useReport } from '@/hooks/use-report-context';
@@ -17,9 +16,8 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const { currentReport, needsSaving, lastSaved, saveCurrentReport, setNeedsSaving } = useReport();
+  const { currentReport, needsSaving, lastSaved, saveCurrentReport } = useReport();
   const reportId = currentReport?.id;
-  const [isSaving, setIsSaving] = useState(false);
   const [localLastSaved, setLocalLastSaved] = useState<Date | null>(lastSaved);
 
   // Sync with global last saved timestamp when it changes
@@ -28,19 +26,6 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
       setLocalLastSaved(lastSaved);
     }
   }, [lastSaved]);
-
-  const handleSaveData = async () => {
-    setIsSaving(true);
-    
-    try {
-      await saveCurrentReport();
-      setLocalLastSaved(new Date());
-    } catch (error) {
-      console.error("Error saving resources data:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <GlassmorphicCard>
@@ -68,20 +53,14 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
           </div>
         </div>
         
-        <Button 
-          onClick={handleSaveData} 
-          disabled={isSaving || !needsSaving}
-          className="flex items-center"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {isSaving ? "Salvataggio in corso..." : "Salva dati risorse"}
-        </Button>
-        
         {/* Tabella dei rifiuti */}
         <WasteManagementTable formValues={formValues} handleChange={setFormValues} />
         
         {/* Dettagli economia circolare */}
-        <CircularEconomyDetails reportId={reportId} />
+        <CircularEconomyDetails 
+          reportId={reportId} 
+          onSaveComplete={(date) => setLocalLastSaved(date)} 
+        />
       </div>
     </GlassmorphicCard>
   );
