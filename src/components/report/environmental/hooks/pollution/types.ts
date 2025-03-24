@@ -9,6 +9,7 @@ export type PollutantType = {
   name: string;
   description: string;
   release_medium_ids: number[];
+  applicable_to?: number[]; // Add this property which might be used instead of release_medium_ids
 };
 
 export type PollutionRecord = {

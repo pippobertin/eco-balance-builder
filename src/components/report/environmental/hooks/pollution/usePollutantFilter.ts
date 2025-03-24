@@ -9,9 +9,11 @@ export const usePollutantFilter = (pollutants: PollutantType[], editingPollutant
   // Filter pollutants when selected medium changes
   useEffect(() => {
     if (selectedMedium) {
-      const filtered = pollutants.filter(pollutant => 
-        pollutant.applicable_to?.includes(selectedMedium)
-      );
+      const filtered = pollutants.filter(pollutant => {
+        // Check both applicable_to and release_medium_ids properties
+        return (pollutant.applicable_to && pollutant.applicable_to.includes(selectedMedium)) || 
+               (pollutant.release_medium_ids && pollutant.release_medium_ids.includes(selectedMedium));
+      });
       
       // If editing a record, ensure the current pollutant is in the filtered list
       if (editingPollutantTypeId) {
