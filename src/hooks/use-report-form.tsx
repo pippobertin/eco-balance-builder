@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -64,35 +65,29 @@ export const useReportForm = () => {
           
           if (!currentCompany) {
             console.log("Still no company after loading, redirecting to companies page");
-            toast({
-              title: "Nessuna azienda selezionata",
-              description: "Seleziona un'azienda e un report per continuare",
-              variant: "destructive"
+            toast.error("Nessuna azienda selezionata", {
+              description: "Seleziona un'azienda e un report per continuare"
             });
             navigate('/companies');
           }
         } else {
           console.log("No current report, redirecting to companies page");
-          toast({
-            title: "Nessun report attivo",
-            description: "Seleziona o crea un report per continuare",
-            variant: "destructive"
+          toast.error("Nessun report attivo", {
+            description: "Seleziona o crea un report per continuare"
           });
           navigate('/companies');
         }
       } catch (error) {
         console.error("Error ensuring data:", error);
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante il caricamento dei dati",
-          variant: "destructive"
+        toast.error("Errore", {
+          description: "Si è verificato un errore durante il caricamento dei dati"
         });
         navigate('/companies');
       }
     };
     
     ensureData();
-  }, [currentReport, currentCompany, navigate, toast, loadReport, loadCompanies]);
+  }, [currentReport, currentCompany, navigate, loadReport, loadCompanies]);
 
   const handleSaveReport = async (): Promise<void> => {
     try {
