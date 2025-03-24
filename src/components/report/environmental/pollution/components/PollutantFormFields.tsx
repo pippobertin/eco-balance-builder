@@ -39,31 +39,41 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
   isSubmitting,
   editingRecord
 }) => {
-  // When editing, we need to make sure the form fields are properly enabled
+  // Quando si è in modalità modifica, verifichiamo che tutto funzioni correttamente
   useEffect(() => {
     if (editingRecord && pollutantTypeId) {
       console.log("Form in edit mode with pollutantTypeId:", pollutantTypeId);
+      console.log("Current pollutants list:", pollutants);
+      console.log("Current filtered pollutants:", filteredPollutants);
+      
+      // Troviamo l'inquinante corrente
+      const currentPollutant = pollutants.find(p => p.id === pollutantTypeId);
+      if (currentPollutant) {
+        console.log("Found current pollutant:", currentPollutant.name);
+      } else {
+        console.warn("Could not find pollutant with ID:", pollutantTypeId);
+      }
     }
-  }, [editingRecord, pollutantTypeId, selectedMedium]);
+  }, [editingRecord, pollutantTypeId, pollutants, filteredPollutants]);
 
-  // Get the current pollutant description
+  // Ottieni la descrizione dell'inquinante attualmente selezionato
   const getCurrentPollutantDescription = () => {
     if (!pollutantTypeId) return null;
     
-    // First check in filtered pollutants
+    // Cerca prima negli inquinanti filtrati
     const filteredPollutant = filteredPollutants.find(p => p.id === pollutantTypeId);
     if (filteredPollutant) return filteredPollutant.description;
     
-    // If not found, check in all pollutants (for edit mode)
+    // Se non trovato, cerca in tutti gli inquinanti (per la modalità di modifica)
     const allPollutant = pollutants.find(p => p.id === pollutantTypeId);
     return allPollutant?.description;
   };
 
-  // Find the current editing pollutant from all pollutants if in edit mode
+  // Trova l'inquinante attualmente in modifica tra tutti gli inquinanti se in modalità modifica
   const currentEditingPollutant = editingRecord && pollutantTypeId ? 
     pollutants.find(p => p.id === pollutantTypeId) : null;
 
-  // Function to check if quantity and details fields should be enabled
+  // Funzione per verificare se i campi di quantità e dettagli devono essere abilitati
   const areDetailFieldsEnabled = () => {
     return !!selectedMedium && !!pollutantTypeId && !!reportId && !isSubmitting;
   };
@@ -76,7 +86,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
           value={selectedMedium?.toString() || ""}
           onValueChange={(value) => {
             setSelectedMedium(parseInt(value));
-            // Don't reset pollutant when changing medium during edit mode
+            // Non resettare l'inquinante quando si cambia il mezzo durante la modifica
             if (!editingRecord && pollutantTypeId) {
               setPollutantTypeId(null);
             }
@@ -107,26 +117,29 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
             <SelectValue placeholder={selectedMedium ? "Seleziona l'inquinante" : "Prima seleziona il mezzo di rilascio"} />
           </SelectTrigger>
           <SelectContent>
-            {/* Always include the current pollutant when editing, even if it's not in the filtered list */}
-            {editingRecord && currentEditingPollutant && !filteredPollutants.some(p => p.id === pollutantTypeId) && (
+            {/* Mostra sempre l'inquinante corrente quando in modalità modifica */}
+            {editingRecord && currentEditingPollutant && (
               <SelectItem 
-                key={`current-${pollutantTypeId}`} 
+                key={`current-${currentEditingPollutant.id}`} 
                 value={currentEditingPollutant.id.toString()}
               >
                 {currentEditingPollutant.name}
               </SelectItem>
             )}
             
+            {/* Mostra gli inquinanti filtrati per il mezzo selezionato */}
             {filteredPollutants.length > 0 ? (
-              filteredPollutants.map((pollutant) => (
-                <SelectItem 
-                  key={pollutant.id} 
-                  value={pollutant.id.toString()}
-                  title={pollutant.description}
-                >
-                  {pollutant.name}
-                </SelectItem>
-              ))
+              filteredPollutants
+                .filter(p => !editingRecord || p.id !== pollutantTypeId) // Evita duplicati con l'inquinante corrente
+                .map((pollutant) => (
+                  <SelectItem 
+                    key={pollutant.id} 
+                    value={pollutant.id.toString()}
+                    title={pollutant.description}
+                  >
+                    {pollutant.name}
+                  </SelectItem>
+                ))
             ) : (
               <SelectItem value="none" disabled>
                 {editingRecord ? "Seleziona un inquinante" : "Nessun inquinante disponibile per questo mezzo"}
