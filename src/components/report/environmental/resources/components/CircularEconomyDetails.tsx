@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useCircularEconomyDetails } from '../hooks/useCircularEconomyDetails';
 import WasteNumericField from './WasteNumericField';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 
 interface CircularEconomyDetailsProps {
   reportId: string | undefined;
@@ -90,7 +90,6 @@ const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportI
         <Button 
           onClick={handleSave} 
           disabled={isSaving}
-          className="bg-green-600 hover:bg-green-700"
         >
           {isSaving ? (
             <>
@@ -98,7 +97,10 @@ const CircularEconomyDetails: React.FC<CircularEconomyDetailsProps> = ({ reportI
               Salvataggio...
             </>
           ) : (
-            'Salva dettagli'
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Salva dettagli
+            </>
           )}
         </Button>
       </div>

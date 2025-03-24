@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Recycle, Info } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import WasteManagementTable from './resources/WasteManagementTable';
 import { useReport } from '@/hooks/use-report-context';
 import CircularEconomyDetails from './resources/components/CircularEconomyDetails';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
 interface ResourcesSectionProps {
   formValues: any;
@@ -16,8 +16,16 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
   formValues,
   setFormValues
 }) => {
-  const { currentReport } = useReport();
+  const { currentReport, needsSaving, lastSaved } = useReport();
   const reportId = currentReport?.id;
+  const [localLastSaved, setLocalLastSaved] = useState<Date | null>(lastSaved);
+
+  // Sync with global last saved timestamp when it changes
+  useEffect(() => {
+    if (lastSaved) {
+      setLocalLastSaved(lastSaved);
+    }
+  }, [lastSaved]);
 
   return (
     <GlassmorphicCard>
@@ -26,7 +34,13 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
         <h3 className="text-xl font-semibold">B7 - Uso delle risorse, economia circolare e gestione dei rifiuti</h3>
       </div>
       
-      <SectionAutoSaveIndicator />
+      <div className="flex justify-end mb-4">
+        <AutoSaveIndicator 
+          needsSaving={needsSaving} 
+          lastSaved={localLastSaved}
+          className="w-full" 
+        />
+      </div>
       
       <div className="space-y-4">
         <div className="p-4 rounded-md mb-4 bg-green-100">

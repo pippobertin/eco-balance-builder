@@ -14,9 +14,8 @@ const SaveButton = ({ onClick, isLoading }: SaveButtonProps) => {
       <Button 
         onClick={onClick} 
         disabled={isLoading}
-        className="flex items-center gap-2"
       >
-        <Save className="h-4 w-4" />
+        <Save className="mr-2 h-4 w-4" />
         {isLoading ? "Salvataggio..." : "Salva dati sicurezza"}
       </Button>
     </div>

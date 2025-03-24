@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { useReport } from '@/hooks/use-report-context';
 
 export interface BiodiversityLandUseData {
   previousTotalLandUse: number | null;
@@ -34,11 +35,11 @@ interface BiodiversityLandUseOptions {
 }
 
 export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions) => {
-  const { toast } = useToast();
+  const { setNeedsSaving, setLastSaved } = useReport();
   const [data, setData] = useState<BiodiversityLandUseData>(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [lastSaved, setLocalLastSaved] = useState<Date | null>(null);
 
   // Calculate percentage changes
   const percentageChanges = {
@@ -92,14 +93,15 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
           sensitiveSitesDetails: biodiversityData.sensitive_sites_details || '',
           areaUnit: biodiversityData.area_unit || 'ha'
         });
-        setLastSaved(new Date(biodiversityData.updated_at));
+        
+        const savedDate = new Date(biodiversityData.updated_at);
+        setLocalLastSaved(savedDate);
+        setLastSaved(savedDate);
       }
     } catch (error) {
       console.error('Error loading biodiversity data:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare i dati sulla biodiversità",
-        variant: "destructive"
+      toast.error("Errore", {
+        description: "Impossibile caricare i dati sulla biodiversità"
       });
     } finally {
       setIsLoading(false);
@@ -109,10 +111,8 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
   // Save data to Supabase
   const saveData = async (dataToSave: BiodiversityLandUseData): Promise<boolean> => {
     if (!reportId) {
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare i dati sulla biodiversità: ID report mancante",
-        variant: "destructive"
+      toast.error("Errore", {
+        description: "Impossibile salvare i dati sulla biodiversità: ID report mancante"
       });
       return false;
     }
@@ -128,6 +128,7 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
 
       if (checkError) throw checkError;
 
+      const now = new Date();
       const dbData = {
         report_id: reportId,
         previous_total_land_use: dataToSave.previousTotalLandUse,
@@ -139,7 +140,8 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
         previous_nature_surface_offsite: dataToSave.previousNatureSurfaceOffsite,
         current_nature_surface_offsite: dataToSave.currentNatureSurfaceOffsite,
         sensitive_sites_details: dataToSave.sensitiveSitesDetails,
-        area_unit: dataToSave.areaUnit
+        area_unit: dataToSave.areaUnit,
+        updated_at: now.toISOString()
       };
 
       let saveError;
@@ -160,18 +162,16 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
 
       if (saveError) throw saveError;
 
-      setLastSaved(new Date());
-      toast({
-        title: "Salvato",
-        description: "I dati sulla biodiversità sono stati salvati con successo"
-      });
+      setLocalLastSaved(now);
+      setLastSaved(now);
+      setNeedsSaving(false);
+      
+      toast.success("Dati sulla biodiversità salvati con successo");
       return true;
     } catch (error) {
       console.error('Error saving biodiversity data:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare i dati sulla biodiversità",
-        variant: "destructive"
+      toast.error("Errore", {
+        description: "Impossibile salvare i dati sulla biodiversità"
       });
       return false;
     } finally {
@@ -185,6 +185,7 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
       ...prev,
       [field]: value
     }));
+    setNeedsSaving(true);
   };
 
   return {
@@ -194,7 +195,7 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
     percentageChanges,
     saveData,
     updateField,
-    lastSaved
+    lastSaved: localLastSaved
   };
 };
 

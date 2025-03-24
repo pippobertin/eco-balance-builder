@@ -1,11 +1,12 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GHGEmissionsCalculatorProps } from '../types';
 import { useCalculator } from '../hooks/useCalculator';
 import { useReport } from '@/hooks/use-report-context';
 import { useEditCalculation } from './useEditCalculation';
 import { EmissionFactorSource } from '@/lib/emissions-types';
+import { toast } from 'sonner';
 
 // Import refactored components
 import CalculatorHeader from '../CalculatorHeader';
@@ -20,7 +21,7 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
   setFormValues,
   onResetClick
 }) => {
-  const { currentReport } = useReport();
+  const { currentReport, setNeedsSaving, setLastSaved } = useReport();
   const reportId = currentReport?.id || formValues?.reportId;
   
   const hasLoggedInitialInfo = React.useRef(false);
@@ -118,9 +119,17 @@ const GHGEmissionsCalculator: React.FC<GHGEmissionsCalculatorProps> = ({
     }
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     console.log('Save button clicked with reportId:', reportId);
-    handleSubmitCalculation();
+    try {
+      await handleSubmitCalculation();
+      setNeedsSaving(false);
+      setLastSaved(new Date());
+      toast.success("Emissioni salvate con successo");
+    } catch (error) {
+      console.error("Errore nel salvataggio delle emissioni:", error);
+      toast.error("Errore nel salvataggio delle emissioni");
+    }
   };
 
   if (isLoadingExisting) {

@@ -16,7 +16,9 @@ export const useReportForm = () => {
     saveCurrentReport,
     saveSubsidiaries,
     loadReport,
-    loadCompanies
+    loadCompanies,
+    setNeedsSaving,
+    setLastSaved
   } = useReport();
   
   const subsidiariesState = useSubsidiaries();
@@ -94,10 +96,16 @@ export const useReportForm = () => {
       console.log("Saving report data");
       updateReportData(formValues);
       await saveCurrentReport();
+      setNeedsSaving(false);
+      setLastSaved(new Date());
       toast.success("Report salvato con successo");
+      return;
     } catch (error) {
       console.error("Error saving report:", error);
-      toast.error("Si è verificato un errore durante il salvataggio del report");
+      toast.error("Errore", {
+        description: "Si è verificato un errore durante il salvataggio del report"
+      });
+      throw error;
     }
   };
 
@@ -108,12 +116,16 @@ export const useReportForm = () => {
         await saveSubsidiaries(subsidiariesState.subsidiaries, currentReport.id);
       }
       
+      setNeedsSaving(false);
+      setLastSaved(new Date());
       toast.success("Informazioni salvate con successo");
       setActiveTab('metrics');
       return true;
     } catch (error) {
       console.error("Error saving basic info:", error);
-      toast.error("Si è verificato un errore durante il salvataggio delle informazioni di base");
+      toast.error("Errore", {
+        description: "Si è verificato un errore durante il salvataggio delle informazioni di base"
+      });
       return false;
     }
   };
@@ -123,11 +135,15 @@ export const useReportForm = () => {
       console.log("Saving metrics");
       updateReportData(formValues);
       await saveCurrentReport();
+      setNeedsSaving(false);
+      setLastSaved(new Date());
       toast.success("Report completato con successo");
       return true;
     } catch (error) {
       console.error("Error saving metrics:", error);
-      toast.error("Si è verificato un errore durante il salvataggio delle metriche");
+      toast.error("Errore", {
+        description: "Si è verificato un errore durante il salvataggio delle metriche"
+      });
       return false;
     }
   };
