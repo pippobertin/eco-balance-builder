@@ -24,8 +24,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>
-          <AuthProvider>
+        <AuthProvider>
+          <BrowserRouter>
             <ReportProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -64,8 +64,8 @@ function App() {
               </Routes>
               <Toaster position="top-right" expand={true} richColors />
             </ReportProvider>
-          </AuthProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
