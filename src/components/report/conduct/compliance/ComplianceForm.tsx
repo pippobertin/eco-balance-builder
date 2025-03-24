@@ -57,6 +57,32 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     }
   }, [isLoading, setLocalNeedsSaving]);
 
+  // Update parent form values when compliance data is loaded and available
+  useEffect(() => {
+    if (!isLoading && formData && handleChange && formData.complianceStandards && formData.complianceMonitoring) {
+      console.log("ComplianceForm - Updating parent with loaded compliance data:", formData);
+      
+      // Create synthetic events to update parent form
+      const standardsEvent = {
+        target: {
+          name: 'complianceStandards',
+          value: formData.complianceStandards
+        }
+      } as React.ChangeEvent<HTMLTextAreaElement>;
+      
+      const monitoringEvent = {
+        target: {
+          name: 'complianceMonitoring',
+          value: formData.complianceMonitoring
+        }
+      } as React.ChangeEvent<HTMLTextAreaElement>;
+      
+      // Update parent form values
+      handleChange(standardsEvent);
+      handleChange(monitoringEvent);
+    }
+  }, [formData, isLoading, handleChange]);
+
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
@@ -77,6 +103,7 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
   };
   
   // Determine which data to display - use parent form values if provided, otherwise use local state
+  // Important - prioritize the parent form values for the display
   const displayData = formValues || formData;
 
   // Log data for debugging

@@ -46,10 +46,13 @@ export const useComplianceLoad = (
         const apiData = data as ComplianceAPIData;
         
         // Set form data with nullish coalescing to ensure empty strings
-        setFormData({
+        const formDataToSet = {
           complianceStandards: apiData.compliance_standards ?? '',
           complianceMonitoring: apiData.compliance_monitoring ?? ''
-        });
+        };
+        
+        console.log("Setting form data with:", formDataToSet);
+        setFormData(formDataToSet);
         
         if (apiData.updated_at) {
           setLastSaved(new Date(apiData.updated_at));
