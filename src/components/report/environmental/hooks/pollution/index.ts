@@ -22,7 +22,7 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     fetchRecords
   } = usePollutionFetch(reportId);
 
-  // First, initialize the filter hook with just pollutants
+  // Initialize the filter hook with pollutants and the editing record's pollutant type if applicable
   const {
     selectedMedium,
     setSelectedMedium,
