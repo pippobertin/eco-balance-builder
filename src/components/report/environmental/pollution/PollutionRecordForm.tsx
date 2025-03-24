@@ -17,6 +17,8 @@ interface PollutionRecordFormProps {
   editingRecord: PollutionRecord | null;
   isSubmitting: boolean;
   pollutants: PollutantType[];
+  currentEditingPollutant: PollutantType | null;
+  setEditingPollutant: (id: number | null) => void;
 }
 
 const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
@@ -30,7 +32,9 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
   onCancelEdit,
   editingRecord,
   isSubmitting,
-  pollutants
+  pollutants,
+  currentEditingPollutant,
+  setEditingPollutant
 }) => {
   const {
     pollutantTypeId,
@@ -42,7 +46,8 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
     resetForm
   } = usePollutionForm({ 
     editingRecord, 
-    setSelectedMedium 
+    setSelectedMedium,
+    setEditingPollutant
   });
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,6 +103,7 @@ const PollutionRecordForm: React.FC<PollutionRecordFormProps> = ({
         setDetails={setDetails}
         isSubmitting={isSubmitting}
         editingRecord={!!editingRecord}
+        currentEditingPollutant={currentEditingPollutant}
       />
       
       <PollutantFormActions

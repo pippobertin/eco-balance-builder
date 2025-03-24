@@ -5,6 +5,7 @@ import { PollutantType } from './types';
 export const usePollutantFilter = (pollutants: PollutantType[]) => {
   const [selectedMedium, setSelectedMedium] = useState<number | null>(null);
   const [filteredPollutants, setFilteredPollutants] = useState<PollutantType[]>([]);
+  const [currentEditingPollutant, setCurrentEditingPollutant] = useState<PollutantType | null>(null);
 
   // Filter pollutants when the selected medium changes
   useEffect(() => {
@@ -32,9 +33,22 @@ export const usePollutantFilter = (pollutants: PollutantType[]) => {
     }
   }, [selectedMedium, pollutants]);
 
+  // Method to set current editing pollutant
+  const setEditingPollutant = (pollutantId: number | null) => {
+    if (pollutantId) {
+      const pollutant = pollutants.find(p => p.id === pollutantId);
+      console.log("Setting current editing pollutant:", pollutant?.name);
+      setCurrentEditingPollutant(pollutant || null);
+    } else {
+      setCurrentEditingPollutant(null);
+    }
+  };
+
   return {
     selectedMedium,
     setSelectedMedium,
-    filteredPollutants
+    filteredPollutants,
+    currentEditingPollutant,
+    setEditingPollutant
   };
 };

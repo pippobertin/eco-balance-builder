@@ -44,11 +44,13 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     selectedMedium,
     setSelectedMedium,
     editingRecord,
+    currentEditingPollutant,
     addRecord,
     updateRecord,
     deleteRecord,
     editRecord,
-    cancelEdit
+    cancelEdit,
+    refreshRecords
   } = usePollutionData({ reportId });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -123,6 +125,11 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
               onCancelEdit={cancelEdit}
               editingRecord={editingRecord}
               isSubmitting={isSubmitting}
+              currentEditingPollutant={currentEditingPollutant}
+              setEditingPollutant={(id) => {
+                const matched = pollutants.find(p => p.id === id);
+                console.log("Setting editing pollutant in parent component:", matched?.name);
+              }}
             />
           </div>
           

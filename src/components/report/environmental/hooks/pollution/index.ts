@@ -26,7 +26,9 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
   const {
     selectedMedium,
     setSelectedMedium,
-    filteredPollutants
+    filteredPollutants,
+    currentEditingPollutant,
+    setEditingPollutant
   } = usePollutantFilter(pollutants);
 
   // Initialize the records hook with the setSelectedMedium function
@@ -42,11 +44,16 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
 
   // Update the selected medium based on the editing record, if present
   useEffect(() => {
-    if (editingRecord && editingRecord.release_medium_id) {
+    if (editingRecord) {
       console.log("Setting selected medium from editing record:", editingRecord.release_medium_id);
       setSelectedMedium(editingRecord.release_medium_id);
+      
+      if (editingRecord.pollutant_type_id) {
+        console.log("Setting editing pollutant from editing record:", editingRecord.pollutant_type_id);
+        setEditingPollutant(editingRecord.pollutant_type_id);
+      }
     }
-  }, [editingRecord, setSelectedMedium]);
+  }, [editingRecord, setSelectedMedium, setEditingPollutant]);
 
   // Load initial data
   useEffect(() => {
@@ -71,6 +78,7 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     selectedMedium,
     setSelectedMedium,
     editingRecord,
+    currentEditingPollutant,
     addRecord,
     updateRecord,
     deleteRecord,

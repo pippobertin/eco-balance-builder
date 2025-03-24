@@ -21,6 +21,7 @@ interface PollutantFormFieldsProps {
   setDetails: (value: string) => void;
   isSubmitting: boolean;
   editingRecord: boolean;
+  currentEditingPollutant: PollutantType | null;
 }
 
 const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
@@ -37,41 +38,43 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
   details,
   setDetails,
   isSubmitting,
-  editingRecord
+  editingRecord,
+  currentEditingPollutant
 }) => {
   // Debug editing mode
   useEffect(() => {
     if (editingRecord && pollutantTypeId) {
       console.log("Form in edit mode with pollutantTypeId:", pollutantTypeId);
-      console.log("Current pollutants list:", pollutants);
-      console.log("Current filtered pollutants:", filteredPollutants);
+      console.log("Current pollutants list count:", pollutants.length);
+      console.log("Current filtered pollutants count:", filteredPollutants.length);
+      console.log("Current editing pollutant:", currentEditingPollutant?.name);
       
-      // Find the current pollutant
-      const currentPollutant = pollutants.find(p => p.id === pollutantTypeId);
-      if (currentPollutant) {
-        console.log("Found current pollutant:", currentPollutant.name);
+      // Check if the current pollutant can be found in the dropdown
+      const matchingPollutant = pollutants.find(p => p.id === pollutantTypeId);
+      if (matchingPollutant) {
+        console.log("Found matching pollutant in full list:", matchingPollutant.name);
       } else {
         console.warn("Could not find pollutant with ID:", pollutantTypeId);
       }
     }
-  }, [editingRecord, pollutantTypeId, pollutants, filteredPollutants]);
+  }, [editingRecord, pollutantTypeId, pollutants, filteredPollutants, currentEditingPollutant]);
 
   // Get the description of the currently selected pollutant
   const getCurrentPollutantDescription = () => {
     if (!pollutantTypeId) return null;
     
+    if (currentEditingPollutant && currentEditingPollutant.id === pollutantTypeId) {
+      return currentEditingPollutant.description;
+    }
+    
     // Look first in the filtered pollutants
     const filteredPollutant = filteredPollutants.find(p => p.id === pollutantTypeId);
     if (filteredPollutant) return filteredPollutant.description;
     
-    // If not found, look in all pollutants (for edit mode)
+    // If not found, look in all pollutants
     const allPollutant = pollutants.find(p => p.id === pollutantTypeId);
     return allPollutant?.description;
   };
-
-  // Find the currently editing pollutant from all pollutants if in edit mode
-  const currentEditingPollutant = editingRecord && pollutantTypeId ? 
-    pollutants.find(p => p.id === pollutantTypeId) : null;
 
   // Function to check if quantity and details fields should be enabled
   const areDetailFieldsEnabled = () => {
@@ -80,17 +83,14 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
 
   // Build the list of pollutants to display in the dropdown
   const getDisplayablePollutants = () => {
-    // Start with filtered pollutants for the selected medium
+    // Start with filtered pollutants
     let displayablePollutants = [...filteredPollutants];
     
-    // In edit mode, make sure the current pollutant is included
-    if (editingRecord && currentEditingPollutant) {
-      // Check if the current pollutant is not already in the filtered list
-      if (!displayablePollutants.some(p => p.id === currentEditingPollutant.id)) {
-        console.log("Adding current editing pollutant to displayable list:", currentEditingPollutant.name);
-        // Add it to the beginning of the array
-        displayablePollutants = [currentEditingPollutant, ...displayablePollutants];
-      }
+    // Add the current editing pollutant if it exists and not already in the list
+    if (currentEditingPollutant && 
+        !displayablePollutants.some(p => p.id === currentEditingPollutant.id)) {
+      console.log("Adding current editing pollutant to displayable list:", currentEditingPollutant.name);
+      displayablePollutants = [currentEditingPollutant, ...displayablePollutants];
     }
     
     return displayablePollutants;
