@@ -40,9 +40,10 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     cancelEdit
   } = usePollutionRecords(records, setRecords, setSelectedMedium);
 
-  // Update the filtered pollutants based on the editing record if present
+  // Update the selected medium based on the editing record if present
   useEffect(() => {
     if (editingRecord && editingRecord.release_medium_id) {
+      console.log("Setting selected medium from editing record:", editingRecord.release_medium_id);
       setSelectedMedium(editingRecord.release_medium_id);
     }
   }, [editingRecord, setSelectedMedium]);
