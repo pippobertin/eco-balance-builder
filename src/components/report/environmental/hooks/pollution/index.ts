@@ -79,6 +79,7 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     setSelectedMedium,
     editingRecord,
     currentEditingPollutant,
+    setEditingPollutant,
     addRecord,
     updateRecord,
     deleteRecord,

@@ -38,6 +38,8 @@ export interface UsePollutionDataOutput {
   selectedMedium: number | null;
   setSelectedMedium: (id: number | null) => void;
   editingRecord: PollutionRecord | null;
+  currentEditingPollutant: PollutantType | null;
+  setEditingPollutant: (id: number | null) => void;
   addRecord: (record: PollutionRecord) => Promise<PollutionRecord | null>;
   updateRecord: (record: PollutionRecord) => Promise<PollutionRecord | null>;
   deleteRecord: (id: string) => Promise<boolean>;

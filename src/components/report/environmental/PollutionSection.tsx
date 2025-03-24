@@ -45,6 +45,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
     setSelectedMedium,
     editingRecord,
     currentEditingPollutant,
+    setEditingPollutant,
     addRecord,
     updateRecord,
     deleteRecord,
