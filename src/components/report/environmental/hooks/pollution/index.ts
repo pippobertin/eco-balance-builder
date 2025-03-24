@@ -22,13 +22,6 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     fetchRecords
   } = usePollutionFetch(reportId);
 
-  // Use the filter hook to handle pollutant filtering
-  const {
-    selectedMedium,
-    setSelectedMedium,
-    filteredPollutants
-  } = usePollutantFilter(pollutants);
-
   // Use the records hook to handle CRUD operations
   const {
     isSubmitting,
@@ -39,6 +32,14 @@ export const usePollutionData = ({ reportId }: UsePollutionDataInput): UsePollut
     editRecord,
     cancelEdit
   } = usePollutionRecords(records, setRecords, setSelectedMedium);
+
+  // Use the filter hook to handle pollutant filtering
+  // Pass the editing record's pollutant type ID if one exists
+  const {
+    selectedMedium,
+    setSelectedMedium,
+    filteredPollutants
+  } = usePollutantFilter(pollutants, editingRecord?.pollutant_type_id);
 
   // Load initial data
   useEffect(() => {

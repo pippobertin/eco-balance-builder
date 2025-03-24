@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,29 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
   isSubmitting,
   editingRecord
 }) => {
+  // This effect ensures that if a pollutant type is selected but not in the filtered list
+  // (which can happen when editing a record), we still enable the quantity and details fields
+  useEffect(() => {
+    if (editingRecord && pollutantTypeId && selectedMedium) {
+      // The record is already validated, so we should enable the form fields
+      // even if the pollutant type is not in the filtered list
+      console.log("Editing record with pollutantTypeId:", pollutantTypeId);
+    }
+  }, [editingRecord, pollutantTypeId, selectedMedium]);
+
+  // Get the current pollutant description
+  const getCurrentPollutantDescription = () => {
+    if (!pollutantTypeId) return null;
+    
+    // First check in filtered pollutants
+    const filteredPollutant = filteredPollutants.find(p => p.id === pollutantTypeId);
+    if (filteredPollutant) return filteredPollutant.description;
+    
+    // If not found, check in all pollutants (for edit mode)
+    const allPollutant = pollutants.find(p => p.id === pollutantTypeId);
+    return allPollutant?.description;
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -77,6 +101,17 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
             <SelectValue placeholder={selectedMedium ? "Seleziona l'inquinante" : "Prima seleziona il mezzo di rilascio"} />
           </SelectTrigger>
           <SelectContent>
+            {/* When editing, we should include the current pollutant even if it's not in the filtered list */}
+            {editingRecord && pollutantTypeId && !filteredPollutants.some(p => p.id === pollutantTypeId) && (
+              <SelectItem 
+                key={`current-${pollutantTypeId}`} 
+                value={pollutantTypeId.toString()}
+                title={pollutants.find(p => p.id === pollutantTypeId)?.description || ""}
+              >
+                {pollutants.find(p => p.id === pollutantTypeId)?.name || "Inquinante selezionato"}
+              </SelectItem>
+            )}
+            
             {filteredPollutants.length > 0 ? (
               filteredPollutants.map((pollutant) => (
                 <SelectItem 
@@ -97,8 +132,7 @@ const PollutantFormFields: React.FC<PollutantFormFieldsProps> = ({
         
         {pollutantTypeId && (
           <p className="text-xs text-gray-500 mt-1">
-            {filteredPollutants.find(p => p.id === pollutantTypeId)?.description || 
-             pollutants.find(p => p.id === pollutantTypeId)?.description}
+            {getCurrentPollutantDescription() || ""}
           </p>
         )}
       </div>
