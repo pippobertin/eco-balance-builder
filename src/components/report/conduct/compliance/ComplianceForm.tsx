@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import SaveButton from './SaveButton';
@@ -30,6 +31,9 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
     loadData
   } = useComplianceData(reportId || '');
   
+  // Track if parent form updates are in progress to prevent loops
+  const [isUpdatingParent, setIsUpdatingParent] = useState(false);
+  
   // Force reload when reportId changes
   useEffect(() => {
     if (reportId) {
@@ -58,57 +62,63 @@ const ComplianceForm: React.FC<ComplianceFormProps> = ({
 
   // Update parent form values when compliance data is loaded and available
   useEffect(() => {
-    if (!isLoading && formData && handleChange && formData.complianceStandards !== undefined && formData.complianceMonitoring !== undefined) {
+    if (!isLoading && formData && handleChange && !isUpdatingParent) {
       console.log("ComplianceForm - Updating parent with loaded compliance data:", formData);
+      setIsUpdatingParent(true);
       
       // Create synthetic events to update parent form
-      const standardsEvent = {
-        target: {
-          name: 'complianceStandards',
-          value: formData.complianceStandards
-        }
-      } as React.ChangeEvent<HTMLTextAreaElement>;
+      if (formData.complianceStandards !== undefined) {
+        const standardsEvent = {
+          target: {
+            name: 'complianceStandards',
+            value: formData.complianceStandards
+          }
+        } as React.ChangeEvent<HTMLTextAreaElement>;
+        handleChange(standardsEvent);
+      }
       
-      const monitoringEvent = {
-        target: {
-          name: 'complianceMonitoring',
-          value: formData.complianceMonitoring
-        }
-      } as React.ChangeEvent<HTMLTextAreaElement>;
+      if (formData.complianceMonitoring !== undefined) {
+        const monitoringEvent = {
+          target: {
+            name: 'complianceMonitoring',
+            value: formData.complianceMonitoring
+          }
+        } as React.ChangeEvent<HTMLTextAreaElement>;
+        handleChange(monitoringEvent);
+      }
       
-      // Update parent form values
-      handleChange(standardsEvent);
-      handleChange(monitoringEvent);
+      // Small delay to avoid loops
+      setTimeout(() => {
+        setIsUpdatingParent(false);
+      }, 100);
     }
-  }, [formData, isLoading, handleChange]);
+  }, [formData, isLoading, handleChange, isUpdatingParent]);
 
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
+    // Stop if we're in the process of updating parent
+    if (isUpdatingParent) return;
+    
     if (handleChange) {
       console.log("ComplianceForm - Calling parent handleChange for field:", name, value);
       handleChange(e);
-    } else {
-      console.log("ComplianceForm - Using local setFormData for field:", name, value);
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-      
-      if (setLocalNeedsSaving) {
-        setLocalNeedsSaving(true);
-      }
+    }
+    
+    // Always update the local form data too
+    console.log("ComplianceForm - Updating local form data for field:", name, value);
+    setFormData({ [name]: value });
+    
+    if (setLocalNeedsSaving) {
+      setLocalNeedsSaving(true);
     }
   };
   
-  // Determine which values to display in the form inputs
-  // We need to make sure we're showing the latest values whether they come from parent or local state
+  // Get the correct value to display - prioritize form values from parent if they exist
   const getDisplayValue = (fieldName: string) => {
-    // If we have parent form values and this field exists in them, use that
-    if (formValues && fieldName in formValues) {
-      return formValues[fieldName] || '';
+    if (formValues && fieldName in formValues && formValues[fieldName] !== undefined) {
+      return formValues[fieldName];
     }
-    // Otherwise use our local form data
     return formData[fieldName as keyof typeof formData] || '';
   };
 

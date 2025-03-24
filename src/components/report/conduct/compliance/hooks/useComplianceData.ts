@@ -14,6 +14,7 @@ export const useComplianceData = (reportId: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { setNeedsSaving } = useReport();
+  const [localNeedsSaving, setLocalNeedsSaving] = useState(false);
 
   // Get load function - pass in the state setters
   const { loadData } = useComplianceLoad(reportId, setFormData, setIsLoading, setLastSaved);
@@ -30,14 +31,22 @@ export const useComplianceData = (reportId: string) => {
   }, [reportId, loadData]);
 
   // Monitor changes to formData to set needsSaving flag
+  // Only run when localNeedsSaving changes to prevent continuous loops
   useEffect(() => {
-    // Only set needsSaving if we're not in the initial loading state
-    // and we have actual data in the form (not empty strings)
-    if (!isLoading) {
+    if (localNeedsSaving && !isLoading) {
       console.log("Setting needsSaving flag due to form data change in useComplianceData");
       setNeedsSaving(true);
     }
-  }, [formData, isLoading, setNeedsSaving]);
+  }, [localNeedsSaving, isLoading, setNeedsSaving]);
+
+  // Update formData and trigger needsSaving
+  const updateFormData = useCallback((newData: Partial<ComplianceFormData>) => {
+    setFormData(prev => {
+      const updated = { ...prev, ...newData };
+      setLocalNeedsSaving(true);
+      return updated;
+    });
+  }, []);
 
   // Expose the loadData function so it can be called by parent components if needed
   const handleLoadData = useCallback(() => {
@@ -49,7 +58,7 @@ export const useComplianceData = (reportId: string) => {
 
   return {
     formData,
-    setFormData,
+    setFormData: updateFormData,
     isLoading,
     isSaving,
     lastSaved,
