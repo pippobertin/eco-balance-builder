@@ -1,42 +1,42 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-export type SaveFeedbackProps = {
+interface UseSaveFeedbackProps {
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>;
   saveOperation: () => Promise<void>;
-  successMessage?: string;
-  errorMessage?: string;
-};
+}
 
-export const useSaveFeedback = ({
-  setLastSaved,
-  saveOperation,
-  successMessage = 'Dati salvati con successo',
-  errorMessage = 'Errore durante il salvataggio'
-}: SaveFeedbackProps) => {
+export const useSaveFeedback = ({ setLastSaved, saveOperation }: UseSaveFeedbackProps) => {
   const [isSaving, setIsSaving] = useState(false);
-
-  const saveWithFeedback = useCallback(async () => {
-    if (isSaving) return;
-    
+  
+  const saveWithFeedback = async (): Promise<boolean> => {
     setIsSaving(true);
-
+    
     try {
       await saveOperation();
       
       // Update last saved timestamp
-      setLastSaved(new Date());
+      const now = new Date();
+      setLastSaved(now);
       
       // Show success toast
-      toast.success(successMessage);
+      toast.success("Salvato con successo");
+      
+      return true;
     } catch (error) {
-      console.error('Error in save operation:', error);
-      toast.error(errorMessage);
+      console.error("Error saving data:", error);
+      
+      // Show error toast
+      toast.error("Errore durante il salvataggio", {
+        description: "Si è verificato un errore durante il salvataggio dei dati"
+      });
+      
+      return false;
     } finally {
       setIsSaving(false);
     }
-  }, [saveOperation, setLastSaved, successMessage, errorMessage, isSaving]);
-
+  };
+  
   return { saveWithFeedback, isSaving };
 };

@@ -5,7 +5,7 @@ import MaterialIssuesSection from './narrative/MaterialIssuesSection';
 import MaterialIssuesManagementSection from './narrative/MaterialIssuesManagementSection';
 import StakeholdersSection from './narrative/StakeholdersSection';
 import GovernanceSection from './narrative/GovernanceSection';
-import { useReport } from '@/context/ReportContext';
+import { useReport } from '@/hooks/use-report-context';
 
 const NarrativePATMetrics: React.FC = () => {
   const { currentReport } = useReport();

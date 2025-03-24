@@ -15,10 +15,19 @@ interface MaterialIssuesSectionProps {
 }
 
 const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useMaterialIssuesData(reportId);
+  const { 
+    formData, 
+    setFormData, 
+    isLoading, 
+    setIsLoading, 
+    lastSaved, 
+    setLastSaved, 
+    needsSaving, 
+    setNeedsSaving 
+  } = useMaterialIssuesData(reportId);
   
   // Load data
-  useMaterialIssuesLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  useMaterialIssuesLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
   const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData, setLastSaved);
@@ -29,6 +38,7 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
       ...prev,
       [name]: value
     }));
+    setNeedsSaving(true);
   };
 
   if (isLoading) {
@@ -42,7 +52,11 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
         <h3 className="text-xl font-semibold">N2 - Questioni rilevanti di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
+      <SectionAutoSaveIndicator 
+        className="mb-4" 
+        lastSaved={lastSaved}
+        needsSaving={needsSaving} 
+      />
       
       <div className="space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -64,8 +78,16 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
           />
         </div>
 
-        <div className="flex justify-end">
-          <SaveButton onClick={saveData} isLoading={isSaving} />
+        <div className="flex justify-start">
+          <SaveButton 
+            onClick={async () => {
+              const success = await saveData();
+              if (success) {
+                setNeedsSaving(false);
+              }
+            }} 
+            isLoading={isSaving} 
+          />
         </div>
       </div>
     </GlassmorphicCard>

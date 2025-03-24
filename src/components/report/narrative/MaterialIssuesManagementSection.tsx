@@ -15,10 +15,19 @@ interface MaterialIssuesManagementSectionProps {
 }
 
 const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useIssuesManagementData(reportId);
+  const { 
+    formData, 
+    setFormData, 
+    isLoading, 
+    setIsLoading, 
+    lastSaved, 
+    setLastSaved, 
+    needsSaving, 
+    setNeedsSaving 
+  } = useIssuesManagementData(reportId);
   
   // Load data
-  useIssuesManagementLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  useIssuesManagementLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
   const { saveData, isSaving } = useIssuesManagementSave(reportId, formData, setLastSaved);
@@ -29,6 +38,7 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
       ...prev,
       [name]: value
     }));
+    setNeedsSaving(true);
   };
 
   if (isLoading) {
@@ -42,7 +52,11 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
         <h3 className="text-xl font-semibold">N3 - Gestione delle questioni rilevanti di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
+      <SectionAutoSaveIndicator 
+        className="mb-4" 
+        lastSaved={lastSaved}
+        needsSaving={needsSaving} 
+      />
       
       <div className="space-y-4">
         <div>
@@ -117,8 +131,16 @@ const MaterialIssuesManagementSection: React.FC<MaterialIssuesManagementSectionP
           />
         </div>
 
-        <div className="flex justify-end">
-          <SaveButton onClick={saveData} isLoading={isSaving} />
+        <div className="flex justify-start">
+          <SaveButton 
+            onClick={async () => {
+              const success = await saveData();
+              if (success) {
+                setNeedsSaving(false);
+              }
+            }} 
+            isLoading={isSaving} 
+          />
         </div>
       </div>
     </GlassmorphicCard>

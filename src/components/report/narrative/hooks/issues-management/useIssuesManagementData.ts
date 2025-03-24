@@ -1,9 +1,8 @@
 
-import { useState, useEffect } from 'react';
-import { IssuesManagementFormData } from '../types';
-import { useReport } from '@/context/ReportContext';
+import { useState } from 'react';
+import { IssuesManagementFormData, SectionHookResult } from '../types';
 
-export const useIssuesManagementData = (reportId: string) => {
+export const useIssuesManagementData = (reportId: string): SectionHookResult => {
   const [formData, setFormData] = useState<IssuesManagementFormData>({
     policiesActions: '',
     policiesDescription: '',
@@ -13,25 +12,17 @@ export const useIssuesManagementData = (reportId: string) => {
     antiCorruptionMeasures: ''
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { setNeedsSaving } = useReport();
-  
-  // Monitor changes to formData to set needsSaving flag
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData, isLoading, setNeedsSaving]);
+  const [needsSaving, setNeedsSaving] = useState(false);
 
   return {
     formData,
     setFormData,
     isLoading,
     setIsLoading,
-    isSaving,
-    setIsSaving,
     lastSaved,
-    setLastSaved
+    setLastSaved,
+    needsSaving,
+    setNeedsSaving
   };
 };

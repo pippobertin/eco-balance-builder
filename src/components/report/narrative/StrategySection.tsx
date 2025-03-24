@@ -9,17 +9,25 @@ import SectionAutoSaveIndicator from '../environmental/components/SectionAutoSav
 import { useStrategyData } from './hooks/strategy/useStrategyData';
 import { useStrategyLoad } from './hooks/strategy/useStrategyLoad';
 import { useStrategySave } from './hooks/strategy/useStrategySave';
-import { useReport } from '@/context/ReportContext';
 
 interface StrategySectionProps {
   reportId: string;
 }
 
 const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useStrategyData(reportId);
+  const { 
+    formData, 
+    setFormData, 
+    isLoading, 
+    setIsLoading, 
+    lastSaved, 
+    setLastSaved, 
+    needsSaving, 
+    setNeedsSaving 
+  } = useStrategyData(reportId);
   
   // Load data
-  useStrategyLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  useStrategyLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
   const { saveData, isSaving } = useStrategySave(reportId, formData, setLastSaved);
@@ -30,6 +38,7 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
       ...prev,
       [name]: value
     }));
+    setNeedsSaving(true);
   };
 
   if (isLoading) {
@@ -43,7 +52,11 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
         <h3 className="text-xl font-semibold">N1 - Strategia: modello aziendale e iniziative di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
+      <SectionAutoSaveIndicator 
+        className="mb-4" 
+        lastSaved={lastSaved}
+        needsSaving={needsSaving} 
+      />
       
       <div className="space-y-4">
         <div>
@@ -94,8 +107,16 @@ const StrategySection: React.FC<StrategySectionProps> = ({ reportId }) => {
           />
         </div>
 
-        <div className="flex justify-end">
-          <SaveButton onClick={saveData} isLoading={isSaving} />
+        <div className="flex justify-start">
+          <SaveButton 
+            onClick={async () => {
+              const success = await saveData();
+              if (success) {
+                setNeedsSaving(false);
+              }
+            }} 
+            isLoading={isSaving} 
+          />
         </div>
       </div>
     </GlassmorphicCard>

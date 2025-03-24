@@ -1,32 +1,23 @@
 
-import { useState, useEffect } from 'react';
-import { GovernanceFormData } from '../types';
-import { useReport } from '@/context/ReportContext';
+import { useState } from 'react';
+import { GovernanceFormData, SectionHookResult } from '../types';
 
-export const useGovernanceData = (reportId: string) => {
+export const useGovernanceData = (reportId: string): SectionHookResult => {
   const [formData, setFormData] = useState<GovernanceFormData>({
     sustainabilityGovernance: ''
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { setNeedsSaving } = useReport();
-  
-  // Monitor changes to formData to set needsSaving flag
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData, isLoading, setNeedsSaving]);
+  const [needsSaving, setNeedsSaving] = useState(false);
 
   return {
     formData,
     setFormData,
     isLoading,
     setIsLoading,
-    isSaving,
-    setIsSaving,
     lastSaved,
-    setLastSaved
+    setLastSaved,
+    needsSaving,
+    setNeedsSaving
   };
 };

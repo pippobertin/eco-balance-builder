@@ -1,73 +1,61 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { StrategyAPIData, StrategyFormData } from '../types';
-import { useToast } from '@/hooks/use-toast';
+import { StrategyFormData } from '../types';
 
 export const useStrategyLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<StrategyFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
-  const { toast } = useToast();
-
   useEffect(() => {
-    const loadData = async () => {
-      if (!reportId) return;
-      
-      try {
-        setIsLoading(true);
-        console.log("Loading strategy data for report:", reportId);
-        
-        const { data, error } = await supabase
-          .from('narrative_strategy')
-          .select('*')
-          .eq('report_id', reportId)
-          .maybeSingle();
-
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
-          throw error;
-        }
-        
-        if (data) {
-          console.log("Strategy data loaded:", data);
-          const apiData = data as StrategyAPIData;
-          setFormData({
-            productsServices: apiData.products_services || '',
-            markets: apiData.markets || '',
-            businessRelations: apiData.business_relations || '',
-            sustainabilityStrategy: apiData.sustainability_strategy || ''
-          });
-          
-          if (apiData.updated_at) {
-            setLastSaved(new Date(apiData.updated_at));
-          }
-        } else {
-          console.log("No strategy data found for report ID:", reportId);
-          // Reset to empty values if no data found
-          setFormData({
-            productsServices: '',
-            markets: '',
-            businessRelations: '',
-            sustainabilityStrategy: ''
-          });
-          setLastSaved(null);
-        }
-      } catch (error: any) {
-        console.error('Error loading strategy data:', error.message);
-        toast({
-          title: "Errore",
-          description: `Impossibile caricare i dati della strategia: ${error.message}`,
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (reportId) {
-      loadData();
+      loadStrategyData();
     }
-  }, [reportId, setFormData, setIsLoading, setLastSaved, toast]);
+  }, [reportId]);
+
+  const loadStrategyData = async () => {
+    setIsLoading(true);
+    console.log("Loading strategy data for report:", reportId);
+
+    try {
+      const { data, error } = await supabase
+        .from('narrative_strategy')
+        .select('*')
+        .eq('report_id', reportId)
+        .maybeSingle();
+        
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
+        console.error("Error loading strategy data:", error);
+        throw error;
+      }
+      
+      console.log("Strategy data loaded:", data);
+      
+      if (data) {
+        setFormData({
+          productsServices: data.products_services || '',
+          markets: data.markets || '',
+          businessRelations: data.business_relations || '',
+          sustainabilityStrategy: data.sustainability_strategy || ''
+        });
+        
+        // Set last saved date from the updated_at timestamp
+        if (data.updated_at) {
+          setLastSaved(new Date(data.updated_at));
+        }
+        
+        // Reset needs saving flag after loading data
+        setNeedsSaving(false);
+      }
+    } catch (error) {
+      console.error("Error in loadStrategyData:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { loadStrategyData };
 };

@@ -15,10 +15,19 @@ interface GovernanceSectionProps {
 }
 
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, setIsLoading, lastSaved, setLastSaved } = useGovernanceData(reportId);
+  const { 
+    formData, 
+    setFormData, 
+    isLoading, 
+    setIsLoading, 
+    lastSaved, 
+    setLastSaved, 
+    needsSaving, 
+    setNeedsSaving 
+  } = useGovernanceData(reportId);
   
   // Load data
-  useGovernanceLoad(reportId, setFormData, setIsLoading, setLastSaved);
+  useGovernanceLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
   const { saveData, isSaving } = useGovernanceSave(reportId, formData, setLastSaved);
@@ -29,6 +38,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
       ...prev,
       [name]: value
     }));
+    setNeedsSaving(true);
   };
 
   if (isLoading) {
@@ -42,7 +52,11 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
         <h3 className="text-xl font-semibold">N5 - Governance: responsabilità in materia di sostenibilità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" lastSaved={lastSaved} />
+      <SectionAutoSaveIndicator 
+        className="mb-4" 
+        lastSaved={lastSaved}
+        needsSaving={needsSaving} 
+      />
       
       <div className="space-y-4">
         <div>
@@ -57,8 +71,16 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
           />
         </div>
 
-        <div className="flex justify-end">
-          <SaveButton onClick={saveData} isLoading={isSaving} />
+        <div className="flex justify-start">
+          <SaveButton 
+            onClick={async () => {
+              const success = await saveData();
+              if (success) {
+                setNeedsSaving(false);
+              }
+            }} 
+            isLoading={isSaving} 
+          />
         </div>
       </div>
     </GlassmorphicCard>

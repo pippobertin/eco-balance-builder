@@ -1,63 +1,54 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { MaterialIssuesAPIData, MaterialIssuesFormData } from '../types';
-import { useToast } from '@/hooks/use-toast';
+import { MaterialIssuesFormData } from '../types';
 
 export const useMaterialIssuesLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<MaterialIssuesFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
-  const { toast } = useToast();
-
   useEffect(() => {
-    const loadData = async () => {
-      if (!reportId) return;
-      
-      try {
-        setIsLoading(true);
-        
-        const { data, error } = await supabase
-          .from('narrative_material_issues')
-          .select('*')
-          .eq('report_id', reportId)
-          .maybeSingle();
-
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
-
-        if (data) {
-          const apiData = data as MaterialIssuesAPIData;
-          setFormData({
-            materialIssuesDescription: apiData.material_issues_description || ''
-          });
-          
-          if (apiData.updated_at) {
-            setLastSaved(new Date(apiData.updated_at));
-          }
-        } else {
-          setFormData({
-            materialIssuesDescription: ''
-          });
-          setLastSaved(null);
-        }
-      } catch (error: any) {
-        console.error('Error loading material issues data:', error.message);
-        toast({
-          title: "Errore",
-          description: `Impossibile caricare i dati delle questioni materiali: ${error.message}`,
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (reportId) {
-      loadData();
+      loadMaterialIssuesData();
     }
-  }, [reportId, setFormData, setIsLoading, setLastSaved, toast]);
+  }, [reportId]);
+
+  const loadMaterialIssuesData = async () => {
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('narrative_material_issues')
+        .select('*')
+        .eq('report_id', reportId)
+        .maybeSingle();
+        
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      
+      if (data) {
+        setFormData({
+          materialIssuesDescription: data.material_issues_description || ''
+        });
+        
+        // Set last saved date from the updated_at timestamp
+        if (data.updated_at) {
+          setLastSaved(new Date(data.updated_at));
+        }
+        
+        // Reset needs saving flag after loading data
+        setNeedsSaving(false);
+      }
+    } catch (error) {
+      console.error("Error loading material issues data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { loadMaterialIssuesData };
 };
