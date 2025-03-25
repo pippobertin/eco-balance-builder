@@ -1,11 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { BP1FormData } from './hooks/types';
 import { SaveButton, SectionAutoSaveIndicator } from './components/index';
+import { SectorGroup } from './bp1';
 
 interface BP1RevenueSectorsProps {
   formData: BP1FormData;
@@ -53,143 +51,81 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Controversial Weapons */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="controversialWeapons"
-                checked={formData.controversialWeapons || false}
-                onCheckedChange={() => handleCheckboxChange('controversialWeapons')}
-              />
-              <Label htmlFor="controversialWeapons">Armi controverse</Label>
-            </div>
-            {formData.controversialWeapons && (
-              <div>
-                <Label htmlFor="controversialWeaponsRevenue" className="text-sm">
-                  Ricavi da armi controverse (%)
-                </Label>
-                <Input
-                  id="controversialWeaponsRevenue"
-                  type="number"
-                  value={formData.controversialWeaponsRevenue || ''}
-                  onChange={(e) => handleInputChange('controversialWeaponsRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  placeholder="Percentuale dei ricavi"
-                  className="mt-1"
-                />
-              </div>
-            )}
-          </div>
+          {/* Controversial Weapons Sector */}
+          <SectorGroup
+            checkboxId="controversialWeapons"
+            checkboxLabel="Armi controverse"
+            isChecked={formData.controversialWeapons || false}
+            onCheckboxChange={() => handleCheckboxChange('controversialWeapons')}
+            revenueSections={[
+              {
+                id: "controversialWeaponsRevenue",
+                label: "Ricavi da armi controverse (%)",
+                value: formData.controversialWeaponsRevenue || '',
+                onChange: (value) => handleInputChange('controversialWeaponsRevenue', value)
+              }
+            ]}
+          />
 
-          {/* Tobacco */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="tobacco"
-                checked={formData.tobacco || false}
-                onCheckedChange={() => handleCheckboxChange('tobacco')}
-              />
-              <Label htmlFor="tobacco">Tabacco</Label>
-            </div>
-            {formData.tobacco && (
-              <div>
-                <Label htmlFor="tobaccoRevenue" className="text-sm">
-                  Ricavi da tabacco (%)
-                </Label>
-                <Input
-                  id="tobaccoRevenue"
-                  type="number"
-                  value={formData.tobaccoRevenue || ''}
-                  onChange={(e) => handleInputChange('tobaccoRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  placeholder="Percentuale dei ricavi"
-                  className="mt-1"
-                />
-              </div>
-            )}
-          </div>
+          {/* Tobacco Sector */}
+          <SectorGroup
+            checkboxId="tobacco"
+            checkboxLabel="Tabacco"
+            isChecked={formData.tobacco || false}
+            onCheckboxChange={() => handleCheckboxChange('tobacco')}
+            revenueSections={[
+              {
+                id: "tobaccoRevenue",
+                label: "Ricavi da tabacco (%)",
+                value: formData.tobaccoRevenue || '',
+                onChange: (value) => handleInputChange('tobaccoRevenue', value)
+              }
+            ]}
+          />
 
-          {/* Fossil Fuels */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="fossilFuels"
-                checked={formData.fossilFuels || false}
-                onCheckedChange={() => handleCheckboxChange('fossilFuels')}
-              />
-              <Label htmlFor="fossilFuels">Combustibili fossili</Label>
-            </div>
-            {formData.fossilFuels && (
-              <div>
-                <div>
-                  <Label htmlFor="coal-revenue" className="text-sm">
-                    Ricavi da carbone (%)
-                  </Label>
-                  <Input
-                    id="coal-revenue"
-                    type="number"
-                    value={formData.coalRevenue || ''}
-                    onChange={(e) => handleInputChange('coalRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                    placeholder="Percentuale dei ricavi"
-                    className="mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="oil-revenue" className="text-sm">
-                    Ricavi da petrolio (%)
-                  </Label>
-                  <Input
-                    id="oil-revenue"
-                    type="number"
-                    value={formData.oilRevenue || ''}
-                    onChange={(e) => handleInputChange('oilRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                    placeholder="Percentuale dei ricavi"
-                    className="mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="gas-revenue" className="text-sm">
-                    Ricavi da gas (%)
-                  </Label>
-                  <Input
-                    id="gas-revenue"
-                    type="number"
-                    value={formData.gasRevenue || ''}
-                    onChange={(e) => handleInputChange('gasRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                    placeholder="Percentuale dei ricavi"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Fossil Fuels Sector */}
+          <SectorGroup
+            checkboxId="fossilFuels"
+            checkboxLabel="Combustibili fossili"
+            isChecked={formData.fossilFuels || false}
+            onCheckboxChange={() => handleCheckboxChange('fossilFuels')}
+            revenueSections={formData.fossilFuels ? [
+              {
+                id: "coal-revenue",
+                label: "Ricavi da carbone (%)",
+                value: formData.coalRevenue || '',
+                onChange: (value) => handleInputChange('coalRevenue', value)
+              },
+              {
+                id: "oil-revenue",
+                label: "Ricavi da petrolio (%)",
+                value: formData.oilRevenue || '',
+                onChange: (value) => handleInputChange('oilRevenue', value)
+              },
+              {
+                id: "gas-revenue",
+                label: "Ricavi da gas (%)",
+                value: formData.gasRevenue || '',
+                onChange: (value) => handleInputChange('gasRevenue', value)
+              }
+            ] : []}
+          />
 
-          {/* Chemicals */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="chemicals"
-                checked={formData.chemicals || false}
-                onCheckedChange={() => handleCheckboxChange('chemicals')}
-              />
-              <Label htmlFor="chemicals">Prodotti chimici</Label>
-            </div>
-            {formData.chemicals && (
-              <div>
-                <Label htmlFor="chemicals-revenue" className="text-sm">
-                  Ricavi da prodotti chimici (%)
-                </Label>
-                <Input
-                  id="chemicals-revenue"
-                  type="number"
-                  value={formData.chemicalsRevenue || ''}
-                  onChange={(e) => handleInputChange('chemicalsRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  placeholder="Percentuale dei ricavi"
-                  className="mt-1"
-                />
-              </div>
-            )}
-          </div>
+          {/* Chemicals Sector */}
+          <SectorGroup
+            checkboxId="chemicals"
+            checkboxLabel="Prodotti chimici"
+            isChecked={formData.chemicals || false}
+            onCheckboxChange={() => handleCheckboxChange('chemicals')}
+            revenueSections={[
+              {
+                id: "chemicals-revenue",
+                label: "Ricavi da prodotti chimici (%)",
+                value: formData.chemicalsRevenue || '',
+                onChange: (value) => handleInputChange('chemicalsRevenue', value)
+              }
+            ]}
+          />
 
           <div className="flex justify-end mt-4">
             <SaveButton
