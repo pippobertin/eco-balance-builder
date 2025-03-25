@@ -1,4 +1,3 @@
-
 // Common interfaces for Business Partners form data
 
 // BP1 - Revenue from specific sectors
@@ -90,7 +89,7 @@ export interface BP11FormData {
   apprenticesPercentage?: number;
 }
 
-// Props for save buttons
+// Aggiorniamo SaveButtonProps per accettare una funzione che ritorna Promise<void>
 export interface SaveButtonProps {
   onClick: () => Promise<void>;
   isLoading?: boolean;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Users, Building2 } from 'lucide-react';
@@ -33,8 +32,8 @@ const itemAnimation = {
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportData }) => {
   // Check if we have real data with explicit type checking
   const hasEsgScore = reportData.materialityAnalysis && 
-                     typeof reportData.materialityAnalysis.esgScore === 'number' && 
-                     reportData.materialityAnalysis.esgScore > 0;
+                     typeof reportData.materialityAnalysis.overallScore === 'number' && 
+                     reportData.materialityAnalysis.overallScore > 0;
   
   // Calculate carbon emissions by scope
   let totalScope1 = 0;
@@ -123,7 +122,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({ reportDat
       <motion.div variants={itemAnimation}>
         <DashboardCard
           title="Punteggio ESG"
-          value={hasEsgScore ? reportData.materialityAnalysis.esgScore : "N/D"}
+          value={hasEsgScore ? reportData.materialityAnalysis.overallScore : "N/D"}
           change={0}
           icon={<Activity className="h-5 w-5 text-esg-blue" />}
           description={hasEsgScore ? "Performance di sostenibilità complessiva" : "Nessun dato disponibile"}
