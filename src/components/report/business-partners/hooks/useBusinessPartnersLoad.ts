@@ -186,7 +186,7 @@ export const useBusinessPartnersLoad = (reportId: string) => {
           adaptationCoverage: bp5Data.adaptation_coverage,
           revenueAtRiskPercentage: bp5Data.revenue_at_risk_percentage,
           riskAssetsLocation: bp5Data.risk_assets_location,
-          realEstateEnergyEfficiency: bp5Data.real_estate_energy_efficiency
+          realEstateEnergyEfficiency: bp5Data.real_estate_energy_efficiency // Now correctly handled as string
         } : {},
         
         bp6: bp6Data ? {

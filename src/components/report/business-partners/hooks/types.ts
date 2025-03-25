@@ -45,7 +45,7 @@ export interface BP5FormData {
   adaptationCoverage?: number;
   revenueAtRiskPercentage?: number;
   riskAssetsLocation?: string;
-  realEstateEnergyEfficiency?: number;
+  realEstateEnergyEfficiency?: string; // Changed from number to string to match the database
 }
 
 // Definizione dei tipi per BP6
