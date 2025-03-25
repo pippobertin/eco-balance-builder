@@ -1,18 +1,12 @@
+
 import React from 'react';
-import { ReportData, EnvironmentalMetrics } from '@/context/types';
+import { ReportData, LocationEnvironmentalMetrics } from '@/context/types';
 import { Leaf } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
 import EmissionsChart from './environmental/EmissionsChart';
 import PollutionChart from './environmental/PollutionChart';
 import BiodiversityChart from './environmental/BiodiversityChart';
-
-interface LocationEnvironmentalMetrics {
-  locationId: string;
-  locationName: string;
-  locationType?: string;
-  metrics: Record<string, any>;
-}
 
 interface EnvironmentalSectionProps {
   reportData: ReportData;
