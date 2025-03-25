@@ -35,7 +35,7 @@ export const useReportForm = () => {
     socialMetrics: reportData.socialMetrics || {},
     conductMetrics: reportData.conductMetrics || {},
     narrativePATMetrics: reportData.narrativePATMetrics || {},
-    materialityAnalysis: reportData.materialityAnalysis || {}
+    materialityAnalysis: reportData.materialityAnalysis || { issues: [], stakeholders: [] }
   });
 
   useEffect(() => {
@@ -133,11 +133,17 @@ export const useReportForm = () => {
   const saveMetrics = async () => {
     try {
       console.log("Saving metrics");
-      // Make sure we have the proper structure for materialityAnalysis
+      
+      // Assicuriamoci che materialityAnalysis abbia la struttura corretta
       const updatedFormValues = {
         ...formValues,
-        materialityAnalysis: formValues.materialityAnalysis || { issues: [], stakeholders: [] }
+        materialityAnalysis: {
+          ...(formValues.materialityAnalysis || {}),
+          issues: formValues.materialityAnalysis?.issues || [],
+          stakeholders: formValues.materialityAnalysis?.stakeholders || []
+        }
       };
+      
       updateReportData(updatedFormValues);
       await saveCurrentReport();
       setNeedsSaving(false);

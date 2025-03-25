@@ -98,6 +98,32 @@ export interface SaveButtonProps {
   children?: React.ReactNode;
 }
 
+export interface BusinessPartnersFormData {
+  bp1: BP1FormData;
+  bp2: BP2FormData;
+  bp3: BP3FormData;
+  bp4: BP4FormData;
+  bp5: BP5FormData;
+  bp6: BP6FormData;
+  bp7: BP7FormData;
+  bp8: BP8FormData;
+  bp9: BP9FormData;
+  bp10: BP10FormData;
+  bp11: BP11FormData;
+}
+
+export interface BusinessPartnersHookResult {
+  formData: BusinessPartnersFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BusinessPartnersFormData>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  saveData: () => Promise<boolean>;
+  lastSaved: Record<string, Date | null>;
+  setLastSaved: React.Dispatch<React.SetStateAction<Record<string, Date | null>>>;
+  needsSaving: Record<string, boolean>;
+  setNeedsSaving: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+}
+
 export interface LegacyFormData {
   bp1?: BP1FormData;
   bp2?: BP2FormData;

@@ -120,6 +120,7 @@ export const useReportLoad = (
         console.log("- social_metrics type:", typeof result.report.social_metrics);
         console.log("- conduct_metrics type:", typeof result.report.conduct_metrics);
         console.log("- materiality_analysis type:", typeof result.report.materiality_analysis);
+        console.log("- business_partners_metrics type:", typeof result.report.business_partners_metrics);
         
         // Always use safeJsonParse to handle the different ways data might be stored
         const newReportData: ReportData = {

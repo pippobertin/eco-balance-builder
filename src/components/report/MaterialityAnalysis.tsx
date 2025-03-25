@@ -1,5 +1,6 @@
 
 import React from 'react';
+import MaterialityAnalysisContainer from './materiality/MaterialityAnalysisContainer';
 
 interface MaterialityAnalysisProps {
   formValues: any;
@@ -10,12 +11,7 @@ const MaterialityAnalysis: React.FC<MaterialityAnalysisProps> = ({
   formValues, 
   setFormValues 
 }) => {
-  // This is just a placeholder component since materiality analysis has been removed
-  return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg">
-      <p className="text-gray-500">La sezione Materialità è stata rimossa.</p>
-    </div>
-  );
+  return <MaterialityAnalysisContainer formValues={formValues} setFormValues={setFormValues} />;
 };
 
 export default MaterialityAnalysis;
