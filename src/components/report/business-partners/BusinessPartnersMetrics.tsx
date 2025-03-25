@@ -1,6 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tab } from '@headlessui/react';
+import { useReport } from '@/hooks/use-report-context';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BP1RevenueSectors from './BP1RevenueSectors';
 import BP2GenderDiversity from './BP2GenderDiversity';
 import BP3GHGTargets from './BP3GHGTargets';
@@ -12,9 +15,11 @@ import BP8ComplianceProcesses from './BP8ComplianceProcesses';
 import BP9Violations from './BP9Violations';
 import BP10WorkLifeBalance from './BP10WorkLifeBalance';
 import BP11Apprentices from './BP11Apprentices';
-import { useReport } from '@/hooks/use-report-context';
-import { useBusinessPartnersData } from './hooks';
-import { TabNavigation, NavigationButtons, TabDefinition } from './components';
+
+interface TabDefinition {
+  id: string;
+  name: string;
+}
 
 const tabs: TabDefinition[] = [
   { id: 'bp1', name: 'BP1 - Settori Specifici' },
@@ -36,21 +41,10 @@ interface BusinessPartnersMetricsProps {
 
 const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activeField }) => {
   const { currentReport } = useReport();
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   
-  const {
-    formData,
-    setFormData,
-    isLoading,
-    saveData,
-    lastSaved,
-    needsSaving
-  } = useBusinessPartnersData(currentReport?.id || '');
-
-  console.log('BusinessPartnersMetrics - needsSaving:', needsSaving);
-  console.log('BusinessPartnersMetrics - lastSaved:', lastSaved);
-
-  React.useEffect(() => {
+  // Effetto per impostare la tab iniziale in base al campo attivo
+  useEffect(() => {
     if (activeField) {
       const index = tabs.findIndex(tab => tab.id === activeField);
       if (index !== -1) {
@@ -67,159 +61,101 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
     setSelectedIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  const updateFormSection = (section: string, data: any) => {
-    console.log(`Updating form section ${section} with:`, data);
-    setFormData(prev => ({
-      ...prev,
-      [section]: data
-    }));
-  };
+  // Componente di navigazione tra le tab
+  const TabNavigation = () => (
+    <Tab.List className="flex space-x-1 overflow-x-auto p-1 bg-gray-100 rounded-xl mb-4">
+      {tabs.map((tab, index) => (
+        <Tab
+          key={tab.id}
+          className={({ selected }) =>
+            `w-full py-2.5 text-sm font-medium leading-5 rounded-lg whitespace-nowrap px-3
+             ${selected
+              ? 'bg-white shadow text-blue-700'
+              : 'text-gray-700 hover:bg-white/[0.12] hover:text-blue-600'
+            }`
+          }
+        >
+          {tab.name}
+        </Tab>
+      ))}
+    </Tab.List>
+  );
 
-  const saveCurrentSection = async (): Promise<boolean> => {
-    const currentTabId = tabs[selectedIndex].id;
-    console.log(`Saving data for section: ${currentTabId}`);
-    return await saveData();
-  };
+  // Pulsanti di navigazione
+  const NavigationButtons = () => (
+    <div className="flex justify-between mt-6">
+      <Button
+        variant="outline"
+        onClick={goToPrevTab}
+        disabled={selectedIndex === 0}
+      >
+        <ChevronLeft className="mr-2 h-4 w-4" />
+        Precedente
+      </Button>
+      <Button
+        variant="outline"
+        onClick={goToNextTab}
+        disabled={selectedIndex === tabs.length - 1}
+      >
+        Successivo
+        <ChevronRight className="ml-2 h-4 w-4" />
+      </Button>
+    </div>
+  );
 
   return (
     <div className="w-full">
       <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-        <TabNavigation 
-          tabs={tabs} 
-          selectedIndex={selectedIndex} 
-          onChange={setSelectedIndex} 
-        />
+        <TabNavigation />
         
         <Tab.Panels className="mt-4">
           <Tab.Panel>
-            <BP1RevenueSectors 
-              formData={formData.bp1}
-              setFormData={(data) => updateFormSection('bp1', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp1}
-              needsSaving={needsSaving.bp1}
-            />
+            <BP1RevenueSectors reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP2GenderDiversity 
-              formData={formData.bp2}
-              setFormData={(data) => updateFormSection('bp2', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp2}
-              needsSaving={needsSaving.bp2}
-            />
+            <BP2GenderDiversity reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP3GHGTargets 
-              formData={formData.bp3}
-              setFormData={(data) => updateFormSection('bp3', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp3}
-              needsSaving={needsSaving.bp3}
-            />
+            <BP3GHGTargets reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP4TransitionPlan 
-              formData={formData.bp4}
-              setFormData={(data) => updateFormSection('bp4', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp4}
-              needsSaving={needsSaving.bp4}
-            />
+            <BP4TransitionPlan reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP5PhysicalRisks 
-              formData={formData.bp5}
-              setFormData={(data) => updateFormSection('bp5', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp5}
-              needsSaving={needsSaving.bp5}
-            />
+            <BP5PhysicalRisks reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP6HazardousWaste 
-              formData={formData.bp6}
-              setFormData={(data) => updateFormSection('bp6', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp6}
-              needsSaving={needsSaving.bp6}
-            />
+            <BP6HazardousWaste reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP7PolicyAlignment 
-              formData={formData.bp7}
-              setFormData={(data) => updateFormSection('bp7', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp7}
-              needsSaving={needsSaving.bp7}
-            />
+            <BP7PolicyAlignment reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP8ComplianceProcesses 
-              formData={formData.bp8}
-              setFormData={(data) => updateFormSection('bp8', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp8}
-              needsSaving={needsSaving.bp8}
-            />
+            <BP8ComplianceProcesses reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP9Violations 
-              formData={formData.bp9}
-              setFormData={(data) => updateFormSection('bp9', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp9}
-              needsSaving={needsSaving.bp9}
-            />
+            <BP9Violations reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP10WorkLifeBalance 
-              formData={formData.bp10}
-              setFormData={(data) => updateFormSection('bp10', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp10}
-              needsSaving={needsSaving.bp10}
-            />
+            <BP10WorkLifeBalance reportId={currentReport?.id || ''} />
           </Tab.Panel>
           
           <Tab.Panel>
-            <BP11Apprentices 
-              formData={formData.bp11}
-              setFormData={(data) => updateFormSection('bp11', data)}
-              saveData={saveCurrentSection}
-              isLoading={isLoading}
-              lastSaved={lastSaved.bp11}
-              needsSaving={needsSaving.bp11}
-            />
+            <BP11Apprentices reportId={currentReport?.id || ''} />
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
       
-      <NavigationButtons 
-        goToPrevTab={goToPrevTab}
-        goToNextTab={goToNextTab}
-        isPrevDisabled={selectedIndex === 0}
-        isNextDisabled={selectedIndex === tabs.length - 1}
-      />
+      <NavigationButtons />
     </div>
   );
 };
