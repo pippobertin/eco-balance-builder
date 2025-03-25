@@ -3,15 +3,13 @@ import { BP1FormData, BP2FormData, BP3FormData, BP4FormData, BP5FormData, BP6For
 
 // Environmental metrics
 export interface EnvironmentalMetrics {
+  locationMetrics?: Array<{
+    locationId: string;
+    locationName: string;
+    locationType?: string;
+    metrics: Record<string, any>;
+  }>;
   [key: string]: any;
-}
-
-// Location Environmental Metrics
-export interface LocationEnvironmentalMetrics {
-  locationId: string;
-  locationName: string;
-  locationType?: string;
-  metrics: Record<string, any>;
 }
 
 // Social metrics
@@ -74,7 +72,7 @@ export interface MaterialityIssue {
 export interface MaterialityAnalysis {
   issues: MaterialityIssue[];
   stakeholders: StakeholderData[];
-  esgScore?: number; // Added esgScore property
+  esgScore?: number;
 }
 
 // Combined Report Data

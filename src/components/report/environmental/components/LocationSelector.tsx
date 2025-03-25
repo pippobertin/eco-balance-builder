@@ -7,7 +7,7 @@ import { MapPin } from 'lucide-react';
 import { formatLocationName } from '../hooks/location-metrics';
 
 interface LocationSelectorProps {
-  locations: CompanyLocation[];
+  locations: any[];
   selectedLocationId: string;
   onLocationChange: (locationId: string) => void;
   isLoading: boolean;
@@ -39,7 +39,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         </SelectTrigger>
         <SelectContent>
           {locations.map((location) => (
-            <SelectItem key={location.id || 'main-location'} value={location.id || 'main-location'}>
+            <SelectItem key={location.locationId || 'main-location'} value={location.locationId || 'main-location'}>
               {formatLocationName(location)}
             </SelectItem>
           ))}

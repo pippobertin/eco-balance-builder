@@ -2,7 +2,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { EnvironmentalMetrics } from '@/context/types';
 
-// Define LocationEnvironmentalMetrics locally here
+// Define LocationEnvironmentalMetrics
 export interface LocationEnvironmentalMetrics {
   locationId: string;
   locationName: string;
@@ -23,4 +23,7 @@ export interface LocationMetricsState {
   environmentalMetrics: EnvironmentalMetrics;
   setEnvironmentalMetrics: Dispatch<SetStateAction<EnvironmentalMetrics>>;
   isLoading: boolean;
+  hasMultipleLocations?: boolean;
+  getCurrentLocationMetrics?: () => Record<string, any>;
+  handleLocationMetricsChange?: (metricKey: string, value: any) => void;
 }

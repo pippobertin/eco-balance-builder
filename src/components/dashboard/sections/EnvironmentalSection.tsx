@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { ReportData, EnvironmentalMetrics } from '@/context/types';
+import { ReportData } from '@/context/types';
 import { Leaf } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +8,7 @@ import EmissionsChart from './environmental/EmissionsChart';
 import PollutionChart from './environmental/PollutionChart';
 import BiodiversityChart from './environmental/BiodiversityChart';
 
+// Define the interface locally to avoid import issues
 interface LocationEnvironmentalMetrics {
   locationId: string;
   locationName: string;

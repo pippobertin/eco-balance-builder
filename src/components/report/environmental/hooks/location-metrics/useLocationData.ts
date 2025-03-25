@@ -5,10 +5,18 @@ import { toast } from 'sonner';
 import { EnvironmentalMetrics } from '@/context/types';
 import { LocationEnvironmentalMetrics } from './types';
 
+// Helper function to format location name
+export const formatLocationName = (location: { locationName: string, locationType?: string }) => {
+  return location.locationType 
+    ? `${location.locationName} (${location.locationType})` 
+    : location.locationName;
+};
+
 export const useLocationData = (reportId: string) => {
   const [locations, setLocations] = useState<LocationEnvironmentalMetrics[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [environmentalMetrics, setEnvironmentalMetrics] = useState<EnvironmentalMetrics>({});
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
 
   const loadLocations = useCallback(async () => {
     if (!reportId) return;
@@ -33,11 +41,16 @@ export const useLocationData = (reportId: string) => {
         const formattedLocations: LocationEnvironmentalMetrics[] = data.map(loc => ({
           locationId: loc.location_id,
           locationName: loc.location_name,
-          locationType: loc.location_type,
+          locationType: loc.location_type || undefined,
           metrics: loc.metrics || {}
         }));
         
         setLocations(formattedLocations);
+        
+        // Set the first location as selected by default if none is selected
+        if (!selectedLocationId && formattedLocations.length > 0) {
+          setSelectedLocationId(formattedLocations[0].locationId);
+        }
       } else {
         console.log("No location metrics found for report:", reportId);
         setLocations([]);
@@ -49,7 +62,7 @@ export const useLocationData = (reportId: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [reportId]);
+  }, [reportId, selectedLocationId]);
   
   // Load locations when component mounts or reportId changes
   useEffect(() => {
@@ -102,8 +115,8 @@ export const useLocationData = (reportId: string) => {
       console.log("Location metrics saved successfully");
       toast.success("Metriche per località salvate con successo");
       
-      // Now update the main report's environmental_metrics to include locationMetrics
-      const updatedMetrics = {
+      // Now update the main report's environmental_metrics
+      const updatedMetrics: EnvironmentalMetrics = {
         ...environmentalMetrics,
         locationMetrics: locations
       };
@@ -133,6 +146,8 @@ export const useLocationData = (reportId: string) => {
     }
   }, [reportId, locations, environmentalMetrics]);
 
+  const hasMultipleLocations = locations.length > 1;
+
   return {
     locations,
     setLocations,
@@ -140,6 +155,9 @@ export const useLocationData = (reportId: string) => {
     saveLocations,
     isLoading,
     environmentalMetrics,
-    setEnvironmentalMetrics
+    setEnvironmentalMetrics,
+    selectedLocationId,
+    setSelectedLocationId,
+    hasMultipleLocations
   };
 };
