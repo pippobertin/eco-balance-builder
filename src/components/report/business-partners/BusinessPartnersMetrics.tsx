@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { useReport } from '@/context/ReportContext';
 import { Info } from 'lucide-react';
 import { 
@@ -15,44 +15,18 @@ import {
   BP10WorkLifeBalance,
   BP11Apprentices
 } from './modules';
+import BPNavigationTabs from './components/BPNavigationTabs';
+import { useBPNavigation } from './hooks/useBPNavigation';
+import { useBPModuleData } from './hooks/useBPModuleData';
 
-// Interfaccia per i riferimenti di navigazione
-interface BPRefs {
-  bp1: React.RefObject<HTMLDivElement>;
-  bp2: React.RefObject<HTMLDivElement>;
-  bp3: React.RefObject<HTMLDivElement>;
-  bp4: React.RefObject<HTMLDivElement>;
-  bp5: React.RefObject<HTMLDivElement>;
-  bp6: React.RefObject<HTMLDivElement>;
-  bp7: React.RefObject<HTMLDivElement>;
-  bp8: React.RefObject<HTMLDivElement>;
-  bp9: React.RefObject<HTMLDivElement>;
-  bp10: React.RefObject<HTMLDivElement>;
-  bp11: React.RefObject<HTMLDivElement>;
+interface BusinessPartnersMetricsProps {
+  initialField?: string;
 }
 
-const BusinessPartnersMetrics: React.FC = () => {
+const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ initialField }) => {
   const { currentReport } = useReport();
-  
-  // Riferimenti per la navigazione rapida
-  const refs: BPRefs = {
-    bp1: useRef<HTMLDivElement>(null),
-    bp2: useRef<HTMLDivElement>(null),
-    bp3: useRef<HTMLDivElement>(null),
-    bp4: useRef<HTMLDivElement>(null),
-    bp5: useRef<HTMLDivElement>(null),
-    bp6: useRef<HTMLDivElement>(null),
-    bp7: useRef<HTMLDivElement>(null),
-    bp8: useRef<HTMLDivElement>(null),
-    bp9: useRef<HTMLDivElement>(null),
-    bp10: useRef<HTMLDivElement>(null),
-    bp11: useRef<HTMLDivElement>(null)
-  };
-  
-  // Funzione per navigare a una sezione specifica
-  const navigateTo = (refKey: keyof BPRefs) => {
-    refs[refKey]?.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const { activeTab, refs, navigateTo } = useBPNavigation(initialField);
+  const bpData = currentReport ? useBPModuleData(currentReport.id) : null;
   
   if (!currentReport) {
     return <div className="p-4">Nessun report selezionato</div>;
@@ -60,35 +34,26 @@ const BusinessPartnersMetrics: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <h2 className="text-2xl font-bold">Modulo Partner Commerciali</h2>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Modulo Partner Commerciali</h2>
         
-        {/* Menu di navigazione rapida */}
-        <div className="bg-white p-3 rounded-md border shadow-sm">
-          <h3 className="text-sm font-medium mb-2">Navigazione rapida</h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(refs).map((key) => (
-              <button
-                key={key}
-                onClick={() => navigateTo(key as keyof BPRefs)}
-                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              >
-                {key.toUpperCase()}
-              </button>
-            ))}
+        {/* Descrizione del modulo */}
+        <div className="p-4 rounded-md mb-6 bg-slate-100">
+          <div className="flex items-start">
+            <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
+            <p className="text-sm text-slate-600">
+              Questo modulo individua elementi d'informativa in relazione alle informazioni generalmente richieste dai partner commerciali, dagli investitori e dai finanziatori dell'impresa. Le informative da BP1 a BP11 devono essere considerate e comunicate se applicabili o rilevanti per l'attività dell'impresa.
+            </p>
           </div>
         </div>
+        
+        {/* Navigazione rapida */}
+        <BPNavigationTabs 
+          activeTab={activeTab} 
+          onTabChange={navigateTo} 
+        />
       </div>
       
-      <div className="p-4 rounded-md mb-4 bg-slate-100">
-        <div className="flex items-start">
-          <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-          <p className="text-sm text-slate-600">
-            Questo modulo individua elementi d'informativa in relazione alle informazioni generalmente richieste dai partner commerciali, dagli investitori e dai finanziatori dell'impresa. Le informative da BP1 a BP11 devono essere considerate e comunicate se applicabili o rilevanti per l'attività dell'impresa.
-          </p>
-        </div>
-      </div>
-
       {/* BP1 - Ricavi in alcuni settori */}
       <div ref={refs.bp1}>
         <BP1RevenueSectors reportId={currentReport.id} />
