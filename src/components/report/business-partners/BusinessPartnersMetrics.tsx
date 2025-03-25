@@ -1,75 +1,149 @@
-import React from 'react';
-import { useBusinessPartnersData } from './hooks';
+import React, { useEffect, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from 'react-router-dom';
+import { useReport } from '@/hooks/use-report-context';
+import { useBusinessPartnersData } from './hooks/useBusinessPartnersData';
 import BP1RevenueSectors from './BP1RevenueSectors';
-import { useReport } from '@/context/ReportContext';
-import { Info } from 'lucide-react';
 
 interface BusinessPartnersMetricsProps {
   formValues: any;
-  setFormValues: React.Dispatch<React.SetStateAction<any>>;
-  reportId: string;
+  setFormValues: (value: any) => void;
 }
 
-const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
-  formValues,
-  setFormValues,
-  reportId
-}) => {
-  // Use the custom hook to handle business partners data
-  const {
-    formData,
-    setFormData,
-    isLoading,
-    saveData,
-    lastSaved,
-    needsSaving
-  } = useBusinessPartnersData(reportId);
-
-  // Update the global form values when our local state changes
-  React.useEffect(() => {
-    if (!isLoading) {
-      setFormValues((prev: any) => ({
-        ...prev,
-        businessPartnersMetrics: formData
-      }));
-    }
-  }, [formData, isLoading, setFormValues]);
-
-  // Initialize our local state from global form values if available
-  React.useEffect(() => {
-    if (formValues.businessPartnersMetrics && Object.keys(formValues.businessPartnersMetrics).length > 0) {
-      setFormData(formValues.businessPartnersMetrics);
-    }
-  }, []);
-
-  if (isLoading) {
-    return <div className="p-4">Caricamento dati...</div>;
-  }
+const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ formValues, setFormValues }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("field") || "bp1";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const { currentReport } = useReport();
+  
+  const bpData = useBusinessPartnersData(currentReport?.id || '');
+  
+  // Update URL when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    searchParams.set("field", value);
+    setSearchParams(searchParams);
+  };
+  
+  // Keep parent form values in sync
+  useEffect(() => {
+    setFormValues(prev => ({
+      ...prev,
+      businessPartnersMetrics: bpData.formData
+    }));
+  }, [bpData.formData, setFormValues]);
+  
+  const saveDataForModule = async (moduleKey: string) => {
+    const needsSaving = { ...bpData.needsSaving };
+    
+    // Only mark the current module as needing saving
+    Object.keys(needsSaving).forEach(key => {
+      if (key !== moduleKey) {
+        needsSaving[key] = false;
+      }
+    });
+    
+    bpData.setNeedsSaving(needsSaving);
+    return await bpData.saveData();
+  };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Modulo Partner Commerciali</h2>
+      <h1 className="text-2xl font-bold">Partner Commerciali</h1>
       
-      <div className="p-4 rounded-md mb-4 bg-slate-100">
-        <div className="flex items-start">
-          <Info className="mt-0.5 mr-2 h-4 w-4 text-blue-500" />
-          <p className="text-sm text-slate-600">
-            Questo modulo individua elementi d'informativa in relazione alle informazioni generalmente richieste dai partner commerciali, dagli investitori e dai finanziatori dell'impresa. Le informative da BP1 a BP11 devono essere considerate e comunicate se applicabili o rilevanti per l'attività dell'impresa.
-          </p>
-        </div>
-      </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-11 h-auto">
+          <TabsTrigger value="bp1">BP1</TabsTrigger>
+          <TabsTrigger value="bp2">BP2</TabsTrigger>
+          <TabsTrigger value="bp3">BP3</TabsTrigger>
+          <TabsTrigger value="bp4">BP4</TabsTrigger>
+          <TabsTrigger value="bp5">BP5</TabsTrigger>
+          <TabsTrigger value="bp6">BP6</TabsTrigger>
+          <TabsTrigger value="bp7">BP7</TabsTrigger>
+          <TabsTrigger value="bp8">BP8</TabsTrigger>
+          <TabsTrigger value="bp9">BP9</TabsTrigger>
+          <TabsTrigger value="bp10">BP10</TabsTrigger>
+          <TabsTrigger value="bp11">BP11</TabsTrigger>
+        </TabsList>
+        
+        <div className="mt-6">
+          <TabsContent value="bp1">
+            <BP1RevenueSectors 
+              formData={bpData.formData}
+              setFormData={bpData.setFormData}
+              saveData={() => saveDataForModule('bp1')}
+              isLoading={bpData.isLoading}
+              lastSaved={bpData.lastSaved.bp1}
+              needsSaving={bpData.needsSaving.bp1}
+              bpKey="bp1"
+            />
+          </TabsContent>
 
-      {/* BP1 - Ricavi in alcuni settori */}
-      <BP1RevenueSectors 
-        formData={formData}
-        setFormData={setFormData}
-        saveData={saveData}
-        lastSaved={lastSaved.bp1}
-        needsSaving={needsSaving.bp1}
-        bpKey="bp1"
-      />
-      
-      {/* Other BP modules will be added here */}
+          <TabsContent value="bp2">
+            <div className="p-4 border rounded-md">
+              <p>BP2 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp3">
+            <div className="p-4 border rounded-md">
+              <p>BP3 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp4">
+            <div className="p-4 border rounded-md">
+              <p>BP4 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp5">
+            <div className="p-4 border rounded-md">
+              <p>BP5 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp6">
+            <div className="p-4 border rounded-md">
+              <p>BP6 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp7">
+            <div className="p-4 border rounded-md">
+              <p>BP7 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp8">
+            <div className="p-4 border rounded-md">
+              <p>BP8 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp9">
+            <div className="p-4 border rounded-md">
+              <p>BP9 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp10">
+            <div className="p-4 border rounded-md">
+              <p>BP10 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bp11">
+            <div className="p-4 border rounded-md">
+              <p>BP11 - Forthcoming implementation</p>
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 };
