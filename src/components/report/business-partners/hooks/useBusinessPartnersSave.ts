@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -16,11 +15,18 @@ export const useBusinessPartnersSave = (
   
   const [needsSaving, setNeedsSaving] = useState<Record<string, boolean>>({
     bp1: false, bp2: false, bp3: false, bp4: false, bp5: false,
-    bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: false
+    bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: null
   });
 
   const saveData = useCallback(async (): Promise<boolean> => {
-    if (!reportId) return false;
+    if (!reportId) {
+      console.error("Cannot save: Report ID is missing");
+      toast.error("Impossibile salvare: ID report mancante");
+      return false;
+    }
+    
+    console.log("Saving business partners data with reportId:", reportId);
+    console.log("Form data to save:", formData);
     
     setIsLoading(true);
     let success = true;
@@ -30,6 +36,7 @@ export const useBusinessPartnersSave = (
     try {
       // BP1
       if (needsSaving.bp1 && formData.bp1) {
+        console.log("Saving BP1 data:", formData.bp1);
         const { error: bp1Error } = await supabase
           .from('bp1_revenue_sectors')
           .upsert({
@@ -51,6 +58,7 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP1 data:", bp1Error);
           success = false;
         } else {
+          console.log("BP1 data saved successfully");
           newLastSaved.bp1 = now;
         }
       }

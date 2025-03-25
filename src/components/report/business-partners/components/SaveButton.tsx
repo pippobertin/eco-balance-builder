@@ -31,7 +31,8 @@ const SaveButton: React.FC<SaveButtonProps> = ({
     <Button 
       onClick={handleSave} 
       disabled={isLoading}
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white ${className}`}
+      variant="default"
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin" />

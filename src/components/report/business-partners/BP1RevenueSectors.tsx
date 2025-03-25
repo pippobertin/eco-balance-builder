@@ -1,226 +1,205 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { BusinessPartnersFieldData } from './hooks/types';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { BP1FormData } from './hooks/types';
 import SaveButton from './components/SaveButton';
 import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
-const BP1RevenueSectors: React.FC<BusinessPartnersFieldData> = ({
+interface BP1RevenueSectorsProps {
+  formData: BP1FormData;
+  setFormData: (data: BP1FormData) => void;
+  saveData: () => Promise<boolean>;
+  isLoading: boolean;
+  lastSaved: Date | null;
+  needsSaving: boolean;
+}
+
+const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
   formData,
   setFormData,
   saveData,
   isLoading,
   lastSaved,
-  needsSaving,
-  bpKey
+  needsSaving
 }) => {
-  const bp1 = formData.bp1;
-
-  const handleSwitchChange = (field: keyof typeof bp1) => {
-    if (typeof bp1[field] === 'boolean') {
-      setFormData(prev => ({
-        ...prev,
-        bp1: {
-          ...prev.bp1,
-          [field]: !prev.bp1[field]
-        }
-      }));
-    }
+  const handleCheckboxChange = (field: keyof BP1FormData) => {
+    setFormData({
+      ...formData,
+      [field]: !formData[field]
+    });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const numberValue = value === '' ? undefined : parseFloat(value);
-    
-    setFormData(prev => ({
-      ...prev,
-      bp1: {
-        ...prev.bp1,
-        [name]: numberValue
-      }
-    }));
-  };
-
-  const handleSave = async () => {
-    await saveData();
+  const handleInputChange = (field: keyof BP1FormData, value: number | undefined) => {
+    setFormData({
+      ...formData,
+      [field]: value
+    });
   };
 
   return (
-    <Card>
+    <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg font-medium">
-          BP1 - Settori di ricavo controversi
+        <CardTitle className="text-md font-medium">
+          BP1 - Settori collegati a combustibili fossili
         </CardTitle>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <SectionAutoSaveIndicator 
             needsSaving={needsSaving} 
             lastSaved={lastSaved} 
           />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="controversial-weapons" className="flex-1">
-                Armi controverse
-              </Label>
-              <Switch
-                id="controversial-weapons"
-                checked={bp1.controversialWeapons}
-                onCheckedChange={() => handleSwitchChange('controversialWeapons')}
+      <CardContent>
+        <div className="space-y-4">
+          {/* Controversial Weapons */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="controversialWeapons"
+                checked={formData.controversialWeapons || false}
+                onCheckedChange={() => handleCheckboxChange('controversialWeapons')}
               />
+              <Label htmlFor="controversialWeapons">Armi controverse</Label>
             </div>
-            
-            {bp1.controversialWeapons && (
+            {formData.controversialWeapons && (
               <div>
-                <Label htmlFor="controversial-weapons-revenue">Percentuale di ricavi (%)</Label>
+                <Label htmlFor="controversialWeaponsRevenue" className="text-sm">
+                  Ricavi da armi controverse (%)
+                </Label>
                 <Input
-                  id="controversial-weapons-revenue"
-                  name="controversialWeaponsRevenue"
+                  id="controversialWeaponsRevenue"
                   type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  value={bp1.controversialWeaponsRevenue || ''}
-                  onChange={handleInputChange}
-                  placeholder="% dei ricavi"
+                  value={formData.controversialWeaponsRevenue || ''}
+                  onChange={(e) => handleInputChange('controversialWeaponsRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  placeholder="Percentuale dei ricavi"
+                  className="mt-1"
                 />
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="tobacco" className="flex-1">
-                Tabacco
-              </Label>
-              <Switch
+          {/* Tobacco */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
                 id="tobacco"
-                checked={bp1.tobacco}
-                onCheckedChange={() => handleSwitchChange('tobacco')}
+                checked={formData.tobacco || false}
+                onCheckedChange={() => handleCheckboxChange('tobacco')}
               />
+              <Label htmlFor="tobacco">Tabacco</Label>
             </div>
-            
-            {bp1.tobacco && (
+            {formData.tobacco && (
               <div>
-                <Label htmlFor="tobacco-revenue">Percentuale di ricavi (%)</Label>
+                <Label htmlFor="tobaccoRevenue" className="text-sm">
+                  Ricavi da tabacco (%)
+                </Label>
                 <Input
-                  id="tobacco-revenue"
-                  name="tobaccoRevenue"
+                  id="tobaccoRevenue"
                   type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  value={bp1.tobaccoRevenue || ''}
-                  onChange={handleInputChange}
-                  placeholder="% dei ricavi"
+                  value={formData.tobaccoRevenue || ''}
+                  onChange={(e) => handleInputChange('tobaccoRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  placeholder="Percentuale dei ricavi"
+                  className="mt-1"
                 />
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="fossil-fuels" className="flex-1">
-                Combustibili fossili
-              </Label>
-              <Switch
-                id="fossil-fuels"
-                checked={bp1.fossilFuels}
-                onCheckedChange={() => handleSwitchChange('fossilFuels')}
+          {/* Fossil Fuels */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="fossilFuels"
+                checked={formData.fossilFuels || false}
+                onCheckedChange={() => handleCheckboxChange('fossilFuels')}
               />
+              <Label htmlFor="fossilFuels">Combustibili fossili</Label>
             </div>
-            
-            {bp1.fossilFuels && (
-              <div className="space-y-4">
+            {formData.fossilFuels && (
+              <div>
                 <div>
-                  <Label htmlFor="coal-revenue">Percentuale di ricavi da carbone (%)</Label>
+                  <Label htmlFor="coal-revenue" className="text-sm">
+                    Ricavi da carbone (%)
+                  </Label>
                   <Input
                     id="coal-revenue"
-                    name="coalRevenue"
                     type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={bp1.coalRevenue || ''}
-                    onChange={handleInputChange}
-                    placeholder="% dei ricavi"
+                    value={formData.coalRevenue || ''}
+                    onChange={(e) => handleInputChange('coalRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                    placeholder="Percentuale dei ricavi"
+                    className="mt-1"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="oil-revenue">Percentuale di ricavi da petrolio (%)</Label>
+                  <Label htmlFor="oil-revenue" className="text-sm">
+                    Ricavi da petrolio (%)
+                  </Label>
                   <Input
                     id="oil-revenue"
-                    name="oilRevenue"
                     type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={bp1.oilRevenue || ''}
-                    onChange={handleInputChange}
-                    placeholder="% dei ricavi"
+                    value={formData.oilRevenue || ''}
+                    onChange={(e) => handleInputChange('oilRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                    placeholder="Percentuale dei ricavi"
+                    className="mt-1"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="gas-revenue">Percentuale di ricavi da gas (%)</Label>
+                  <Label htmlFor="gas-revenue" className="text-sm">
+                    Ricavi da gas (%)
+                  </Label>
                   <Input
                     id="gas-revenue"
-                    name="gasRevenue"
                     type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={bp1.gasRevenue || ''}
-                    onChange={handleInputChange}
-                    placeholder="% dei ricavi"
+                    value={formData.gasRevenue || ''}
+                    onChange={(e) => handleInputChange('gasRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                    placeholder="Percentuale dei ricavi"
+                    className="mt-1"
                   />
                 </div>
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="chemicals" className="flex-1">
-                Prodotti chimici
-              </Label>
-              <Switch
+          {/* Chemicals */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
                 id="chemicals"
-                checked={bp1.chemicals}
-                onCheckedChange={() => handleSwitchChange('chemicals')}
+                checked={formData.chemicals || false}
+                onCheckedChange={() => handleCheckboxChange('chemicals')}
               />
+              <Label htmlFor="chemicals">Prodotti chimici</Label>
             </div>
-            
-            {bp1.chemicals && (
+            {formData.chemicals && (
               <div>
-                <Label htmlFor="chemicals-revenue">Percentuale di ricavi (%)</Label>
+                <Label htmlFor="chemicals-revenue" className="text-sm">
+                  Ricavi da prodotti chimici (%)
+                </Label>
                 <Input
                   id="chemicals-revenue"
-                  name="chemicalsRevenue"
                   type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  value={bp1.chemicalsRevenue || ''}
-                  onChange={handleInputChange}
-                  placeholder="% dei ricavi"
+                  value={formData.chemicalsRevenue || ''}
+                  onChange={(e) => handleInputChange('chemicalsRevenue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  placeholder="Percentuale dei ricavi"
+                  className="mt-1"
                 />
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex justify-end mt-6">
-          <SaveButton 
-            onClick={handleSave} 
-            isLoading={isLoading}
-          />
+          <div className="flex justify-end mt-4">
+            <SaveButton
+              onClick={saveData}
+              isLoading={isLoading}
+              className="ml-auto"
+            >
+              Salva dati BP1
+            </SaveButton>
+          </div>
         </div>
       </CardContent>
     </Card>

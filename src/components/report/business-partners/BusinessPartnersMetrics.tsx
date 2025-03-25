@@ -1,158 +1,214 @@
-
-import React, { useEffect, useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import { useReport } from '@/hooks/use-report-context';
-import { useBusinessPartnersData } from './hooks/useBusinessPartnersData';
+import { useBusinessPartnersData } from './hooks';
 import BP1RevenueSectors from './BP1RevenueSectors';
-import { Card, CardContent } from '@/components/ui/card';
-import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import BP2GenderDiversity from './BP2GenderDiversity';
+import BP3GHGTargets from './BP3GHGTargets';
+import BP4TransitionPlan from './BP4TransitionPlan';
+import BP5PhysicalRisks from './BP5PhysicalRisks';
+import BP6HazardousWaste from './BP6HazardousWaste';
+import BP7PolicyAlignment from './BP7PolicyAlignment';
+import BP8ComplianceProcesses from './BP8ComplianceProcesses';
+import BP9Violations from './BP9Violations';
+import BP10WorkLifeBalance from './BP10WorkLifeBalance';
+import BP11Apprentices from './BP11Apprentices';
 
 interface BusinessPartnersMetricsProps {
-  formValues: any;
-  setFormValues: (value: any) => void;
+  reportId: string;
+  initialField?: string;
 }
 
-const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ formValues, setFormValues }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("field") || "bp1";
-  const [activeTab, setActiveTab] = useState(initialTab);
-  const { currentReport } = useReport();
-  
-  const bpData = useBusinessPartnersData(currentReport?.id || '');
-  
-  // Update URL when tab changes
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    searchParams.set("field", value);
-    setSearchParams(searchParams);
-  };
-  
-  // Keep parent form values in sync
+const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
+  reportId,
+  initialField
+}) => {
+  // Get business partners data from custom hook
+  const {
+    formData,
+    setFormData,
+    isLoading,
+    saveData,
+    lastSaved,
+    needsSaving
+  } = useBusinessPartnersData(reportId);
+
+  // Set default active tab based on initialField or use 'bp1'
+  const [activeTab, setActiveTab] = React.useState<string>(initialField || 'bp1');
+
+  // Update active tab when initialField changes
   useEffect(() => {
-    setFormValues(prev => ({
-      ...prev,
-      businessPartnersMetrics: bpData.formData
-    }));
-  }, [bpData.formData, setFormValues]);
-  
-  const saveDataForModule = async (moduleKey: string) => {
-    const needsSaving = { ...bpData.needsSaving };
-    
-    // Only mark the current module as needing saving
-    Object.keys(needsSaving).forEach(key => {
-      if (key !== moduleKey) {
-        needsSaving[key] = false;
-      }
-    });
-    
-    bpData.setNeedsSaving(needsSaving);
-    return await bpData.saveData();
+    if (initialField) {
+      setActiveTab(initialField);
+    }
+  }, [initialField]);
+
+  // Set up tabs with sections
+  const tabs = [
+    { id: 'bp1', label: 'BP1 - Settori Specifici' },
+    { id: 'bp2', label: 'BP2 - Diversità di Genere' },
+    { id: 'bp3', label: 'BP3 - Obiettivi GHG' },
+    { id: 'bp4', label: 'BP4 - Piano di Transizione' },
+    { id: 'bp5', label: 'BP5 - Rischi Fisici' },
+    { id: 'bp6', label: 'BP6 - Rifiuti Pericolosi' },
+    { id: 'bp7', label: 'BP7 - Allineamento Politiche' },
+    { id: 'bp8', label: 'BP8 - Processi di Conformità' },
+    { id: 'bp9', label: 'BP9 - Violazioni' },
+    { id: 'bp10', label: 'BP10 - Equilibrio Lavoro-Vita' },
+    { id: 'bp11', label: 'BP11 - Apprendisti' }
+  ];
+
+  // Save handler that updates the formData for a specific BP section
+  const handleSaveSection = async (): Promise<boolean> => {
+    console.log('Saving business partners data...');
+    try {
+      const result = await saveData();
+      console.log('Save result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error saving business partners data:', error);
+      return false;
+    }
   };
 
-  // Function to create placeholder modules that include save buttons and indicators
-  const createPlaceholderModule = (bpKey: string, title: string) => {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">{title}</h3>
-            <SectionAutoSaveIndicator 
-              needsSaving={bpData.needsSaving[bpKey]} 
-              lastSaved={bpData.lastSaved[bpKey]}
-            />
-          </div>
-          <p className="text-gray-500 mb-6">Implementazione futura</p>
-          <div className="flex justify-end">
-            <SaveButton 
-              onClick={() => saveDataForModule(bpKey)}
-              isLoading={bpData.isLoading}
-            />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+  if (isLoading) {
+    return <div className="py-8 text-center">Caricamento dati in corso...</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Partner Commerciali</h1>
-      
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-11 h-auto">
-          <TabsTrigger value="bp1">BP1</TabsTrigger>
-          <TabsTrigger value="bp2">BP2</TabsTrigger>
-          <TabsTrigger value="bp3">BP3</TabsTrigger>
-          <TabsTrigger value="bp4">BP4</TabsTrigger>
-          <TabsTrigger value="bp5">BP5</TabsTrigger>
-          <TabsTrigger value="bp6">BP6</TabsTrigger>
-          <TabsTrigger value="bp7">BP7</TabsTrigger>
-          <TabsTrigger value="bp8">BP8</TabsTrigger>
-          <TabsTrigger value="bp9">BP9</TabsTrigger>
-          <TabsTrigger value="bp10">BP10</TabsTrigger>
-          <TabsTrigger value="bp11">BP11</TabsTrigger>
+    <Card className="p-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-4 mb-4">
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.id} value={tab.id}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
-        
-        <div className="mt-6">
-          <TabsContent value="bp1">
-            <BP1RevenueSectors 
-              formData={bpData.formData}
-              setFormData={bpData.setFormData}
-              saveData={() => saveDataForModule('bp1')}
-              isLoading={bpData.isLoading}
-              lastSaved={bpData.lastSaved.bp1}
-              needsSaving={bpData.needsSaving.bp1}
-              bpKey="bp1"
-            />
-          </TabsContent>
 
-          <TabsContent value="bp2">
-            {createPlaceholderModule('bp2', 'BP2 - Diversità di genere')}
-          </TabsContent>
-          
-          <TabsContent value="bp3">
-            {createPlaceholderModule('bp3', 'BP3 - Obiettivi di riduzione GHG')}
-          </TabsContent>
-          
-          <TabsContent value="bp4">
-            {createPlaceholderModule('bp4', 'BP4 - Piano di transizione')}
-          </TabsContent>
-          
-          <TabsContent value="bp5">
-            {createPlaceholderModule('bp5', 'BP5 - Rischi fisici del clima')}
-          </TabsContent>
-          
-          <TabsContent value="bp6">
-            {createPlaceholderModule('bp6', 'BP6 - Rifiuti pericolosi')}
-          </TabsContent>
-          
-          <TabsContent value="bp7">
-            {createPlaceholderModule('bp7', 'BP7 - Allineamento delle politiche')}
-          </TabsContent>
-          
-          <TabsContent value="bp8">
-            {createPlaceholderModule('bp8', 'BP8 - Processi di compliance')}
-          </TabsContent>
-          
-          <TabsContent value="bp9">
-            {createPlaceholderModule('bp9', 'BP9 - Violazioni')}
-          </TabsContent>
-          
-          <TabsContent value="bp10">
-            {createPlaceholderModule('bp10', 'BP10 - Equilibrio vita-lavoro')}
-          </TabsContent>
-          
-          <TabsContent value="bp11">
-            {createPlaceholderModule('bp11', 'BP11 - Apprendisti')}
-          </TabsContent>
-        </div>
+        <TabsContent value="bp1">
+          <BP1RevenueSectors
+            formData={formData.bp1}
+            setFormData={(bp1Data) => setFormData({ ...formData, bp1: bp1Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp1']}
+            needsSaving={needsSaving['bp1']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp2">
+          <BP2GenderDiversity
+            formData={formData.bp2}
+            setFormData={(bp2Data) => setFormData({ ...formData, bp2: bp2Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp2']}
+            needsSaving={needsSaving['bp2']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp3">
+          <BP3GHGTargets
+            formData={formData.bp3}
+            setFormData={(bp3Data) => setFormData({ ...formData, bp3: bp3Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp3']}
+            needsSaving={needsSaving['bp3']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp4">
+          <BP4TransitionPlan
+            formData={formData.bp4}
+            setFormData={(bp4Data) => setFormData({ ...formData, bp4: bp4Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp4']}
+            needsSaving={needsSaving['bp4']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp5">
+          <BP5PhysicalRisks
+            formData={formData.bp5}
+            setFormData={(bp5Data) => setFormData({ ...formData, bp5: bp5Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp5']}
+            needsSaving={needsSaving['bp5']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp6">
+          <BP6HazardousWaste
+            formData={formData.bp6}
+            setFormData={(bp6Data) => setFormData({ ...formData, bp6: bp6Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp6']}
+            needsSaving={needsSaving['bp6']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp7">
+          <BP7PolicyAlignment
+            formData={formData.bp7}
+            setFormData={(bp7Data) => setFormData({ ...formData, bp7: bp7Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp7']}
+            needsSaving={needsSaving['bp7']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp8">
+          <BP8ComplianceProcesses
+            formData={formData.bp8}
+            setFormData={(bp8Data) => setFormData({ ...formData, bp8: bp8Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp8']}
+            needsSaving={needsSaving['bp8']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp9">
+          <BP9Violations
+            formData={formData.bp9}
+            setFormData={(bp9Data) => setFormData({ ...formData, bp9: bp9Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp9']}
+            needsSaving={needsSaving['bp9']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp10">
+          <BP10WorkLifeBalance
+            formData={formData.bp10}
+            setFormData={(bp10Data) => setFormData({ ...formData, bp10: bp10Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp10']}
+            needsSaving={needsSaving['bp10']}
+          />
+        </TabsContent>
+
+        <TabsContent value="bp11">
+          <BP11Apprentices
+            formData={formData.bp11}
+            setFormData={(bp11Data) => setFormData({ ...formData, bp11: bp11Data })}
+            saveData={handleSaveSection}
+            isLoading={isLoading}
+            lastSaved={lastSaved['bp11']}
+            needsSaving={needsSaving['bp11']}
+          />
+        </TabsContent>
       </Tabs>
-    </div>
+    </Card>
   );
 };
 

@@ -12,22 +12,40 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
   const loadHook = useBusinessPartnersLoad(reportId);
   
   // Use the save hook for saving data and managing save state
-  const saveHook = useBusinessPartnersSave(reportId, loadHook.formData, loadHook.setIsLoading);
+  const saveHook = useBusinessPartnersSave(reportId, loadHook.formData, setIsLoading);
   
   // Track changes to update need-saving state
   useBusinessPartnersChanges(loadHook.formData, loadHook.isLoading, saveHook.setNeedsSaving);
   
   // Initial data load
   useEffect(() => {
-    loadHook.loadData();
+    const loadData = async () => {
+      await loadHook.loadData();
+      console.log("Business partners data loaded successfully");
+    };
+    
+    loadData();
   }, [reportId]);
+
+  // Save data wrapper with logging
+  const saveData = async (): Promise<boolean> => {
+    console.log("Starting save operation for business partners data");
+    try {
+      const result = await saveHook.saveData();
+      console.log("Save operation completed with result:", result);
+      return result;
+    } catch (error) {
+      console.error("Error in save operation:", error);
+      return false;
+    }
+  };
 
   return {
     formData: loadHook.formData,
     setFormData: loadHook.setFormData,
     isLoading: loadHook.isLoading,
-    setIsLoading: loadHook.setIsLoading,
-    saveData: saveHook.saveData,
+    setIsLoading: setIsLoading,
+    saveData,
     lastSaved: saveHook.lastSaved,
     setLastSaved: saveHook.setLastSaved,
     needsSaving: saveHook.needsSaving,
