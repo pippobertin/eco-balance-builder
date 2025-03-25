@@ -1,143 +1,213 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BP1FormData } from './hooks/types';
-import { SaveButton, SectionAutoSaveIndicator } from './components/index';
-import { SectorGroup } from './bp1';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Factory } from 'lucide-react';
+import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
+import { BP1FormData, BusinessPartnersSectionProps } from './hooks/types';
+import { SaveButton, SectionAutoSaveIndicator } from './components';
 
-interface BP1RevenueSectorsProps {
-  formData: BP1FormData;
-  setFormData: (data: BP1FormData) => void;
-  saveData: () => Promise<boolean>;
-  isLoading: boolean;
-  lastSaved: Date | null;
-  needsSaving: boolean;
+interface BP1RevenueSectorsProps extends BusinessPartnersSectionProps {
+  bpKey: string;  // The key for this business partners module (bp1)
 }
 
 const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
   formData,
   setFormData,
   saveData,
-  isLoading,
   lastSaved,
-  needsSaving
+  needsSaving,
+  bpKey
 }) => {
-  const handleCheckboxChange = (field: keyof BP1FormData) => {
-    setFormData({
-      ...formData,
-      [field]: !formData[field]
-    });
+  const bp1Data = formData.bp1 || {
+    controversialWeapons: false,
+    tobacco: false,
+    fossilFuels: false,
+    chemicals: false
   };
 
-  const handleInputChange = (field: keyof BP1FormData, value: number | undefined) => {
-    setFormData({
-      ...formData,
-      [field]: value
-    });
+  const handleCheckboxChange = (name: keyof BP1FormData, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      bp1: {
+        ...prev.bp1,
+        [name]: checked
+      }
+    }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const numValue = value === '' ? undefined : parseFloat(value);
+    
+    setFormData(prev => ({
+      ...prev,
+      bp1: {
+        ...prev.bp1,
+        [name]: numValue
+      }
+    }));
+  };
+
+  const handleSave = async () => {
+    await saveData();
   };
 
   return (
-    <Card className="mb-6">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-md font-medium">
-          BP1 - Settori collegati a combustibili fossili
-        </CardTitle>
-        <div className="flex items-center gap-2">
-          <SectionAutoSaveIndicator 
-            needsSaving={needsSaving} 
-            lastSaved={lastSaved} 
-          />
+    <GlassmorphicCard>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Factory className="mr-2 h-5 w-5 text-gray-600" />
+          <h3 className="text-xl font-semibold">BP1 - Ricavi in alcuni settori</h3>
         </div>
-      </CardHeader>
-      <CardContent>
+        <SectionAutoSaveIndicator 
+          needsSaving={needsSaving} 
+          lastSaved={lastSaved} 
+        />
+      </div>
+      
+      <div className="space-y-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Indica se l'impresa è attiva in uno o più dei seguenti settori e, in caso affermativo, i relativi ricavi.
+        </p>
+        
         <div className="space-y-4">
-          {/* Controversial Weapons Sector */}
-          <SectorGroup
-            checkboxId="controversialWeapons"
-            checkboxLabel="Armi controverse"
-            isChecked={formData.controversialWeapons || false}
-            onCheckboxChange={() => handleCheckboxChange('controversialWeapons')}
-            revenueSections={[
-              {
-                id: "controversialWeaponsRevenue",
-                label: "Ricavi da armi controverse (%)",
-                value: formData.controversialWeaponsRevenue || '',
-                onChange: (value) => handleInputChange('controversialWeaponsRevenue', value)
-              }
-            ]}
-          />
-
-          {/* Tobacco Sector */}
-          <SectorGroup
-            checkboxId="tobacco"
-            checkboxLabel="Tabacco"
-            isChecked={formData.tobacco || false}
-            onCheckboxChange={() => handleCheckboxChange('tobacco')}
-            revenueSections={[
-              {
-                id: "tobaccoRevenue",
-                label: "Ricavi da tabacco (%)",
-                value: formData.tobaccoRevenue || '',
-                onChange: (value) => handleInputChange('tobaccoRevenue', value)
-              }
-            ]}
-          />
-
-          {/* Fossil Fuels Sector */}
-          <SectorGroup
-            checkboxId="fossilFuels"
-            checkboxLabel="Combustibili fossili"
-            isChecked={formData.fossilFuels || false}
-            onCheckboxChange={() => handleCheckboxChange('fossilFuels')}
-            revenueSections={formData.fossilFuels ? [
-              {
-                id: "coal-revenue",
-                label: "Ricavi da carbone (%)",
-                value: formData.coalRevenue || '',
-                onChange: (value) => handleInputChange('coalRevenue', value)
-              },
-              {
-                id: "oil-revenue",
-                label: "Ricavi da petrolio (%)",
-                value: formData.oilRevenue || '',
-                onChange: (value) => handleInputChange('oilRevenue', value)
-              },
-              {
-                id: "gas-revenue",
-                label: "Ricavi da gas (%)",
-                value: formData.gasRevenue || '',
-                onChange: (value) => handleInputChange('gasRevenue', value)
-              }
-            ] : []}
-          />
-
-          {/* Chemicals Sector */}
-          <SectorGroup
-            checkboxId="chemicals"
-            checkboxLabel="Prodotti chimici"
-            isChecked={formData.chemicals || false}
-            onCheckboxChange={() => handleCheckboxChange('chemicals')}
-            revenueSections={[
-              {
-                id: "chemicals-revenue",
-                label: "Ricavi da prodotti chimici (%)",
-                value: formData.chemicalsRevenue || '',
-                onChange: (value) => handleInputChange('chemicalsRevenue', value)
-              }
-            ]}
-          />
-
-          <div className="flex justify-end mt-4">
-            <SaveButton
-              onClick={saveData}
-              isLoading={isLoading}
-            >
-              Salva dati settori di ricavo
-            </SaveButton>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="controversialWeapons" 
+              checked={bp1Data.controversialWeapons} 
+              onCheckedChange={checked => handleCheckboxChange('controversialWeapons', !!checked)} 
+            />
+            <Label htmlFor="controversialWeapons">
+              Armi controverse (mine antiuomo, munizioni a grappolo, armi chimiche e biologiche)
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="tobacco" 
+              checked={bp1Data.tobacco} 
+              onCheckedChange={checked => handleCheckboxChange('tobacco', !!checked)} 
+            />
+            <Label htmlFor="tobacco">Coltivazione e produzione di tabacco</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="fossilFuels" 
+              checked={bp1Data.fossilFuels} 
+              onCheckedChange={checked => handleCheckboxChange('fossilFuels', !!checked)} 
+            />
+            <Label htmlFor="fossilFuels">
+              Settore dei combustibili fossili (carbone, petrolio e gas)
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="chemicals" 
+              checked={bp1Data.chemicals} 
+              onCheckedChange={checked => handleCheckboxChange('chemicals', !!checked)} 
+            />
+            <Label htmlFor="chemicals">
+              Produzione di sostanze chimiche (divisione 20.2 dell'allegato I del Regolamento CE n. 1893/2006)
+            </Label>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        
+        <Separator className="my-4" />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="controversialWeaponsRevenue">Ricavi da armi controverse (€)</Label>
+            <Input 
+              id="controversialWeaponsRevenue" 
+              name="controversialWeaponsRevenue" 
+              type="number" 
+              placeholder="0.0" 
+              value={bp1Data.controversialWeaponsRevenue?.toString() || ""} 
+              onChange={handleInputChange} 
+              disabled={!bp1Data.controversialWeapons} 
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="tobaccoRevenue">Ricavi da tabacco (€)</Label>
+            <Input 
+              id="tobaccoRevenue" 
+              name="tobaccoRevenue" 
+              type="number" 
+              placeholder="0.0" 
+              value={bp1Data.tobaccoRevenue?.toString() || ""} 
+              onChange={handleInputChange} 
+              disabled={!bp1Data.tobacco} 
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="coalRevenue">Ricavi da carbone (€)</Label>
+            <Input 
+              id="coalRevenue" 
+              name="coalRevenue" 
+              type="number" 
+              placeholder="0.0" 
+              value={bp1Data.coalRevenue?.toString() || ""} 
+              onChange={handleInputChange} 
+              disabled={!bp1Data.fossilFuels} 
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="oilRevenue">Ricavi da petrolio (€)</Label>
+            <Input 
+              id="oilRevenue" 
+              name="oilRevenue" 
+              type="number" 
+              placeholder="0.0" 
+              value={bp1Data.oilRevenue?.toString() || ""} 
+              onChange={handleInputChange} 
+              disabled={!bp1Data.fossilFuels} 
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="gasRevenue">Ricavi da gas (€)</Label>
+            <Input 
+              id="gasRevenue" 
+              name="gasRevenue" 
+              type="number" 
+              placeholder="0.0" 
+              value={bp1Data.gasRevenue?.toString() || ""} 
+              onChange={handleInputChange} 
+              disabled={!bp1Data.fossilFuels} 
+            />
+          </div>
+        </div>
+        
+        <div>
+          <Label htmlFor="chemicalsRevenue">Ricavi da produzione di sostanze chimiche (€)</Label>
+          <Input 
+            id="chemicalsRevenue" 
+            name="chemicalsRevenue" 
+            type="number" 
+            placeholder="0.0" 
+            value={bp1Data.chemicalsRevenue?.toString() || ""} 
+            onChange={handleInputChange} 
+            disabled={!bp1Data.chemicals} 
+          />
+        </div>
+        
+        <div className="flex justify-start mt-4">
+          <SaveButton onClick={handleSave}>
+            Salva dati ricavi
+          </SaveButton>
+        </div>
+      </div>
+    </GlassmorphicCard>
   );
 };
 

@@ -2,19 +2,34 @@
 import { useLocationData, formatLocationName } from './useLocationData';
 import { useLocationMetricsHandlers } from './useLocationMetricsHandlers';
 
-export const useLocationMetrics = (reportId: string) => {
-  // Get location data and handlers
-  const locationHandlers = useLocationMetricsHandlers(reportId);
+export const useLocationMetrics = (
+  companyId: string | undefined, 
+  formValues: any, 
+  setFormValues: React.Dispatch<React.SetStateAction<any>>
+) => {
+  // Get location data
+  const {
+    locations,
+    hasMultipleLocations,
+    isLoading,
+    selectedLocationId,
+    setSelectedLocationId
+  } = useLocationData(companyId, formValues, setFormValues);
+  
+  // Get location metrics handlers
+  const {
+    getCurrentLocationMetrics,
+    handleLocationMetricsChange
+  } = useLocationMetricsHandlers(selectedLocationId, formValues, setFormValues);
   
   return {
-    locations: locationHandlers.locations,
-    hasMultipleLocations: locationHandlers.hasMultipleLocations,
-    isLoading: locationHandlers.isLoading,
-    selectedLocationId: locationHandlers.currentLocationId,
-    setSelectedLocationId: locationHandlers.setCurrentLocationId,
-    getCurrentLocationMetrics: locationHandlers.getCurrentLocationMetrics,
-    handleLocationMetricsChange: locationHandlers.handleLocationMetricsChange,
-    saveLocations: locationHandlers.saveLocations
+    locations,
+    hasMultipleLocations,
+    isLoading,
+    selectedLocationId,
+    setSelectedLocationId,
+    getCurrentLocationMetrics,
+    handleLocationMetricsChange
   };
 };
 

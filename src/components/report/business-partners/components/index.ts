@@ -1,6 +1,3 @@
 
-export * from './TabNavigation';
-export * from './NavigationButtons';
-export * from './SaveButton';
-export * from './SectionAutoSaveIndicator';
-export * from './TabPanelContent';
+export { default as SaveButton } from './SaveButton';
+export { default as SectionAutoSaveIndicator } from './SectionAutoSaveIndicator';
