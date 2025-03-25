@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { BP7FormData } from './hooks/types';
-import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import { SaveButton } from './components/SaveButton';
+import { SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
 
 interface BP7PolicyAlignmentProps {
   formData: BP7FormData;

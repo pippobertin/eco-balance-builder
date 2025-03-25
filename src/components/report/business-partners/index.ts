@@ -12,8 +12,8 @@ export { default as BP10WorkLifeBalance } from './BP10WorkLifeBalance';
 export { default as BP11Apprentices } from './BP11Apprentices';
 
 // Also export components
-export { default as SaveButton } from './components/SaveButton';
-export { default as SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
+export { SaveButton } from './components/SaveButton';
+export { SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
 
 // Export hooks
 export * from './hooks';

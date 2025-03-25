@@ -7,18 +7,21 @@ interface SaveButtonProps {
   onClick: () => Promise<boolean> | void;
   isLoading?: boolean;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const SaveButton: React.FC<SaveButtonProps> = ({
   onClick,
   isLoading = false,
-  children
+  children,
+  className
 }) => {
   return (
     <Button 
-      variant="primary" 
+      variant="default" 
       onClick={onClick} 
       disabled={isLoading}
+      className={className}
     >
       {isLoading ? (
         <>

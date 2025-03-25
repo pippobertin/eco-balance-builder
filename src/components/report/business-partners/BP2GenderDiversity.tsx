@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { BP2FormData } from './hooks/types';
-import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import { SaveButton } from './components/SaveButton';
+import { SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
 
 interface BP2GenderDiversityProps {
   formData: BP2FormData;
