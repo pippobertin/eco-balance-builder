@@ -1,8 +1,14 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SaveButtonProps } from '../hooks/types';
 import { Loader2, Save } from 'lucide-react';
+
+export interface SaveButtonProps {
+  onClick: () => Promise<boolean | void>;
+  isLoading?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
 
 const SaveButton: React.FC<SaveButtonProps> = ({ 
   onClick, 
