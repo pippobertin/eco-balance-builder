@@ -143,8 +143,8 @@ export const useBusinessPartnersLoad = (reportId: string) => {
         console.error("Error loading BP11 data:", bp11Error);
       }
       
-      // Update form data with loaded data
-      setFormData({
+      // Update form data with loaded data - properly mapping fields
+      const updatedFormData = {
         bp1: bp1Data ? {
           controversialWeapons: bp1Data.controversial_weapons,
           tobacco: bp1Data.tobacco,
@@ -186,7 +186,7 @@ export const useBusinessPartnersLoad = (reportId: string) => {
           adaptationCoverage: bp5Data.adaptation_coverage,
           revenueAtRiskPercentage: bp5Data.revenue_at_risk_percentage,
           riskAssetsLocation: bp5Data.risk_assets_location,
-          realEstateEnergyEfficiency: bp5Data.real_estate_energy_efficiency // Now correctly handled as string
+          realEstateEnergyEfficiency: bp5Data.real_estate_energy_efficiency
         } : {},
         
         bp6: bp6Data ? {
@@ -222,8 +222,9 @@ export const useBusinessPartnersLoad = (reportId: string) => {
           apprenticesNumber: bp11Data.apprentices_number,
           apprenticesPercentage: bp11Data.apprentices_percentage
         } : {}
-      });
-      
+      };
+
+      setFormData(updatedFormData);
       console.log("Business partners data loaded successfully");
     } catch (error) {
       console.error("Unexpected error loading business partners data:", error);

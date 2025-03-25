@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -8,122 +8,25 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, Clock } from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { BP5FormData } from './hooks/types';
 
 interface BP5PhysicalRisksProps {
-  reportId: string;
+  formData: BP5FormData;
+  setFormData: React.Dispatch<React.SetStateAction<BP5FormData>>;
+  saveData: () => Promise<boolean>;
+  isLoading: boolean;
+  lastSaved: Date | null;
+  needsSaving: boolean;
 }
 
 const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
-  reportId
+  formData,
+  setFormData,
+  saveData,
+  isLoading,
+  lastSaved,
+  needsSaving
 }) => {
-  const [formData, setFormData] = useState({
-    hasPhysicalClimateRisks: false,
-    assetsAtRiskAmount: undefined as number | undefined,
-    assetsAtRiskPercentage: undefined as number | undefined,
-    adaptationCoverage: undefined as number | undefined,
-    revenueAtRiskPercentage: undefined as number | undefined,
-    riskAssetsLocation: undefined as string | undefined,
-    realEstateEnergyEfficiency: undefined as string | undefined,
-  });
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [needsSaving, setNeedsSaving] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
-
-  // Carica i dati iniziali
-  useEffect(() => {
-    if (reportId) {
-      loadData();
-    }
-  }, [reportId]);
-
-  // Monitora le modifiche
-  useEffect(() => {
-    if (!initialLoad) {
-      setNeedsSaving(true);
-    }
-  }, [formData]);
-
-  const loadData = async () => {
-    if (!reportId) return;
-    
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('bp5_physical_risks')
-        .select('*')
-        .eq('report_id', reportId)
-        .maybeSingle();
-        
-      if (error && error.code !== 'PGRST116') {
-        console.error("Error loading BP5 data:", error);
-        toast.error("Errore nel caricamento dei dati sui rischi fisici");
-        return;
-      }
-      
-      if (data) {
-        setFormData({
-          hasPhysicalClimateRisks: data.has_physical_climate_risks || false,
-          assetsAtRiskAmount: data.assets_at_risk_amount,
-          assetsAtRiskPercentage: data.assets_at_risk_percentage,
-          adaptationCoverage: data.adaptation_coverage,
-          revenueAtRiskPercentage: data.revenue_at_risk_percentage,
-          riskAssetsLocation: data.risk_assets_location,
-          realEstateEnergyEfficiency: data.real_estate_energy_efficiency
-        });
-        
-        setLastSaved(new Date(data.updated_at));
-      }
-    } catch (error) {
-      console.error("Unexpected error loading BP5 data:", error);
-      toast.error("Si è verificato un errore durante il caricamento dei dati");
-    } finally {
-      setIsLoading(false);
-      setInitialLoad(false);
-    }
-  };
-
-  const saveData = async () => {
-    if (!reportId) {
-      toast.error("ID report mancante. Impossibile salvare.");
-      return;
-    }
-    
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('bp5_physical_risks')
-        .upsert({
-          report_id: reportId,
-          has_physical_climate_risks: formData.hasPhysicalClimateRisks,
-          assets_at_risk_amount: formData.assetsAtRiskAmount,
-          assets_at_risk_percentage: formData.assetsAtRiskPercentage,
-          adaptation_coverage: formData.adaptationCoverage,
-          revenue_at_risk_percentage: formData.revenueAtRiskPercentage,
-          risk_assets_location: formData.riskAssetsLocation,
-          real_estate_energy_efficiency: formData.realEstateEnergyEfficiency,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'report_id' });
-        
-      if (error) {
-        console.error("Error saving BP5 data:", error);
-        toast.error("Errore durante il salvataggio dei dati");
-        return;
-      }
-      
-      setLastSaved(new Date());
-      setNeedsSaving(false);
-      toast.success("Dati rischi fisici salvati con successo");
-    } catch (error) {
-      console.error("Unexpected error saving BP5 data:", error);
-      toast.error("Si è verificato un errore durante il salvataggio");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({

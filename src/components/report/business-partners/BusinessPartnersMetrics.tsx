@@ -137,7 +137,16 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp1_revenue_sectors')
         .upsert({
           report_id: currentReport.id,
-          ...bp1FormData,
+          controversial_weapons: bp1FormData.controversialWeapons,
+          tobacco: bp1FormData.tobacco,
+          fossil_fuels: bp1FormData.fossilFuels,
+          chemicals: bp1FormData.chemicals,
+          controversial_weapons_revenue: bp1FormData.controversialWeaponsRevenue,
+          tobacco_revenue: bp1FormData.tobaccoRevenue,
+          coal_revenue: bp1FormData.coalRevenue,
+          oil_revenue: bp1FormData.oilRevenue,
+          gas_revenue: bp1FormData.gasRevenue,
+          chemicals_revenue: bp1FormData.chemicalsRevenue,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -172,7 +181,10 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp2_gender_diversity')
         .upsert({
           report_id: currentReport.id,
-          ...bp2FormData,
+          male_governance_members: bp2FormData.maleGovernanceMembers,
+          female_governance_members: bp2FormData.femaleGovernanceMembers,
+          other_gender_governance_members: bp2FormData.otherGenderGovernanceMembers,
+          gender_diversity_index: bp2FormData.genderDiversityIndex,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -207,7 +219,12 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp3_ghg_targets')
         .upsert({
           report_id: currentReport.id,
-          ...bp3FormData,
+          has_ghg_reduction_targets: bp3FormData.hasGhgReductionTargets,
+          ghg_reduction_target_scope1: bp3FormData.ghgReductionTargetScope1,
+          ghg_reduction_target_scope2: bp3FormData.ghgReductionTargetScope2,
+          ghg_reduction_target_scope3: bp3FormData.ghgReductionTargetScope3,
+          ghg_reduction_target_year: bp3FormData.ghgReductionTargetYear,
+          ghg_reduction_baseline_year: bp3FormData.ghgReductionBaselineYear,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -242,7 +259,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp4_transition_plan')
         .upsert({
           report_id: currentReport.id,
-          ...bp4FormData,
+          has_transition_plan: bp4FormData.hasTransitionPlan,
+          transition_plan_details: bp4FormData.transitionPlanDetails,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -318,7 +336,9 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp6_hazardous_waste')
         .upsert({
           report_id: currentReport.id,
-          ...bp6FormData,
+          has_hazardous_waste: bp6FormData.hasHazardousWaste,
+          hazardous_waste_total: bp6FormData.hazardousWasteTotal,
+          radioactive_waste_total: bp6FormData.radioactiveWasteTotal,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -353,7 +373,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp7_policy_alignment')
         .upsert({
           report_id: currentReport.id,
-          ...bp7FormData,
+          has_policies_aligned: bp7FormData.hasPoliciesAligned,
+          aligned_instruments: bp7FormData.alignedInstruments,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -388,7 +409,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp8_compliance_processes')
         .upsert({
           report_id: currentReport.id,
-          ...bp8FormData,
+          has_compliance_processes: bp8FormData.hasComplianceProcesses,
+          compliance_processes_details: bp8FormData.complianceProcessesDetails,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -423,7 +445,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp9_violations')
         .upsert({
           report_id: currentReport.id,
-          ...bp9FormData,
+          has_violations: bp9FormData.hasViolations,
+          violations_details: bp9FormData.violationsDetails,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -458,7 +481,10 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp10_work_life_balance')
         .upsert({
           report_id: currentReport.id,
-          ...bp10FormData,
+          male_family_leave_eligible: bp10FormData.maleFamilyLeaveEligible,
+          female_family_leave_eligible: bp10FormData.femaleFamilyLeaveEligible,
+          male_family_leave_used: bp10FormData.maleFamilyLeaveUsed,
+          female_family_leave_used: bp10FormData.femaleFamilyLeaveUsed,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -493,7 +519,9 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         .from('bp11_apprentices')
         .upsert({
           report_id: currentReport.id,
-          ...bp11FormData,
+          has_apprentices: bp11FormData.hasApprentices,
+          apprentices_number: bp11FormData.apprenticesNumber,
+          apprentices_percentage: bp11FormData.apprenticesPercentage,
           updated_at: new Date().toISOString()
         }, { onConflict: 'report_id' });
         
@@ -551,7 +579,19 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp1FormData(data);
+        // Map database fields to form fields
+        setBp1FormData({
+          controversialWeapons: data.controversial_weapons,
+          tobacco: data.tobacco,
+          fossilFuels: data.fossil_fuels,
+          chemicals: data.chemicals,
+          controversialWeaponsRevenue: data.controversial_weapons_revenue,
+          tobaccoRevenue: data.tobacco_revenue,
+          coalRevenue: data.coal_revenue,
+          oilRevenue: data.oil_revenue,
+          gasRevenue: data.gas_revenue,
+          chemicalsRevenue: data.chemicals_revenue
+        });
         setBp1LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -575,7 +615,13 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp2FormData(data);
+        // Map database fields to form fields
+        setBp2FormData({
+          maleGovernanceMembers: data.male_governance_members,
+          femaleGovernanceMembers: data.female_governance_members,
+          otherGenderGovernanceMembers: data.other_gender_governance_members,
+          genderDiversityIndex: data.gender_diversity_index
+        });
         setBp2LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -599,7 +645,15 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp3FormData(data);
+        // Map database fields to form fields
+        setBp3FormData({
+          hasGhgReductionTargets: data.has_ghg_reduction_targets,
+          ghgReductionTargetScope1: data.ghg_reduction_target_scope1,
+          ghgReductionTargetScope2: data.ghg_reduction_target_scope2,
+          ghgReductionTargetScope3: data.ghg_reduction_target_scope3,
+          ghgReductionTargetYear: data.ghg_reduction_target_year,
+          ghgReductionBaselineYear: data.ghg_reduction_baseline_year
+        });
         setBp3LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -623,7 +677,11 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp4FormData(data);
+        // Map database fields to form fields
+        setBp4FormData({
+          hasTransitionPlan: data.has_transition_plan,
+          transitionPlanDetails: data.transition_plan_details
+        });
         setBp4LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -647,6 +705,7 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
+        // Map database fields to form fields
         setBp5FormData({
           hasPhysicalClimateRisks: data.has_physical_climate_risks,
           assetsAtRiskAmount: data.assets_at_risk_amount,
@@ -679,7 +738,12 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp6FormData(data);
+        // Map database fields to form fields
+        setBp6FormData({
+          hasHazardousWaste: data.has_hazardous_waste,
+          hazardousWasteTotal: data.hazardous_waste_total,
+          radioactiveWasteTotal: data.radioactive_waste_total
+        });
         setBp6LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -703,7 +767,11 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp7FormData(data);
+        // Map database fields to form fields
+        setBp7FormData({
+          hasPoliciesAligned: data.has_policies_aligned,
+          alignedInstruments: data.aligned_instruments
+        });
         setBp7LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -727,7 +795,11 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp8FormData(data);
+        // Map database fields to form fields
+        setBp8FormData({
+          hasComplianceProcesses: data.has_compliance_processes,
+          complianceProcessesDetails: data.compliance_processes_details
+        });
         setBp8LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -751,7 +823,11 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp9FormData(data);
+        // Map database fields to form fields
+        setBp9FormData({
+          hasViolations: data.has_violations,
+          violationsDetails: data.violations_details
+        });
         setBp9LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -775,7 +851,13 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp10FormData(data);
+        // Map database fields to form fields
+        setBp10FormData({
+          maleFamilyLeaveEligible: data.male_family_leave_eligible,
+          femaleFamilyLeaveEligible: data.female_family_leave_eligible,
+          maleFamilyLeaveUsed: data.male_family_leave_used,
+          femaleFamilyLeaveUsed: data.female_family_leave_used
+        });
         setBp10LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -799,7 +881,12 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
       }
       
       if (data) {
-        setBp11FormData(data);
+        // Map database fields to form fields
+        setBp11FormData({
+          hasApprentices: data.has_apprentices,
+          apprenticesNumber: data.apprentices_number,
+          apprenticesPercentage: data.apprentices_percentage
+        });
         setBp11LastSaved(new Date(data.updated_at));
       }
     } catch (error) {
@@ -809,47 +896,69 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
 
   // Effects to track form changes for each BP
   useEffect(() => {
-    setBp1NeedsSaving(true);
+    if (Object.keys(bp1FormData).length > 0) {
+      setBp1NeedsSaving(true);
+    }
   }, [bp1FormData]);
 
   useEffect(() => {
-    setBp2NeedsSaving(true);
+    if (Object.keys(bp2FormData).length > 0) {
+      setBp2NeedsSaving(true);
+    }
   }, [bp2FormData]);
 
   useEffect(() => {
-    setBp3NeedsSaving(true);
+    if (Object.keys(bp3FormData).length > 0) {
+      setBp3NeedsSaving(true);
+    }
   }, [bp3FormData]);
 
   useEffect(() => {
-    setBp4NeedsSaving(true);
+    if (Object.keys(bp4FormData).length > 0) {
+      setBp4NeedsSaving(true);
+    }
   }, [bp4FormData]);
 
   useEffect(() => {
-    setBp5NeedsSaving(true);
+    if (Object.keys(bp5FormData).length > 0) {
+      setBp5NeedsSaving(true);
+    }
   }, [bp5FormData]);
 
   useEffect(() => {
-    setBp6NeedsSaving(true);
+    if (Object.keys(bp6FormData).length > 0) {
+      setBp6NeedsSaving(true);
+    }
   }, [bp6FormData]);
 
   useEffect(() => {
-    setBp7NeedsSaving(true);
+    if (Object.keys(bp7FormData).length > 0) {
+      setBp7NeedsSaving(true);
+    }
   }, [bp7FormData]);
 
   useEffect(() => {
-    setBp8NeedsSaving(true);
+    if (Object.keys(bp8FormData).length > 0) {
+      setBp8NeedsSaving(true);
+    }
   }, [bp8FormData]);
 
   useEffect(() => {
-    setBp9NeedsSaving(true);
+    if (Object.keys(bp9FormData).length > 0) {
+      setBp9NeedsSaving(true);
+    }
   }, [bp9FormData]);
 
   useEffect(() => {
-    setBp10NeedsSaving(true);
+    if (Object.keys(bp10FormData).length > 0) {
+      setBp10NeedsSaving(true);
+    }
   }, [bp10FormData]);
 
   useEffect(() => {
-    setBp11NeedsSaving(true);
+    if (Object.keys(bp11FormData).length > 0) {
+      setBp11NeedsSaving(true);
+    }
   }, [bp11FormData]);
 
   const goToNextTab = () => {
