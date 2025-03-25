@@ -1,45 +1,29 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Loader2, Save } from 'lucide-react';
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Save } from 'lucide-react';
 
-export interface SaveButtonProps {
-  onClick: () => Promise<boolean | void>;
-  isLoading?: boolean;
+interface SaveButtonProps {
+  onClick: () => Promise<boolean>;
+  isLoading: boolean;
   className?: string;
   children?: React.ReactNode;
 }
 
 const SaveButton: React.FC<SaveButtonProps> = ({ 
   onClick, 
-  isLoading: initialLoading = false,
+  isLoading, 
   className = '',
-  children = 'Salva'
+  children
 }) => {
-  const [isLoading, setIsLoading] = useState(initialLoading);
-
-  const handleSave = async () => {
-    setIsLoading(true);
-    try {
-      await onClick();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Button 
-      onClick={handleSave} 
+      onClick={onClick} 
       disabled={isLoading}
-      className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white ${className}`}
-      variant="default"
+      className={className}
     >
-      {isLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Save className="h-4 w-4" />
-      )}
-      {children}
+      <Save className="mr-2 h-4 w-4" />
+      {isLoading ? "Salvataggio..." : children || "Salva modifiche"}
     </Button>
   );
 };

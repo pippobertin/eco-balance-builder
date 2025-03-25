@@ -33,14 +33,7 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
     });
   };
 
-  const handleInputChange = (field: keyof BP5FormData, value: number | undefined) => {
-    setFormData({
-      ...formData,
-      [field]: value
-    });
-  };
-
-  const handleTextareaChange = (field: keyof BP5FormData, value: string) => {
+  const handleInputChange = (field: keyof BP5FormData, value: number | string | undefined) => {
     setFormData({
       ...formData,
       [field]: value
@@ -51,7 +44,7 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-md font-medium">
-          BP5 - Rischi fisici da cambiamento climatico
+          BP5 - Rischi fisici legati al clima
         </CardTitle>
         <div className="flex items-center gap-2">
           <SectionAutoSaveIndicator 
@@ -69,15 +62,15 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
               onCheckedChange={() => handleCheckboxChange('hasPhysicalClimateRisks')}
             />
             <Label htmlFor="hasPhysicalClimateRisks">
-              L'impresa è esposta a rischi fisici rilevanti da cambiamento climatico
+              L'impresa è esposta a rischi fisici legati al clima
             </Label>
           </div>
           
           {formData.hasPhysicalClimateRisks && (
-            <>
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="assetsAtRiskAmount">Importo monetario degli attivi soggetti a rischi fisici (€)</Label>
+                  <Label htmlFor="assetsAtRiskAmount">Valore degli attivi a rischio (€)</Label>
                   <Input 
                     id="assetsAtRiskAmount" 
                     type="number" 
@@ -88,7 +81,7 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
                 </div>
                 
                 <div>
-                  <Label htmlFor="assetsAtRiskPercentage">Quota degli attivi totali soggetti a rischi fisici (%)</Label>
+                  <Label htmlFor="assetsAtRiskPercentage">Percentuale degli attivi a rischio (%)</Label>
                   <Input 
                     id="assetsAtRiskPercentage" 
                     type="number" 
@@ -101,7 +94,7 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="adaptationCoverage">Quota di attivi a rischio interessati dalle azioni di adattamento (%)</Label>
+                  <Label htmlFor="adaptationCoverage">Copertura dei piani di adattamento (%)</Label>
                   <Input 
                     id="adaptationCoverage" 
                     type="number" 
@@ -112,7 +105,7 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
                 </div>
                 
                 <div>
-                  <Label htmlFor="revenueAtRiskPercentage">Quota di ricavi netti soggetti a rischio fisico (%)</Label>
+                  <Label htmlFor="revenueAtRiskPercentage">Percentuale di fatturato a rischio (%)</Label>
                   <Input 
                     id="revenueAtRiskPercentage" 
                     type="number" 
@@ -124,27 +117,27 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
               </div>
               
               <div>
-                <Label htmlFor="riskAssetsLocation">Posizione degli attivi significativi interessati</Label>
-                <Textarea 
+                <Label htmlFor="riskAssetsLocation">Località degli attivi esposti a rischi fisici</Label>
+                <Input 
                   id="riskAssetsLocation" 
-                  placeholder="Indica la posizione geografica degli attivi significativi interessati da rischi fisici rilevanti." 
+                  type="text" 
+                  placeholder="Inserisci le località" 
                   value={formData.riskAssetsLocation || ''} 
-                  onChange={(e) => handleTextareaChange('riskAssetsLocation', e.target.value)} 
-                  className="min-h-[100px]" 
+                  onChange={(e) => handleInputChange('riskAssetsLocation', e.target.value)} 
                 />
               </div>
               
               <div>
-                <Label htmlFor="realEstateEnergyEfficiency">Ripartizione del valore contabile delle attività immobiliari per classi di efficienza energetica</Label>
-                <Textarea 
+                <Label htmlFor="realEstateEnergyEfficiency">Efficienza energetica degli immobili</Label>
+                <Input 
                   id="realEstateEnergyEfficiency" 
-                  placeholder="Esempio: Classe A: 30%, Classe B: 25%, Classe C: 20%, ecc." 
+                  type="text" 
+                  placeholder="Descrivi l'efficienza energetica" 
                   value={formData.realEstateEnergyEfficiency || ''} 
-                  onChange={(e) => handleTextareaChange('realEstateEnergyEfficiency', e.target.value)} 
-                  className="min-h-[100px]" 
+                  onChange={(e) => handleInputChange('realEstateEnergyEfficiency', e.target.value)} 
                 />
               </div>
-            </>
+            </div>
           )}
 
           <div className="flex justify-end mt-4">

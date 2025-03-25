@@ -7,7 +7,7 @@ import { BusinessPartnersFormData } from './types';
 export const useBusinessPartnersSave = (
   reportId: string,
   formData: BusinessPartnersFormData,
-  setIsLoading: (isLoading: boolean) => void
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const [lastSaved, setLastSaved] = useState<Record<string, Date | null>>({
     bp1: null, bp2: null, bp3: null, bp4: null, bp5: null,
@@ -18,27 +18,23 @@ export const useBusinessPartnersSave = (
     bp1: false, bp2: false, bp3: false, bp4: false, bp5: false,
     bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: false
   });
-
+  
   const saveData = useCallback(async (): Promise<boolean> => {
     if (!reportId) {
-      console.error("Cannot save: Report ID is missing");
-      toast.error("Impossibile salvare: ID report mancante");
+      console.error("Cannot save data without a reportId");
+      toast.error("ID Report mancante. Impossibile salvare.");
       return false;
     }
     
-    console.log("Saving business partners data with reportId:", reportId);
-    console.log("Form data to save:", formData);
-    
     setIsLoading(true);
-    let success = true;
-    const now = new Date();
-    const newLastSaved = { ...lastSaved };
-    const newNeedsSaving = { ...needsSaving };
+    console.log("Starting business partners data save operation");
     
     try {
-      // BP1
-      if (needsSaving.bp1) {
-        console.log("Saving BP1 data:", formData.bp1);
+      const now = new Date();
+      
+      // Salvataggio BP1
+      if (needsSaving.bp1 && Object.keys(formData.bp1).length > 0) {
+        console.log("Saving BP1 data");
         const { error: bp1Error } = await supabase
           .from('bp1_revenue_sectors')
           .upsert({
@@ -58,17 +54,16 @@ export const useBusinessPartnersSave = (
           
         if (bp1Error) {
           console.error("Error saving BP1 data:", bp1Error);
-          success = false;
-        } else {
-          console.log("BP1 data saved successfully");
-          newLastSaved.bp1 = now;
-          newNeedsSaving.bp1 = false;
+          throw bp1Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp1: now }));
+        setNeedsSaving(prev => ({ ...prev, bp1: false }));
       }
       
-      // BP2
-      if (needsSaving.bp2) {
-        console.log("Saving BP2 data:", formData.bp2);
+      // Salvataggio BP2
+      if (needsSaving.bp2 && Object.keys(formData.bp2).length > 0) {
+        console.log("Saving BP2 data");
         const { error: bp2Error } = await supabase
           .from('bp2_gender_diversity')
           .upsert({
@@ -82,17 +77,16 @@ export const useBusinessPartnersSave = (
           
         if (bp2Error) {
           console.error("Error saving BP2 data:", bp2Error);
-          success = false;
-        } else {
-          console.log("BP2 data saved successfully");
-          newLastSaved.bp2 = now;
-          newNeedsSaving.bp2 = false;
+          throw bp2Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp2: now }));
+        setNeedsSaving(prev => ({ ...prev, bp2: false }));
       }
       
-      // BP3
-      if (needsSaving.bp3) {
-        console.log("Saving BP3 data:", formData.bp3);
+      // Salvataggio BP3
+      if (needsSaving.bp3 && Object.keys(formData.bp3).length > 0) {
+        console.log("Saving BP3 data");
         const { error: bp3Error } = await supabase
           .from('bp3_ghg_targets')
           .upsert({
@@ -108,17 +102,16 @@ export const useBusinessPartnersSave = (
           
         if (bp3Error) {
           console.error("Error saving BP3 data:", bp3Error);
-          success = false;
-        } else {
-          console.log("BP3 data saved successfully");
-          newLastSaved.bp3 = now;
-          newNeedsSaving.bp3 = false;
+          throw bp3Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp3: now }));
+        setNeedsSaving(prev => ({ ...prev, bp3: false }));
       }
       
-      // BP4
-      if (needsSaving.bp4) {
-        console.log("Saving BP4 data:", formData.bp4);
+      // Salvataggio BP4
+      if (needsSaving.bp4 && Object.keys(formData.bp4).length > 0) {
+        console.log("Saving BP4 data");
         const { error: bp4Error } = await supabase
           .from('bp4_transition_plan')
           .upsert({
@@ -130,17 +123,16 @@ export const useBusinessPartnersSave = (
           
         if (bp4Error) {
           console.error("Error saving BP4 data:", bp4Error);
-          success = false;
-        } else {
-          console.log("BP4 data saved successfully");
-          newLastSaved.bp4 = now;
-          newNeedsSaving.bp4 = false;
+          throw bp4Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp4: now }));
+        setNeedsSaving(prev => ({ ...prev, bp4: false }));
       }
       
-      // BP5
-      if (needsSaving.bp5) {
-        console.log("Saving BP5 data:", formData.bp5);
+      // Salvataggio BP5
+      if (needsSaving.bp5 && Object.keys(formData.bp5).length > 0) {
+        console.log("Saving BP5 data");
         const { error: bp5Error } = await supabase
           .from('bp5_physical_risks')
           .upsert({
@@ -151,23 +143,22 @@ export const useBusinessPartnersSave = (
             adaptation_coverage: formData.bp5.adaptationCoverage,
             revenue_at_risk_percentage: formData.bp5.revenueAtRiskPercentage,
             risk_assets_location: formData.bp5.riskAssetsLocation,
-            real_estate_energy_efficiency: formData.bp5.realEstateEnergyEfficiency, // Now correctly handles string type
+            real_estate_energy_efficiency: formData.bp5.realEstateEnergyEfficiency, // Ora correttamente gestito come stringa
             updated_at: now.toISOString()
           }, { onConflict: 'report_id' });
           
         if (bp5Error) {
           console.error("Error saving BP5 data:", bp5Error);
-          success = false;
-        } else {
-          console.log("BP5 data saved successfully");
-          newLastSaved.bp5 = now;
-          newNeedsSaving.bp5 = false;
+          throw bp5Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp5: now }));
+        setNeedsSaving(prev => ({ ...prev, bp5: false }));
       }
       
-      // BP6
-      if (needsSaving.bp6) {
-        console.log("Saving BP6 data:", formData.bp6);
+      // Salvataggio BP6
+      if (needsSaving.bp6 && Object.keys(formData.bp6).length > 0) {
+        console.log("Saving BP6 data");
         const { error: bp6Error } = await supabase
           .from('bp6_hazardous_waste')
           .upsert({
@@ -180,17 +171,16 @@ export const useBusinessPartnersSave = (
           
         if (bp6Error) {
           console.error("Error saving BP6 data:", bp6Error);
-          success = false;
-        } else {
-          console.log("BP6 data saved successfully");
-          newLastSaved.bp6 = now;
-          newNeedsSaving.bp6 = false;
+          throw bp6Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp6: now }));
+        setNeedsSaving(prev => ({ ...prev, bp6: false }));
       }
       
-      // BP7
-      if (needsSaving.bp7) {
-        console.log("Saving BP7 data:", formData.bp7);
+      // Salvataggio BP7
+      if (needsSaving.bp7 && Object.keys(formData.bp7).length > 0) {
+        console.log("Saving BP7 data");
         const { error: bp7Error } = await supabase
           .from('bp7_policy_alignment')
           .upsert({
@@ -202,17 +192,16 @@ export const useBusinessPartnersSave = (
           
         if (bp7Error) {
           console.error("Error saving BP7 data:", bp7Error);
-          success = false;
-        } else {
-          console.log("BP7 data saved successfully");
-          newLastSaved.bp7 = now;
-          newNeedsSaving.bp7 = false;
+          throw bp7Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp7: now }));
+        setNeedsSaving(prev => ({ ...prev, bp7: false }));
       }
       
-      // BP8
-      if (needsSaving.bp8) {
-        console.log("Saving BP8 data:", formData.bp8);
+      // Salvataggio BP8
+      if (needsSaving.bp8 && Object.keys(formData.bp8).length > 0) {
+        console.log("Saving BP8 data");
         const { error: bp8Error } = await supabase
           .from('bp8_compliance_processes')
           .upsert({
@@ -224,17 +213,16 @@ export const useBusinessPartnersSave = (
           
         if (bp8Error) {
           console.error("Error saving BP8 data:", bp8Error);
-          success = false;
-        } else {
-          console.log("BP8 data saved successfully");
-          newLastSaved.bp8 = now;
-          newNeedsSaving.bp8 = false;
+          throw bp8Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp8: now }));
+        setNeedsSaving(prev => ({ ...prev, bp8: false }));
       }
       
-      // BP9
-      if (needsSaving.bp9) {
-        console.log("Saving BP9 data:", formData.bp9);
+      // Salvataggio BP9
+      if (needsSaving.bp9 && Object.keys(formData.bp9).length > 0) {
+        console.log("Saving BP9 data");
         const { error: bp9Error } = await supabase
           .from('bp9_violations')
           .upsert({
@@ -246,17 +234,16 @@ export const useBusinessPartnersSave = (
           
         if (bp9Error) {
           console.error("Error saving BP9 data:", bp9Error);
-          success = false;
-        } else {
-          console.log("BP9 data saved successfully");
-          newLastSaved.bp9 = now;
-          newNeedsSaving.bp9 = false;
+          throw bp9Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp9: now }));
+        setNeedsSaving(prev => ({ ...prev, bp9: false }));
       }
       
-      // BP10
-      if (needsSaving.bp10) {
-        console.log("Saving BP10 data:", formData.bp10);
+      // Salvataggio BP10
+      if (needsSaving.bp10 && Object.keys(formData.bp10).length > 0) {
+        console.log("Saving BP10 data");
         const { error: bp10Error } = await supabase
           .from('bp10_work_life_balance')
           .upsert({
@@ -270,17 +257,16 @@ export const useBusinessPartnersSave = (
           
         if (bp10Error) {
           console.error("Error saving BP10 data:", bp10Error);
-          success = false;
-        } else {
-          console.log("BP10 data saved successfully");
-          newLastSaved.bp10 = now;
-          newNeedsSaving.bp10 = false;
+          throw bp10Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp10: now }));
+        setNeedsSaving(prev => ({ ...prev, bp10: false }));
       }
       
-      // BP11
-      if (needsSaving.bp11) {
-        console.log("Saving BP11 data:", formData.bp11);
+      // Salvataggio BP11
+      if (needsSaving.bp11 && Object.keys(formData.bp11).length > 0) {
+        console.log("Saving BP11 data");
         const { error: bp11Error } = await supabase
           .from('bp11_apprentices')
           .upsert({
@@ -293,33 +279,24 @@ export const useBusinessPartnersSave = (
           
         if (bp11Error) {
           console.error("Error saving BP11 data:", bp11Error);
-          success = false;
-        } else {
-          console.log("BP11 data saved successfully");
-          newLastSaved.bp11 = now;
-          newNeedsSaving.bp11 = false;
+          throw bp11Error;
         }
+        
+        setLastSaved(prev => ({ ...prev, bp11: now }));
+        setNeedsSaving(prev => ({ ...prev, bp11: false }));
       }
       
-      // Update last saved time
-      if (success) {
-        setLastSaved(newLastSaved);
-        setNeedsSaving(newNeedsSaving);
-        toast.success("Dati salvati con successo");
-      } else {
-        toast.error("Si è verificato un errore durante il salvataggio di alcuni dati");
-      }
-      
+      toast.success("Dati dei partner commerciali salvati con successo");
+      console.log("Business partners data saved successfully");
+      return true;
     } catch (error) {
-      console.error("Unexpected error saving business partners data:", error);
-      toast.error("Errore nel salvataggio dei dati sui partner commerciali");
-      success = false;
+      console.error("Error saving business partners data:", error);
+      toast.error("Si è verificato un errore durante il salvataggio dei dati");
+      return false;
     } finally {
       setIsLoading(false);
     }
-    
-    return success;
-  }, [reportId, formData, needsSaving, lastSaved, setIsLoading]);
+  }, [reportId, formData, needsSaving, setIsLoading]);
 
   return {
     saveData,

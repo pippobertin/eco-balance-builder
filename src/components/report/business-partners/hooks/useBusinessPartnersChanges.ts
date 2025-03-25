@@ -1,87 +1,61 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { BusinessPartnersFormData } from './types';
 
 export const useBusinessPartnersChanges = (
   formData: BusinessPartnersFormData,
   isLoading: boolean,
-  setNeedsSaving: (value: React.SetStateAction<Record<string, boolean>>) => void
+  setNeedsSaving: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 ) => {
-  // Update needsSaving flags when form data changes
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP1 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp1: true }));
-    }
-  }, [formData.bp1, isLoading, setNeedsSaving]);
+  // Ref per tenere traccia dei dati precedenti
+  const prevDataRef = useRef<BusinessPartnersFormData | null>(null);
   
+  // Monitora i cambiamenti nel formData per impostare lo stato needsSaving
   useEffect(() => {
-    if (!isLoading) {
-      console.log("BP2 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp2: true }));
+    // Non aggiornare needsSaving durante il caricamento iniziale
+    if (isLoading) return;
+    
+    // Controlla se il prevDataRef è già stato inizializzato
+    if (prevDataRef.current) {
+      const needsSavingMap: Record<string, boolean> = {};
+      
+      // Controlla BP1
+      needsSavingMap.bp1 = JSON.stringify(prevDataRef.current.bp1) !== JSON.stringify(formData.bp1);
+      
+      // Controlla BP2
+      needsSavingMap.bp2 = JSON.stringify(prevDataRef.current.bp2) !== JSON.stringify(formData.bp2);
+      
+      // Controlla BP3
+      needsSavingMap.bp3 = JSON.stringify(prevDataRef.current.bp3) !== JSON.stringify(formData.bp3);
+      
+      // Controlla BP4
+      needsSavingMap.bp4 = JSON.stringify(prevDataRef.current.bp4) !== JSON.stringify(formData.bp4);
+      
+      // Controlla BP5
+      needsSavingMap.bp5 = JSON.stringify(prevDataRef.current.bp5) !== JSON.stringify(formData.bp5);
+      
+      // Controlla BP6
+      needsSavingMap.bp6 = JSON.stringify(prevDataRef.current.bp6) !== JSON.stringify(formData.bp6);
+      
+      // Controlla BP7
+      needsSavingMap.bp7 = JSON.stringify(prevDataRef.current.bp7) !== JSON.stringify(formData.bp7);
+      
+      // Controlla BP8
+      needsSavingMap.bp8 = JSON.stringify(prevDataRef.current.bp8) !== JSON.stringify(formData.bp8);
+      
+      // Controlla BP9
+      needsSavingMap.bp9 = JSON.stringify(prevDataRef.current.bp9) !== JSON.stringify(formData.bp9);
+      
+      // Controlla BP10
+      needsSavingMap.bp10 = JSON.stringify(prevDataRef.current.bp10) !== JSON.stringify(formData.bp10);
+      
+      // Controlla BP11
+      needsSavingMap.bp11 = JSON.stringify(prevDataRef.current.bp11) !== JSON.stringify(formData.bp11);
+      
+      setNeedsSaving(needsSavingMap);
     }
-  }, [formData.bp2, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP3 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp3: true }));
-    }
-  }, [formData.bp3, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP4 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp4: true }));
-    }
-  }, [formData.bp4, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP5 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp5: true }));
-    }
-  }, [formData.bp5, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP6 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp6: true }));
-    }
-  }, [formData.bp6, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP7 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp7: true }));
-    }
-  }, [formData.bp7, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP8 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp8: true }));
-    }
-  }, [formData.bp8, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP9 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp9: true }));
-    }
-  }, [formData.bp9, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP10 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp10: true }));
-    }
-  }, [formData.bp10, isLoading, setNeedsSaving]);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("BP11 data changed, setting needsSaving flag");
-      setNeedsSaving(prev => ({ ...prev, bp11: true }));
-    }
-  }, [formData.bp11, isLoading, setNeedsSaving]);
+    
+    // Aggiorna il prevDataRef con i dati correnti
+    prevDataRef.current = { ...formData };
+  }, [formData, isLoading, setNeedsSaving]);
 };
