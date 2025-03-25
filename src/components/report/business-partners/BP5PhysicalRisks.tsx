@@ -6,8 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BP5FormData } from './hooks/types';
-import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
 interface BP5PhysicalRisksProps {
   formData: BP5FormData;
@@ -57,12 +55,6 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
         <CardTitle className="text-md font-medium">
           BP5 - Attività soggette a rischi fisici legati al clima
         </CardTitle>
-        <div className="flex items-center gap-2">
-          <SectionAutoSaveIndicator 
-            needsSaving={needsSaving} 
-            lastSaved={lastSaved} 
-          />
-        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -156,16 +148,6 @@ const BP5PhysicalRisks: React.FC<BP5PhysicalRisksProps> = ({
               </div>
             </div>
           )}
-
-          <div className="flex justify-end mt-4">
-            <SaveButton
-              onClick={saveData}
-              isLoading={isLoading}
-              className="ml-auto"
-            >
-              Salva dati BP5
-            </SaveButton>
-          </div>
         </div>
       </CardContent>
     </Card>
