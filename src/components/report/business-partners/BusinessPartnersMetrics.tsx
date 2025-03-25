@@ -1,8 +1,7 @@
 import React from 'react';
-import { useBusinessPartnersData } from './hooks';
-import BP1RevenueSectors from './BP1RevenueSectors';
 import { useReport } from '@/context/ReportContext';
 import { Info } from 'lucide-react';
+import BP1RevenueSectors from './BP1RevenueSectors';
 
 interface BusinessPartnersMetricsProps {
   formValues: any;

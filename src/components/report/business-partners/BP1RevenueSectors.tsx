@@ -6,35 +6,29 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Factory } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
-import { BP1FormData, BusinessPartnersSectionProps } from './hooks/types';
 import { SaveButton, SectionAutoSaveIndicator } from './components';
+import { useBP1Data } from './hooks/bp1';
+import { useReport } from '@/hooks/use-report-context';
 
-interface BP1RevenueSectorsProps extends BusinessPartnersSectionProps {
-  bpKey: string;  // The key for this business partners module (bp1)
+interface BP1RevenueSectorsProps {
+  reportId: string;
 }
 
-const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
-  formData,
-  setFormData,
-  saveData,
-  lastSaved,
-  needsSaving,
-  bpKey
-}) => {
-  const bp1Data = formData.bp1 || {
-    controversialWeapons: false,
-    tobacco: false,
-    fossilFuels: false,
-    chemicals: false
-  };
+const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
+  const { updateReportData } = useReport();
+  const { 
+    formData,
+    setFormData,
+    isLoading,
+    saveData,
+    lastSaved,
+    needsSaving
+  } = useBP1Data(reportId);
 
-  const handleCheckboxChange = (name: keyof BP1FormData, checked: boolean) => {
+  const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      bp1: {
-        ...prev.bp1,
-        [name]: checked
-      }
+      [name]: checked
     }));
   };
 
@@ -44,16 +38,25 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
     
     setFormData(prev => ({
       ...prev,
-      bp1: {
-        ...prev.bp1,
-        [name]: numValue
-      }
+      [name]: numValue
     }));
   };
 
   const handleSave = async () => {
-    await saveData();
+    const success = await saveData();
+    if (success) {
+      // Update the global report data context with the new values
+      updateReportData({
+        businessPartnersMetrics: {
+          bp1: formData
+        }
+      });
+    }
   };
+
+  if (isLoading) {
+    return <div className="p-4">Caricamento dati...</div>;
+  }
 
   return (
     <GlassmorphicCard>
@@ -77,7 +80,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="controversialWeapons" 
-              checked={bp1Data.controversialWeapons} 
+              checked={formData.controversialWeapons} 
               onCheckedChange={checked => handleCheckboxChange('controversialWeapons', !!checked)} 
             />
             <Label htmlFor="controversialWeapons">
@@ -88,7 +91,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="tobacco" 
-              checked={bp1Data.tobacco} 
+              checked={formData.tobacco} 
               onCheckedChange={checked => handleCheckboxChange('tobacco', !!checked)} 
             />
             <Label htmlFor="tobacco">Coltivazione e produzione di tabacco</Label>
@@ -97,7 +100,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="fossilFuels" 
-              checked={bp1Data.fossilFuels} 
+              checked={formData.fossilFuels} 
               onCheckedChange={checked => handleCheckboxChange('fossilFuels', !!checked)} 
             />
             <Label htmlFor="fossilFuels">
@@ -108,7 +111,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="chemicals" 
-              checked={bp1Data.chemicals} 
+              checked={formData.chemicals} 
               onCheckedChange={checked => handleCheckboxChange('chemicals', !!checked)} 
             />
             <Label htmlFor="chemicals">
@@ -127,9 +130,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
               name="controversialWeaponsRevenue" 
               type="number" 
               placeholder="0.0" 
-              value={bp1Data.controversialWeaponsRevenue?.toString() || ""} 
+              value={formData.controversialWeaponsRevenue?.toString() || ""} 
               onChange={handleInputChange} 
-              disabled={!bp1Data.controversialWeapons} 
+              disabled={!formData.controversialWeapons} 
             />
           </div>
           
@@ -140,9 +143,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
               name="tobaccoRevenue" 
               type="number" 
               placeholder="0.0" 
-              value={bp1Data.tobaccoRevenue?.toString() || ""} 
+              value={formData.tobaccoRevenue?.toString() || ""} 
               onChange={handleInputChange} 
-              disabled={!bp1Data.tobacco} 
+              disabled={!formData.tobacco} 
             />
           </div>
         </div>
@@ -155,9 +158,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
               name="coalRevenue" 
               type="number" 
               placeholder="0.0" 
-              value={bp1Data.coalRevenue?.toString() || ""} 
+              value={formData.coalRevenue?.toString() || ""} 
               onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
+              disabled={!formData.fossilFuels} 
             />
           </div>
           
@@ -168,9 +171,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
               name="oilRevenue" 
               type="number" 
               placeholder="0.0" 
-              value={bp1Data.oilRevenue?.toString() || ""} 
+              value={formData.oilRevenue?.toString() || ""} 
               onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
+              disabled={!formData.fossilFuels} 
             />
           </div>
           
@@ -181,9 +184,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
               name="gasRevenue" 
               type="number" 
               placeholder="0.0" 
-              value={bp1Data.gasRevenue?.toString() || ""} 
+              value={formData.gasRevenue?.toString() || ""} 
               onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
+              disabled={!formData.fossilFuels} 
             />
           </div>
         </div>
@@ -195,9 +198,9 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
             name="chemicalsRevenue" 
             type="number" 
             placeholder="0.0" 
-            value={bp1Data.chemicalsRevenue?.toString() || ""} 
+            value={formData.chemicalsRevenue?.toString() || ""} 
             onChange={handleInputChange} 
-            disabled={!bp1Data.chemicals} 
+            disabled={!formData.chemicals} 
           />
         </div>
         
