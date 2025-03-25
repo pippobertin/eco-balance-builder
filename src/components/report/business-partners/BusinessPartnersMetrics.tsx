@@ -82,7 +82,7 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
   return (
     <Card className="p-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 mb-4">
+        <TabsList className="grid grid-cols-3 mb-4">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id}>
               {tab.label}
@@ -96,8 +96,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp1Data) => setFormData({ ...formData, bp1: bp1Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp1']}
-            needsSaving={needsSaving['bp1']}
+            lastSaved={lastSaved.bp1}
+            needsSaving={needsSaving.bp1}
           />
         </TabsContent>
 
@@ -107,8 +107,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp2Data) => setFormData({ ...formData, bp2: bp2Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp2']}
-            needsSaving={needsSaving['bp2']}
+            lastSaved={lastSaved.bp2}
+            needsSaving={needsSaving.bp2}
           />
         </TabsContent>
 
@@ -118,8 +118,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp3Data) => setFormData({ ...formData, bp3: bp3Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp3']}
-            needsSaving={needsSaving['bp3']}
+            lastSaved={lastSaved.bp3}
+            needsSaving={needsSaving.bp3}
           />
         </TabsContent>
 
@@ -129,8 +129,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp4Data) => setFormData({ ...formData, bp4: bp4Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp4']}
-            needsSaving={needsSaving['bp4']}
+            lastSaved={lastSaved.bp4}
+            needsSaving={needsSaving.bp4}
           />
         </TabsContent>
 
@@ -140,8 +140,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp5Data) => setFormData({ ...formData, bp5: bp5Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp5']}
-            needsSaving={needsSaving['bp5']}
+            lastSaved={lastSaved.bp5}
+            needsSaving={needsSaving.bp5}
           />
         </TabsContent>
 
@@ -151,8 +151,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp6Data) => setFormData({ ...formData, bp6: bp6Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp6']}
-            needsSaving={needsSaving['bp6']}
+            lastSaved={lastSaved.bp6}
+            needsSaving={needsSaving.bp6}
           />
         </TabsContent>
 
@@ -162,8 +162,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp7Data) => setFormData({ ...formData, bp7: bp7Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp7']}
-            needsSaving={needsSaving['bp7']}
+            lastSaved={lastSaved.bp7}
+            needsSaving={needsSaving.bp7}
           />
         </TabsContent>
 
@@ -173,8 +173,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp8Data) => setFormData({ ...formData, bp8: bp8Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp8']}
-            needsSaving={needsSaving['bp8']}
+            lastSaved={lastSaved.bp8}
+            needsSaving={needsSaving.bp8}
           />
         </TabsContent>
 
@@ -184,8 +184,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp9Data) => setFormData({ ...formData, bp9: bp9Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp9']}
-            needsSaving={needsSaving['bp9']}
+            lastSaved={lastSaved.bp9}
+            needsSaving={needsSaving.bp9}
           />
         </TabsContent>
 
@@ -195,8 +195,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp10Data) => setFormData({ ...formData, bp10: bp10Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp10']}
-            needsSaving={needsSaving['bp10']}
+            lastSaved={lastSaved.bp10}
+            needsSaving={needsSaving.bp10}
           />
         </TabsContent>
 
@@ -206,8 +206,8 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
             setFormData={(bp11Data) => setFormData({ ...formData, bp11: bp11Data })}
             saveData={handleSaveSection}
             isLoading={isLoading}
-            lastSaved={lastSaved['bp11']}
-            needsSaving={needsSaving['bp11']}
+            lastSaved={lastSaved.bp11}
+            needsSaving={needsSaving.bp11}
           />
         </TabsContent>
       </Tabs>

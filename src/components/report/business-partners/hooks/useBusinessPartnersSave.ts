@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -15,7 +16,7 @@ export const useBusinessPartnersSave = (
   
   const [needsSaving, setNeedsSaving] = useState<Record<string, boolean>>({
     bp1: false, bp2: false, bp3: false, bp4: false, bp5: false,
-    bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: null
+    bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: false
   });
 
   const saveData = useCallback(async (): Promise<boolean> => {
@@ -32,10 +33,11 @@ export const useBusinessPartnersSave = (
     let success = true;
     const now = new Date();
     const newLastSaved = { ...lastSaved };
+    const newNeedsSaving = { ...needsSaving };
     
     try {
       // BP1
-      if (needsSaving.bp1 && formData.bp1) {
+      if (needsSaving.bp1) {
         console.log("Saving BP1 data:", formData.bp1);
         const { error: bp1Error } = await supabase
           .from('bp1_revenue_sectors')
@@ -60,11 +62,13 @@ export const useBusinessPartnersSave = (
         } else {
           console.log("BP1 data saved successfully");
           newLastSaved.bp1 = now;
+          newNeedsSaving.bp1 = false;
         }
       }
       
       // BP2
-      if (needsSaving.bp2 && formData.bp2) {
+      if (needsSaving.bp2) {
+        console.log("Saving BP2 data:", formData.bp2);
         const { error: bp2Error } = await supabase
           .from('bp2_gender_diversity')
           .upsert({
@@ -80,12 +84,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP2 data:", bp2Error);
           success = false;
         } else {
+          console.log("BP2 data saved successfully");
           newLastSaved.bp2 = now;
+          newNeedsSaving.bp2 = false;
         }
       }
       
       // BP3
-      if (needsSaving.bp3 && formData.bp3) {
+      if (needsSaving.bp3) {
+        console.log("Saving BP3 data:", formData.bp3);
         const { error: bp3Error } = await supabase
           .from('bp3_ghg_targets')
           .upsert({
@@ -103,12 +110,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP3 data:", bp3Error);
           success = false;
         } else {
+          console.log("BP3 data saved successfully");
           newLastSaved.bp3 = now;
+          newNeedsSaving.bp3 = false;
         }
       }
       
       // BP4
-      if (needsSaving.bp4 && formData.bp4) {
+      if (needsSaving.bp4) {
+        console.log("Saving BP4 data:", formData.bp4);
         const { error: bp4Error } = await supabase
           .from('bp4_transition_plan')
           .upsert({
@@ -122,12 +132,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP4 data:", bp4Error);
           success = false;
         } else {
+          console.log("BP4 data saved successfully");
           newLastSaved.bp4 = now;
+          newNeedsSaving.bp4 = false;
         }
       }
       
       // BP5
-      if (needsSaving.bp5 && formData.bp5) {
+      if (needsSaving.bp5) {
+        console.log("Saving BP5 data:", formData.bp5);
         const { error: bp5Error } = await supabase
           .from('bp5_physical_risks')
           .upsert({
@@ -146,12 +159,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP5 data:", bp5Error);
           success = false;
         } else {
+          console.log("BP5 data saved successfully");
           newLastSaved.bp5 = now;
+          newNeedsSaving.bp5 = false;
         }
       }
       
       // BP6
-      if (needsSaving.bp6 && formData.bp6) {
+      if (needsSaving.bp6) {
+        console.log("Saving BP6 data:", formData.bp6);
         const { error: bp6Error } = await supabase
           .from('bp6_hazardous_waste')
           .upsert({
@@ -166,12 +182,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP6 data:", bp6Error);
           success = false;
         } else {
+          console.log("BP6 data saved successfully");
           newLastSaved.bp6 = now;
+          newNeedsSaving.bp6 = false;
         }
       }
       
       // BP7
-      if (needsSaving.bp7 && formData.bp7) {
+      if (needsSaving.bp7) {
+        console.log("Saving BP7 data:", formData.bp7);
         const { error: bp7Error } = await supabase
           .from('bp7_policy_alignment')
           .upsert({
@@ -185,12 +204,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP7 data:", bp7Error);
           success = false;
         } else {
+          console.log("BP7 data saved successfully");
           newLastSaved.bp7 = now;
+          newNeedsSaving.bp7 = false;
         }
       }
       
       // BP8
-      if (needsSaving.bp8 && formData.bp8) {
+      if (needsSaving.bp8) {
+        console.log("Saving BP8 data:", formData.bp8);
         const { error: bp8Error } = await supabase
           .from('bp8_compliance_processes')
           .upsert({
@@ -204,12 +226,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP8 data:", bp8Error);
           success = false;
         } else {
+          console.log("BP8 data saved successfully");
           newLastSaved.bp8 = now;
+          newNeedsSaving.bp8 = false;
         }
       }
       
       // BP9
-      if (needsSaving.bp9 && formData.bp9) {
+      if (needsSaving.bp9) {
+        console.log("Saving BP9 data:", formData.bp9);
         const { error: bp9Error } = await supabase
           .from('bp9_violations')
           .upsert({
@@ -223,12 +248,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP9 data:", bp9Error);
           success = false;
         } else {
+          console.log("BP9 data saved successfully");
           newLastSaved.bp9 = now;
+          newNeedsSaving.bp9 = false;
         }
       }
       
       // BP10
-      if (needsSaving.bp10 && formData.bp10) {
+      if (needsSaving.bp10) {
+        console.log("Saving BP10 data:", formData.bp10);
         const { error: bp10Error } = await supabase
           .from('bp10_work_life_balance')
           .upsert({
@@ -244,12 +272,15 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP10 data:", bp10Error);
           success = false;
         } else {
+          console.log("BP10 data saved successfully");
           newLastSaved.bp10 = now;
+          newNeedsSaving.bp10 = false;
         }
       }
       
       // BP11
-      if (needsSaving.bp11 && formData.bp11) {
+      if (needsSaving.bp11) {
+        console.log("Saving BP11 data:", formData.bp11);
         const { error: bp11Error } = await supabase
           .from('bp11_apprentices')
           .upsert({
@@ -264,17 +295,16 @@ export const useBusinessPartnersSave = (
           console.error("Error saving BP11 data:", bp11Error);
           success = false;
         } else {
+          console.log("BP11 data saved successfully");
           newLastSaved.bp11 = now;
+          newNeedsSaving.bp11 = false;
         }
       }
       
       // Update last saved time
       if (success) {
         setLastSaved(newLastSaved);
-        setNeedsSaving({
-          bp1: false, bp2: false, bp3: false, bp4: false, bp5: false,
-          bp6: false, bp7: false, bp8: false, bp9: false, bp10: false, bp11: false
-        });
+        setNeedsSaving(newNeedsSaving);
         toast.success("Dati salvati con successo");
       } else {
         toast.error("Si è verificato un errore durante il salvataggio di alcuni dati");

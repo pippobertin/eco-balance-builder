@@ -24,18 +24,42 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({
   lastSaved,
   needsSaving
 }) => {
-  const handleInputChange = (field: keyof BP2FormData, value: number | undefined) => {
+  const handleInputChange = (field: keyof BP2FormData, value: string) => {
     setFormData({
       ...formData,
-      [field]: value
+      [field]: value === '' ? undefined : Number(value)
     });
   };
+
+  const calculateDiversityIndex = (): number => {
+    const totalMembers = 
+      (formData.maleGovernanceMembers || 0) + 
+      (formData.femaleGovernanceMembers || 0) + 
+      (formData.otherGenderGovernanceMembers || 0);
+      
+    if (totalMembers === 0) return 0;
+    
+    // Calculate diversity index based on female percentage
+    const femalePercentage = ((formData.femaleGovernanceMembers || 0) / totalMembers) * 100;
+    return parseFloat(femalePercentage.toFixed(2));
+  };
+
+  // Update diversity index when gender components change
+  React.useEffect(() => {
+    const diversityIndex = calculateDiversityIndex();
+    if (diversityIndex !== formData.genderDiversityIndex) {
+      setFormData({
+        ...formData,
+        genderDiversityIndex: diversityIndex
+      });
+    }
+  }, [formData.maleGovernanceMembers, formData.femaleGovernanceMembers, formData.otherGenderGovernanceMembers]);
 
   return (
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-md font-medium">
-          BP2 - Indice di diversità di genere negli organi di governance
+          BP2 - Diversità di Genere nei Membri degli Organi di Governance
         </CardTitle>
         <div className="flex items-center gap-2">
           <SectionAutoSaveIndicator 
@@ -46,37 +70,40 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="maleGovernanceMembers">Membri di genere maschile</Label>
+              <Label htmlFor="maleGovernanceMembers">Membri maschi</Label>
               <Input 
-                id="maleGovernanceMembers" 
-                type="number" 
-                placeholder="0" 
-                value={formData.maleGovernanceMembers || ''} 
-                onChange={(e) => handleInputChange('maleGovernanceMembers', e.target.value ? parseInt(e.target.value) : undefined)} 
+                id="maleGovernanceMembers"
+                type="number"
+                min="0"
+                value={formData.maleGovernanceMembers || ''}
+                onChange={(e) => handleInputChange('maleGovernanceMembers', e.target.value)}
+                className="mt-1"
               />
             </div>
             
             <div>
-              <Label htmlFor="femaleGovernanceMembers">Membri di genere femminile</Label>
+              <Label htmlFor="femaleGovernanceMembers">Membri femmine</Label>
               <Input 
-                id="femaleGovernanceMembers" 
-                type="number" 
-                placeholder="0" 
-                value={formData.femaleGovernanceMembers || ''} 
-                onChange={(e) => handleInputChange('femaleGovernanceMembers', e.target.value ? parseInt(e.target.value) : undefined)} 
+                id="femaleGovernanceMembers"
+                type="number"
+                min="0"
+                value={formData.femaleGovernanceMembers || ''}
+                onChange={(e) => handleInputChange('femaleGovernanceMembers', e.target.value)}
+                className="mt-1"
               />
             </div>
             
             <div>
-              <Label htmlFor="otherGenderGovernanceMembers">Membri di altri generi</Label>
+              <Label htmlFor="otherGenderGovernanceMembers">Altri generi</Label>
               <Input 
-                id="otherGenderGovernanceMembers" 
-                type="number" 
-                placeholder="0" 
-                value={formData.otherGenderGovernanceMembers || ''} 
-                onChange={(e) => handleInputChange('otherGenderGovernanceMembers', e.target.value ? parseInt(e.target.value) : undefined)} 
+                id="otherGenderGovernanceMembers"
+                type="number"
+                min="0"
+                value={formData.otherGenderGovernanceMembers || ''}
+                onChange={(e) => handleInputChange('otherGenderGovernanceMembers', e.target.value)}
+                className="mt-1"
               />
             </div>
           </div>
@@ -84,17 +111,17 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({
           <div>
             <Label htmlFor="genderDiversityIndex">Indice di diversità di genere (%)</Label>
             <Input 
-              id="genderDiversityIndex" 
-              type="number" 
-              placeholder="0.0" 
-              value={formData.genderDiversityIndex || ''} 
-              onChange={(e) => handleInputChange('genderDiversityIndex', e.target.value ? parseFloat(e.target.value) : undefined)} 
+              id="genderDiversityIndex"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={formData.genderDiversityIndex?.toFixed(2) || ''}
+              readOnly
+              className="mt-1 bg-gray-100"
             />
-            <p className="text-sm text-gray-500 mt-1">
-              Percentuale di membri non appartenenti al genere prevalente nell'organo di governance
-            </p>
           </div>
-
+          
           <div className="flex justify-end mt-4">
             <SaveButton
               onClick={saveData}

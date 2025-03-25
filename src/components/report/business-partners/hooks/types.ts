@@ -1,17 +1,10 @@
 
-export interface SaveButtonProps {
-  onClick: () => Promise<boolean | void>;
-  isLoading?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-}
-
-// Define the individual BP form data types for each module
+// Definizione dei tipi per BP1
 export interface BP1FormData {
-  controversialWeapons: boolean;
-  tobacco: boolean;
-  fossilFuels: boolean;
-  chemicals: boolean;
+  controversialWeapons?: boolean;
+  tobacco?: boolean;
+  fossilFuels?: boolean;
+  chemicals?: boolean;
   controversialWeaponsRevenue?: number;
   tobaccoRevenue?: number;
   coalRevenue?: number;
@@ -20,6 +13,7 @@ export interface BP1FormData {
   chemicalsRevenue?: number;
 }
 
+// Definizione dei tipi per BP2
 export interface BP2FormData {
   maleGovernanceMembers?: number;
   femaleGovernanceMembers?: number;
@@ -27,8 +21,9 @@ export interface BP2FormData {
   genderDiversityIndex?: number;
 }
 
+// Definizione dei tipi per BP3
 export interface BP3FormData {
-  hasGhgReductionTargets: boolean;
+  hasGhgReductionTargets?: boolean;
   ghgReductionTargetScope1?: number;
   ghgReductionTargetScope2?: number;
   ghgReductionTargetScope3?: number;
@@ -36,42 +31,49 @@ export interface BP3FormData {
   ghgReductionBaselineYear?: number;
 }
 
+// Definizione dei tipi per BP4
 export interface BP4FormData {
-  hasTransitionPlan: boolean;
+  hasTransitionPlan?: boolean;
   transitionPlanDetails?: string;
 }
 
+// Definizione dei tipi per BP5
 export interface BP5FormData {
-  hasPhysicalClimateRisks: boolean;
+  hasPhysicalClimateRisks?: boolean;
   assetsAtRiskAmount?: number;
   assetsAtRiskPercentage?: number;
   adaptationCoverage?: number;
   revenueAtRiskPercentage?: number;
   riskAssetsLocation?: string;
-  realEstateEnergyEfficiency?: string;
+  realEstateEnergyEfficiency?: number;
 }
 
+// Definizione dei tipi per BP6
 export interface BP6FormData {
-  hasHazardousWaste: boolean;
+  hasHazardousWaste?: boolean;
   hazardousWasteTotal?: number;
   radioactiveWasteTotal?: number;
 }
 
+// Definizione dei tipi per BP7
 export interface BP7FormData {
-  hasPoliciesAligned: boolean;
+  hasPoliciesAligned?: boolean;
   alignedInstruments?: string;
 }
 
+// Definizione dei tipi per BP8
 export interface BP8FormData {
-  hasComplianceProcesses: boolean;
+  hasComplianceProcesses?: boolean;
   complianceProcessesDetails?: string;
 }
 
+// Definizione dei tipi per BP9
 export interface BP9FormData {
-  hasViolations: boolean;
+  hasViolations?: boolean;
   violationsDetails?: string;
 }
 
+// Definizione dei tipi per BP10
 export interface BP10FormData {
   maleFamilyLeaveEligible?: number;
   femaleFamilyLeaveEligible?: number;
@@ -79,12 +81,14 @@ export interface BP10FormData {
   femaleFamilyLeaveUsed?: number;
 }
 
+// Definizione dei tipi per BP11
 export interface BP11FormData {
-  hasApprentices: boolean;
+  hasApprentices?: boolean;
   apprenticesNumber?: number;
   apprenticesPercentage?: number;
 }
 
+// Dati complessivi dei business partners
 export interface BusinessPartnersFormData {
   bp1: BP1FormData;
   bp2: BP2FormData;
@@ -99,24 +103,15 @@ export interface BusinessPartnersFormData {
   bp11: BP11FormData;
 }
 
-export interface BusinessPartnersFieldData {
-  formData: BusinessPartnersFormData;
-  setFormData: (data: React.SetStateAction<BusinessPartnersFormData>) => void;
-  saveData: () => Promise<boolean>;
-  isLoading: boolean;
-  lastSaved: Date | null;
-  needsSaving: boolean;
-  bpKey: string;
-}
-
+// Risultato dell'hook useBusinessPartnersData
 export interface BusinessPartnersHookResult {
   formData: BusinessPartnersFormData;
-  setFormData: (data: React.SetStateAction<BusinessPartnersFormData>) => void;
+  setFormData: React.Dispatch<React.SetStateAction<BusinessPartnersFormData>>;
   isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   saveData: () => Promise<boolean>;
   lastSaved: Record<string, Date | null>;
-  setLastSaved: (lastSaved: Record<string, Date | null>) => void;
+  setLastSaved: React.Dispatch<React.SetStateAction<Record<string, Date | null>>>;
   needsSaving: Record<string, boolean>;
-  setNeedsSaving: (needsSaving: Record<string, boolean>) => void;
+  setNeedsSaving: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
