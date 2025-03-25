@@ -42,7 +42,8 @@ export const useLocationData = (reportId: string) => {
           locationId: loc.location_id,
           locationName: loc.location_name,
           locationType: loc.location_type || undefined,
-          metrics: loc.metrics || {}
+          // Ensure metrics is an object, not a string or other type
+          metrics: typeof loc.metrics === 'object' ? loc.metrics || {} : {}
         }));
         
         setLocations(formattedLocations);
@@ -116,9 +117,15 @@ export const useLocationData = (reportId: string) => {
       toast.success("Metriche per località salvate con successo");
       
       // Now update the main report's environmental_metrics
-      const updatedMetrics: EnvironmentalMetrics = {
+      // Make sure we're using a serializable object for environmentalMetrics
+      const updatedMetrics = {
         ...environmentalMetrics,
-        locationMetrics: locations
+        locationMetrics: locations.map(loc => ({
+          locationId: loc.locationId,
+          locationName: loc.locationName,
+          locationType: loc.locationType,
+          metrics: loc.metrics
+        }))
       };
       
       setEnvironmentalMetrics(updatedMetrics);
