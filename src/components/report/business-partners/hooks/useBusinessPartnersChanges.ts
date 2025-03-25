@@ -23,6 +23,7 @@ export const useBusinessPartnersChanges = (
       
       // Controlla BP1
       needsSavingMap.bp1 = JSON.stringify(prevDataRef.current.bp1) !== JSON.stringify(formData.bp1);
+      console.log('BP1 needs saving:', needsSavingMap.bp1);
       
       // Controlla BP2
       needsSavingMap.bp2 = JSON.stringify(prevDataRef.current.bp2) !== JSON.stringify(formData.bp2);
