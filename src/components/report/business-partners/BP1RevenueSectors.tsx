@@ -1,52 +1,45 @@
 
 import React from 'react';
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Factory } from 'lucide-react';
-import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
-import { BP1FormData, BusinessPartnersSectionProps } from './hooks/types';
-import { SaveButton, SectionAutoSaveIndicator } from './components';
+import { Input } from "@/components/ui/input";
+import { BusinessPartnersFieldData } from './hooks/types';
+import SaveButton from './components/SaveButton';
+import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
-interface BP1RevenueSectorsProps extends BusinessPartnersSectionProps {
-  bpKey: string;  // The key for this business partners module (bp1)
-}
-
-const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
+const BP1RevenueSectors: React.FC<BusinessPartnersFieldData> = ({
   formData,
   setFormData,
   saveData,
+  isLoading,
   lastSaved,
   needsSaving,
   bpKey
 }) => {
-  const bp1Data = formData.bp1 || {
-    controversialWeapons: false,
-    tobacco: false,
-    fossilFuels: false,
-    chemicals: false
-  };
+  const bp1 = formData.bp1;
 
-  const handleCheckboxChange = (name: keyof BP1FormData, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      bp1: {
-        ...prev.bp1,
-        [name]: checked
-      }
-    }));
+  const handleSwitchChange = (field: keyof typeof bp1) => {
+    if (typeof bp1[field] === 'boolean') {
+      setFormData(prev => ({
+        ...prev,
+        bp1: {
+          ...prev.bp1,
+          [field]: !prev.bp1[field]
+        }
+      }));
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const numValue = value === '' ? undefined : parseFloat(value);
+    const numberValue = value === '' ? undefined : parseFloat(value);
     
     setFormData(prev => ({
       ...prev,
       bp1: {
         ...prev.bp1,
-        [name]: numValue
+        [name]: numberValue
       }
     }));
   };
@@ -56,158 +49,181 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
   };
 
   return (
-    <GlassmorphicCard>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <Factory className="mr-2 h-5 w-5 text-gray-600" />
-          <h3 className="text-xl font-semibold">BP1 - Ricavi in alcuni settori</h3>
-        </div>
-        <SectionAutoSaveIndicator 
-          needsSaving={needsSaving} 
-          lastSaved={lastSaved} 
-        />
-      </div>
-      
-      <div className="space-y-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Indica se l'impresa è attiva in uno o più dei seguenti settori e, in caso affermativo, i relativi ricavi.
-        </p>
-        
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="controversialWeapons" 
-              checked={bp1Data.controversialWeapons} 
-              onCheckedChange={checked => handleCheckboxChange('controversialWeapons', !!checked)} 
-            />
-            <Label htmlFor="controversialWeapons">
-              Armi controverse (mine antiuomo, munizioni a grappolo, armi chimiche e biologiche)
-            </Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="tobacco" 
-              checked={bp1Data.tobacco} 
-              onCheckedChange={checked => handleCheckboxChange('tobacco', !!checked)} 
-            />
-            <Label htmlFor="tobacco">Coltivazione e produzione di tabacco</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="fossilFuels" 
-              checked={bp1Data.fossilFuels} 
-              onCheckedChange={checked => handleCheckboxChange('fossilFuels', !!checked)} 
-            />
-            <Label htmlFor="fossilFuels">
-              Settore dei combustibili fossili (carbone, petrolio e gas)
-            </Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="chemicals" 
-              checked={bp1Data.chemicals} 
-              onCheckedChange={checked => handleCheckboxChange('chemicals', !!checked)} 
-            />
-            <Label htmlFor="chemicals">
-              Produzione di sostanze chimiche (divisione 20.2 dell'allegato I del Regolamento CE n. 1893/2006)
-            </Label>
-          </div>
-        </div>
-        
-        <Separator className="my-4" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="controversialWeaponsRevenue">Ricavi da armi controverse (€)</Label>
-            <Input 
-              id="controversialWeaponsRevenue" 
-              name="controversialWeaponsRevenue" 
-              type="number" 
-              placeholder="0.0" 
-              value={bp1Data.controversialWeaponsRevenue?.toString() || ""} 
-              onChange={handleInputChange} 
-              disabled={!bp1Data.controversialWeapons} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="tobaccoRevenue">Ricavi da tabacco (€)</Label>
-            <Input 
-              id="tobaccoRevenue" 
-              name="tobaccoRevenue" 
-              type="number" 
-              placeholder="0.0" 
-              value={bp1Data.tobaccoRevenue?.toString() || ""} 
-              onChange={handleInputChange} 
-              disabled={!bp1Data.tobacco} 
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="coalRevenue">Ricavi da carbone (€)</Label>
-            <Input 
-              id="coalRevenue" 
-              name="coalRevenue" 
-              type="number" 
-              placeholder="0.0" 
-              value={bp1Data.coalRevenue?.toString() || ""} 
-              onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="oilRevenue">Ricavi da petrolio (€)</Label>
-            <Input 
-              id="oilRevenue" 
-              name="oilRevenue" 
-              type="number" 
-              placeholder="0.0" 
-              value={bp1Data.oilRevenue?.toString() || ""} 
-              onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="gasRevenue">Ricavi da gas (€)</Label>
-            <Input 
-              id="gasRevenue" 
-              name="gasRevenue" 
-              type="number" 
-              placeholder="0.0" 
-              value={bp1Data.gasRevenue?.toString() || ""} 
-              onChange={handleInputChange} 
-              disabled={!bp1Data.fossilFuels} 
-            />
-          </div>
-        </div>
-        
-        <div>
-          <Label htmlFor="chemicalsRevenue">Ricavi da produzione di sostanze chimiche (€)</Label>
-          <Input 
-            id="chemicalsRevenue" 
-            name="chemicalsRevenue" 
-            type="number" 
-            placeholder="0.0" 
-            value={bp1Data.chemicalsRevenue?.toString() || ""} 
-            onChange={handleInputChange} 
-            disabled={!bp1Data.chemicals} 
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-lg font-medium">
+          BP1 - Settori di ricavo controversi
+        </CardTitle>
+        <div className="flex items-center space-x-2">
+          <SectionAutoSaveIndicator 
+            needsSaving={needsSaving} 
+            lastSaved={lastSaved} 
           />
         </div>
-        
-        <div className="flex justify-start mt-4">
-          <SaveButton onClick={handleSave}>
-            Salva dati ricavi
-          </SaveButton>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="controversial-weapons" className="flex-1">
+                Armi controverse
+              </Label>
+              <Switch
+                id="controversial-weapons"
+                checked={bp1.controversialWeapons}
+                onCheckedChange={() => handleSwitchChange('controversialWeapons')}
+              />
+            </div>
+            
+            {bp1.controversialWeapons && (
+              <div>
+                <Label htmlFor="controversial-weapons-revenue">Percentuale di ricavi (%)</Label>
+                <Input
+                  id="controversial-weapons-revenue"
+                  name="controversialWeaponsRevenue"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={bp1.controversialWeaponsRevenue || ''}
+                  onChange={handleInputChange}
+                  placeholder="% dei ricavi"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="tobacco" className="flex-1">
+                Tabacco
+              </Label>
+              <Switch
+                id="tobacco"
+                checked={bp1.tobacco}
+                onCheckedChange={() => handleSwitchChange('tobacco')}
+              />
+            </div>
+            
+            {bp1.tobacco && (
+              <div>
+                <Label htmlFor="tobacco-revenue">Percentuale di ricavi (%)</Label>
+                <Input
+                  id="tobacco-revenue"
+                  name="tobaccoRevenue"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={bp1.tobaccoRevenue || ''}
+                  onChange={handleInputChange}
+                  placeholder="% dei ricavi"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="fossil-fuels" className="flex-1">
+                Combustibili fossili
+              </Label>
+              <Switch
+                id="fossil-fuels"
+                checked={bp1.fossilFuels}
+                onCheckedChange={() => handleSwitchChange('fossilFuels')}
+              />
+            </div>
+            
+            {bp1.fossilFuels && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="coal-revenue">Percentuale di ricavi da carbone (%)</Label>
+                  <Input
+                    id="coal-revenue"
+                    name="coalRevenue"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={bp1.coalRevenue || ''}
+                    onChange={handleInputChange}
+                    placeholder="% dei ricavi"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="oil-revenue">Percentuale di ricavi da petrolio (%)</Label>
+                  <Input
+                    id="oil-revenue"
+                    name="oilRevenue"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={bp1.oilRevenue || ''}
+                    onChange={handleInputChange}
+                    placeholder="% dei ricavi"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="gas-revenue">Percentuale di ricavi da gas (%)</Label>
+                  <Input
+                    id="gas-revenue"
+                    name="gasRevenue"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={bp1.gasRevenue || ''}
+                    onChange={handleInputChange}
+                    placeholder="% dei ricavi"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="chemicals" className="flex-1">
+                Prodotti chimici
+              </Label>
+              <Switch
+                id="chemicals"
+                checked={bp1.chemicals}
+                onCheckedChange={() => handleSwitchChange('chemicals')}
+              />
+            </div>
+            
+            {bp1.chemicals && (
+              <div>
+                <Label htmlFor="chemicals-revenue">Percentuale di ricavi (%)</Label>
+                <Input
+                  id="chemicals-revenue"
+                  name="chemicalsRevenue"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={bp1.chemicalsRevenue || ''}
+                  onChange={handleInputChange}
+                  placeholder="% dei ricavi"
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </GlassmorphicCard>
+
+        <div className="flex justify-end mt-6">
+          <SaveButton 
+            onClick={handleSave} 
+            isLoading={isLoading}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

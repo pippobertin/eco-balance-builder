@@ -1,9 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from 'react-router-dom';
 import { useReport } from '@/hooks/use-report-context';
 import { useBusinessPartnersData } from './hooks/useBusinessPartnersData';
 import BP1RevenueSectors from './BP1RevenueSectors';
+import { Card, CardContent } from '@/components/ui/card';
+import SaveButton from './components/SaveButton';
+import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
 
 interface BusinessPartnersMetricsProps {
   formValues: any;
@@ -47,6 +51,30 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ formV
     return await bpData.saveData();
   };
 
+  // Function to create placeholder modules that include save buttons and indicators
+  const createPlaceholderModule = (bpKey: string, title: string) => {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">{title}</h3>
+            <SectionAutoSaveIndicator 
+              needsSaving={bpData.needsSaving[bpKey]} 
+              lastSaved={bpData.lastSaved[bpKey]}
+            />
+          </div>
+          <p className="text-gray-500 mb-6">Implementazione futura</p>
+          <div className="flex justify-end">
+            <SaveButton 
+              onClick={() => saveDataForModule(bpKey)}
+              isLoading={bpData.isLoading}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Partner Commerciali</h1>
@@ -84,63 +112,43 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ formV
           </TabsContent>
 
           <TabsContent value="bp2">
-            <div className="p-4 border rounded-md">
-              <p>BP2 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp2', 'BP2 - Diversità di genere')}
           </TabsContent>
           
           <TabsContent value="bp3">
-            <div className="p-4 border rounded-md">
-              <p>BP3 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp3', 'BP3 - Obiettivi di riduzione GHG')}
           </TabsContent>
           
           <TabsContent value="bp4">
-            <div className="p-4 border rounded-md">
-              <p>BP4 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp4', 'BP4 - Piano di transizione')}
           </TabsContent>
           
           <TabsContent value="bp5">
-            <div className="p-4 border rounded-md">
-              <p>BP5 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp5', 'BP5 - Rischi fisici del clima')}
           </TabsContent>
           
           <TabsContent value="bp6">
-            <div className="p-4 border rounded-md">
-              <p>BP6 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp6', 'BP6 - Rifiuti pericolosi')}
           </TabsContent>
           
           <TabsContent value="bp7">
-            <div className="p-4 border rounded-md">
-              <p>BP7 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp7', 'BP7 - Allineamento delle politiche')}
           </TabsContent>
           
           <TabsContent value="bp8">
-            <div className="p-4 border rounded-md">
-              <p>BP8 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp8', 'BP8 - Processi di compliance')}
           </TabsContent>
           
           <TabsContent value="bp9">
-            <div className="p-4 border rounded-md">
-              <p>BP9 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp9', 'BP9 - Violazioni')}
           </TabsContent>
           
           <TabsContent value="bp10">
-            <div className="p-4 border rounded-md">
-              <p>BP10 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp10', 'BP10 - Equilibrio vita-lavoro')}
           </TabsContent>
           
           <TabsContent value="bp11">
-            <div className="p-4 border rounded-md">
-              <p>BP11 - Forthcoming implementation</p>
-            </div>
+            {createPlaceholderModule('bp11', 'BP11 - Apprendisti')}
           </TabsContent>
         </div>
       </Tabs>

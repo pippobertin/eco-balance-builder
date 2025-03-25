@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SaveButtonProps } from '../hooks/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 
 const SaveButton: React.FC<SaveButtonProps> = ({ 
   onClick, 
@@ -27,7 +27,11 @@ const SaveButton: React.FC<SaveButtonProps> = ({
       disabled={isLoading}
       className={`flex items-center gap-2 ${className}`}
     >
-      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Save className="h-4 w-4" />
+      )}
       {children}
     </Button>
   );
