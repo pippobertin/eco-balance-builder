@@ -3,17 +3,19 @@ import React from 'react';
 import { SectorCheckbox } from './SectorCheckbox';
 import { RevenueInput } from './RevenueInput';
 
+interface RevenueSectionProps {
+  id: string;
+  label: string;
+  value: number | string;
+  onChange: (value: number | undefined) => void;
+}
+
 interface SectorGroupProps {
   checkboxId: string;
   checkboxLabel: string;
   isChecked: boolean;
   onCheckboxChange: () => void;
-  revenueSections?: Array<{
-    id: string;
-    label: string;
-    value: number | string;
-    onChange: (value: number | undefined) => void;
-  }>;
+  revenueSections: RevenueSectionProps[];
 }
 
 export const SectorGroup: React.FC<SectorGroupProps> = ({
@@ -21,10 +23,10 @@ export const SectorGroup: React.FC<SectorGroupProps> = ({
   checkboxLabel,
   isChecked,
   onCheckboxChange,
-  revenueSections = []
+  revenueSections
 }) => {
   return (
-    <div className="space-y-2">
+    <div className="mb-6 border-b pb-4 last:border-b-0">
       <SectorCheckbox
         id={checkboxId}
         label={checkboxLabel}
@@ -33,7 +35,7 @@ export const SectorGroup: React.FC<SectorGroupProps> = ({
       />
       
       {isChecked && revenueSections.length > 0 && (
-        <div className="space-y-2 pl-6 mt-2">
+        <div className="mt-4 pl-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           {revenueSections.map((section) => (
             <RevenueInput
               key={section.id}

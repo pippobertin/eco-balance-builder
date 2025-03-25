@@ -1,7 +1,6 @@
+
 import React from 'react';
 import { Tab } from '@headlessui/react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import BP1RevenueSectors from './BP1RevenueSectors';
 import BP2GenderDiversity from './BP2GenderDiversity';
 import BP3GHGTargets from './BP3GHGTargets';
@@ -15,12 +14,9 @@ import BP10WorkLifeBalance from './BP10WorkLifeBalance';
 import BP11Apprentices from './BP11Apprentices';
 import { useReport } from '@/hooks/use-report-context';
 import { useBusinessPartnersData } from './hooks';
+import { TabNavigation, NavigationButtons, TabDefinition } from './components';
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
-const tabs = [
+const tabs: TabDefinition[] = [
   { id: 'bp1', name: 'BP1 - Settori Specifici' },
   { id: 'bp2', name: 'BP2 - Diversità di Genere' },
   { id: 'bp3', name: 'BP3 - Obiettivi GHG' },
@@ -88,23 +84,11 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
   return (
     <div className="w-full">
       <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-        <Tab.List className="flex space-x-1 overflow-x-auto pb-2 border-b border-gray-200">
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.id}
-              className={({ selected }) =>
-                classNames(
-                  'px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap',
-                  selected
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                )
-              }
-            >
-              {tab.name}
-            </Tab>
-          ))}
-        </Tab.List>
+        <TabNavigation 
+          tabs={tabs} 
+          selectedIndex={selectedIndex} 
+          onChange={setSelectedIndex} 
+        />
         
         <Tab.Panels className="mt-4">
           <Tab.Panel>
@@ -230,27 +214,12 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
         </Tab.Panels>
       </Tab.Group>
       
-      <div className="flex justify-between mt-8">
-        <Button
-          onClick={goToPrevTab}
-          disabled={selectedIndex === 0}
-          variant="outline"
-          className="flex items-center"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Sezione precedente
-        </Button>
-        
-        <Button
-          onClick={goToNextTab}
-          disabled={selectedIndex === tabs.length - 1}
-          variant="outline"
-          className="flex items-center"
-        >
-          Prossima sezione
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+      <NavigationButtons 
+        goToPrevTab={goToPrevTab}
+        goToNextTab={goToNextTab}
+        isPrevDisabled={selectedIndex === 0}
+        isNextDisabled={selectedIndex === tabs.length - 1}
+      />
     </div>
   );
 };
