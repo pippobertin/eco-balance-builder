@@ -1,19 +1,22 @@
+
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { useReport } from '@/hooks/use-report-context';
 import { useBusinessPartnersData } from './hooks';
-import BP1RevenueSectors from './BP1RevenueSectors';
-import BP2GenderDiversity from './BP2GenderDiversity';
-import BP3GHGTargets from './BP3GHGTargets';
-import BP4TransitionPlan from './BP4TransitionPlan';
-import BP5PhysicalRisks from './BP5PhysicalRisks';
-import BP6HazardousWaste from './BP6HazardousWaste';
-import BP7PolicyAlignment from './BP7PolicyAlignment';
-import BP8ComplianceProcesses from './BP8ComplianceProcesses';
-import BP9Violations from './BP9Violations';
-import BP10WorkLifeBalance from './BP10WorkLifeBalance';
-import BP11Apprentices from './BP11Apprentices';
+import { 
+  BP1RevenueSectors,
+  BP2GenderDiversity,
+  BP3GHGTargets,
+  BP4TransitionPlan,
+  BP5PhysicalRisks,
+  BP6HazardousWaste,
+  BP7PolicyAlignment,
+  BP8ComplianceProcesses,
+  BP9Violations,
+  BP10WorkLifeBalance,
+  BP11Apprentices
+} from './';
 
 interface BusinessPartnersMetricsProps {
   reportId: string;
