@@ -13,9 +13,14 @@ export const useBusinessPartnersChanges = (
   // Monitora i cambiamenti nel formData per impostare lo stato needsSaving
   useEffect(() => {
     // Non aggiornare needsSaving durante il caricamento iniziale
-    if (isLoading) return;
+    if (isLoading) {
+      console.log('Skipping changes check during loading');
+      return;
+    }
     
     console.log('Checking for Business Partners form changes');
+    console.log('Current formData:', formData);
+    console.log('Previous formData:', prevDataRef.current);
     
     // Controlla se il prevDataRef è già stato inizializzato
     if (prevDataRef.current) {
@@ -24,6 +29,8 @@ export const useBusinessPartnersChanges = (
       // Controlla BP1
       needsSavingMap.bp1 = JSON.stringify(prevDataRef.current.bp1) !== JSON.stringify(formData.bp1);
       console.log('BP1 needs saving:', needsSavingMap.bp1);
+      console.log('BP1 previous:', prevDataRef.current.bp1);
+      console.log('BP1 current:', formData.bp1);
       
       // Controlla BP2
       needsSavingMap.bp2 = JSON.stringify(prevDataRef.current.bp2) !== JSON.stringify(formData.bp2);
@@ -57,9 +64,12 @@ export const useBusinessPartnersChanges = (
       
       console.log('Needs saving map:', needsSavingMap);
       setNeedsSaving(needsSavingMap);
+    } else {
+      console.log('Previous data not yet initialized, setting initial state');
     }
     
     // Aggiorna il prevDataRef con i dati correnti
     prevDataRef.current = { ...formData };
+    console.log('Updated previous data reference');
   }, [formData, isLoading, setNeedsSaving]);
 };

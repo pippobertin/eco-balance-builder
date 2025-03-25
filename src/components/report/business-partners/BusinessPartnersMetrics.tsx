@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tab } from '@headlessui/react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -43,7 +42,6 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
   const { currentReport } = useReport();
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   
-  // Usa il hook per gestire i dati dei business partners
   const {
     formData,
     setFormData,
@@ -53,7 +51,9 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
     needsSaving
   } = useBusinessPartnersData(currentReport?.id || '');
 
-  // Imposta l'indice della tab in base al campo attivo
+  console.log('BusinessPartnersMetrics - needsSaving:', needsSaving);
+  console.log('BusinessPartnersMetrics - lastSaved:', lastSaved);
+
   React.useEffect(() => {
     if (activeField) {
       const index = tabs.findIndex(tab => tab.id === activeField);
@@ -63,7 +63,6 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
     }
   }, [activeField]);
 
-  // Funzioni per navigare tra le tab
   const goToNextTab = () => {
     setSelectedIndex((prev) => Math.min(prev + 1, tabs.length - 1));
   };
@@ -72,15 +71,14 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({ activ
     setSelectedIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  // Funzione per aggiornare un singolo campo
   const updateFormSection = (section: string, data: any) => {
+    console.log(`Updating form section ${section} with:`, data);
     setFormData(prev => ({
       ...prev,
       [section]: data
     }));
   };
 
-  // Funzione per salvare la sezione corrente
   const saveCurrentSection = async (): Promise<boolean> => {
     const currentTabId = tabs[selectedIndex].id;
     console.log(`Saving data for section: ${currentTabId}`);

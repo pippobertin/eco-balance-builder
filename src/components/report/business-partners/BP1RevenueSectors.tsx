@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BP1FormData } from './hooks/types';
 import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import AutoSaveIndicator from '@/components/report/AutoSaveIndicator';
 
 interface BP1RevenueSectorsProps {
   formData: BP1FormData;
@@ -46,7 +46,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
           BP1 - Settori collegati a combustibili fossili
         </CardTitle>
         <div className="flex items-center gap-2">
-          <SectionAutoSaveIndicator 
+          <AutoSaveIndicator 
             needsSaving={needsSaving} 
             lastSaved={lastSaved} 
           />
@@ -196,7 +196,6 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({
             <SaveButton
               onClick={saveData}
               isLoading={isLoading}
-              className="ml-auto"
             >
               Salva dati settori di ricavo
             </SaveButton>
