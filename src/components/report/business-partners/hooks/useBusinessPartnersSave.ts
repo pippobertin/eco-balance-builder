@@ -143,7 +143,7 @@ export const useBusinessPartnersSave = (
             adaptation_coverage: formData.bp5.adaptationCoverage,
             revenue_at_risk_percentage: formData.bp5.revenueAtRiskPercentage,
             risk_assets_location: formData.bp5.riskAssetsLocation,
-            real_estate_energy_efficiency: formData.bp5.realEstateEnergyEfficiency, // Ora correttamente gestito come stringa
+            real_estate_energy_efficiency: formData.bp5.realEstateEnergyEfficiency, 
             updated_at: now.toISOString()
           }, { onConflict: 'report_id' });
           

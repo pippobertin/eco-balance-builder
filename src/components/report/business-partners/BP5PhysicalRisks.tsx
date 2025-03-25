@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BP5FormData } from './hooks/types';
-import { SaveButton } from './components/index';
-import { SectionAutoSaveIndicator } from './components/index';
+import { SaveButton } from './components/SaveButton';
+import { SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
 
 interface BP5PhysicalRisksProps {
   formData: BP5FormData;

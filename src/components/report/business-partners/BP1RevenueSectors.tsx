@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BP1FormData } from './hooks/types';
-import SaveButton from './components/SaveButton';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import { SaveButton } from './components/SaveButton';
+import { SectionAutoSaveIndicator } from './components/SectionAutoSaveIndicator';
 
 interface BP1RevenueSectorsProps {
   formData: BP1FormData;

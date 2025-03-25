@@ -15,6 +15,8 @@ export const useBusinessPartnersChanges = (
     // Non aggiornare needsSaving durante il caricamento iniziale
     if (isLoading) return;
     
+    console.log('Checking for Business Partners form changes');
+    
     // Controlla se il prevDataRef è già stato inizializzato
     if (prevDataRef.current) {
       const needsSavingMap: Record<string, boolean> = {};
@@ -52,6 +54,7 @@ export const useBusinessPartnersChanges = (
       // Controlla BP11
       needsSavingMap.bp11 = JSON.stringify(prevDataRef.current.bp11) !== JSON.stringify(formData.bp11);
       
+      console.log('Needs saving map:', needsSavingMap);
       setNeedsSaving(needsSavingMap);
     }
     
