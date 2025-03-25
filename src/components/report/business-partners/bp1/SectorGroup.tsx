@@ -26,16 +26,16 @@ export const SectorGroup: React.FC<SectorGroupProps> = ({
   revenueSections
 }) => {
   return (
-    <div className="mb-6 border-b pb-4 last:border-b-0">
+    <div className="space-y-3">
       <SectorCheckbox
         id={checkboxId}
         label={checkboxLabel}
         checked={isChecked}
-        onCheckedChange={onCheckboxChange}
+        onChange={onCheckboxChange}
       />
       
       {isChecked && revenueSections.length > 0 && (
-        <div className="mt-4 pl-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="pl-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           {revenueSections.map((section) => (
             <RevenueInput
               key={section.id}

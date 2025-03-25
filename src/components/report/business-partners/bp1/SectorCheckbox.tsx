@@ -7,23 +7,26 @@ interface SectorCheckboxProps {
   id: string;
   label: string;
   checked: boolean;
-  onCheckedChange: () => void;
+  onChange: () => void;
 }
 
 export const SectorCheckbox: React.FC<SectorCheckboxProps> = ({
   id,
   label,
   checked,
-  onCheckedChange
+  onChange
 }) => {
   return (
-    <div className="flex items-center gap-2">
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={onCheckedChange}
+    <div className="flex items-start space-x-2">
+      <Checkbox 
+        id={id} 
+        checked={checked} 
+        onCheckedChange={onChange} 
+        className="mt-1"
       />
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="cursor-pointer text-sm">
+        {label}
+      </Label>
     </div>
   );
 };

@@ -1,33 +1,40 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface RevenueInputProps {
   id: string;
   label: string;
   value: number | string;
   onChange: (value: number | undefined) => void;
+  disabled?: boolean;
 }
 
 export const RevenueInput: React.FC<RevenueInputProps> = ({
   id,
   label,
   value,
-  onChange
+  onChange,
+  disabled = false
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value === '' ? undefined : parseFloat(e.target.value);
+    onChange(newValue);
+  };
+
   return (
-    <div>
+    <div className="space-y-1.5">
       <Label htmlFor={id} className="text-sm">
         {label}
       </Label>
       <Input
         id={id}
         type="number"
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-        placeholder="Percentuale dei ricavi"
-        className="mt-1"
+        value={value === undefined ? '' : value}
+        onChange={handleChange}
+        placeholder="0"
+        disabled={disabled}
       />
     </div>
   );
