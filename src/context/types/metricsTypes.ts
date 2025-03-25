@@ -7,6 +7,9 @@ export interface LocationEnvironmentalMetrics {
   id: string;
   name: string;
   address?: string;
+  location_id?: string; // Added to match database schema
+  location_name?: string; // Added to match database schema
+  location_type?: string; // Added to match database schema
   metrics: Record<string, any>;
 }
 
