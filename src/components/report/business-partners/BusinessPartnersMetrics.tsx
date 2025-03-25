@@ -3,46 +3,11 @@ import { useReport } from '@/context/ReportContext';
 import { Info } from 'lucide-react';
 import BP1RevenueSectors from './BP1RevenueSectors';
 
-interface BusinessPartnersMetricsProps {
-  formValues: any;
-  setFormValues: React.Dispatch<React.SetStateAction<any>>;
-  reportId: string;
-}
-
-const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
-  formValues,
-  setFormValues,
-  reportId
-}) => {
-  // Use the custom hook to handle business partners data
-  const {
-    formData,
-    setFormData,
-    isLoading,
-    saveData,
-    lastSaved,
-    needsSaving
-  } = useBusinessPartnersData(reportId);
-
-  // Update the global form values when our local state changes
-  React.useEffect(() => {
-    if (!isLoading) {
-      setFormValues((prev: any) => ({
-        ...prev,
-        businessPartnersMetrics: formData
-      }));
-    }
-  }, [formData, isLoading, setFormValues]);
-
-  // Initialize our local state from global form values if available
-  React.useEffect(() => {
-    if (formValues.businessPartnersMetrics && Object.keys(formValues.businessPartnersMetrics).length > 0) {
-      setFormData(formValues.businessPartnersMetrics);
-    }
-  }, []);
-
-  if (isLoading) {
-    return <div className="p-4">Caricamento dati...</div>;
+const BusinessPartnersMetrics: React.FC = () => {
+  const { currentReport } = useReport();
+  
+  if (!currentReport) {
+    return <div className="p-4">Nessun report selezionato</div>;
   }
 
   return (
@@ -59,16 +24,9 @@ const BusinessPartnersMetrics: React.FC<BusinessPartnersMetricsProps> = ({
       </div>
 
       {/* BP1 - Ricavi in alcuni settori */}
-      <BP1RevenueSectors 
-        formData={formData}
-        setFormData={setFormData}
-        saveData={saveData}
-        lastSaved={lastSaved.bp1}
-        needsSaving={needsSaving.bp1}
-        bpKey="bp1"
-      />
+      <BP1RevenueSectors reportId={currentReport.id} />
       
-      {/* Other BP modules will be added here */}
+      {/* Altri moduli BP verranno aggiunti qui, uno per ciascun modulo BP2-BP11 */}
     </div>
   );
 };
