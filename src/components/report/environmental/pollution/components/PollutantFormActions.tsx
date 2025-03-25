@@ -1,57 +1,47 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Loader2, PenLine } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface PollutantFormActionsProps {
   isEditing: boolean;
   isSubmitting: boolean;
   onCancel?: () => void;
-  isValid: boolean;
+  isValid?: boolean;
 }
 
 const PollutantFormActions: React.FC<PollutantFormActionsProps> = ({
   isEditing,
   isSubmitting,
   onCancel,
-  isValid
+  isValid = true
 }) => {
   return (
-    <div className="flex gap-2">
-      <Button 
-        type="submit" 
-        disabled={!isValid || isSubmitting} 
-        className="flex-1"
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isEditing ? 'Aggiornamento...' : 'Salvataggio...'}
-          </>
-        ) : (
-          <>
-            {isEditing ? (
-              <>
-                <PenLine className="mr-2 h-4 w-4" />
-                Aggiorna Inquinante
-              </>
-            ) : (
-              'Aggiungi Inquinante'
-            )}
-          </>
-        )}
-      </Button>
-      
+    <div className="flex justify-end space-x-2">
       {isEditing && onCancel && (
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
         >
           Annulla
         </Button>
       )}
+      
+      <Button
+        type="submit"
+        disabled={isSubmitting || !isValid}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {isEditing ? "Salvataggio..." : "Aggiunta..."}
+          </>
+        ) : (
+          isEditing ? "Aggiorna" : "Aggiungi"
+        )}
+      </Button>
     </div>
   );
 };

@@ -22,7 +22,7 @@ const PollutionSection: React.FC<PollutionSectionProps> = ({
       
       <SectionAutoSaveIndicator className="mb-4" />
       
-      <div className="space-y-6 mt-6"> {/* Added mt-6 to create space after auto-save indicator */}
+      <div className="space-y-6 mt-6">
         <PollutionMetrics 
           formValues={formValues} 
           setFormValues={setFormValues} 

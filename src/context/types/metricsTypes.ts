@@ -1,8 +1,49 @@
 
 import { BP1FormData, BP2FormData, BP3FormData, BP4FormData, BP5FormData, BP6FormData, BP7FormData, BP8FormData, BP9FormData, BP10FormData, BP11FormData } from '@/components/report/business-partners/hooks/types';
+import { PollutionRecord } from '@/components/report/environmental/hooks/pollution/types';
 
 // Environmental metrics
+export interface LocationEnvironmentalMetrics {
+  id: string;
+  name: string;
+  address?: string;
+  metrics: Record<string, any>;
+}
+
 export interface EnvironmentalMetrics {
+  // GHG Emissions
+  totalScope1Emissions?: number;
+  totalScope2Emissions?: number;
+  totalScope3Emissions?: number;
+  totalScopeEmissions?: number;
+  emissionCalculationLogs?: any;
+  
+  // Pollution
+  pollutionRecords?: PollutionRecord[];
+  
+  // Water
+  waterUsage?: number;
+  waterConsumption?: number;
+  waterStressAreas?: number;
+  
+  // Land use and biodiversity
+  landUse?: number;
+  impermeableSurface?: number;
+  natureSurfaceOnSite?: number;
+  natureSurfaceOffSite?: number;
+  
+  // Waste
+  totalWaste?: number;
+  recycledWaste?: number;
+  hazardousWaste?: number;
+  
+  // Circular economy
+  recycledContent?: number;
+  recyclableContent?: number;
+  
+  // Location-specific metrics
+  locationMetrics?: LocationEnvironmentalMetrics[];
+  
   [key: string]: any;
 }
 

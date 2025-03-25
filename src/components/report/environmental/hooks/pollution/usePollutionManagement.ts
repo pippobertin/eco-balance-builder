@@ -1,114 +1,145 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { PollutionRecord } from './types';
 
-interface UsePollutionManagementProps {
-  reportId: string | undefined;
-}
-
-export const usePollutionManagement = ({ reportId }: UsePollutionManagementProps) => {
-  const [details, setDetails] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+export const usePollutionManagement = (
+  reportId?: string,
+  onRecordAdded?: () => void,
+  onRecordUpdated?: () => void,
+  onRecordDeleted?: () => void
+) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Load pollution management details
-  useEffect(() => {
-    if (reportId) {
-      loadDetails();
+  // Add a new pollution record
+  const addRecord = async (record: PollutionRecord): Promise<PollutionRecord | null> => {
+    if (!reportId) {
+      toast({
+        title: 'Errore',
+        description: 'ID report mancante. Impossibile salvare.',
+        variant: 'destructive',
+      });
+      return null;
     }
-  }, [reportId]);
-
-  // Load details from the database
-  const loadDetails = async () => {
-    if (!reportId) return;
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const { data, error } = await supabase
-        .from('pollution_management_details')
-        .select('details')
-        .eq('report_id', reportId)
-        .single();
+        .from('pollution_records')
+        .insert([{
+          ...record,
+          report_id: reportId
+        }])
+        .select();
       
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "row not found" error
-        throw error;
-      }
+      if (error) throw error;
       
-      if (data) {
-        setDetails(data.details || '');
+      if (data && data.length > 0) {
+        toast({
+          title: 'Successo',
+          description: 'Inquinante aggiunto con successo',
+        });
+        
+        if (onRecordAdded) onRecordAdded();
+        return data[0] as PollutionRecord;
       }
+      return null;
     } catch (error) {
-      console.error('Error loading pollution management details:', error);
+      console.error('Error adding pollution record:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiungere l\'inquinante',
+        variant: 'destructive',
+      });
+      return null;
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // Save details to the database
-  const saveDetails = async (newDetails: string): Promise<boolean> => {
-    if (!reportId) return false;
+  // Update an existing pollution record
+  const updateRecord = async (record: PollutionRecord): Promise<PollutionRecord | null> => {
+    if (!record.id) {
+      toast({
+        title: 'Errore',
+        description: 'ID record mancante. Impossibile aggiornare.',
+        variant: 'destructive',
+      });
+      return null;
+    }
     
-    setIsSaving(true);
+    setIsSubmitting(true);
     try {
-      // Check if record exists
-      const { data: existingData } = await supabase
-        .from('pollution_management_details')
-        .select('id')
-        .eq('report_id', reportId)
-        .single();
+      const { data, error } = await supabase
+        .from('pollution_records')
+        .update({
+          pollutant_type_id: record.pollutant_type_id,
+          release_medium_id: record.release_medium_id,
+          quantity: record.quantity,
+          details: record.details
+        })
+        .eq('id', record.id)
+        .select();
       
-      let result;
+      if (error) throw error;
       
-      if (existingData) {
-        // Update existing record
-        result = await supabase
-          .from('pollution_management_details')
-          .update({
-            details: newDetails,
-            updated_at: new Date().toISOString()
-          })
-          .eq('report_id', reportId);
-      } else {
-        // Insert new record
-        result = await supabase
-          .from('pollution_management_details')
-          .insert({
-            report_id: reportId,
-            details: newDetails
-          });
+      if (data && data.length > 0) {
+        toast({
+          title: 'Successo',
+          description: 'Inquinante aggiornato con successo',
+        });
+        
+        if (onRecordUpdated) onRecordUpdated();
+        return data[0] as PollutionRecord;
       }
+      return null;
+    } catch (error) {
+      console.error('Error updating pollution record:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiornare l\'inquinante',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Delete a pollution record
+  const deleteRecord = async (recordId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('pollution_records')
+        .delete()
+        .eq('id', recordId);
       
-      if (result.error) throw result.error;
-      
-      // Update local state
-      setDetails(newDetails);
+      if (error) throw error;
       
       toast({
-        title: "Salvato con successo",
-        description: "I dettagli sul sistema di gestione degli inquinanti sono stati salvati",
+        title: 'Successo',
+        description: 'Inquinante rimosso con successo',
       });
       
+      if (onRecordDeleted) onRecordDeleted();
       return true;
     } catch (error) {
-      console.error('Error saving pollution management details:', error);
+      console.error('Error deleting pollution record:', error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio dei dettagli",
-        variant: "destructive"
+        title: 'Errore',
+        description: 'Impossibile rimuovere l\'inquinante',
+        variant: 'destructive',
       });
       return false;
-    } finally {
-      setIsSaving(false);
     }
   };
 
   return {
-    details,
-    setDetails,
-    isLoading,
-    isSaving,
-    saveDetails
+    isSubmitting,
+    addRecord,
+    updateRecord,
+    deleteRecord
   };
 };
