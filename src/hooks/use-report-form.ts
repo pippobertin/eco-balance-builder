@@ -14,9 +14,9 @@ export const useReportForm = () => {
   const [initialSection, setInitialSection] = useState<string | undefined>(undefined);
   const [initialField, setInitialField] = useState<string | undefined>(undefined);
   
-  const { currentReport, updateReport, needsSaving, saveCurrentReport } = useReport();
+  const { currentReport, updateReportData, needsSaving, saveCurrentReport } = useReport();
   
-  // Inizializza activeTab dal location state, se presente
+  // Initialize activeTab from location state if present
   useEffect(() => {
     if (location.state) {
       if (location.state.activeTab) {
@@ -32,7 +32,7 @@ export const useReportForm = () => {
       }
     }
     
-    // Reset dopo il primo render
+    // Reset after first render
     return () => {
       setInitialSection(undefined);
       setInitialField(undefined);
@@ -44,8 +44,8 @@ export const useReportForm = () => {
     if (currentReport) {
       setFormValues({
         // Basic info from report
-        companyName: currentReport.companyName || '',
-        fiscalYear: currentReport.fiscalYear || '',
+        companyName: currentReport.company?.name || '',
+        fiscalYear: currentReport.report_year || '',
         // ... altre proprietà
       });
       
@@ -55,8 +55,8 @@ export const useReportForm = () => {
       }
       
       // Set isConsolidated
-      if (currentReport.isConsolidated !== undefined) {
-        setIsConsolidated(currentReport.isConsolidated);
+      if (currentReport.is_consolidated !== undefined) {
+        setIsConsolidated(currentReport.is_consolidated);
       }
       
       // Set practices
@@ -77,7 +77,7 @@ export const useReportForm = () => {
         await saveMetrics();
       }
       
-      // Aggiornare UI per indicare che i dati sono stati salvati?
+      // Update UI to indicate data has been saved?
       return true;
     } catch (error) {
       console.error("Error saving report:", error);
@@ -91,15 +91,18 @@ export const useReportForm = () => {
     
     const updatedReport = {
       ...currentReport,
-      companyName: formValues.companyName || currentReport.companyName,
-      fiscalYear: formValues.fiscalYear || currentReport.fiscalYear,
-      isConsolidated,
+      company: {
+        ...currentReport.company,
+        name: formValues.companyName || currentReport.company?.name
+      },
+      report_year: formValues.fiscalYear || currentReport.report_year,
+      is_consolidated: isConsolidated,
       subsidiaries,
       sustainabilityPractices,
-      // Aggiungere altri campi secondo necessità
+      // Add other fields as needed
     };
     
-    await updateReport(updatedReport);
+    await updateReportData(updatedReport);
   };
   
   // Handle saving metrics
@@ -108,10 +111,10 @@ export const useReportForm = () => {
     
     const updatedReport = {
       ...currentReport,
-      // Aggiungere i campi di metriche qui
+      // Add metrics fields here
     };
     
-    await updateReport(updatedReport);
+    await updateReportData(updatedReport);
   };
   
   // Handle adding a subsidiary
