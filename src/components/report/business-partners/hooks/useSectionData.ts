@@ -17,6 +17,12 @@ export interface UseSectionDataOptions<T> {
   onDataLoaded?: (data: T) => void;
 }
 
+// Define a type for tables that we know have updated_at
+type TableWithTimestamps = {
+  updated_at: string;
+  [key: string]: any;
+};
+
 export function useSectionData<T>({ 
   reportId, 
   tableName, 
@@ -37,8 +43,9 @@ export function useSectionData<T>({
       setIsLoading(true);
       
       try {
+        // Use a type assertion to handle the dynamic table name
         const { data: fetchedData, error } = await supabase
-          .from(tableName)
+          .from(tableName as any)
           .select('*')
           .eq('report_id', reportId)
           .maybeSingle();
@@ -62,7 +69,8 @@ export function useSectionData<T>({
           setData(formattedData);
           if (onDataLoaded) onDataLoaded(formattedData);
           
-          if (fetchedData.updated_at) {
+          // Check if fetchedData has updated_at before trying to use it
+          if ('updated_at' in fetchedData) {
             setLastSaved(new Date(fetchedData.updated_at));
           }
         }
@@ -103,8 +111,9 @@ export function useSectionData<T>({
         return acc;
       }, {} as Record<string, any>);
       
+      // Use a type assertion to handle the dynamic table name
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .upsert({
           report_id: reportId,
           ...formattedData,
