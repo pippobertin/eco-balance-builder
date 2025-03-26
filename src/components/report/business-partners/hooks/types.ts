@@ -109,6 +109,7 @@ export interface BusinessPartnersFormData {
   bp11?: BP11FormData;
 }
 
+// Aggiornato per corrispondere all'implementazione effettiva
 export interface BusinessPartnersHookResult {
   data: BusinessPartnersFormData;
   updateData: (newData: Partial<BusinessPartnersFormData>) => void;

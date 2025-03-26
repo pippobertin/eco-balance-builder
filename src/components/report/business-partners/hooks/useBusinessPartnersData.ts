@@ -903,11 +903,19 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
     return success;
   };
 
+  // Aggiornata per corrispondere all'interfaccia BusinessPartnersHookResult
+  const updateData = (newData: Partial<BusinessPartnersFormData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...newData
+    }));
+  };
+
   return {
-    formData,
-    setFormData,
+    data: formData,
+    updateData,
+    saveAll: saveData,
     isLoading,
-    saveData,
     lastSaved,
     needsSaving
   };
