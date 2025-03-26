@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BP1FormData, BP1HookResult } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     const fetchData = async () => {
       if (!reportId) return;
       
+      console.log("Loading BP1 revenue sectors data for report:", reportId);
       setIsLoading(true);
       
       try {
@@ -30,6 +31,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
           .eq('report_id', reportId);
           
         if (!error && data && data.length > 0) {
+          console.log("BP1 revenue sectors data loaded:", data[0]);
           setFormData({
             controversialWeapons: data[0].controversial_weapons || false,
             tobacco: data[0].tobacco || false,
@@ -44,6 +46,9 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
           });
           
           setLastSaved(new Date(data[0].updated_at));
+          console.log("Setting lastSaved date to:", new Date(data[0].updated_at));
+        } else {
+          console.log("No BP1 data found or error occurred:", error);
         }
       } catch (error) {
         console.error("Error fetching BP1 data:", error);
@@ -60,13 +65,15 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   // Track changes and set needsSaving flag
   useEffect(() => {
     if (!isLoading) {
+      console.log("BP1 form data changed, setting needsSaving to true");
       setNeedsSaving(true);
     }
   }, [formData, isLoading]);
 
-  const saveData = async (): Promise<void> => {
-    if (!reportId) return;
+  const saveData = async (): Promise<boolean> => {
+    if (!reportId) return false;
     
+    console.log("Saving BP1 revenue sectors data for report:", reportId);
     setIsLoading(true);
     const now = new Date();
     
@@ -77,9 +84,13 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
         .select('id')
         .eq('report_id', reportId);
         
-      if (checkError) throw new Error(checkError.message);
+      if (checkError) {
+        console.error("Error checking for existing BP1 data:", checkError);
+        throw new Error(checkError.message);
+      }
       
       if (existingData && existingData.length > 0) {
+        console.log("Updating existing BP1 record");
         // Update existing record
         const { error } = await supabase
           .from('bp1_revenue_sectors')
@@ -98,8 +109,12 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
           })
           .eq('report_id', reportId);
           
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("Error updating BP1 data:", error);
+          throw new Error(error.message);
+        }
       } else {
+        console.log("Creating new BP1 record");
         // Insert new record
         const { error } = await supabase
           .from('bp1_revenue_sectors')
@@ -118,15 +133,21 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
             updated_at: now.toISOString()
           });
           
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("Error inserting BP1 data:", error);
+          throw new Error(error.message);
+        }
       }
       
+      console.log("BP1 data saved successfully, setting lastSaved to:", now);
       setLastSaved(now);
       setNeedsSaving(false);
       toast.success("Dati sui settori di ricavo salvati con successo");
+      return true;
     } catch (error: any) {
       console.error("Error saving BP1 data:", error);
       toast.error("Errore nel salvataggio dei dati sui settori di ricavo");
+      return false;
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,32 @@ interface BP1RevenueSectorsProps {
 
 const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP1Data(reportId);
+
+  // Log when component mounts with reportId
+  useEffect(() => {
+    console.log("BP1RevenueSectors component mounted with reportId:", reportId);
+    
+    // Log save indicator status for debugging
+    if (lastSaved) {
+      console.log("Initial lastSaved value:", lastSaved);
+    } else {
+      console.log("No initial lastSaved value");
+    }
+    
+    console.log("Initial needsSaving value:", needsSaving);
+  }, [reportId]);
+
+  // Log when lastSaved changes
+  useEffect(() => {
+    if (lastSaved) {
+      console.log("lastSaved updated to:", lastSaved);
+    }
+  }, [lastSaved]);
+
+  // Log when needsSaving changes
+  useEffect(() => {
+    console.log("needsSaving updated to:", needsSaving);
+  }, [needsSaving]);
 
   const handleCheckboxChange = (field: keyof typeof formData) => {
     setFormData(prev => ({
@@ -35,6 +61,12 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   const formatSaveTime = () => {
     if (!lastSaved) return "Non salvato";
     return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
+  };
+
+  const handleSave = async () => {
+    console.log("BP1 save button clicked");
+    const success = await saveData();
+    console.log("BP1 save result:", success, "lastSaved:", lastSaved);
   };
 
   const renderSaveIndicator = () => {
@@ -228,7 +260,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
 
           <div className="flex justify-end mt-6">
             <SaveButton
-              onClick={saveData}
+              onClick={handleSave}
               isLoading={isLoading}
               disabled={isLoading || !needsSaving}
             >
