@@ -7,10 +7,10 @@ import { BP10HookResult } from './types';
 
 export const useBP10Data = (reportId: string): BP10HookResult => {
   const [formData, setFormData] = useState<BP10FormData>({
-    maleParentalLeaveEligible: undefined,
-    femaleParentalLeaveEligible: undefined,
-    maleParentalLeaveUsed: undefined,
-    femaleParentalLeaveUsed: undefined
+    maleFamilyLeaveEligible: undefined,
+    femaleFamilyLeaveEligible: undefined,
+    maleFamilyLeaveUsed: undefined,
+    femaleFamilyLeaveUsed: undefined
   });
   
   const [isLoading, setIsLoading] = useState(true);
@@ -42,10 +42,10 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           console.log("BP10 data loaded:", data);
           // Map database columns to form fields
           setFormData({
-            maleParentalLeaveEligible: data.male_family_leave_eligible,
-            femaleParentalLeaveEligible: data.female_family_leave_eligible,
-            maleParentalLeaveUsed: data.male_family_leave_used,
-            femaleParentalLeaveUsed: data.female_family_leave_used
+            maleFamilyLeaveEligible: data.male_family_leave_eligible,
+            femaleFamilyLeaveEligible: data.female_family_leave_eligible,
+            maleFamilyLeaveUsed: data.male_family_leave_used,
+            femaleFamilyLeaveUsed: data.female_family_leave_used
           });
           setLastSaved(new Date(data.updated_at));
         }
@@ -93,39 +93,39 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       if (existingData && existingData.length > 0) {
         // Update existing record - Map form fields to database columns
         console.log("Updating BP10 data with:", {
-          male_family_leave_eligible: formData.maleParentalLeaveEligible,
-          female_family_leave_eligible: formData.femaleParentalLeaveEligible,
-          male_family_leave_used: formData.maleParentalLeaveUsed,
-          female_family_leave_used: formData.femaleParentalLeaveUsed
+          male_family_leave_eligible: formData.maleFamilyLeaveEligible,
+          female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
+          male_family_leave_used: formData.maleFamilyLeaveUsed,
+          female_family_leave_used: formData.femaleFamilyLeaveUsed
         });
         
         result = await supabase
           .from('bp10_work_life_balance')
           .update({
-            male_family_leave_eligible: formData.maleParentalLeaveEligible,
-            female_family_leave_eligible: formData.femaleParentalLeaveEligible,
-            male_family_leave_used: formData.maleParentalLeaveUsed,
-            female_family_leave_used: formData.femaleParentalLeaveUsed,
+            male_family_leave_eligible: formData.maleFamilyLeaveEligible,
+            female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
+            male_family_leave_used: formData.maleFamilyLeaveUsed,
+            female_family_leave_used: formData.femaleFamilyLeaveUsed,
             updated_at: now.toISOString()
           })
           .eq('report_id', reportId);
       } else {
         // Insert new record - Map form fields to database columns
         console.log("Inserting new BP10 record with:", {
-          male_family_leave_eligible: formData.maleParentalLeaveEligible,
-          female_family_leave_eligible: formData.femaleParentalLeaveEligible,
-          male_family_leave_used: formData.maleParentalLeaveUsed,
-          female_family_leave_used: formData.femaleParentalLeaveUsed
+          male_family_leave_eligible: formData.maleFamilyLeaveEligible,
+          female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
+          male_family_leave_used: formData.maleFamilyLeaveUsed,
+          female_family_leave_used: formData.femaleFamilyLeaveUsed
         });
         
         result = await supabase
           .from('bp10_work_life_balance')
           .insert({
             report_id: reportId,
-            male_family_leave_eligible: formData.maleParentalLeaveEligible,
-            female_family_leave_eligible: formData.femaleParentalLeaveEligible,
-            male_family_leave_used: formData.maleParentalLeaveUsed,
-            female_family_leave_used: formData.femaleParentalLeaveUsed,
+            male_family_leave_eligible: formData.maleFamilyLeaveEligible,
+            female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
+            male_family_leave_used: formData.maleFamilyLeaveUsed,
+            female_family_leave_used: formData.femaleFamilyLeaveUsed,
             updated_at: now.toISOString()
           });
       }

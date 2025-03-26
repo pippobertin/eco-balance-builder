@@ -35,10 +35,10 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span className="bg-orange-100 text-orange-700 p-1 rounded">BP10</span>
-          Equilibrio vita-lavoro e congedi parentali
+          Equilibrio vita-lavoro e congedi familiari
         </CardTitle>
         <CardDescription>
-          Indicare i dati sui congedi parentali, suddivisi per genere.
+          Indicare i dati sui congedi familiari, suddivisi per genere.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -46,57 +46,57 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
             <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
-              I dati sui congedi parentali sono indicativi dell'equilibrio tra vita lavorativa e vita privata offerto dall'impresa.
+              I dati sui congedi familiari sono indicativi dell'equilibrio tra vita lavorativa e vita privata offerto dall'impresa.
             </p>
           </div>
 
           <div className="space-y-4 p-4 border rounded-md">
-            <h3 className="text-lg font-medium">Lavoratori aventi diritto al congedo parentale</h3>
+            <h3 className="text-lg font-medium">Lavoratori aventi diritto al congedo familiare</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="maleParentalLeaveEligible">Uomini aventi diritto</Label>
+                <Label htmlFor="maleFamilyLeaveEligible">Uomini aventi diritto</Label>
                 <Input
-                  id="maleParentalLeaveEligible"
+                  id="maleFamilyLeaveEligible"
                   type="number"
                   placeholder="Numero di uomini"
-                  value={formData.maleParentalLeaveEligible ?? ''}
-                  onChange={handleInputChange('maleParentalLeaveEligible')}
+                  value={formData.maleFamilyLeaveEligible ?? ''}
+                  onChange={handleInputChange('maleFamilyLeaveEligible')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="femaleParentalLeaveEligible">Donne aventi diritto</Label>
+                <Label htmlFor="femaleFamilyLeaveEligible">Donne aventi diritto</Label>
                 <Input
-                  id="femaleParentalLeaveEligible"
+                  id="femaleFamilyLeaveEligible"
                   type="number"
                   placeholder="Numero di donne"
-                  value={formData.femaleParentalLeaveEligible ?? ''}
-                  onChange={handleInputChange('femaleParentalLeaveEligible')}
+                  value={formData.femaleFamilyLeaveEligible ?? ''}
+                  onChange={handleInputChange('femaleFamilyLeaveEligible')}
                 />
               </div>
             </div>
           </div>
 
           <div className="space-y-4 p-4 border rounded-md">
-            <h3 className="text-lg font-medium">Lavoratori che hanno usufruito del congedo parentale</h3>
+            <h3 className="text-lg font-medium">Lavoratori che hanno usufruito del congedo familiare</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="maleParentalLeaveUsed">Uomini che hanno usufruito</Label>
+                <Label htmlFor="maleFamilyLeaveUsed">Uomini che hanno usufruito</Label>
                 <Input
-                  id="maleParentalLeaveUsed"
+                  id="maleFamilyLeaveUsed"
                   type="number"
                   placeholder="Numero di uomini"
-                  value={formData.maleParentalLeaveUsed ?? ''}
-                  onChange={handleInputChange('maleParentalLeaveUsed')}
+                  value={formData.maleFamilyLeaveUsed ?? ''}
+                  onChange={handleInputChange('maleFamilyLeaveUsed')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="femaleParentalLeaveUsed">Donne che hanno usufruito</Label>
+                <Label htmlFor="femaleFamilyLeaveUsed">Donne che hanno usufruito</Label>
                 <Input
-                  id="femaleParentalLeaveUsed"
+                  id="femaleFamilyLeaveUsed"
                   type="number"
                   placeholder="Numero di donne"
-                  value={formData.femaleParentalLeaveUsed ?? ''}
-                  onChange={handleInputChange('femaleParentalLeaveUsed')}
+                  value={formData.femaleFamilyLeaveUsed ?? ''}
+                  onChange={handleInputChange('femaleFamilyLeaveUsed')}
                 />
               </div>
             </div>

@@ -1,7 +1,4 @@
 
-// Import BP10FormData from its specific location
-import { BP10HookResult } from './bp10/types';
-
 // Base hook result interface that can be reused across all BP hooks
 export interface BaseHookResult<T> {
   formData: T;
@@ -79,10 +76,10 @@ export interface BP9FormData {
 }
 
 export interface BP10FormData {
-  maleParentalLeaveEligible?: number;
-  femaleParentalLeaveEligible?: number;
-  maleParentalLeaveUsed?: number;
-  femaleParentalLeaveUsed?: number;
+  maleFamilyLeaveEligible?: number;
+  femaleFamilyLeaveEligible?: number;
+  maleFamilyLeaveUsed?: number;
+  femaleFamilyLeaveUsed?: number;
 }
 
 export interface BP11FormData {
@@ -100,7 +97,7 @@ export interface SaveButtonProps {
 }
 
 // Re-export BP10HookResult
-export type { BP10HookResult };
+export type { BP10HookResult } from './bp10/types';
 
 export interface BusinessPartnersFormData {
   bp1?: BP1FormData;

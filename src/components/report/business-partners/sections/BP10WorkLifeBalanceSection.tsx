@@ -15,10 +15,10 @@ interface BP10WorkLifeBalanceProps {
 }
 
 interface BP10FormData {
-  maleParentalLeaveEligible?: number;
-  femaleParentalLeaveEligible?: number;
-  maleParentalLeaveUsed?: number;
-  femaleParentalLeaveUsed?: number;
+  maleFamilyLeaveEligible?: number;
+  femaleFamilyLeaveEligible?: number;
+  maleFamilyLeaveUsed?: number;
+  femaleFamilyLeaveUsed?: number;
 }
 
 const BP10WorkLifeBalanceSection: React.FC<BP10WorkLifeBalanceProps> = ({ 
@@ -74,65 +74,65 @@ const BP10WorkLifeBalanceSection: React.FC<BP10WorkLifeBalanceProps> = ({
           Equilibrio vita-lavoro
         </CardTitle>
         <CardDescription>
-          Indicare i dati relativi ai congedi parentali nell'impresa.
+          Indicare i dati relativi ai congedi familiari nell'impresa.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6 p-4 bg-gray-50 rounded-md">
             <div className="space-y-2">
-              <Label htmlFor="maleParentalLeaveEligible">
-                Uomini idonei al congedo parentale
+              <Label htmlFor="maleFamilyLeaveEligible">
+                Uomini idonei al congedo familiare
               </Label>
               <Input
-                id="maleParentalLeaveEligible"
+                id="maleFamilyLeaveEligible"
                 type="number"
                 min="0"
                 placeholder="Inserisci il numero"
-                value={sectionData.maleParentalLeaveEligible ?? ''}
-                onChange={(e) => handleInputChange('maleParentalLeaveEligible', e.target.value)}
+                value={sectionData.maleFamilyLeaveEligible ?? ''}
+                onChange={(e) => handleInputChange('maleFamilyLeaveEligible', e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="femaleParentalLeaveEligible">
-                Donne idonee al congedo parentale
+              <Label htmlFor="femaleFamilyLeaveEligible">
+                Donne idonee al congedo familiare
               </Label>
               <Input
-                id="femaleParentalLeaveEligible"
+                id="femaleFamilyLeaveEligible"
                 type="number"
                 min="0"
                 placeholder="Inserisci il numero"
-                value={sectionData.femaleParentalLeaveEligible ?? ''}
-                onChange={(e) => handleInputChange('femaleParentalLeaveEligible', e.target.value)}
+                value={sectionData.femaleFamilyLeaveEligible ?? ''}
+                onChange={(e) => handleInputChange('femaleFamilyLeaveEligible', e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="maleParentalLeaveUsed">
+              <Label htmlFor="maleFamilyLeaveUsed">
                 Uomini che hanno usufruito del congedo
               </Label>
               <Input
-                id="maleParentalLeaveUsed"
+                id="maleFamilyLeaveUsed"
                 type="number"
                 min="0"
                 placeholder="Inserisci il numero"
-                value={sectionData.maleParentalLeaveUsed ?? ''}
-                onChange={(e) => handleInputChange('maleParentalLeaveUsed', e.target.value)}
+                value={sectionData.maleFamilyLeaveUsed ?? ''}
+                onChange={(e) => handleInputChange('maleFamilyLeaveUsed', e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="femaleParentalLeaveUsed">
+              <Label htmlFor="femaleFamilyLeaveUsed">
                 Donne che hanno usufruito del congedo
               </Label>
               <Input
-                id="femaleParentalLeaveUsed"
+                id="femaleFamilyLeaveUsed"
                 type="number"
                 min="0"
                 placeholder="Inserisci il numero"
-                value={sectionData.femaleParentalLeaveUsed ?? ''}
-                onChange={(e) => handleInputChange('femaleParentalLeaveUsed', e.target.value)}
+                value={sectionData.femaleFamilyLeaveUsed ?? ''}
+                onChange={(e) => handleInputChange('femaleFamilyLeaveUsed', e.target.value)}
               />
             </div>
           </div>
