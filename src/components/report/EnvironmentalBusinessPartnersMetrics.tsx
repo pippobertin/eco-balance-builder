@@ -10,7 +10,8 @@ import {
   BP6HazardousWaste,
   BP7PolicyAlignment,
   BP8ComplianceProcesses,
-  BP9Violations
+  BP9Violations,
+  BP10WorkLifeBalance
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -36,6 +37,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp7Ref = useRef<HTMLDivElement>(null);
   const bp8Ref = useRef<HTMLDivElement>(null);
   const bp9Ref = useRef<HTMLDivElement>(null);
+  const bp10Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -57,6 +59,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp8Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp9' && bp9Ref.current) {
         bp9Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp10' && bp10Ref.current) {
+        bp10Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -113,6 +117,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP9 - Violazioni */}
       <div ref={bp9Ref}>
         <BP9Violations reportId={reportId} />
+      </div>
+      
+      {/* BP10 - Equilibrio vita-lavoro */}
+      <div ref={bp10Ref}>
+        <BP10WorkLifeBalance reportId={reportId} />
       </div>
     </div>
   );

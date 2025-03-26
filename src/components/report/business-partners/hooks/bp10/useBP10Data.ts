@@ -73,15 +73,19 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       const now = new Date();
       
       // Check if record exists
-      const { data: existingRecord } = await supabase
+      const { data: existingData, error: checkError } = await supabase
         .from('bp10_work_life_balance')
         .select('id')
-        .eq('report_id', reportId)
-        .maybeSingle();
+        .eq('report_id', reportId);
+        
+      if (checkError) {
+        console.error("Error checking for existing BP10 record:", checkError);
+        throw checkError;
+      }
       
       let result;
       
-      if (existingRecord) {
+      if (existingData && existingData.length > 0) {
         // Update existing record
         result = await supabase
           .from('bp10_work_life_balance')
