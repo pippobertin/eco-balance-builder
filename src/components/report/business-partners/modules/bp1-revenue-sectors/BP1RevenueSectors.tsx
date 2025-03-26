@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { useBP1Data } from './useBP1Data';
 import { SaveButton } from '../../common';
 import { format, formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Clock, Loader2, Save, Check } from 'lucide-react';
+import { Clock, Loader2, Check } from 'lucide-react';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -16,6 +16,7 @@ interface BP1RevenueSectorsProps {
 
 const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP1Data(reportId);
+  const [saving, setSaving] = useState(false);
 
   // Log when component mounts with reportId
   useEffect(() => {
@@ -29,19 +30,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
     }
     
     console.log("Initial needsSaving value:", needsSaving);
-  }, [reportId]);
-
-  // Log when lastSaved changes
-  useEffect(() => {
-    if (lastSaved) {
-      console.log("lastSaved updated to:", lastSaved);
-    }
-  }, [lastSaved]);
-
-  // Log when needsSaving changes
-  useEffect(() => {
-    console.log("needsSaving updated to:", needsSaving);
-  }, [needsSaving]);
+  }, [reportId, lastSaved, needsSaving]);
 
   const handleCheckboxChange = (field: keyof typeof formData) => {
     setFormData(prev => ({
@@ -65,16 +54,21 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
 
   const handleSave = async () => {
     console.log("BP1 save button clicked");
-    const success = await saveData();
-    console.log("BP1 save result:", success, "lastSaved:", lastSaved);
+    setSaving(true);
+    try {
+      const success = await saveData();
+      console.log("BP1 save result:", success, "lastSaved:", lastSaved);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const renderSaveIndicator = () => {
-    if (isLoading) {
+    if (saving) {
       return (
         <div className="flex items-center text-blue-600 text-sm">
           <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-          <span>Caricamento in corso...</span>
+          <span>Salvataggio in corso...</span>
         </div>
       );
     }
@@ -261,7 +255,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
           <div className="flex justify-end mt-6">
             <SaveButton
               onClick={handleSave}
-              isLoading={isLoading}
+              isLoading={saving || isLoading}
               disabled={isLoading || !needsSaving}
             >
               Salva

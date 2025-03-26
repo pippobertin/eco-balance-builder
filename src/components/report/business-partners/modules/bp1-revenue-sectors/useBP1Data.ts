@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BP1FormData, BP1HookResult } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -15,6 +15,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState<boolean>(false);
+  const initialLoadComplete = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +57,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       } finally {
         setNeedsSaving(false);
         setIsLoading(false);
+        initialLoadComplete.current = true;
       }
     };
 
@@ -64,7 +66,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
 
   // Track changes and set needsSaving flag
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && initialLoadComplete.current) {
       console.log("BP1 form data changed, setting needsSaving to true");
       setNeedsSaving(true);
     }
