@@ -112,7 +112,7 @@ export interface BusinessPartnersFormData {
 export interface BusinessPartnersHookResult {
   data: BusinessPartnersFormData;
   updateData: (newData: Partial<BusinessPartnersFormData>) => void;
-  saveAll: () => Promise<void>;
+  saveAll: () => Promise<boolean>;
   isLoading: boolean;
   lastSaved: Date | null;
   needsSaving: boolean;

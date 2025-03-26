@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { BusinessPartnersFormData, BusinessPartnersHookResult } from './types';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,21 +50,9 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
   });
   
   const [isLoading, setIsLoading] = useState(true);
-  const [lastSaved, setLastSaved] = useState<Record<string, Date | null>>({
-    bp1: null,
-    bp2: null,
-    bp3: null,
-    bp4: null,
-    bp5: null,
-    bp6: null,
-    bp7: null,
-    bp8: null,
-    bp9: null,
-    bp10: null,
-    bp11: null
-  });
-  
-  const [needsSaving, setNeedsSaving] = useState<Record<string, boolean>>({
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [needsSaving, setNeedsSaving] = useState<boolean>(false);
+  const [sectionNeedsSaving, setSectionNeedsSaving] = useState<Record<string, boolean>>({
     bp1: false,
     bp2: false,
     bp3: false,
@@ -79,13 +66,12 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
     bp11: false
   });
 
-  // Load data from database
   useEffect(() => {
     const fetchData = async () => {
       if (!reportId) return;
       
       setIsLoading(true);
-      const newLastSaved = { ...lastSaved };
+      const latestSaved = new Date(0);
       
       try {
         // BP1
@@ -111,7 +97,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               chemicalsRevenue: bp1Data.chemicals_revenue
             }
           }));
-          newLastSaved.bp1 = new Date(bp1Data.updated_at);
+          
+          const updateDate = new Date(bp1Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP2
@@ -131,7 +121,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               genderDiversityIndex: bp2Data.gender_diversity_index
             }
           }));
-          newLastSaved.bp2 = new Date(bp2Data.updated_at);
+          
+          const updateDate = new Date(bp2Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP3
@@ -153,7 +147,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               ghgReductionBaselineYear: bp3Data.ghg_reduction_baseline_year
             }
           }));
-          newLastSaved.bp3 = new Date(bp3Data.updated_at);
+          
+          const updateDate = new Date(bp3Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP4
@@ -171,7 +169,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               transitionPlanDetails: bp4Data.transition_plan_details
             }
           }));
-          newLastSaved.bp4 = new Date(bp4Data.updated_at);
+          
+          const updateDate = new Date(bp4Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP5
@@ -194,7 +196,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               realEstateEnergyEfficiency: bp5Data.real_estate_energy_efficiency
             }
           }));
-          newLastSaved.bp5 = new Date(bp5Data.updated_at);
+          
+          const updateDate = new Date(bp5Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP6
@@ -213,7 +219,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               radioactiveWasteTotal: bp6Data.radioactive_waste_total
             }
           }));
-          newLastSaved.bp6 = new Date(bp6Data.updated_at);
+          
+          const updateDate = new Date(bp6Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP7
@@ -231,7 +241,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               alignedInstruments: bp7Data.aligned_instruments
             }
           }));
-          newLastSaved.bp7 = new Date(bp7Data.updated_at);
+          
+          const updateDate = new Date(bp7Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP8
@@ -249,7 +263,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               complianceProcessesDetails: bp8Data.compliance_processes_details
             }
           }));
-          newLastSaved.bp8 = new Date(bp8Data.updated_at);
+          
+          const updateDate = new Date(bp8Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP9
@@ -267,7 +285,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               violationsDetails: bp9Data.violations_details
             }
           }));
-          newLastSaved.bp9 = new Date(bp9Data.updated_at);
+          
+          const updateDate = new Date(bp9Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP10
@@ -287,7 +309,11 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               femaleFamilyLeaveUsed: bp10Data.female_family_leave_used
             }
           }));
-          newLastSaved.bp10 = new Date(bp10Data.updated_at);
+          
+          const updateDate = new Date(bp10Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
         // BP11
@@ -306,15 +332,19 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               apprenticesPercentage: bp11Data.apprentices_percentage
             }
           }));
-          newLastSaved.bp11 = new Date(bp11Data.updated_at);
+          
+          const updateDate = new Date(bp11Data.updated_at);
+          if (updateDate > latestSaved) {
+            latestSaved.setTime(updateDate.getTime());
+          }
         }
         
       } catch (error) {
         console.error("Unexpected error fetching business partners data:", error);
         toast.error("Errore nel caricamento dei dati sui partner commerciali");
       } finally {
-        setLastSaved(newLastSaved);
-        setNeedsSaving({
+        setLastSaved(latestSaved.getTime() > 0 ? latestSaved : null);
+        setSectionNeedsSaving({
           bp1: false,
           bp2: false,
           bp3: false,
@@ -327,6 +357,7 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
           bp10: false,
           bp11: false
         });
+        setNeedsSaving(false);
         setIsLoading(false);
       }
     };
@@ -334,18 +365,15 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
     fetchData();
   }, [reportId]);
 
-  // Save data to the database
   const saveData = async (): Promise<boolean> => {
     if (!reportId) return false;
     
     setIsLoading(true);
     let success = true;
     const now = new Date();
-    const newLastSaved = { ...lastSaved };
     
     try {
-      // BP1
-      if (needsSaving.bp1 && formData.bp1) {
+      if (sectionNeedsSaving.bp1 && formData.bp1) {
         const { error: bp1Error } = await supabase
           .from('bp1_revenue_sectors')
           .upsert({
@@ -366,13 +394,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp1Error) {
           console.error("Error saving BP1 data:", bp1Error);
           success = false;
-        } else {
-          newLastSaved.bp1 = now;
         }
       }
       
-      // BP2
-      if (needsSaving.bp2 && formData.bp2) {
+      if (sectionNeedsSaving.bp2 && formData.bp2) {
         const { error: bp2Error } = await supabase
           .from('bp2_gender_diversity')
           .upsert({
@@ -387,13 +412,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp2Error) {
           console.error("Error saving BP2 data:", bp2Error);
           success = false;
-        } else {
-          newLastSaved.bp2 = now;
         }
       }
       
-      // BP3
-      if (needsSaving.bp3 && formData.bp3) {
+      if (sectionNeedsSaving.bp3 && formData.bp3) {
         const { error: bp3Error } = await supabase
           .from('bp3_ghg_targets')
           .upsert({
@@ -410,13 +432,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp3Error) {
           console.error("Error saving BP3 data:", bp3Error);
           success = false;
-        } else {
-          newLastSaved.bp3 = now;
         }
       }
       
-      // BP4
-      if (needsSaving.bp4 && formData.bp4) {
+      if (sectionNeedsSaving.bp4 && formData.bp4) {
         const { error: bp4Error } = await supabase
           .from('bp4_transition_plan')
           .upsert({
@@ -429,13 +448,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp4Error) {
           console.error("Error saving BP4 data:", bp4Error);
           success = false;
-        } else {
-          newLastSaved.bp4 = now;
         }
       }
       
-      // BP5
-      if (needsSaving.bp5 && formData.bp5) {
+      if (sectionNeedsSaving.bp5 && formData.bp5) {
         const { error: bp5Error } = await supabase
           .from('bp5_physical_risks')
           .upsert({
@@ -453,13 +469,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp5Error) {
           console.error("Error saving BP5 data:", bp5Error);
           success = false;
-        } else {
-          newLastSaved.bp5 = now;
         }
       }
       
-      // BP6
-      if (needsSaving.bp6 && formData.bp6) {
+      if (sectionNeedsSaving.bp6 && formData.bp6) {
         const { error: bp6Error } = await supabase
           .from('bp6_hazardous_waste')
           .upsert({
@@ -473,13 +486,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp6Error) {
           console.error("Error saving BP6 data:", bp6Error);
           success = false;
-        } else {
-          newLastSaved.bp6 = now;
         }
       }
       
-      // BP7
-      if (needsSaving.bp7 && formData.bp7) {
+      if (sectionNeedsSaving.bp7 && formData.bp7) {
         const { error: bp7Error } = await supabase
           .from('bp7_policy_alignment')
           .upsert({
@@ -492,13 +502,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp7Error) {
           console.error("Error saving BP7 data:", bp7Error);
           success = false;
-        } else {
-          newLastSaved.bp7 = now;
         }
       }
       
-      // BP8
-      if (needsSaving.bp8 && formData.bp8) {
+      if (sectionNeedsSaving.bp8 && formData.bp8) {
         const { error: bp8Error } = await supabase
           .from('bp8_compliance_processes')
           .upsert({
@@ -511,13 +518,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp8Error) {
           console.error("Error saving BP8 data:", bp8Error);
           success = false;
-        } else {
-          newLastSaved.bp8 = now;
         }
       }
       
-      // BP9
-      if (needsSaving.bp9 && formData.bp9) {
+      if (sectionNeedsSaving.bp9 && formData.bp9) {
         const { error: bp9Error } = await supabase
           .from('bp9_violations')
           .upsert({
@@ -530,13 +534,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp9Error) {
           console.error("Error saving BP9 data:", bp9Error);
           success = false;
-        } else {
-          newLastSaved.bp9 = now;
         }
       }
       
-      // BP10
-      if (needsSaving.bp10 && formData.bp10) {
+      if (sectionNeedsSaving.bp10 && formData.bp10) {
         const { error: bp10Error } = await supabase
           .from('bp10_work_life_balance')
           .upsert({
@@ -551,13 +552,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp10Error) {
           console.error("Error saving BP10 data:", bp10Error);
           success = false;
-        } else {
-          newLastSaved.bp10 = now;
         }
       }
       
-      // BP11
-      if (needsSaving.bp11 && formData.bp11) {
+      if (sectionNeedsSaving.bp11 && formData.bp11) {
         const { error: bp11Error } = await supabase
           .from('bp11_apprentices')
           .upsert({
@@ -571,15 +569,12 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
         if (bp11Error) {
           console.error("Error saving BP11 data:", bp11Error);
           success = false;
-        } else {
-          newLastSaved.bp11 = now;
         }
       }
       
-      // Update last saved time and reset needsSaving flags
       if (success) {
-        setLastSaved(newLastSaved);
-        setNeedsSaving({
+        setLastSaved(now);
+        setSectionNeedsSaving({
           bp1: false,
           bp2: false,
           bp3: false,
@@ -592,6 +587,7 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
           bp10: false,
           bp11: false
         });
+        setNeedsSaving(false);
         toast.success("Dati salvati con successo");
       } else {
         toast.error("Si è verificato un errore durante il salvataggio di alcuni dati");
@@ -607,116 +603,123 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
     
     return success;
   };
-  
-  // Update needsSaving flags when form data changes
+
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp1: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp1]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp2: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp2]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp3: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp3]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp4: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp4]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp5: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp5]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp6: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp6]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp7: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp7]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp8: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp8]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp9: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp9]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp10: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp10]);
   
   useEffect(() => {
     if (!isLoading) {
-      setNeedsSaving(prev => ({
+      setSectionNeedsSaving(prev => ({
         ...prev,
         bp11: true
       }));
+      setNeedsSaving(true);
     }
   }, [formData.bp11]);
 
   return {
-    formData,
-    setFormData,
+    data: formData,
+    updateData: setFormData,
     isLoading,
-    setIsLoading,
-    saveData,
+    saveAll: saveData,
     lastSaved,
-    setLastSaved,
-    needsSaving,
-    setNeedsSaving
+    needsSaving
   };
 };
