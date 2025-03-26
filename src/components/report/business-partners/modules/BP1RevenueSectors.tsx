@@ -30,21 +30,24 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
     }));
   };
 
-  // Modifichiamo il tipo di ritorno per adattarsi a Promise<void>
-  const handleSaveClick = async (): Promise<void> => {
-    await saveData();
-  };
-
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP1</span>
-          Ricavi in settori specifici
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa genera ricavi dai seguenti settori e, in caso affermativo, la percentuale di ricavi.
-        </CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-orange-100 text-orange-700 p-1 rounded">BP1</span>
+              Ricavi in settori specifici
+            </CardTitle>
+            <CardDescription>
+              Indicare se l'impresa genera ricavi dai seguenti settori e, in caso affermativo, la percentuale di ricavi.
+            </CardDescription>
+          </div>
+          <SectionAutoSaveIndicator
+            lastSaved={lastSaved}
+            needsSaving={needsSaving}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -220,7 +223,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={handleSaveClick}
+              onClick={saveData}
               isLoading={isLoading}
             >
               Salva

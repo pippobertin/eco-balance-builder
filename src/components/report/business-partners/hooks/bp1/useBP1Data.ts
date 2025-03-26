@@ -1,11 +1,13 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BP1FormData } from '../types';
 import { BP1HookResult } from './types';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useBP1Data = (reportId: string): BP1HookResult => {
+  const { updateReportData } = useReport();
   const [formData, setFormData] = useState<BP1FormData>({
     controversialWeapons: false,
     tobacco: false,
@@ -70,8 +72,8 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   }, [formData, isLoading]);
 
   // Save data to the database
-  const saveData = async (): Promise<boolean> => {
-    if (!reportId) return false;
+  const saveData = useCallback(async (): Promise<void> => {
+    if (!reportId) return;
     
     setIsLoading(true);
     
@@ -98,21 +100,28 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       if (error) {
         console.error("Error saving BP1 data:", error);
         toast.error("Errore nel salvataggio dei dati sui ricavi per settore");
-        return false;
+        return;
       }
       
       setLastSaved(now);
       setNeedsSaving(false);
       toast.success("Dati sui ricavi per settore salvati con successo");
-      return true;
+      
+      // Update global report context
+      updateReportData({
+        businessPartnersMetrics: {
+          bp1: {
+            ...formData
+          }
+        }
+      });
     } catch (error) {
       console.error("Unexpected error saving BP1 data:", error);
       toast.error("Errore nel salvataggio dei dati sui ricavi per settore");
-      return false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [reportId, formData, updateReportData]);
 
   return {
     formData,
