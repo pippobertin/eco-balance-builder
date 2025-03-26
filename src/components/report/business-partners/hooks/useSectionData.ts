@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
 
 export interface BaseSectionData {
   isLoading: boolean;
@@ -71,7 +72,8 @@ export function useSectionData<T>({
           
           // Check if fetchedData has updated_at before trying to use it
           if ('updated_at' in fetchedData) {
-            setLastSaved(new Date(fetchedData.updated_at));
+            const updatedAt = fetchedData.updated_at as string;
+            setLastSaved(new Date(updatedAt));
           }
         }
       } catch (error) {
@@ -111,17 +113,43 @@ export function useSectionData<T>({
         return acc;
       }, {} as Record<string, any>);
       
-      // Use a type assertion to handle the dynamic table name
-      const { error } = await supabase
+      // First check if a record exists for this report
+      const { data: existingRecord, error: checkError } = await supabase
         .from(tableName as any)
-        .upsert({
-          report_id: reportId,
-          ...formattedData,
-          updated_at: now.toISOString()
-        }, {
-          onConflict: 'report_id'
-        });
-        
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      let error;
+      
+      if (existingRecord) {
+        // Update existing record if found
+        const { error: updateError } = await supabase
+          .from(tableName as any)
+          .update({
+            ...formattedData,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+          
+        error = updateError;
+      } else {
+        // Insert new record if not found
+        const { error: insertError } = await supabase
+          .from(tableName as any)
+          .insert({
+            report_id: reportId,
+            ...formattedData,
+            updated_at: now.toISOString()
+          });
+          
+        error = insertError;
+      }
+      
       if (error) {
         console.error(`Error saving data to ${tableName}:`, error);
         toast.error(`Errore nel salvataggio dei dati`);
