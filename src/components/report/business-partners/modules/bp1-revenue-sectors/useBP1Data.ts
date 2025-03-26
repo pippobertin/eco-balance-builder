@@ -16,6 +16,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState<boolean>(false);
   const initialLoadComplete = useRef(false);
+  const formChangedAfterSave = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,8 +47,12 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
             chemicalsRevenue: data[0].chemicals_revenue
           });
           
-          setLastSaved(new Date(data[0].updated_at));
-          console.log("Setting lastSaved date to:", new Date(data[0].updated_at));
+          // Assicurati che la data sia un'istanza valida di Date
+          if (data[0].updated_at) {
+            const savedDate = new Date(data[0].updated_at);
+            console.log("Setting lastSaved date to:", savedDate);
+            setLastSaved(savedDate);
+          }
         } else {
           console.log("No BP1 data found or error occurred:", error);
         }
@@ -58,6 +63,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
         setNeedsSaving(false);
         setIsLoading(false);
         initialLoadComplete.current = true;
+        formChangedAfterSave.current = false;
       }
     };
 
@@ -69,6 +75,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     if (!isLoading && initialLoadComplete.current) {
       console.log("BP1 form data changed, setting needsSaving to true");
       setNeedsSaving(true);
+      formChangedAfterSave.current = true;
     }
   }, [formData, isLoading]);
 
@@ -144,6 +151,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       console.log("BP1 data saved successfully, setting lastSaved to:", now);
       setLastSaved(now);
       setNeedsSaving(false);
+      formChangedAfterSave.current = false;
       toast.success("Dati sui settori di ricavo salvati con successo");
       return true;
     } catch (error: any) {
