@@ -68,7 +68,6 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     if (!reportId) return;
     
     setIsLoading(true);
-    const now = new Date();
     
     try {
       // Check if record exists
@@ -78,6 +77,8 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
         .eq('report_id', reportId);
         
       if (checkError) throw new Error(checkError.message);
+      
+      const now = new Date();
       
       if (existingData && existingData.length > 0) {
         // Update existing record

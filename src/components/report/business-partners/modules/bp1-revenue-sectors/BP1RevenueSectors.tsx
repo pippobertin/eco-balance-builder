@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP1Data } from './useBP1Data';
-import { SaveButton, SectionAutoSaveIndicator } from '../../common';
+import { SaveButton, SectionAutoSaveIndicator } from '../../components';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -32,14 +32,13 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP1</span>
+          Ricavi in settori specifici
+        </CardTitle>
         <CardDescription>
           Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
         </CardDescription>
-        <SectionAutoSaveIndicator 
-          lastSaved={lastSaved} 
-          needsSaving={needsSaving} 
-        />
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -179,7 +178,12 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
             )}
           </div>
 
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-between items-center pt-4 border-t">
+            <SectionAutoSaveIndicator
+              lastSaved={lastSaved}
+              needsSaving={needsSaving}
+              isLoading={isLoading}
+            />
             <SaveButton
               onClick={saveData}
               isLoading={isLoading}
