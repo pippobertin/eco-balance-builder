@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clock, Loader2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -17,17 +17,50 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   needsSaving,
   lastSaved 
 }) => {
-  console.log('SaveIndicator props:', { isLoading, isSaving, needsSaving, lastSaved });
+  console.log('SaveIndicator render:', { isLoading, isSaving, needsSaving, lastSaved: lastSaved ? lastSaved.toISOString() : null });
+  
+  // Aggiungiamo stato locale per evitare flickering e mantenere lo stato salvato
+  const [displayState, setDisplayState] = useState({
+    isLoading,
+    isSaving,
+    needsSaving,
+    lastSaved
+  });
+
+  // Aggiorniamo lo stato locale solo quando le prop cambiano in modo significativo
+  useEffect(() => {
+    // Quando il salvataggio è completato (isSaving passa da true a false)
+    if (displayState.isSaving && !isSaving) {
+      console.log('SaveIndicator: Save operation completed');
+      setDisplayState({
+        isLoading,
+        isSaving,
+        needsSaving: false, // Forzare needsSaving a false dopo il salvataggio
+        lastSaved
+      });
+    } 
+    // Per le altre transizioni di stato
+    else if (
+      displayState.isLoading !== isLoading ||
+      displayState.isSaving !== isSaving ||
+      // Aggiorna solo se needsSaving diventa true o se lastSaved è cambiato
+      (needsSaving && !displayState.needsSaving) ||
+      (lastSaved && (!displayState.lastSaved || lastSaved.getTime() !== displayState.lastSaved.getTime()))
+    ) {
+      console.log('SaveIndicator: Updating display state due to prop changes');
+      setDisplayState({ isLoading, isSaving, needsSaving, lastSaved });
+    }
+  }, [isLoading, isSaving, needsSaving, lastSaved]);
   
   // Funzione per formattare il tempo trascorso dall'ultimo salvataggio
   const formatSaveTime = () => {
-    if (!lastSaved) return "Non salvato";
+    if (!displayState.lastSaved) return "Non salvato";
     
     try {
       // Usa formatDistanceToNow per mostrare il tempo trascorso in forma leggibile
-      return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
+      return formatDistanceToNow(displayState.lastSaved, { addSuffix: true, locale: it });
     } catch (error) {
-      console.error("Errore nel formato della data:", error, lastSaved);
+      console.error("Errore nel formato della data:", error, displayState.lastSaved);
       return "Data non valida";
     }
   };
@@ -36,17 +69,17 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   const baseClasses = "flex items-center text-sm px-3 py-1.5 rounded-md";
   
   // Controllo dello stato di caricamento o salvataggio in corso
-  if (isLoading || isSaving) {
+  if (displayState.isLoading || displayState.isSaving) {
     return (
       <div className={`${baseClasses} text-blue-600 bg-blue-50 border border-blue-200`} data-testid="save-indicator-loading">
         <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-        <span>{isSaving ? "Salvataggio in corso..." : "Caricamento..."}</span>
+        <span>{displayState.isSaving ? "Salvataggio in corso..." : "Caricamento..."}</span>
       </div>
     );
   }
   
   // Controllo delle modifiche non salvate
-  if (needsSaving) {
+  if (displayState.needsSaving) {
     return (
       <div className={`${baseClasses} text-amber-600 bg-amber-50 border border-amber-200`} data-testid="save-indicator-unsaved">
         <Clock className="h-4 w-4 mr-1" />
@@ -56,7 +89,7 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   }
   
   // Controllo dell'ultimo salvataggio
-  if (lastSaved) {
+  if (displayState.lastSaved) {
     return (
       <div className={`${baseClasses} text-green-600 bg-green-50 border border-green-200`} data-testid="save-indicator-saved">
         <Check className="h-4 w-4 mr-1" />

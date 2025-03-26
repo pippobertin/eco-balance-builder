@@ -18,8 +18,6 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
-
-  // Track initial formData for comparison
   const [initialFormData, setInitialFormData] = useState<BP2FormData>({
     maleGovernanceMembers: undefined,
     femaleGovernanceMembers: undefined,
@@ -57,11 +55,13 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
           };
           
           setFormData(loadedData);
-          setInitialFormData(JSON.parse(JSON.stringify(loadedData))); // Deep copy to avoid reference issues
+          // Make a deep copy to ensure no reference issues
+          setInitialFormData(JSON.parse(JSON.stringify(loadedData)));
           
           if (data.updated_at) {
-            setLastSaved(new Date(data.updated_at));
-            console.log("BP2: Last saved time set to:", new Date(data.updated_at).toISOString());
+            const savedDate = new Date(data.updated_at);
+            setLastSaved(savedDate);
+            console.log("BP2: Last saved time set to:", savedDate.toISOString());
           }
         }
       } catch (error) {
@@ -82,13 +82,15 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
   useEffect(() => {
     if (initialLoad) return;
 
-    // Check if any values have changed from initial data
-    const hasChanges = JSON.stringify(formData) !== JSON.stringify(initialFormData);
-
-    console.log("BP2: Form data changed, checking for changes:", { 
+    // Deep compare the current data with initial data
+    const currentDataStr = JSON.stringify(formData);
+    const initialDataStr = JSON.stringify(initialFormData);
+    const hasChanges = currentDataStr !== initialDataStr;
+    
+    console.log("BP2: Checking for changes:", { 
       hasChanges, 
-      formData, 
-      initialFormData 
+      current: currentDataStr,
+      initial: initialDataStr
     });
     
     setNeedsSaving(hasChanges);
@@ -103,7 +105,7 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('bp2_gender_diversity')
         .upsert({
           report_id: reportId,
@@ -121,7 +123,11 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
       }
       
       // Update initial data to match current data after successful save
-      setInitialFormData(JSON.parse(JSON.stringify(formData))); // Deep copy
+      const newInitialData = JSON.parse(JSON.stringify(formData));
+      setInitialFormData(newInitialData);
+      console.log("BP2: Initial form data updated after save:", newInitialData);
+      
+      // Set the last saved date
       setLastSaved(now);
       setNeedsSaving(false);
       console.log("BP2: Data saved successfully, lastSaved set to:", now.toISOString());

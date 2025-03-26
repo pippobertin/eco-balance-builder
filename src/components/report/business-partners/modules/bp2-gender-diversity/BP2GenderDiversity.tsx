@@ -63,17 +63,23 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
     } catch (error) {
       console.error("BP2: Error during save:", error);
     } finally {
-      setIsSaving(false);
-      console.log("BP2: Save process finished, isSaving set to false");
+      // Aggiungiamo un piccolo ritardo prima di rimuovere lo stato di salvataggio
+      // per garantire che l'utente veda il feedback
+      setTimeout(() => {
+        setIsSaving(false);
+        console.log("BP2: Save process finished, isSaving set to false");
+      }, 500);
     }
   };
 
-  console.log("BP2GenderDiversity rendering state:", { 
-    isLoading, 
-    isSaving, 
-    needsSaving, 
-    lastSaved: lastSaved ? lastSaved.toISOString() : null 
-  });
+  useEffect(() => {
+    console.log("BP2GenderDiversity state updated:", { 
+      isLoading, 
+      isSaving, 
+      needsSaving, 
+      lastSaved: lastSaved ? lastSaved.toISOString() : null 
+    });
+  }, [isLoading, isSaving, needsSaving, lastSaved]);
 
   return (
     <Card className="mb-6">
