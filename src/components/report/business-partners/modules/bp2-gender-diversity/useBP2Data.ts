@@ -35,7 +35,7 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
       setIsLoading(true);
       
       try {
-        console.log("Fetching BP2 data for report:", reportId);
+        console.log("BP2: Fetching data for report:", reportId);
         const { data, error } = await supabase
           .from('bp2_gender_diversity')
           .select('*')
@@ -44,11 +44,11 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
-            console.error("Error fetching BP2 data:", error);
+            console.error("BP2: Error fetching data:", error);
             toast.error("Errore nel caricamento dei dati sulla diversità di genere");
           }
         } else if (data) {
-          console.log("BP2 data loaded:", data);
+          console.log("BP2: Data loaded:", data);
           const loadedData = {
             maleGovernanceMembers: data.male_governance_members,
             femaleGovernanceMembers: data.female_governance_members,
@@ -57,16 +57,21 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
           };
           
           setFormData(loadedData);
-          setInitialFormData(loadedData);
-          setLastSaved(new Date(data.updated_at));
+          setInitialFormData(JSON.parse(JSON.stringify(loadedData))); // Deep copy to avoid reference issues
+          
+          if (data.updated_at) {
+            setLastSaved(new Date(data.updated_at));
+            console.log("BP2: Last saved time set to:", new Date(data.updated_at).toISOString());
+          }
         }
       } catch (error) {
-        console.error("Unexpected error fetching BP2 data:", error);
+        console.error("BP2: Unexpected error fetching data:", error);
         toast.error("Errore nel caricamento dei dati sulla diversità di genere");
       } finally {
         setIsLoading(false);
         setInitialLoad(false);
         setNeedsSaving(false);
+        console.log("BP2: Initial load complete, isLoading set to false");
       }
     };
 
@@ -78,13 +83,14 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
     if (initialLoad) return;
 
     // Check if any values have changed from initial data
-    const hasChanges = 
-      formData.maleGovernanceMembers !== initialFormData.maleGovernanceMembers ||
-      formData.femaleGovernanceMembers !== initialFormData.femaleGovernanceMembers ||
-      formData.otherGenderGovernanceMembers !== initialFormData.otherGenderGovernanceMembers ||
-      formData.genderDiversityIndex !== initialFormData.genderDiversityIndex;
+    const hasChanges = JSON.stringify(formData) !== JSON.stringify(initialFormData);
 
-    console.log("BP2 form data changed, setting needsSaving to", hasChanges);
+    console.log("BP2: Form data changed, checking for changes:", { 
+      hasChanges, 
+      formData, 
+      initialFormData 
+    });
+    
     setNeedsSaving(hasChanges);
   }, [formData, initialFormData, initialLoad]);
 
@@ -92,7 +98,7 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
   const saveData = useCallback(async (): Promise<void> => {
     if (!reportId) return;
     
-    console.log("Saving BP2 gender diversity data for report:", reportId);
+    console.log("BP2: Saving gender diversity data for report:", reportId);
     
     try {
       const now = new Date();
@@ -109,16 +115,16 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
         }, { onConflict: 'report_id' });
         
       if (error) {
-        console.error("Error saving BP2 data:", error);
+        console.error("BP2: Error saving data:", error);
         toast.error("Errore nel salvataggio dei dati sulla diversità di genere");
         return;
       }
       
       // Update initial data to match current data after successful save
-      setInitialFormData({...formData});
+      setInitialFormData(JSON.parse(JSON.stringify(formData))); // Deep copy
       setLastSaved(now);
       setNeedsSaving(false);
-      console.log("BP2 data saved successfully, setting lastSaved to:", now);
+      console.log("BP2: Data saved successfully, lastSaved set to:", now.toISOString());
       
       toast.success("Dati sulla diversità di genere salvati con successo");
       
@@ -131,7 +137,7 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
         }
       });
     } catch (error) {
-      console.error("Unexpected error saving BP2 data:", error);
+      console.error("BP2: Unexpected error saving data:", error);
       toast.error("Errore nel salvataggio dei dati sulla diversità di genere");
     }
   }, [reportId, formData, updateReportData]);

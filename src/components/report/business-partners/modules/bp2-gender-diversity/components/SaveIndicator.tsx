@@ -17,6 +17,8 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   needsSaving,
   lastSaved 
 }) => {
+  console.log('SaveIndicator props:', { isLoading, isSaving, needsSaving, lastSaved });
+  
   // Funzione per formattare il tempo trascorso dall'ultimo salvataggio
   const formatSaveTime = () => {
     if (!lastSaved) return "Non salvato";

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useBP2Data } from './useBP2Data';
 import { SaveButton } from '../../common';
 import { InfoIcon } from 'lucide-react';
-import SaveIndicator from './components/SaveIndicator';
+import { SaveIndicator } from './components';
 
 interface BP2GenderDiversityProps {
   reportId: string;
@@ -55,17 +55,25 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
 
   // Handle save button click
   const handleSave = async () => {
-    console.log("Saving BP2 gender diversity data...");
+    console.log("BP2: Starting save process");
     setIsSaving(true);
     try {
       await saveData();
-      console.log("BP2 data saved successfully");
+      console.log("BP2: Save completed successfully");
     } catch (error) {
-      console.error("Error saving BP2 data:", error);
+      console.error("BP2: Error during save:", error);
     } finally {
       setIsSaving(false);
+      console.log("BP2: Save process finished, isSaving set to false");
     }
   };
+
+  console.log("BP2GenderDiversity rendering state:", { 
+    isLoading, 
+    isSaving, 
+    needsSaving, 
+    lastSaved: lastSaved ? lastSaved.toISOString() : null 
+  });
 
   return (
     <Card className="mb-6">
