@@ -5,10 +5,11 @@ import EnvironmentalMetrics from '../EnvironmentalMetrics';
 import SocialMetrics from '../SocialMetrics'; 
 import ConductMetrics from '../ConductMetrics';
 import NarrativePATMetrics from '../NarrativePATMetrics';
-import BusinessPartnersMetrics from '../BusinessPartnersMetrics';
+import BusinessPartnersMetrics from '../business-partners/BusinessPartnersMetrics';
+import EnvironmentalBusinessPartnersMetrics from '../EnvironmentalBusinessPartnersMetrics';
 
 export interface ModuleContentProps {
-  activeSection?: string;
+  activeSection: 'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt';
   module?: string;
   formValues?: any;
   setFormValues?: React.Dispatch<React.SetStateAction<any>>;
@@ -42,6 +43,7 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
         return <EnvironmentalMetrics 
           formValues={formValues} 
           setFormValues={setFormValues} 
+          initialField={initialField}
         />;
       case 'social':
         return <SocialMetrics 
@@ -63,6 +65,15 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
           return <BusinessPartnersMetrics 
             formValues={formValues} 
             setFormValues={setFormValues} 
+          />;
+        }
+        return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;
+      case 'business-partners-alt':
+        if (showBusinessPartnersModule) {
+          return <EnvironmentalBusinessPartnersMetrics 
+            formValues={formValues} 
+            setFormValues={setFormValues}
+            initialField={initialField}
           />;
         }
         return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;

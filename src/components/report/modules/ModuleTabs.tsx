@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Leaf, Users, Building2, FileText, Briefcase } from 'lucide-react';
+import { Leaf, Users, Building2, FileText, Briefcase, Layers } from 'lucide-react';
 
 interface ModuleTabsProps {
-  activeSection: 'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners';
-  setActiveSection: React.Dispatch<React.SetStateAction<'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners'>>;
+  activeSection: 'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt';
+  setActiveSection: React.Dispatch<React.SetStateAction<'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt'>>;
   showNarrativeModule: boolean;
   showBusinessPartnersModule: boolean;
 }
@@ -60,6 +60,16 @@ const ModuleTabs: React.FC<ModuleTabsProps> = ({
         >
           <Briefcase className="mr-2 h-4 w-4" />
           Partner Commerciali
+        </Button>
+      )}
+      {showBusinessPartnersModule && (
+        <Button 
+          variant={activeSection === 'business-partners-alt' ? 'default' : 'outline'} 
+          onClick={() => setActiveSection('business-partners-alt')} 
+          className="flex items-center"
+        >
+          <Layers className="mr-2 h-4 w-4" />
+          Partner (Alt)
         </Button>
       )}
     </div>
