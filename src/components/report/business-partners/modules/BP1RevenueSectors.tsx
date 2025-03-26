@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP1Data } from '../hooks/bp1';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { InfoCircle } from 'lucide-react';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -29,10 +30,6 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
     }));
   };
 
-  const handleSave = async () => {
-    await saveData();
-  };
-
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -47,7 +44,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <Info className="h-5 w-5 mt-0.5" />
+            <InfoCircle className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               Per ciascun settore, indicare se l'impresa genera ricavi da esso e, in caso positivo, la percentuale
               di tali ricavi sul totale dei ricavi.
@@ -218,7 +215,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={handleSave}
+              onClick={saveData}
               isLoading={isLoading}
             >
               Salva

@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { ReportData } from '@/context/types';
 import { Building2 } from 'lucide-react';
 import MetricChart from '@/components/dashboard/MetricChart';
 import { useNavigate } from 'react-router-dom';
-import { BP1FormData, BP2FormData, BP3FormData, BP6FormData, BP10FormData, BP11FormData } from '@/components/report/business-partners/hooks/types';
 
 interface BusinessPartnersSectionProps {
   reportData: ReportData;
@@ -13,13 +13,13 @@ interface BusinessPartnersSectionProps {
 const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ reportData, companyName }) => {
   const navigate = useNavigate();
   
-  // Utilizziamo l'asserzione di tipo per risolvere i problemi
-  const bp1 = (reportData.businessPartnersMetrics?.bp1 || {}) as BP1FormData;
-  const bp2 = (reportData.businessPartnersMetrics?.bp2 || {}) as BP2FormData;
-  const bp3 = (reportData.businessPartnersMetrics?.bp3 || {}) as BP3FormData;
-  const bp6 = (reportData.businessPartnersMetrics?.bp6 || {}) as BP6FormData;
-  const bp10 = (reportData.businessPartnersMetrics?.bp10 || {}) as BP10FormData;
-  const bp11 = (reportData.businessPartnersMetrics?.bp11 || {}) as BP11FormData;
+  // Extract data from the new BP tables format
+  const bp1 = reportData.businessPartnersMetrics?.bp1 || {};
+  const bp2 = reportData.businessPartnersMetrics?.bp2 || {};
+  const bp3 = reportData.businessPartnersMetrics?.bp3 || {};
+  const bp6 = reportData.businessPartnersMetrics?.bp6 || {};
+  const bp10 = reportData.businessPartnersMetrics?.bp10 || {};
+  const bp11 = reportData.businessPartnersMetrics?.bp11 || {};
 
   // BP1 data for chart
   const sectorData = [];

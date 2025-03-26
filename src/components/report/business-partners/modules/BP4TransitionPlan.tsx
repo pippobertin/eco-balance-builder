@@ -6,14 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP4Data } from '../hooks/bp4';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { InfoCircle } from 'lucide-react';
 
 interface BP4TransitionPlanProps {
   reportId: string;
 }
 
 const BP4TransitionPlan: React.FC<BP4TransitionPlanProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, saveData, handleSave, lastSaved, needsSaving } = useBP4Data(reportId);
+  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP4Data(reportId);
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({
@@ -43,7 +43,7 @@ const BP4TransitionPlan: React.FC<BP4TransitionPlanProps> = ({ reportId }) => {
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <Info className="h-5 w-5 mt-0.5" />
+            <InfoCircle className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               Un piano di transizione climatica è una strategia dettagliata che delinea come un'impresa ridurrà le proprie emissioni di gas serra e si adatterà ai cambiamenti climatici.
             </p>
@@ -81,7 +81,7 @@ const BP4TransitionPlan: React.FC<BP4TransitionPlanProps> = ({ reportId }) => {
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={handleSave}
+              onClick={saveData}
               isLoading={isLoading}
             >
               Salva

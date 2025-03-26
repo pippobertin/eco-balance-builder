@@ -41,7 +41,7 @@ const BPNavigationTabs: React.FC<BPNavigationTabsProps> = ({
 
   return (
     <div className="bg-white rounded-md border shadow-sm p-1 mb-6">
-      <ScrollArea className="w-full">
+      <ScrollArea className="w-full" orientation="horizontal">
         <div className="flex space-x-1 p-1 min-w-max">
           {tabs.map((tab) => (
             <Button
