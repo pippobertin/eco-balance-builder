@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP11Data } from '../hooks/bp11';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP11ApprenticesProps {
   reportId: string;
@@ -44,7 +44,7 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <InfoCircle className="h-5 w-5 mt-0.5" />
+            <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               L'apprendistato è una forma di lavoro che combina formazione professionale e lavoro retribuito, tipicamente rivolta ai giovani.
             </p>
@@ -103,7 +103,9 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={saveData}
+              onClick={async () => {
+                await saveData();
+              }}
               isLoading={isLoading}
             >
               Salva

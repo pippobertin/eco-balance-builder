@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP8Data } from '../hooks/bp8';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP8ComplianceProcessesProps {
   reportId: string;
@@ -43,7 +43,7 @@ const BP8ComplianceProcesses: React.FC<BP8ComplianceProcessesProps> = ({ reportI
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <InfoCircle className="h-5 w-5 mt-0.5" />
+            <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               I processi di conformità sono sistemi e procedure che aiutano a garantire che l'impresa rispetti le leggi e i regolamenti applicabili.
             </p>
@@ -81,7 +81,9 @@ const BP8ComplianceProcesses: React.FC<BP8ComplianceProcessesProps> = ({ reportI
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={saveData}
+              onClick={async () => {
+                await saveData();
+              }}
               isLoading={isLoading}
             >
               Salva

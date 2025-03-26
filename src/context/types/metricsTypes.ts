@@ -110,7 +110,7 @@ export interface MaterialityIssue {
 export interface MaterialityAnalysis {
   issues: MaterialityIssue[];
   stakeholders: StakeholderData[];
-  esgScore?: number; // Aggiungiamo questo campo
+  esgScore?: number; // ESG score field
   [key: string]: any;
 }
 

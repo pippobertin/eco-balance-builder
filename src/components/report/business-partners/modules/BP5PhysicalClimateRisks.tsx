@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP5Data } from '../hooks/bp5';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP5PhysicalClimateRisksProps {
   reportId: string;
@@ -52,7 +52,7 @@ const BP5PhysicalClimateRisks: React.FC<BP5PhysicalClimateRisksProps> = ({ repor
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <InfoCircle className="h-5 w-5 mt-0.5" />
+            <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               I rischi fisici legati al clima includono eventi meteorologici estremi, innalzamento del livello del mare, siccità, inondazioni, ecc.
             </p>
@@ -164,7 +164,9 @@ const BP5PhysicalClimateRisks: React.FC<BP5PhysicalClimateRisksProps> = ({ repor
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={saveData}
+              onClick={async () => {
+                await saveData();
+              }}
               isLoading={isLoading}
             >
               Salva

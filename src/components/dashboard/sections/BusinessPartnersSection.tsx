@@ -24,18 +24,20 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
   // BP1 data for chart
   const sectorData = [];
   
-  if (bp1.controversialWeapons && typeof bp1.controversialWeaponsRevenue === 'number') {
+  if (bp1 && 'controversialWeapons' in bp1 && bp1.controversialWeapons && 
+      'controversialWeaponsRevenue' in bp1 && typeof bp1.controversialWeaponsRevenue === 'number') {
     sectorData.push({ name: 'Armi controverse', value: bp1.controversialWeaponsRevenue });
   }
   
-  if (bp1.tobacco && typeof bp1.tobaccoRevenue === 'number') {
+  if (bp1 && 'tobacco' in bp1 && bp1.tobacco && 
+      'tobaccoRevenue' in bp1 && typeof bp1.tobaccoRevenue === 'number') {
     sectorData.push({ name: 'Tabacco', value: bp1.tobaccoRevenue });
   }
   
-  if (bp1.fossilFuels) {
-    const coalRevenue = typeof bp1.coalRevenue === 'number' ? bp1.coalRevenue : 0;
-    const oilRevenue = typeof bp1.oilRevenue === 'number' ? bp1.oilRevenue : 0;
-    const gasRevenue = typeof bp1.gasRevenue === 'number' ? bp1.gasRevenue : 0;
+  if (bp1 && 'fossilFuels' in bp1 && bp1.fossilFuels) {
+    const coalRevenue = 'coalRevenue' in bp1 && typeof bp1.coalRevenue === 'number' ? bp1.coalRevenue : 0;
+    const oilRevenue = 'oilRevenue' in bp1 && typeof bp1.oilRevenue === 'number' ? bp1.oilRevenue : 0;
+    const gasRevenue = 'gasRevenue' in bp1 && typeof bp1.gasRevenue === 'number' ? bp1.gasRevenue : 0;
     
     const fossilFuelsTotal = coalRevenue + oilRevenue + gasRevenue;
     if (fossilFuelsTotal > 0) {
@@ -43,15 +45,16 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
     }
   }
   
-  if (bp1.chemicals && typeof bp1.chemicalsRevenue === 'number') {
+  if (bp1 && 'chemicals' in bp1 && bp1.chemicals && 
+      'chemicalsRevenue' in bp1 && typeof bp1.chemicalsRevenue === 'number') {
     sectorData.push({ name: 'Sostanze chimiche', value: bp1.chemicalsRevenue });
   }
   
   // BP2 gender diversity data
   const genderData = [];
-  const maleMembers = typeof bp2.maleGovernanceMembers === 'number' ? bp2.maleGovernanceMembers : 0;
-  const femaleMembers = typeof bp2.femaleGovernanceMembers === 'number' ? bp2.femaleGovernanceMembers : 0;
-  const otherMembers = typeof bp2.otherGenderGovernanceMembers === 'number' ? bp2.otherGenderGovernanceMembers : 0;
+  const maleMembers = bp2 && 'maleGovernanceMembers' in bp2 && typeof bp2.maleGovernanceMembers === 'number' ? bp2.maleGovernanceMembers : 0;
+  const femaleMembers = bp2 && 'femaleGovernanceMembers' in bp2 && typeof bp2.femaleGovernanceMembers === 'number' ? bp2.femaleGovernanceMembers : 0;
+  const otherMembers = bp2 && 'otherGenderGovernanceMembers' in bp2 && typeof bp2.otherGenderGovernanceMembers === 'number' ? bp2.otherGenderGovernanceMembers : 0;
   
   if (maleMembers > 0) {
     genderData.push({ name: 'Uomini', value: maleMembers });
@@ -67,44 +70,47 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
   
   // BP3 ghg reduction targets
   const emissionsData = [];
-  if (bp3.hasGhgReductionTargets) {
-    if (typeof bp3.ghgReductionTargetScope1 === 'number') {
+  if (bp3 && 'hasGhgReductionTargets' in bp3 && bp3.hasGhgReductionTargets) {
+    if ('ghgReductionTargetScope1' in bp3 && typeof bp3.ghgReductionTargetScope1 === 'number') {
       emissionsData.push({ name: 'Ambito 1', value: bp3.ghgReductionTargetScope1 });
     }
     
-    if (typeof bp3.ghgReductionTargetScope2 === 'number') {
+    if ('ghgReductionTargetScope2' in bp3 && typeof bp3.ghgReductionTargetScope2 === 'number') {
       emissionsData.push({ name: 'Ambito 2', value: bp3.ghgReductionTargetScope2 });
     }
     
-    if (typeof bp3.ghgReductionTargetScope3 === 'number') {
+    if ('ghgReductionTargetScope3' in bp3 && typeof bp3.ghgReductionTargetScope3 === 'number') {
       emissionsData.push({ name: 'Ambito 3', value: bp3.ghgReductionTargetScope3 });
     }
   }
   
   // BP6 hazardous waste
   const wasteData = [];
-  if (bp6.hasHazardousWaste) {
-    if (typeof bp6.hazardousWasteTotal === 'number') {
+  if (bp6 && 'hasHazardousWaste' in bp6 && bp6.hasHazardousWaste) {
+    if ('hazardousWasteTotal' in bp6 && typeof bp6.hazardousWasteTotal === 'number') {
       wasteData.push({ name: 'Rifiuti pericolosi', value: bp6.hazardousWasteTotal });
     }
     
-    if (typeof bp6.radioactiveWasteTotal === 'number') {
+    if ('radioactiveWasteTotal' in bp6 && typeof bp6.radioactiveWasteTotal === 'number') {
       wasteData.push({ name: 'Rifiuti radioattivi', value: bp6.radioactiveWasteTotal });
     }
   }
   
   // BP10-11 Work-life balance and apprentices
   const workLifeData = [];
-  if (typeof bp10.maleFamilyLeaveEligible === 'number' || typeof bp10.femaleFamilyLeaveEligible === 'number') {
+  if (bp10 && 
+      ('maleFamilyLeaveEligible' in bp10 && typeof bp10.maleFamilyLeaveEligible === 'number' || 
+       'femaleFamilyLeaveEligible' in bp10 && typeof bp10.femaleFamilyLeaveEligible === 'number')) {
     workLifeData.push({ 
       name: 'Congedo familiare',
-      male: typeof bp10.maleFamilyLeaveUsed === 'number' ? bp10.maleFamilyLeaveUsed : 0,
-      female: typeof bp10.femaleFamilyLeaveUsed === 'number' ? bp10.femaleFamilyLeaveUsed : 0
+      male: 'maleFamilyLeaveUsed' in bp10 && typeof bp10.maleFamilyLeaveUsed === 'number' ? bp10.maleFamilyLeaveUsed : 0,
+      female: 'femaleFamilyLeaveUsed' in bp10 && typeof bp10.femaleFamilyLeaveUsed === 'number' ? bp10.femaleFamilyLeaveUsed : 0
     });
   }
   
   const apprenticesData = [];
-  if (bp11.hasApprentices && typeof bp11.apprenticesNumber === 'number') {
+  if (bp11 && 'hasApprentices' in bp11 && bp11.hasApprentices && 
+      'apprenticesNumber' in bp11 && typeof bp11.apprenticesNumber === 'number') {
     apprenticesData.push({ name: 'Apprendisti', value: bp11.apprenticesNumber });
   }
 

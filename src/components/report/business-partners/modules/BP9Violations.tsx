@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP9Data } from '../hooks/bp9';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP9ViolationsProps {
   reportId: string;
@@ -43,7 +43,7 @@ const BP9Violations: React.FC<BP9ViolationsProps> = ({ reportId }) => {
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <InfoCircle className="h-5 w-5 mt-0.5" />
+            <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               Le violazioni possono includere sanzioni, multe, procedimenti giudiziari o altre forme di non conformità con le leggi e i regolamenti applicabili.
             </p>
@@ -81,7 +81,9 @@ const BP9Violations: React.FC<BP9ViolationsProps> = ({ reportId }) => {
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={saveData}
+              onClick={async () => {
+                await saveData();
+              }}
               isLoading={isLoading}
             >
               Salva

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP3Data } from '../hooks/bp3';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP3GHGReductionTargetsProps {
   reportId: string;
@@ -44,7 +44,7 @@ const BP3GHGReductionTargets: React.FC<BP3GHGReductionTargetsProps> = ({ reportI
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
-            <InfoCircle className="h-5 w-5 mt-0.5" />
+            <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               Gli obiettivi di riduzione delle emissioni di gas serra dovrebbero essere specifici, misurabili e definiti nel tempo.
             </p>
@@ -147,7 +147,9 @@ const BP3GHGReductionTargets: React.FC<BP3GHGReductionTargetsProps> = ({ reportI
               needsSaving={needsSaving}
             />
             <SaveButton
-              onClick={saveData}
+              onClick={async () => {
+                await saveData();
+              }}
               isLoading={isLoading}
             >
               Salva
