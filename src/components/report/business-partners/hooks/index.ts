@@ -15,9 +15,5 @@ export * from './bp9';
 export * from './bp10';
 export * from './bp11';
 
-// Export navigation hooks
-export * from './useBPNavigation';
-export * from './useBPModuleData';
-
 // Legacy hook - will be deprecated
 export * from './useBusinessPartnersData';
