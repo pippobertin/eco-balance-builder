@@ -56,16 +56,16 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
   const handleSave = async () => {
     console.log("BP2: Starting save process");
     setIsSaving(true);
+    
     try {
       await saveData();
       console.log("BP2: Save completed successfully");
       
-      // Keep isSaving true for a moment after save completes
-      // This ensures the indicator shows the saved state properly
+      // Keep isSaving true for a moment longer to ensure the UI shows the saved state
       setTimeout(() => {
         setIsSaving(false);
         console.log("BP2: Save process finished, isSaving set to false");
-      }, 1000); // Longer delay to ensure the indicator has time to update
+      }, 800); // Longer delay to ensure the indicator has time to update
     } catch (error) {
       console.error("BP2: Error during save:", error);
       setIsSaving(false);

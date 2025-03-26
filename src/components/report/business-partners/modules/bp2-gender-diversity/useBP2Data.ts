@@ -105,6 +105,7 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
     try {
       const now = new Date();
       
+      // Use upsert for simplicity and reliability
       const { data, error } = await supabase
         .from('bp2_gender_diversity')
         .upsert({
@@ -122,15 +123,18 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
         return;
       }
       
+      console.log("BP2: Save successful, updating state");
+      
       // Update initial data to match current data after successful save
-      const newInitialData = JSON.parse(JSON.stringify(formData));
-      setInitialFormData(newInitialData);
-      console.log("BP2: Initial form data updated after save:", newInitialData);
+      setInitialFormData(JSON.parse(JSON.stringify(formData)));
+      
+      // Force needsSaving to false
+      setNeedsSaving(false);
       
       // Set the last saved date
       setLastSaved(now);
-      setNeedsSaving(false);
-      console.log("BP2: Data saved successfully, lastSaved set to:", now.toISOString());
+      
+      console.log("BP2: State updated after save - needsSaving:", false, "lastSaved:", now.toISOString());
       
       toast.success("Dati sulla diversità di genere salvati con successo");
       

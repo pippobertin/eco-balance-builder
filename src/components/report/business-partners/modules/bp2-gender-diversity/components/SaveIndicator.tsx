@@ -17,23 +17,20 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   needsSaving,
   lastSaved 
 }) => {
-  console.log('SaveIndicator render:', { isLoading, isSaving, needsSaving, lastSaved: lastSaved ? lastSaved.toISOString() : null });
-  
-  // Create a simpler display state that doesn't try to be too clever with state transitions
-  // This helps ensure we show the correct state without overthinking it
+  // Create a state to track successful saves
   const [showSaved, setShowSaved] = useState(false);
   
+  // Update the showSaved state based on prop changes
   useEffect(() => {
-    // When we complete a save operation (isSaving changes from true to false)
+    // When a save is completed
     if (isSaving === false && lastSaved) {
-      console.log('SaveIndicator: Save completed, showing saved state');
+      // Show the saved state
       setShowSaved(true);
-      // Only reset to unsaved state when user actually makes changes
-    } 
+    }
     
-    // If needsSaving becomes true, we're no longer in saved state
+    // When new changes are detected
     if (needsSaving) {
-      console.log('SaveIndicator: Changes detected, resetting saved state');
+      // Reset to unsaved state
       setShowSaved(false);
     }
   }, [isSaving, needsSaving, lastSaved]);
