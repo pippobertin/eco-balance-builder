@@ -9,7 +9,8 @@ import {
   BP5PhysicalClimateRisks,
   BP6HazardousWaste,
   BP7PolicyAlignment,
-  BP8ComplianceProcesses
+  BP8ComplianceProcesses,
+  BP9Violations
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -34,6 +35,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp6Ref = useRef<HTMLDivElement>(null);
   const bp7Ref = useRef<HTMLDivElement>(null);
   const bp8Ref = useRef<HTMLDivElement>(null);
+  const bp9Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -53,6 +55,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp7Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp8' && bp8Ref.current) {
         bp8Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp9' && bp9Ref.current) {
+        bp9Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -104,6 +108,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP8 - Processi di conformità */}
       <div ref={bp8Ref}>
         <BP8ComplianceProcesses reportId={reportId} />
+      </div>
+
+      {/* BP9 - Violazioni */}
+      <div ref={bp9Ref}>
+        <BP9Violations reportId={reportId} />
       </div>
     </div>
   );

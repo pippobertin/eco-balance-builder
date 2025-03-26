@@ -70,7 +70,7 @@ export interface BP8FormData {
 }
 
 export interface BP9FormData {
-  hasViolations?: boolean;
+  hasViolations: boolean;
   violationsDetails?: string;
 }
 
