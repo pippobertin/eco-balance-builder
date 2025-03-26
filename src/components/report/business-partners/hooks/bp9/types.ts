@@ -1,11 +1,4 @@
 
-import { BP9FormData } from '../types';
+import { BP9FormData, BaseHookResult } from '../types';
 
-export interface BP9HookResult {
-  formData: BP9FormData;
-  setFormData: React.Dispatch<React.SetStateAction<BP9FormData>>;
-  isLoading: boolean;
-  saveData: () => Promise<boolean>;
-  lastSaved: Date | null;
-  needsSaving: boolean;
-}
+export interface BP9HookResult extends BaseHookResult<BP9FormData> {}

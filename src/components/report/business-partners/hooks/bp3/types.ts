@@ -1,11 +1,4 @@
 
-import { BP3FormData } from '../types';
+import { BP3FormData, BaseHookResult } from '../types';
 
-export interface BP3HookResult {
-  formData: BP3FormData;
-  setFormData: React.Dispatch<React.SetStateAction<BP3FormData>>;
-  isLoading: boolean;
-  saveData: () => Promise<boolean>;
-  lastSaved: Date | null;
-  needsSaving: boolean;
-}
+export interface BP3HookResult extends BaseHookResult<BP3FormData> {}

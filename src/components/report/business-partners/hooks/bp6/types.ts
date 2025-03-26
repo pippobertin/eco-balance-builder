@@ -1,11 +1,4 @@
 
-import { BP6FormData } from '../types';
+import { BP6FormData, BaseHookResult } from '../types';
 
-export interface BP6HookResult {
-  formData: BP6FormData;
-  setFormData: React.Dispatch<React.SetStateAction<BP6FormData>>;
-  isLoading: boolean;
-  saveData: () => Promise<boolean>;
-  lastSaved: Date | null;
-  needsSaving: boolean;
-}
+export interface BP6HookResult extends BaseHookResult<BP6FormData> {}
