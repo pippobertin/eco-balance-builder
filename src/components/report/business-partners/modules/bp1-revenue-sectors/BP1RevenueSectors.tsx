@@ -17,13 +17,13 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP1Data(reportId);
   const [saving, setSaving] = useState(false);
 
-  // Log when component mounts with reportId
+  // Log quando il componente viene montato con reportId
   useEffect(() => {
     console.log("BP1RevenueSectors component mounted with reportId:", reportId);
     
-    // Log save indicator status for debugging
+    // Log dello stato dell'indicatore di salvataggio per debug
     if (lastSaved) {
-      console.log("Initial lastSaved value:", lastSaved);
+      console.log("Initial lastSaved value:", lastSaved, "type:", typeof lastSaved);
     } else {
       console.log("No initial lastSaved value");
     }

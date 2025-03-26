@@ -17,7 +17,7 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   needsSaving,
   lastSaved 
 }) => {
-  // Usiamo una funzione per formattare il tempo trascorso dall'ultimo salvataggio
+  // Funzione per formattare il tempo trascorso dall'ultimo salvataggio
   const formatSaveTime = () => {
     if (!lastSaved) return "Non salvato";
     
@@ -33,15 +33,17 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   // Classe di base per tutti gli stati dell'indicatore
   const baseClasses = "flex items-center text-sm px-3 py-1.5 rounded-md";
   
-  if (isSaving) {
+  // Controllo dello stato di caricamento o salvataggio in corso
+  if (isLoading || isSaving) {
     return (
       <div className={`${baseClasses} text-blue-600 bg-blue-50 border border-blue-200`}>
         <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-        <span>Salvataggio in corso...</span>
+        <span>{isSaving ? "Salvataggio in corso..." : "Caricamento..."}</span>
       </div>
     );
   }
   
+  // Controllo delle modifiche non salvate
   if (needsSaving) {
     return (
       <div className={`${baseClasses} text-amber-600 bg-amber-50 border border-amber-200`}>
@@ -51,6 +53,7 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
     );
   }
   
+  // Controllo dell'ultimo salvataggio
   if (lastSaved) {
     return (
       <div className={`${baseClasses} text-green-600 bg-green-50 border border-green-200`}>
@@ -60,6 +63,7 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
     );
   }
   
+  // Stato predefinito
   return (
     <div className={`${baseClasses} text-gray-500 bg-gray-50 border border-gray-200`}>
       <Clock className="h-4 w-4 mr-1" />

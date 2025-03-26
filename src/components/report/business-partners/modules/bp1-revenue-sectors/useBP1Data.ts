@@ -70,7 +70,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     fetchData();
   }, [reportId]);
 
-  // Track changes and set needsSaving flag
+  // Traccia le modifiche e imposta il flag needsSaving
   useEffect(() => {
     if (!isLoading && initialLoadComplete.current) {
       console.log("BP1 form data changed, setting needsSaving to true");
@@ -87,7 +87,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     const now = new Date();
     
     try {
-      // Check if record exists
+      // Controlla se il record esiste già
       const { data: existingData, error: checkError } = await supabase
         .from('bp1_revenue_sectors')
         .select('id')
@@ -98,9 +98,11 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
         throw new Error(checkError.message);
       }
       
+      let success = false;
+      
       if (existingData && existingData.length > 0) {
         console.log("Updating existing BP1 record");
-        // Update existing record
+        // Aggiorna il record esistente
         const { error } = await supabase
           .from('bp1_revenue_sectors')
           .update({
@@ -122,9 +124,11 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
           console.error("Error updating BP1 data:", error);
           throw new Error(error.message);
         }
+        
+        success = true;
       } else {
         console.log("Creating new BP1 record");
-        // Insert new record
+        // Inserisci un nuovo record
         const { error } = await supabase
           .from('bp1_revenue_sectors')
           .insert({
@@ -146,14 +150,20 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
           console.error("Error inserting BP1 data:", error);
           throw new Error(error.message);
         }
+        
+        success = true;
       }
       
-      console.log("BP1 data saved successfully, setting lastSaved to:", now);
-      setLastSaved(now);
-      setNeedsSaving(false);
-      formChangedAfterSave.current = false;
-      toast.success("Dati sui settori di ricavo salvati con successo");
-      return true;
+      if (success) {
+        console.log("BP1 data saved successfully, setting lastSaved to:", now);
+        setLastSaved(now);
+        setNeedsSaving(false);
+        formChangedAfterSave.current = false;
+        toast.success("Dati sui settori di ricavo salvati con successo");
+        return true;
+      }
+      
+      return false;
     } catch (error: any) {
       console.error("Error saving BP1 data:", error);
       toast.error("Errore nel salvataggio dei dati sui settori di ricavo");
