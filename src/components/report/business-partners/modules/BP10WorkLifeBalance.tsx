@@ -23,13 +23,13 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
   };
 
   const calculateUsageRateMale = () => {
-    if (!formData.maleFamilyLeaveEligible || formData.maleFamilyLeaveEligible === 0) return 0;
-    return ((formData.maleFamilyLeaveUsed || 0) / formData.maleFamilyLeaveEligible) * 100;
+    if (!formData.maleParentalLeaveEligible || formData.maleParentalLeaveEligible === 0) return 0;
+    return ((formData.maleParentalLeaveUsed || 0) / formData.maleParentalLeaveEligible) * 100;
   };
 
   const calculateUsageRateFemale = () => {
-    if (!formData.femaleFamilyLeaveEligible || formData.femaleFamilyLeaveEligible === 0) return 0;
-    return ((formData.femaleFamilyLeaveUsed || 0) / formData.femaleFamilyLeaveEligible) * 100;
+    if (!formData.femaleParentalLeaveEligible || formData.femaleParentalLeaveEligible === 0) return 0;
+    return ((formData.femaleParentalLeaveUsed || 0) / formData.femaleParentalLeaveEligible) * 100;
   };
 
   return (
@@ -60,29 +60,29 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
                 <h4 className="font-medium text-blue-600">Dipendenti uomini</h4>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="maleFamilyLeaveEligible">
+                  <Label htmlFor="maleParentalLeaveEligible">
                     Numero di dipendenti uomini idonei al congedo
                   </Label>
                   <Input
-                    id="maleFamilyLeaveEligible"
+                    id="maleParentalLeaveEligible"
                     type="number"
                     min="0"
-                    value={formData.maleFamilyLeaveEligible ?? ''}
-                    onChange={(e) => handleInputChange('maleFamilyLeaveEligible', e.target.value)}
+                    value={formData.maleParentalLeaveEligible ?? ''}
+                    onChange={(e) => handleInputChange('maleParentalLeaveEligible', e.target.value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="maleFamilyLeaveUsed">
+                  <Label htmlFor="maleParentalLeaveUsed">
                     Numero di dipendenti uomini che hanno utilizzato il congedo
                   </Label>
                   <Input
-                    id="maleFamilyLeaveUsed"
+                    id="maleParentalLeaveUsed"
                     type="number"
                     min="0"
-                    max={formData.maleFamilyLeaveEligible ?? undefined}
-                    value={formData.maleFamilyLeaveUsed ?? ''}
-                    onChange={(e) => handleInputChange('maleFamilyLeaveUsed', e.target.value)}
+                    max={formData.maleParentalLeaveEligible ?? undefined}
+                    value={formData.maleParentalLeaveUsed ?? ''}
+                    onChange={(e) => handleInputChange('maleParentalLeaveUsed', e.target.value)}
                   />
                 </div>
                 
@@ -96,29 +96,29 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
                 <h4 className="font-medium text-pink-600">Dipendenti donne</h4>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="femaleFamilyLeaveEligible">
+                  <Label htmlFor="femaleParentalLeaveEligible">
                     Numero di dipendenti donne idonee al congedo
                   </Label>
                   <Input
-                    id="femaleFamilyLeaveEligible"
+                    id="femaleParentalLeaveEligible"
                     type="number"
                     min="0"
-                    value={formData.femaleFamilyLeaveEligible ?? ''}
-                    onChange={(e) => handleInputChange('femaleFamilyLeaveEligible', e.target.value)}
+                    value={formData.femaleParentalLeaveEligible ?? ''}
+                    onChange={(e) => handleInputChange('femaleParentalLeaveEligible', e.target.value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="femaleFamilyLeaveUsed">
+                  <Label htmlFor="femaleParentalLeaveUsed">
                     Numero di dipendenti donne che hanno utilizzato il congedo
                   </Label>
                   <Input
-                    id="femaleFamilyLeaveUsed"
+                    id="femaleParentalLeaveUsed"
                     type="number"
                     min="0"
-                    max={formData.femaleFamilyLeaveEligible ?? undefined}
-                    value={formData.femaleFamilyLeaveUsed ?? ''}
-                    onChange={(e) => handleInputChange('femaleFamilyLeaveUsed', e.target.value)}
+                    max={formData.femaleParentalLeaveEligible ?? undefined}
+                    value={formData.femaleParentalLeaveUsed ?? ''}
+                    onChange={(e) => handleInputChange('femaleParentalLeaveUsed', e.target.value)}
                   />
                 </div>
                 
@@ -140,6 +140,7 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
                 await saveData();
               }}
               isLoading={isLoading}
+              disabled={!needsSaving}
             >
               Salva
             </SaveButton>

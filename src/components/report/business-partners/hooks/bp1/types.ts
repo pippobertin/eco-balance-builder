@@ -1,6 +1,5 @@
 
-import { BP1FormData, BaseHookResult } from '../types';
+import { BP1FormData } from '../types';
+import { BaseHookResult } from '../types';
 
-export interface BP1HookResult extends BaseHookResult<BP1FormData> {
-  // Ereditiamo tutti i campi da BaseHookResult
-}
+export type BP1HookResult = BaseHookResult<BP1FormData>;

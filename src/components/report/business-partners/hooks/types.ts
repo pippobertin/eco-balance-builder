@@ -107,3 +107,13 @@ export interface BusinessPartnersHookResult {
   lastSaved: Date | null;
   needsSaving: boolean;
 }
+
+// Base hook result type for individual BP hooks
+export interface BaseHookResult<T> {
+  formData: T;
+  setFormData: React.Dispatch<React.SetStateAction<T>>;
+  isLoading: boolean;
+  saveData: () => Promise<boolean>;
+  lastSaved: Date | null;
+  needsSaving: boolean;
+}

@@ -7,10 +7,10 @@ import { BP10HookResult } from './types';
 
 export const useBP10Data = (reportId: string): BP10HookResult => {
   const [formData, setFormData] = useState<BP10FormData>({
-    maleFamilyLeaveEligible: undefined,
-    femaleFamilyLeaveEligible: undefined,
-    maleFamilyLeaveUsed: undefined,
-    femaleFamilyLeaveUsed: undefined
+    maleParentalLeaveEligible: undefined,
+    femaleParentalLeaveEligible: undefined,
+    maleParentalLeaveUsed: undefined,
+    femaleParentalLeaveUsed: undefined
   });
   
   const [isLoading, setIsLoading] = useState(true);
@@ -37,10 +37,10 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           }
         } else if (data) {
           setFormData({
-            maleFamilyLeaveEligible: data.male_family_leave_eligible,
-            femaleFamilyLeaveEligible: data.female_family_leave_eligible,
-            maleFamilyLeaveUsed: data.male_family_leave_used,
-            femaleFamilyLeaveUsed: data.female_family_leave_used
+            maleParentalLeaveEligible: data.male_parental_leave_eligible,
+            femaleParentalLeaveEligible: data.female_parental_leave_eligible,
+            maleParentalLeaveUsed: data.male_parental_leave_used,
+            femaleParentalLeaveUsed: data.female_parental_leave_used
           });
           setLastSaved(new Date(data.updated_at));
         }
@@ -76,10 +76,10 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
         .from('bp10_work_life_balance')
         .upsert({
           report_id: reportId,
-          male_family_leave_eligible: formData.maleFamilyLeaveEligible,
-          female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
-          male_family_leave_used: formData.maleFamilyLeaveUsed,
-          female_family_leave_used: formData.femaleFamilyLeaveUsed,
+          male_parental_leave_eligible: formData.maleParentalLeaveEligible,
+          female_parental_leave_eligible: formData.femaleParentalLeaveEligible,
+          male_parental_leave_used: formData.maleParentalLeaveUsed,
+          female_parental_leave_used: formData.femaleParentalLeaveUsed,
           updated_at: now.toISOString()
         }, { onConflict: 'report_id' });
         
