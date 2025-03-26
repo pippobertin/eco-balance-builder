@@ -1,12 +1,12 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Briefcase } from 'lucide-react';
 import { useReport } from '@/hooks/use-report-context';
 import {
   BP1RevenueSectors,
   BP2GenderDiversity,
   BP3GHGReductionTargets,
-  BP4TransitionPlan
+  BP4TransitionPlan,
+  BP5PhysicalClimateRisks
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -27,6 +27,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp2Ref = useRef<HTMLDivElement>(null);
   const bp3Ref = useRef<HTMLDivElement>(null);
   const bp4Ref = useRef<HTMLDivElement>(null);
+  const bp5Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -38,6 +39,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp3Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp4' && bp4Ref.current) {
         bp4Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp5' && bp5Ref.current) {
+        bp5Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -69,6 +72,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP4 - Piano di transizione climatica */}
       <div ref={bp4Ref}>
         <BP4TransitionPlan reportId={reportId} />
+      </div>
+
+      {/* BP5 - Rischi fisici legati al clima */}
+      <div ref={bp5Ref}>
+        <BP5PhysicalClimateRisks reportId={reportId} />
       </div>
     </div>
   );

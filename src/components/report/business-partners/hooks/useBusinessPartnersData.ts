@@ -40,10 +40,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
       hasViolations: false
     },
     bp10: {
-      maleFamilyLeaveEligible: undefined,
-      femaleFamilyLeaveEligible: undefined,
-      maleFamilyLeaveUsed: undefined,
-      femaleFamilyLeaveUsed: undefined
+      maleParentalLeaveEligible: undefined,
+      femaleParentalLeaveEligible: undefined,
+      maleParentalLeaveUsed: undefined,
+      femaleParentalLeaveUsed: undefined
     },
     bp11: {
       hasApprentices: false
@@ -294,10 +294,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
           setFormData(prev => ({
             ...prev,
             bp10: {
-              maleFamilyLeaveEligible: bp10Data[0].male_family_leave_eligible,
-              femaleFamilyLeaveEligible: bp10Data[0].female_family_leave_eligible,
-              maleFamilyLeaveUsed: bp10Data[0].male_family_leave_used,
-              femaleFamilyLeaveUsed: bp10Data[0].female_family_leave_used
+              maleParentalLeaveEligible: bp10Data[0].male_family_leave_eligible,
+              femaleParentalLeaveEligible: bp10Data[0].female_family_leave_eligible,
+              maleParentalLeaveUsed: bp10Data[0].male_family_leave_used,
+              femaleParentalLeaveUsed: bp10Data[0].female_family_leave_used
             }
           }));
           
@@ -797,10 +797,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
             const { error } = await supabase
               .from('bp10_work_life_balance')
               .update({
-                male_family_leave_eligible: formData.bp10.maleFamilyLeaveEligible,
-                female_family_leave_eligible: formData.bp10.femaleFamilyLeaveEligible,
-                male_family_leave_used: formData.bp10.maleFamilyLeaveUsed,
-                female_family_leave_used: formData.bp10.femaleFamilyLeaveUsed,
+                male_family_leave_eligible: formData.bp10.maleParentalLeaveEligible,
+                female_family_leave_eligible: formData.bp10.femaleParentalLeaveEligible,
+                male_family_leave_used: formData.bp10.maleParentalLeaveUsed,
+                female_family_leave_used: formData.bp10.femaleParentalLeaveUsed,
                 updated_at: now.toISOString()
               })
               .eq('report_id', reportId);
@@ -812,10 +812,10 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               .from('bp10_work_life_balance')
               .insert({
                 report_id: reportId,
-                male_family_leave_eligible: formData.bp10.maleFamilyLeaveEligible,
-                female_family_leave_eligible: formData.bp10.femaleFamilyLeaveEligible,
-                male_family_leave_used: formData.bp10.maleFamilyLeaveUsed,
-                female_family_leave_used: formData.bp10.femaleFamilyLeaveUsed,
+                male_family_leave_eligible: formData.bp10.maleParentalLeaveEligible,
+                female_family_leave_eligible: formData.bp10.femaleParentalLeaveEligible,
+                male_family_leave_used: formData.bp10.maleParentalLeaveUsed,
+                female_family_leave_used: formData.bp10.femaleParentalLeaveUsed,
                 updated_at: now.toISOString()
               });
               
@@ -903,12 +903,19 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
     return success;
   };
 
-  // Aggiornata per corrispondere all'interfaccia BusinessPartnersHookResult
-  const updateData = (newData: Partial<BusinessPartnersFormData>) => {
+  // Function to update data for a specific module
+  const updateData = (module: string, data: any) => {
     setFormData(prev => ({
       ...prev,
-      ...newData
+      [module]: data
     }));
+    
+    setSectionNeedsSaving(prev => ({
+      ...prev,
+      [module]: true
+    }));
+    
+    setNeedsSaving(true);
   };
 
   return {
