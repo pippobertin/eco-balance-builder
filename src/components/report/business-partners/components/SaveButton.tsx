@@ -1,23 +1,31 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { SaveButtonProps } from '../hooks/types';
 
 const SaveButton: React.FC<SaveButtonProps> = ({ 
   onClick, 
   isLoading = false, 
-  children,
-  className = ''
+  children, 
+  className,
+  ...props 
 }) => {
   return (
-    <Button 
-      onClick={onClick} 
+    <Button
+      onClick={async () => {
+        await onClick();
+      }}
       disabled={isLoading}
-      className={className}
+      className={`flex items-center space-x-2 ${className}`}
+      {...props}
     >
-      <Save className="mr-2 h-4 w-4" />
-      {isLoading ? 'Salvataggio...' : children}
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Save className="h-4 w-4" />
+      )}
+      <span>{children}</span>
     </Button>
   );
 };

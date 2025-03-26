@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BP2FormData } from '../types';
 import { BP2HookResult } from './types';
+import { useReport } from '@/hooks/use-report-context';
 
 export const useBP2Data = (reportId: string): BP2HookResult => {
+  const { updateReportData } = useReport();
   const [formData, setFormData] = useState<BP2FormData>({
     maleGovernanceMembers: undefined,
     femaleGovernanceMembers: undefined,
@@ -29,12 +31,11 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
           .from('bp2_gender_diversity')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
-          if (error.code !== 'PGRST116') { // Not found error is expected for new reports
-            console.error("Error fetching BP2 data:", error);
-          }
+          console.error("Error fetching BP2 data:", error);
+          toast.error("Errore nel caricamento dei dati sulla diversità di genere");
         } else if (data) {
           setFormData({
             maleGovernanceMembers: data.male_governance_members,
@@ -88,6 +89,13 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
         toast.error("Errore nel salvataggio dei dati sulla diversità di genere");
         return false;
       }
+      
+      // Update the global report data context with the new values
+      updateReportData({
+        businessPartnersMetrics: {
+          bp2: formData
+        }
+      });
       
       setLastSaved(now);
       setNeedsSaving(false);

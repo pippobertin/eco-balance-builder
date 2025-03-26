@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP2Data } from '../hooks/bp2';
-import { SaveButton, SectionAutoSaveIndicator } from '../common';
+import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { Info } from 'lucide-react';
 
 interface BP2GenderDiversityProps {
@@ -22,63 +22,60 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
     }));
   };
 
-  // Modifichiamo il tipo di ritorno per adattarsi a Promise<void>
-  const handleSaveClick = async (): Promise<void> => {
-    await saveData();
-  };
-
-  const calculateDiversityIndex = () => {
-    const maleMembers = formData.maleGovernanceMembers || 0;
-    const femaleMembers = formData.femaleGovernanceMembers || 0;
-    const otherMembers = formData.otherGenderGovernanceMembers || 0;
-    
-    const totalMembers = maleMembers + femaleMembers + otherMembers;
-    
-    if (totalMembers === 0) return 0;
-    
-    // Calcola l'indice di diversità: percentuale di membri non maschi
-    const diversityIndex = ((femaleMembers + otherMembers) / totalMembers) * 100;
-    return Number(diversityIndex.toFixed(2));
-  };
-
-  // Aggiorna l'indice di diversità quando cambiano i membri
+  // Calculate gender diversity index when member counts change
   React.useEffect(() => {
-    const diversityIndex = calculateDiversityIndex();
-    if (diversityIndex !== formData.genderDiversityIndex) {
-      setFormData(prev => ({
-        ...prev,
-        genderDiversityIndex: diversityIndex
-      }));
+    if (formData.maleGovernanceMembers !== undefined && 
+        formData.femaleGovernanceMembers !== undefined) {
+      const total = (formData.maleGovernanceMembers || 0) + 
+                  (formData.femaleGovernanceMembers || 0) + 
+                  (formData.otherGenderGovernanceMembers || 0);
+      
+      if (total > 0) {
+        // Calculate percentage of non-male members
+        const nonMalePercentage = ((formData.femaleGovernanceMembers || 0) + 
+                                 (formData.otherGenderGovernanceMembers || 0)) / total;
+        
+        // Round to 2 decimal places
+        const diversityIndex = Math.round(nonMalePercentage * 100) / 100;
+        
+        setFormData(prev => ({
+          ...prev,
+          genderDiversityIndex: diversityIndex
+        }));
+      }
     }
-  }, [
-    formData.maleGovernanceMembers,
-    formData.femaleGovernanceMembers,
-    formData.otherGenderGovernanceMembers
-  ]);
+  }, [formData.maleGovernanceMembers, formData.femaleGovernanceMembers, formData.otherGenderGovernanceMembers]);
 
   return (
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span className="bg-orange-100 text-orange-700 p-1 rounded">BP2</span>
-          Diversità di genere nella governance
+          Diversità di genere negli organi di governance
         </CardTitle>
         <CardDescription>
-          Indicare la composizione per genere degli organi di governance dell'impresa.
+          Inserisci il numero di membri degli organi di governance suddivisi per genere.
         </CardDescription>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
             <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
-              Inserire il numero di membri degli organi di governance per ciascun genere. L'indice di diversità sarà calcolato automaticamente.
+              Gli organi di governance includono il consiglio di amministrazione, il collegio sindacale e altri organi di controllo.
+              L'indice di diversità di genere viene calcolato automaticamente come percentuale di membri non-maschili.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="maleGovernanceMembers">Membri uomini</Label>
+              <Label htmlFor="maleGovernanceMembers">
+                Membri maschili
+              </Label>
               <Input
                 id="maleGovernanceMembers"
                 type="number"
@@ -89,7 +86,9 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="femaleGovernanceMembers">Membri donne</Label>
+              <Label htmlFor="femaleGovernanceMembers">
+                Membri femminili
+              </Label>
               <Input
                 id="femaleGovernanceMembers"
                 type="number"
@@ -100,7 +99,9 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="otherGenderGovernanceMembers">Membri altri generi</Label>
+              <Label htmlFor="otherGenderGovernanceMembers">
+                Membri di altri generi
+              </Label>
               <Input
                 id="otherGenderGovernanceMembers"
                 type="number"
@@ -111,24 +112,24 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
             </div>
           </div>
           
-          <div className="mt-6 p-4 bg-gray-100 rounded-md">
-            <Label className="text-lg font-medium">Indice di diversità di genere</Label>
-            <p className="text-3xl font-bold mt-2">
-              {formData.genderDiversityIndex?.toFixed(2) || '0.00'}%
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              Percentuale di membri non maschi negli organi di governance
-            </p>
+          <div className="p-4 border rounded-md bg-gray-50">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="genderDiversityIndex" className="font-medium">
+                Indice di diversità di genere
+              </Label>
+              <span className="text-lg font-semibold">
+                {formData.genderDiversityIndex !== undefined 
+                  ? `${(formData.genderDiversityIndex * 100).toFixed(0)}%` 
+                  : '-'}
+              </span>
+            </div>
           </div>
           
-          <div className="flex justify-between items-center pt-4 border-t">
-            <SectionAutoSaveIndicator
-              lastSaved={lastSaved}
-              needsSaving={needsSaving}
-            />
+          <div className="flex justify-end pt-4">
             <SaveButton
-              onClick={handleSaveClick}
+              onClick={saveData}
               isLoading={isLoading}
+              disabled={isLoading || !needsSaving}
             >
               Salva
             </SaveButton>
