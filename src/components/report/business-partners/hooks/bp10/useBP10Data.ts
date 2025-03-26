@@ -87,7 +87,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record - IMPORTANT: Use the correct database column names
+        // Update existing record - Use the correct database column names
         result = await supabase
           .from('bp10_work_life_balance')
           .update({
@@ -99,7 +99,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           })
           .eq('report_id', reportId);
       } else {
-        // Insert new record - IMPORTANT: Use the correct database column names
+        // Insert new record - Use the correct database column names
         result = await supabase
           .from('bp10_work_life_balance')
           .insert({
