@@ -87,7 +87,14 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record - Use exact database column names
+        // Update existing record
+        console.log("Updating with data:", {
+          male_family_leave_eligible: formData.maleParentalLeaveEligible,
+          female_family_leave_eligible: formData.femaleParentalLeaveEligible,
+          male_family_leave_used: formData.maleParentalLeaveUsed,
+          female_family_leave_used: formData.femaleParentalLeaveUsed,
+        });
+        
         result = await supabase
           .from('bp10_work_life_balance')
           .update({
@@ -99,7 +106,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           })
           .eq('report_id', reportId);
       } else {
-        // Insert new record - Use exact database column names
+        // Insert new record
         result = await supabase
           .from('bp10_work_life_balance')
           .insert({

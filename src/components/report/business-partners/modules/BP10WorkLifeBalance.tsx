@@ -112,7 +112,7 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
               onClick={async () => {
                 await saveData();
               }}
-              isLoading={isLoading || isSaving}
+              isLoading={isSaving}
             >
               Salva
             </SaveButton>
