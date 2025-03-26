@@ -5,7 +5,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP1Data } from './useBP1Data';
-import { SaveButton, SectionAutoSaveIndicator } from '../../common';
+import { SaveButton } from '../../common';
+import { format, formatDistanceToNow } from 'date-fns';
+import { it } from 'date-fns/locale';
+import { Clock, Loader2, Save, Check } from 'lucide-react';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -29,17 +32,61 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
     }));
   };
 
+  const formatSaveTime = () => {
+    if (!lastSaved) return "Non salvato";
+    return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
+  };
+
+  const renderSaveIndicator = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center text-blue-600 text-sm">
+          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          <span>Caricamento in corso...</span>
+        </div>
+      );
+    }
+    
+    if (needsSaving) {
+      return (
+        <div className="flex items-center text-amber-600 text-sm">
+          <Clock className="h-4 w-4 mr-1" />
+          <span>Modifiche non salvate</span>
+        </div>
+      );
+    }
+    
+    if (lastSaved) {
+      return (
+        <div className="flex items-center text-green-600 text-sm">
+          <Check className="h-4 w-4 mr-1" />
+          <span>Salvato {formatSaveTime()}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="flex items-center text-gray-500 text-sm">
+        <Clock className="h-4 w-4 mr-1" />
+        <span>Non ancora salvato</span>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
-        <CardDescription>
-          Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
-        </CardDescription>
-        <SectionAutoSaveIndicator 
-          lastSaved={lastSaved} 
-          needsSaving={needsSaving} 
-        />
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
+            <CardDescription>
+              Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
+            </CardDescription>
+          </div>
+          <div className="mt-2">
+            {renderSaveIndicator()}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
