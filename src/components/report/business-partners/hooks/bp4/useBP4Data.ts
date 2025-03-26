@@ -27,7 +27,7 @@ export const useBP4Data = (reportId: string): BP4HookResult => {
           .from('bp4_transition_plan')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -68,17 +68,39 @@ export const useBP4Data = (reportId: string): BP4HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingRecord } = await supabase
         .from('bp4_transition_plan')
-        .upsert({
-          report_id: reportId,
-          has_transition_plan: formData.hasTransitionPlan,
-          transition_plan_details: formData.transitionPlanDetails,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
-        
-      if (error) {
-        console.error("Error saving BP4 data:", error);
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      let result;
+      
+      if (existingRecord) {
+        // Update existing record
+        result = await supabase
+          .from('bp4_transition_plan')
+          .update({
+            has_transition_plan: formData.hasTransitionPlan,
+            transition_plan_details: formData.transitionPlanDetails,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp4_transition_plan')
+          .insert({
+            report_id: reportId,
+            has_transition_plan: formData.hasTransitionPlan,
+            transition_plan_details: formData.transitionPlanDetails,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP4 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sul piano di transizione");
         return false;
       }

@@ -5,7 +5,8 @@ import { useReport } from '@/hooks/use-report-context';
 import {
   BP1RevenueSectors,
   BP2GenderDiversity,
-  BP3GHGReductionTargets
+  BP3GHGReductionTargets,
+  BP4TransitionPlan
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -25,6 +26,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp1Ref = useRef<HTMLDivElement>(null);
   const bp2Ref = useRef<HTMLDivElement>(null);
   const bp3Ref = useRef<HTMLDivElement>(null);
+  const bp4Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -34,6 +36,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp2Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp3' && bp3Ref.current) {
         bp3Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp4' && bp4Ref.current) {
+        bp4Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -60,6 +64,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP3 - Obiettivi riduzione emissioni GHG */}
       <div ref={bp3Ref}>
         <BP3GHGReductionTargets reportId={reportId} />
+      </div>
+
+      {/* BP4 - Piano di transizione climatica */}
+      <div ref={bp4Ref}>
+        <BP4TransitionPlan reportId={reportId} />
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useBP10Data } from '../hooks/bp10';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { Info } from 'lucide-react';
@@ -14,22 +14,12 @@ interface BP10WorkLifeBalanceProps {
 const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) => {
   const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP10Data(reportId);
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    const numValue = value === '' ? undefined : Number(value);
+  const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value === '' ? undefined : Number(e.target.value);
     setFormData(prev => ({
       ...prev,
-      [field]: numValue
+      [field]: value
     }));
-  };
-
-  const calculateUsageRateMale = () => {
-    if (!formData.maleParentalLeaveEligible || formData.maleParentalLeaveEligible === 0) return 0;
-    return ((formData.maleParentalLeaveUsed || 0) / formData.maleParentalLeaveEligible) * 100;
-  };
-
-  const calculateUsageRateFemale = () => {
-    if (!formData.femaleParentalLeaveEligible || formData.femaleParentalLeaveEligible === 0) return 0;
-    return ((formData.femaleParentalLeaveUsed || 0) / formData.femaleParentalLeaveEligible) * 100;
   };
 
   return (
@@ -37,10 +27,10 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span className="bg-orange-100 text-orange-700 p-1 rounded">BP10</span>
-          Equilibrio vita-lavoro
+          Equilibrio vita-lavoro e congedi parentali
         </CardTitle>
         <CardDescription>
-          Fornire informazioni sull'utilizzo dei congedi familiari e parentali da parte dei dipendenti.
+          Indicare i dati sui congedi parentali, suddivisi per genere.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -48,84 +38,58 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
           <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
             <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
-              I congedi familiari e parentali sono importanti strumenti di equilibrio vita-lavoro. Fornire i dati sul numero di dipendenti idonei e quanti hanno effettivamente utilizzato questi congedi.
+              I dati sui congedi parentali sono indicativi dell'equilibrio tra vita lavorativa e vita privata offerto dall'impresa.
             </p>
           </div>
 
-          <div className="space-y-6">
-            <h3 className="font-medium">Congedi familiari e parentali per genere</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4 p-4 border rounded-md">
-                <h4 className="font-medium text-blue-600">Dipendenti uomini</h4>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="maleParentalLeaveEligible">
-                    Numero di dipendenti uomini idonei al congedo
-                  </Label>
-                  <Input
-                    id="maleParentalLeaveEligible"
-                    type="number"
-                    min="0"
-                    value={formData.maleParentalLeaveEligible ?? ''}
-                    onChange={(e) => handleInputChange('maleParentalLeaveEligible', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="maleParentalLeaveUsed">
-                    Numero di dipendenti uomini che hanno utilizzato il congedo
-                  </Label>
-                  <Input
-                    id="maleParentalLeaveUsed"
-                    type="number"
-                    min="0"
-                    max={formData.maleParentalLeaveEligible ?? undefined}
-                    value={formData.maleParentalLeaveUsed ?? ''}
-                    onChange={(e) => handleInputChange('maleParentalLeaveUsed', e.target.value)}
-                  />
-                </div>
-                
-                <div className="mt-4 p-3 bg-gray-100 rounded-md">
-                  <div className="text-sm text-gray-500">Tasso di utilizzo:</div>
-                  <div className="text-lg font-bold">{calculateUsageRateMale().toFixed(1)}%</div>
-                </div>
+          <div className="space-y-4 p-4 border rounded-md">
+            <h3 className="text-lg font-medium">Lavoratori aventi diritto al congedo parentale</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="maleParentalLeaveEligible">Uomini aventi diritto</Label>
+                <Input
+                  id="maleParentalLeaveEligible"
+                  type="number"
+                  placeholder="Numero di uomini"
+                  value={formData.maleParentalLeaveEligible ?? ''}
+                  onChange={handleInputChange('maleParentalLeaveEligible')}
+                />
               </div>
-              
-              <div className="space-y-4 p-4 border rounded-md">
-                <h4 className="font-medium text-pink-600">Dipendenti donne</h4>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="femaleParentalLeaveEligible">
-                    Numero di dipendenti donne idonee al congedo
-                  </Label>
-                  <Input
-                    id="femaleParentalLeaveEligible"
-                    type="number"
-                    min="0"
-                    value={formData.femaleParentalLeaveEligible ?? ''}
-                    onChange={(e) => handleInputChange('femaleParentalLeaveEligible', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="femaleParentalLeaveUsed">
-                    Numero di dipendenti donne che hanno utilizzato il congedo
-                  </Label>
-                  <Input
-                    id="femaleParentalLeaveUsed"
-                    type="number"
-                    min="0"
-                    max={formData.femaleParentalLeaveEligible ?? undefined}
-                    value={formData.femaleParentalLeaveUsed ?? ''}
-                    onChange={(e) => handleInputChange('femaleParentalLeaveUsed', e.target.value)}
-                  />
-                </div>
-                
-                <div className="mt-4 p-3 bg-gray-100 rounded-md">
-                  <div className="text-sm text-gray-500">Tasso di utilizzo:</div>
-                  <div className="text-lg font-bold">{calculateUsageRateFemale().toFixed(1)}%</div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="femaleParentalLeaveEligible">Donne aventi diritto</Label>
+                <Input
+                  id="femaleParentalLeaveEligible"
+                  type="number"
+                  placeholder="Numero di donne"
+                  value={formData.femaleParentalLeaveEligible ?? ''}
+                  onChange={handleInputChange('femaleParentalLeaveEligible')}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 p-4 border rounded-md">
+            <h3 className="text-lg font-medium">Lavoratori che hanno usufruito del congedo parentale</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="maleParentalLeaveUsed">Uomini che hanno usufruito</Label>
+                <Input
+                  id="maleParentalLeaveUsed"
+                  type="number"
+                  placeholder="Numero di uomini"
+                  value={formData.maleParentalLeaveUsed ?? ''}
+                  onChange={handleInputChange('maleParentalLeaveUsed')}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="femaleParentalLeaveUsed">Donne che hanno usufruito</Label>
+                <Input
+                  id="femaleParentalLeaveUsed"
+                  type="number"
+                  placeholder="Numero di donne"
+                  value={formData.femaleParentalLeaveUsed ?? ''}
+                  onChange={handleInputChange('femaleParentalLeaveUsed')}
+                />
               </div>
             </div>
           </div>
@@ -140,7 +104,6 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
                 await saveData();
               }}
               isLoading={isLoading}
-              disabled={!needsSaving}
             >
               Salva
             </SaveButton>

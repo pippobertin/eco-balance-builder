@@ -87,6 +87,21 @@ export interface BP11FormData {
   apprenticesPercentage?: number;
 }
 
+// BusinessPartnersFormData for the combined hook
+export interface BusinessPartnersFormData {
+  bp1?: BP1FormData;
+  bp2?: BP2FormData;
+  bp3?: BP3FormData;
+  bp4?: BP4FormData;
+  bp5?: BP5FormData;
+  bp6?: BP6FormData;
+  bp7?: BP7FormData;
+  bp8?: BP8FormData;
+  bp9?: BP9FormData;
+  bp10?: BP10FormData;
+  bp11?: BP11FormData;
+}
+
 export interface BusinessPartnersHookResult {
   data: {
     bp1?: BP1FormData;
