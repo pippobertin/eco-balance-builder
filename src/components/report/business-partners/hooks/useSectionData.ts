@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
@@ -35,8 +35,10 @@ export function useSectionData<T>({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  const initialLoadComplete = useRef(false);
+  const initialDataRef = useRef<T>(initialData);
 
-  // Caricamento dei dati
+  // Load data from database
   useEffect(() => {
     const fetchData = async () => {
       if (!reportId) return;
@@ -44,6 +46,7 @@ export function useSectionData<T>({
       setIsLoading(true);
       
       try {
+        console.log(`Loading data from ${tableName} for report:`, reportId);
         // Use a type assertion to handle the dynamic table name
         const { data: fetchedData, error } = await supabase
           .from(tableName as any)
@@ -56,6 +59,7 @@ export function useSectionData<T>({
             console.error(`Error fetching data from ${tableName}:`, error);
           }
         } else if (fetchedData) {
+          console.log(`Data loaded from ${tableName}:`, fetchedData);
           // Converte le chiavi da snake_case a camelCase
           const formattedData = Object.keys(fetchedData).reduce((acc, key) => {
             if (key === 'id' || key === 'report_id' || key === 'created_at') return acc;
@@ -68,12 +72,15 @@ export function useSectionData<T>({
           }, {} as Record<string, any>) as T;
           
           setData(formattedData);
+          initialDataRef.current = {...formattedData};
+          
           if (onDataLoaded) onDataLoaded(formattedData);
           
           // Check if fetchedData has updated_at before trying to use it
           if ('updated_at' in fetchedData) {
             const updatedAt = fetchedData.updated_at as string;
             setLastSaved(new Date(updatedAt));
+            console.log(`Last saved date set to:`, new Date(updatedAt));
           }
         }
       } catch (error) {
@@ -81,6 +88,7 @@ export function useSectionData<T>({
         toast.error(`Errore nel caricamento dei dati`);
       } finally {
         setIsLoading(false);
+        initialLoadComplete.current = true;
         setNeedsSaving(false);
       }
     };
@@ -88,18 +96,22 @@ export function useSectionData<T>({
     fetchData();
   }, [reportId, tableName, onDataLoaded]);
 
-  // Imposta needsSaving quando i dati cambiano
+  // Set needsSaving when data changes but only after initial loading is complete
   useEffect(() => {
-    if (!isLoading && !isSaving) {
-      setNeedsSaving(true);
+    if (!isLoading && !isSaving && initialLoadComplete.current) {
+      // Deep compare the current data with the initial data
+      const isChanged = JSON.stringify(data) !== JSON.stringify(initialDataRef.current);
+      setNeedsSaving(isChanged);
+      console.log(`Data changed in ${tableName}, needsSaving:`, isChanged);
     }
-  }, [data, isLoading, isSaving]);
+  }, [data, isLoading, isSaving, tableName]);
 
   // Funzione per salvare i dati
   const saveData = async (dataToSave: T): Promise<boolean> => {
     if (!reportId) return false;
     
     setIsSaving(true);
+    console.log(`Saving data to ${tableName} for report:`, reportId);
     
     try {
       const now = new Date();
@@ -128,6 +140,7 @@ export function useSectionData<T>({
       
       if (existingRecord) {
         // Update existing record if found
+        console.log(`Updating existing record in ${tableName}`);
         const { error: updateError } = await supabase
           .from(tableName as any)
           .update({
@@ -139,6 +152,7 @@ export function useSectionData<T>({
         error = updateError;
       } else {
         // Insert new record if not found
+        console.log(`Creating new record in ${tableName}`);
         const { error: insertError } = await supabase
           .from(tableName as any)
           .insert({
@@ -156,8 +170,14 @@ export function useSectionData<T>({
         return false;
       }
       
+      // Update the initialData reference to the newly saved data
+      initialDataRef.current = {...dataToSave};
+      
+      // Update save indicators
       setLastSaved(now);
       setNeedsSaving(false);
+      console.log(`Data saved to ${tableName}, lastSaved:`, now);
+      
       toast.success(`Dati salvati con successo`);
       return true;
     } catch (error) {

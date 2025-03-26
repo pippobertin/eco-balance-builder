@@ -131,11 +131,12 @@ const BP1RevenueSectorsSection: React.FC<BP1RevenueSectorsProps> = ({
               <AutoSaveIndicator
                 lastSaved={lastSaved}
                 needsSaving={needsSaving}
+                isLoading={isSaving}
               />
             </div>
             <Button
               onClick={handleSave}
-              disabled={isLoading || isSaving}
+              disabled={isLoading || isSaving || !needsSaving}
               className="ml-auto"
             >
               <Save className="mr-2 h-4 w-4" />

@@ -1,39 +1,42 @@
 
+import { PostgrestError } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
-// Utility to handle common Supabase errors and show appropriate user notifications
-export const handleSupabaseError = (error, customMessage = "Si è verificato un errore") => {
-  console.error("Supabase error:", error);
-  
-  // Extract error message
-  let errorMessage = customMessage;
-  
-  if (error.message) {
-    errorMessage = error.message;
-  } else if (error.error?.message) {
-    errorMessage = error.error.message;
+/**
+ * Handles Supabase errors in a consistent way
+ * @param error The Supabase error object
+ * @param defaultMessage Default message to show if error doesn't have a message
+ * @returns Whether the error was handled
+ */
+export const handleSupabaseError = (
+  error: PostgrestError | null | unknown,
+  defaultMessage = 'Si è verificato un errore'
+): boolean => {
+  if (!error) return false;
+
+  let errorMessage = defaultMessage;
+
+  if (typeof error === 'object' && error !== null) {
+    // Check if it's a PostgrestError
+    const postgrestError = error as PostgrestError;
+    if (postgrestError.message) {
+      errorMessage = postgrestError.message;
+      
+      // Special handling for specific error codes
+      if (postgrestError.code === 'PGRST116') {
+        // Not found error, usually expected
+        return false;
+      }
+      
+      if (postgrestError.code === '23505') {
+        errorMessage = 'Questo record esiste già nel database';
+      }
+    }
+  } else if (typeof error === 'string') {
+    errorMessage = error;
   }
-  
-  // Format error message for user display
-  if (errorMessage.includes("network") || errorMessage.includes("connection") || 
-      errorMessage.includes("Failed to fetch") || errorMessage.includes("timeout")) {
-    toast.error("Errore di connessione", {
-      description: "Verifica la tua connessione internet e riprova."
-    });
-  } else if (errorMessage.includes("rate limit") || errorMessage.includes("too many requests")) {
-    toast.error("Troppe richieste", {
-      description: "Hai effettuato troppe richieste. Attendi qualche momento e riprova."
-    });
-  } else if (error.status >= 500 || errorMessage.includes("server error")) {
-    toast.error("Errore del server", {
-      description: "Supabase sta riscontrando problemi. Riprova più tardi."
-    });
-  } else {
-    // Generic error
-    toast.error("Si è verificato un errore", {
-      description: errorMessage.substring(0, 100) // Limit message length
-    });
-  }
-  
-  return error;
+
+  console.error('Supabase error:', error);
+  toast.error(errorMessage);
+  return true;
 };

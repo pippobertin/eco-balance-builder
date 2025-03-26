@@ -8,24 +8,38 @@ interface AutoSaveIndicatorProps {
   needsSaving?: boolean;
   lastSaved: Date | null;
   className?: string;
+  isLoading?: boolean;
 }
 
 const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ 
   needsSaving = false, 
   lastSaved,
-  className = '' 
+  className = '',
+  isLoading = false
 }) => {
-  const displayText = lastSaved 
-    ? formatDistanceToNow(lastSaved, { addSuffix: true, locale: it })
-    : "Non salvato";
+  const formatTime = () => {
+    if (!lastSaved) return "Non salvato";
+    try {
+      return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Data non valida";
+    }
+  };
 
+  // Base class based on state
   const baseClasses = needsSaving 
     ? 'flex items-center text-sm gap-1 px-3 py-2 rounded-md text-amber-600 bg-amber-50 border border-amber-200' 
     : 'flex items-center text-sm gap-1 px-3 py-2 rounded-md text-green-600 bg-green-50 border border-green-200';
 
   return (
-    <div className={`${baseClasses} ${className}`}>
-      {needsSaving ? (
+    <div className={`${baseClasses} ${className}`} data-testid="autosave-indicator">
+      {isLoading ? (
+        <>
+          <Clock className="h-3.5 w-3.5 animate-spin" />
+          <span>Salvataggio in corso...</span>
+        </>
+      ) : needsSaving ? (
         <>
           <Save className="h-3.5 w-3.5" />
           <span>Modifiche non salvate</span>
@@ -33,7 +47,7 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({
       ) : (
         <>
           <Check className="h-3.5 w-3.5" />
-          <span>Salvato {displayText}</span>
+          <span>Salvato {formatTime()}</span>
         </>
       )}
     </div>
