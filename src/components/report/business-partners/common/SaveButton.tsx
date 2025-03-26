@@ -1,29 +1,31 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 interface SaveButtonProps {
   onClick: () => Promise<void | boolean>;
   isLoading?: boolean;
   children: React.ReactNode;
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  className?: string;
+  disabled?: boolean;
 }
 
 const SaveButton: React.FC<SaveButtonProps> = ({ 
   onClick, 
   isLoading = false, 
-  children, 
-  variant = 'default'
+  children,
+  className = '',
+  disabled = false
 }) => {
   return (
     <Button 
-      onClick={onClick}
-      disabled={isLoading}
-      variant={variant}
+      onClick={onClick} 
+      disabled={disabled || isLoading}
+      className={className}
     >
-      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {children}
+      <Save className="mr-2 h-4 w-4" />
+      {isLoading ? 'Salvataggio...' : children}
     </Button>
   );
 };

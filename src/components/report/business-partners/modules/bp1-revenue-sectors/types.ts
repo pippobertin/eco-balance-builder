@@ -1,5 +1,4 @@
 
-// BP1 specific types
 export interface BP1FormData {
   controversialWeapons: boolean;
   tobacco: boolean;

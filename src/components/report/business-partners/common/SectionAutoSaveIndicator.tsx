@@ -1,36 +1,33 @@
 
 import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
+import { Loader2, Check } from 'lucide-react';
 import { it } from 'date-fns/locale';
-import { Loader2 } from 'lucide-react';
 
 interface SectionAutoSaveIndicatorProps {
-  lastSaved: Date | null;
-  needsSaving: boolean;
-  isAutoSaving?: boolean;
+  className?: string;
+  lastSaved?: Date | null;
+  needsSaving?: boolean; 
 }
 
-const SectionAutoSaveIndicator: React.FC<SectionAutoSaveIndicatorProps> = ({
-  lastSaved,
-  needsSaving,
-  isAutoSaving = false,
+const SectionAutoSaveIndicator: React.FC<SectionAutoSaveIndicatorProps> = ({ 
+  className = '',
+  lastSaved = null,
+  needsSaving = false 
 }) => {
   return (
-    <div className="text-sm text-gray-500">
-      {isAutoSaving ? (
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-3 w-3 animate-spin" />
-          <span>Salvataggio in corso...</span>
+    <div className={`flex items-center text-sm ${className}`}>
+      {needsSaving ? (
+        <div className="flex items-center text-amber-500">
+          <Loader2 className="animate-spin h-4 w-4 mr-1" />
+          <span>Modifiche non salvate</span>
         </div>
-      ) : needsSaving ? (
-        <div className="text-amber-500">Modifiche non salvate</div>
       ) : lastSaved ? (
-        <div>
-          Ultimo salvataggio: {formatDistanceToNow(lastSaved, { addSuffix: true, locale: it })}
+        <div className="flex items-center text-green-500">
+          <Check className="h-4 w-4 mr-1" />
+          <span>Salvato {format(lastSaved, 'dd/MM/yyyy HH:mm:ss', { locale: it })}</span>
         </div>
-      ) : (
-        <div>Nessun salvataggio</div>
-      )}
+      ) : null}
     </div>
   );
 };
