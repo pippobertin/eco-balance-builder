@@ -202,8 +202,8 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
           />
         </div>
         
-        <div className="flex justify-start mt-4">
-          <SaveButton onClick={handleSave}>
+        <div className="flex justify-end mt-4">
+          <SaveButton onClick={handleSave} isLoading={isLoading}>
             Salva dati ricavi
           </SaveButton>
         </div>
