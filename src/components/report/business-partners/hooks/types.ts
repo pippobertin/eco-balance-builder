@@ -60,7 +60,7 @@ export interface BP6FormData {
 }
 
 export interface BP7FormData {
-  hasPoliciesAligned?: boolean;
+  hasPoliciesAligned: boolean;
   alignedInstruments?: string;
 }
 

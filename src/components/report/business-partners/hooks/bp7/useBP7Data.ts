@@ -27,7 +27,7 @@ export const useBP7Data = (reportId: string): BP7HookResult => {
           .from('bp7_policy_alignment')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -68,17 +68,43 @@ export const useBP7Data = (reportId: string): BP7HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingData, error: checkError } = await supabase
         .from('bp7_policy_alignment')
-        .upsert({
-          report_id: reportId,
-          has_policies_aligned: formData.hasPoliciesAligned,
-          aligned_instruments: formData.alignedInstruments,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
+        .select('id')
+        .eq('report_id', reportId);
         
-      if (error) {
-        console.error("Error saving BP7 data:", error);
+      if (checkError) {
+        console.error("Error checking for existing BP7 record:", checkError);
+        throw checkError;
+      }
+      
+      let result;
+      
+      if (existingData && existingData.length > 0) {
+        // Update existing record
+        result = await supabase
+          .from('bp7_policy_alignment')
+          .update({
+            has_policies_aligned: formData.hasPoliciesAligned,
+            aligned_instruments: formData.alignedInstruments,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp7_policy_alignment')
+          .insert({
+            report_id: reportId,
+            has_policies_aligned: formData.hasPoliciesAligned,
+            aligned_instruments: formData.alignedInstruments,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP7 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sull'allineamento delle politiche");
         return false;
       }

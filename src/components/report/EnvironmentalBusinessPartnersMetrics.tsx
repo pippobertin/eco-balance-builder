@@ -7,7 +7,8 @@ import {
   BP3GHGReductionTargets,
   BP4TransitionPlan,
   BP5PhysicalClimateRisks,
-  BP6HazardousWaste
+  BP6HazardousWaste,
+  BP7PolicyAlignment
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -30,6 +31,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp4Ref = useRef<HTMLDivElement>(null);
   const bp5Ref = useRef<HTMLDivElement>(null);
   const bp6Ref = useRef<HTMLDivElement>(null);
+  const bp7Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -45,6 +47,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp5Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp6' && bp6Ref.current) {
         bp6Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp7' && bp7Ref.current) {
+        bp7Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -86,6 +90,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP6 - Rifiuti pericolosi */}
       <div ref={bp6Ref}>
         <BP6HazardousWaste reportId={reportId} />
+      </div>
+
+      {/* BP7 - Allineamento delle politiche */}
+      <div ref={bp7Ref}>
+        <BP7PolicyAlignment reportId={reportId} />
       </div>
     </div>
   );
