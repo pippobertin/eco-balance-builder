@@ -32,12 +32,10 @@ export const useBP5Data = (reportId: string): BP5HookResult => {
           .from('bp5_physical_risks')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
-          if (error.code !== 'PGRST116') { // Not found error is expected for new reports
-            console.error("Error fetching BP5 data:", error);
-          }
+          console.error("Error fetching BP5 data:", error);
         } else if (data) {
           setFormData({
             hasPhysicalClimateRisks: data.has_physical_climate_risks,
@@ -78,22 +76,53 @@ export const useBP5Data = (reportId: string): BP5HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record already exists
+      const { data: existingData, error: checkError } = await supabase
         .from('bp5_physical_risks')
-        .upsert({
-          report_id: reportId,
-          has_physical_climate_risks: formData.hasPhysicalClimateRisks,
-          assets_at_risk_amount: formData.assetsAtRiskAmount,
-          assets_at_risk_percentage: formData.assetsAtRiskPercentage,
-          adaptation_coverage: formData.adaptationCoverage,
-          revenue_at_risk_percentage: formData.revenueAtRiskPercentage,
-          risk_assets_location: formData.riskAssetsLocation,
-          real_estate_energy_efficiency: formData.realEstateEnergyEfficiency,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
+        .select('id')
+        .eq('report_id', reportId);
         
-      if (error) {
-        console.error("Error saving BP5 data:", error);
+      if (checkError) {
+        console.error("Error checking for existing BP5 record:", checkError);
+        throw checkError;
+      }
+      
+      let result;
+      
+      if (existingData && existingData.length > 0) {
+        // Update existing record
+        result = await supabase
+          .from('bp5_physical_risks')
+          .update({
+            has_physical_climate_risks: formData.hasPhysicalClimateRisks,
+            assets_at_risk_amount: formData.assetsAtRiskAmount,
+            assets_at_risk_percentage: formData.assetsAtRiskPercentage,
+            adaptation_coverage: formData.adaptationCoverage,
+            revenue_at_risk_percentage: formData.revenueAtRiskPercentage,
+            risk_assets_location: formData.riskAssetsLocation,
+            real_estate_energy_efficiency: formData.realEstateEnergyEfficiency,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp5_physical_risks')
+          .insert({
+            report_id: reportId,
+            has_physical_climate_risks: formData.hasPhysicalClimateRisks,
+            assets_at_risk_amount: formData.assetsAtRiskAmount,
+            assets_at_risk_percentage: formData.assetsAtRiskPercentage,
+            adaptation_coverage: formData.adaptationCoverage,
+            revenue_at_risk_percentage: formData.revenueAtRiskPercentage,
+            risk_assets_location: formData.riskAssetsLocation,
+            real_estate_energy_efficiency: formData.realEstateEnergyEfficiency,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP5 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sui rischi fisici climatici");
         return false;
       }
