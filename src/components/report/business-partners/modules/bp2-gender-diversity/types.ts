@@ -1,5 +1,4 @@
 
-// BP2 specific types
 export interface BP2FormData {
   maleGovernanceMembers?: number;
   femaleGovernanceMembers?: number;
