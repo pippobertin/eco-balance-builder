@@ -43,13 +43,15 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   };
 
   const handleSave = async () => {
-    await saveData();
-    // Update the global report data context with the new values
-    updateReportData({
-      businessPartnersMetrics: {
-        bp1: formData
-      }
-    });
+    const success = await saveData();
+    if (success) {
+      // Update the global report data context with the new values
+      updateReportData({
+        businessPartnersMetrics: {
+          bp1: formData
+        }
+      });
+    }
   };
 
   if (isLoading) {

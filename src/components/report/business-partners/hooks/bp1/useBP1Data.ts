@@ -72,8 +72,8 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   }, [formData, isLoading]);
 
   // Save data to the database
-  const saveData = useCallback(async (): Promise<void> => {
-    if (!reportId) return;
+  const saveData = useCallback(async (): Promise<boolean> => {
+    if (!reportId) return false;
     
     setIsLoading(true);
     
@@ -100,28 +100,21 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       if (error) {
         console.error("Error saving BP1 data:", error);
         toast.error("Errore nel salvataggio dei dati sui ricavi per settore");
-        return;
+        return false;
       }
       
       setLastSaved(now);
       setNeedsSaving(false);
       toast.success("Dati sui ricavi per settore salvati con successo");
-      
-      // Update global report context
-      updateReportData({
-        businessPartnersMetrics: {
-          bp1: {
-            ...formData
-          }
-        }
-      });
+      return true;
     } catch (error) {
       console.error("Unexpected error saving BP1 data:", error);
       toast.error("Errore nel salvataggio dei dati sui ricavi per settore");
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [reportId, formData, updateReportData]);
+  }, [reportId, formData]);
 
   return {
     formData,
