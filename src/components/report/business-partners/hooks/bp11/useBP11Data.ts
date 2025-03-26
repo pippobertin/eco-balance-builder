@@ -28,7 +28,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
           .from('bp11_apprentices')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -70,18 +70,45 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingData, error: checkError } = await supabase
         .from('bp11_apprentices')
-        .upsert({
-          report_id: reportId,
-          has_apprentices: formData.hasApprentices,
-          apprentices_number: formData.apprenticesNumber,
-          apprentices_percentage: formData.apprenticesPercentage,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
+        .select('id')
+        .eq('report_id', reportId);
         
-      if (error) {
-        console.error("Error saving BP11 data:", error);
+      if (checkError) {
+        console.error("Error checking for existing BP11 record:", checkError);
+        throw checkError;
+      }
+      
+      let result;
+      
+      if (existingData && existingData.length > 0) {
+        // Update existing record
+        result = await supabase
+          .from('bp11_apprentices')
+          .update({
+            has_apprentices: formData.hasApprentices,
+            apprentices_number: formData.apprenticesNumber,
+            apprentices_percentage: formData.apprenticesPercentage,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp11_apprentices')
+          .insert({
+            report_id: reportId,
+            has_apprentices: formData.hasApprentices,
+            apprentices_number: formData.apprenticesNumber,
+            apprentices_percentage: formData.apprenticesPercentage,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP11 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sugli apprendisti");
         return false;
       }
