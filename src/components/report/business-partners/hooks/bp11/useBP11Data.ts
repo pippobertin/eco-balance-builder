@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BP11FormData } from '../types';
 import { BP11HookResult } from './types';
+import { handleSupabaseError } from '@/integrations/supabase/utils/errorUtils';
 
 export const useBP11Data = (reportId: string): BP11HookResult => {
   const [formData, setFormData] = useState<BP11FormData>({
@@ -13,6 +14,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
   });
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
   const [totalEmployees, setTotalEmployees] = useState<number | null>(null);
@@ -35,6 +37,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
             console.error("Error fetching BP11 data:", error);
+            handleSupabaseError(error, "Errore nel caricamento dei dati sugli apprendisti");
           }
         } else if (data) {
           setFormData({
@@ -55,6 +58,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
         if (workforceError) {
           if (workforceError.code !== 'PGRST116') {
             console.error("Error fetching workforce data:", workforceError);
+            handleSupabaseError(workforceError, "Errore nel caricamento dei dati sui dipendenti");
           }
         } else if (workforceData && workforceData.total_employees) {
           setTotalEmployees(workforceData.total_employees);
@@ -82,22 +86,25 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
           ...prev,
           apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
         }));
+        // Mark as needing save when we update this calculation
+        setNeedsSaving(true);
       }
     }
   }, [formData.apprenticesNumber, totalEmployees, formData.hasApprentices]);
 
   // Update needsSaving state when form data changes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !isSaving) {
       setNeedsSaving(true);
     }
-  }, [formData, isLoading]);
+  }, [formData.hasApprentices, formData.apprenticesNumber, isLoading, isSaving]);
 
   // Save data to the database
   const saveData = async (): Promise<boolean> => {
     if (!reportId) return false;
     
     setIsLoading(true);
+    setIsSaving(true);
     
     try {
       const now = new Date();
@@ -110,7 +117,8 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
         
       if (checkError) {
         console.error("Error checking for existing BP11 record:", checkError);
-        throw checkError;
+        handleSupabaseError(checkError, "Errore nel controllo dei dati esistenti sugli apprendisti");
+        return false;
       }
       
       let result;
@@ -141,7 +149,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
       
       if (result.error) {
         console.error("Error saving BP11 data:", result.error);
-        toast.error("Errore nel salvataggio dei dati sugli apprendisti");
+        handleSupabaseError(result.error, "Errore nel salvataggio dei dati sugli apprendisti");
         return false;
       }
       
@@ -155,6 +163,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
       return false;
     } finally {
       setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -162,6 +171,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
     formData,
     setFormData,
     isLoading,
+    isSaving,
     saveData,
     lastSaved,
     needsSaving,

@@ -142,6 +142,7 @@ const BP10WorkLifeBalanceSection: React.FC<BP10WorkLifeBalanceProps> = ({
               <AutoSaveIndicator
                 lastSaved={lastSaved}
                 needsSaving={needsSaving}
+                isLoading={isSaving}
               />
             </div>
             <Button

@@ -3,18 +3,37 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useBP10Data } from '../hooks/bp10';
-import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { Info } from 'lucide-react';
+import { SaveButton, SectionAutoSaveIndicator } from '../components';
+import { useSectionData } from '../hooks/useSectionData';
 
 interface BP10WorkLifeBalanceProps {
   reportId: string;
 }
 
-const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP10Data(reportId);
+interface BP10FormData {
+  maleParentalLeaveEligible?: number;
+  femaleParentalLeaveEligible?: number;
+  maleParentalLeaveUsed?: number;
+  femaleParentalLeaveUsed?: number;
+}
 
-  const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) => {
+  const {
+    data: formData,
+    setData: setFormData,
+    isLoading,
+    isSaving,
+    lastSaved,
+    needsSaving,
+    saveData
+  } = useSectionData<BP10FormData>({
+    reportId,
+    tableName: 'bp10_work_life_balance',
+    initialData: {}
+  });
+
+  const handleInputChange = (field: keyof BP10FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value === '' ? undefined : Number(e.target.value);
     setFormData(prev => ({
       ...prev,
@@ -98,12 +117,13 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
             <SectionAutoSaveIndicator
               lastSaved={lastSaved}
               needsSaving={needsSaving}
+              isLoading={isSaving}
             />
             <SaveButton
               onClick={async () => {
-                await saveData();
+                await saveData(formData);
               }}
-              isLoading={isLoading}
+              isLoading={isLoading || isSaving}
             >
               Salva
             </SaveButton>

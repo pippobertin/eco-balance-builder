@@ -1,19 +1,84 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useBP11Data } from '../hooks/bp11';
-import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { Info } from 'lucide-react';
+import { SaveButton, SectionAutoSaveIndicator } from '../components';
+import { useSectionData } from '../hooks/useSectionData';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BP11ApprenticesProps {
   reportId: string;
 }
 
+interface BP11FormData {
+  hasApprentices: boolean;
+  apprenticesNumber?: number;
+  apprenticesPercentage?: number;
+}
+
 const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving, totalEmployees } = useBP11Data(reportId);
+  const [totalEmployees, setTotalEmployees] = React.useState<number | null>(null);
+  
+  const {
+    data: formData,
+    setData: setFormData,
+    isLoading,
+    isSaving,
+    lastSaved,
+    needsSaving,
+    saveData
+  } = useSectionData<BP11FormData>({
+    reportId,
+    tableName: 'bp11_apprentices',
+    initialData: {
+      hasApprentices: false
+    }
+  });
+
+  React.useEffect(() => {
+    const fetchTotalEmployees = async () => {
+      if (!reportId) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('workforce_distribution')
+          .select('total_employees')
+          .eq('report_id', reportId)
+          .maybeSingle();
+          
+        if (error) {
+          if (error.code !== 'PGRST116') {
+            console.error("Error fetching workforce data:", error);
+          }
+        } else if (data && data.total_employees) {
+          setTotalEmployees(data.total_employees);
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching total employees:", error);
+      }
+    };
+
+    fetchTotalEmployees();
+  }, [reportId]);
+
+  React.useEffect(() => {
+    if (formData.hasApprentices && 
+        formData.apprenticesNumber !== undefined && 
+        totalEmployees && 
+        totalEmployees > 0) {
+      
+      const calculatedPercentage = (formData.apprenticesNumber / totalEmployees) * 100;
+      
+      if (formData.apprenticesPercentage !== calculatedPercentage) {
+        setFormData(prev => ({
+          ...prev,
+          apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
+        }));
+      }
+    }
+  }, [formData.apprenticesNumber, totalEmployees, formData.hasApprentices]);
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({
@@ -22,11 +87,11 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
     }));
   };
 
-  const handleInputChange = (field: 'apprenticesNumber', value: string) => {
-    const numValue = value === '' ? undefined : Number(value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value === '' ? undefined : Number(e.target.value);
     setFormData(prev => ({
       ...prev,
-      [field]: numValue
+      apprenticesNumber: value
     }));
   };
 
@@ -76,7 +141,7 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
                     type="number"
                     min="0"
                     value={formData.apprenticesNumber ?? ''}
-                    onChange={(e) => handleInputChange('apprenticesNumber', e.target.value)}
+                    onChange={handleInputChange}
                   />
                 </div>
                 
@@ -109,12 +174,13 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
             <SectionAutoSaveIndicator
               lastSaved={lastSaved}
               needsSaving={needsSaving}
+              isLoading={isSaving}
             />
             <SaveButton
               onClick={async () => {
-                await saveData();
+                await saveData(formData);
               }}
-              isLoading={isLoading}
+              isLoading={isLoading || isSaving}
             >
               Salva
             </SaveButton>
