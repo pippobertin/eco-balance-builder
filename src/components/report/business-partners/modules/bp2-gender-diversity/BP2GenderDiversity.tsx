@@ -63,8 +63,8 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
     } catch (error) {
       console.error("BP2: Error during save:", error);
     } finally {
-      // Aggiungiamo un piccolo ritardo prima di rimuovere lo stato di salvataggio
-      // per garantire che l'utente veda il feedback
+      // Add a small delay before removing the saving state
+      // to ensure user sees the feedback
       setTimeout(() => {
         setIsSaving(false);
         console.log("BP2: Save process finished, isSaving set to false");
