@@ -26,6 +26,8 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       setIsLoading(true);
       
       try {
+        console.log("Fetching BP10 data for report:", reportId);
+        
         const { data, error } = await supabase
           .from('bp10_work_life_balance')
           .select('*')
@@ -37,6 +39,8 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
             console.error("Error fetching BP10 data:", error);
           }
         } else if (data) {
+          console.log("BP10 data loaded:", data);
+          // Map database columns to form fields
           setFormData({
             maleParentalLeaveEligible: data.male_family_leave_eligible,
             femaleParentalLeaveEligible: data.female_family_leave_eligible,
@@ -87,12 +91,12 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record
-        console.log("Updating with data:", {
+        // Update existing record - Map form fields to database columns
+        console.log("Updating BP10 data with:", {
           male_family_leave_eligible: formData.maleParentalLeaveEligible,
           female_family_leave_eligible: formData.femaleParentalLeaveEligible,
           male_family_leave_used: formData.maleParentalLeaveUsed,
-          female_family_leave_used: formData.femaleParentalLeaveUsed,
+          female_family_leave_used: formData.femaleParentalLeaveUsed
         });
         
         result = await supabase
@@ -106,7 +110,14 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           })
           .eq('report_id', reportId);
       } else {
-        // Insert new record
+        // Insert new record - Map form fields to database columns
+        console.log("Inserting new BP10 record with:", {
+          male_family_leave_eligible: formData.maleParentalLeaveEligible,
+          female_family_leave_eligible: formData.femaleParentalLeaveEligible,
+          male_family_leave_used: formData.maleParentalLeaveUsed,
+          female_family_leave_used: formData.femaleParentalLeaveUsed
+        });
+        
         result = await supabase
           .from('bp10_work_life_balance')
           .insert({

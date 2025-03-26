@@ -5,7 +5,7 @@ export interface BP10HookResult {
   formData: BP10FormData;
   setFormData: React.Dispatch<React.SetStateAction<BP10FormData>>;
   isLoading: boolean;
-  isSaving: boolean; // Added the isSaving property to match what's returned by the hook
+  isSaving: boolean;
   saveData: () => Promise<boolean>;
   lastSaved: Date | null;
   needsSaving: boolean;
