@@ -1,5 +1,5 @@
 
-import { BP11FormData } from '../types';
+import { BP11FormData } from '../../hooks/types';
 
 export interface BP11HookResult {
   formData: BP11FormData;
@@ -8,4 +8,5 @@ export interface BP11HookResult {
   saveData: () => Promise<boolean>;
   lastSaved: Date | null;
   needsSaving: boolean;
+  totalEmployees: number | null;
 }

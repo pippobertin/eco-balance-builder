@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ interface BP11ApprenticesProps {
 }
 
 const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP11Data(reportId);
+  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving, totalEmployees } = useBP11Data(reportId);
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({
@@ -22,7 +22,7 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
     }));
   };
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field: 'apprenticesNumber', value: string) => {
     const numValue = value === '' ? undefined : Number(value);
     setFormData(prev => ({
       ...prev,
@@ -47,6 +47,7 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
             <Info className="h-5 w-5 mt-0.5" />
             <p className="text-sm">
               L'apprendistato è una forma di lavoro che combina formazione professionale e lavoro retribuito, tipicamente rivolta ai giovani.
+              {totalEmployees ? ` Il numero totale di dipendenti rilevato è: ${totalEmployees}.` : ' Nessun dato sul numero totale di dipendenti rilevato.'}
             </p>
           </div>
 
@@ -90,8 +91,15 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
                     max="100"
                     step="0.1"
                     value={formData.apprenticesPercentage ?? ''}
-                    onChange={(e) => handleInputChange('apprenticesPercentage', e.target.value)}
+                    readOnly
+                    disabled
+                    className="bg-gray-100"
                   />
+                  {formData.apprenticesPercentage !== undefined && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Calcolato automaticamente dal numero di apprendisti e dal numero totale di dipendenti.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

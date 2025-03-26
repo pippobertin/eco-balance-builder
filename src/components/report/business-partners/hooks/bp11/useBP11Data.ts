@@ -15,6 +15,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  const [totalEmployees, setTotalEmployees] = useState<number | null>(null);
 
   // Load data from database
   useEffect(() => {
@@ -24,6 +25,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
       setIsLoading(true);
       
       try {
+        // Fetch BP11 data
         const { data, error } = await supabase
           .from('bp11_apprentices')
           .select('*')
@@ -42,6 +44,21 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
           });
           setLastSaved(new Date(data.updated_at));
         }
+
+        // Fetch total employees from workforce_distribution
+        const { data: workforceData, error: workforceError } = await supabase
+          .from('workforce_distribution')
+          .select('total_employees')
+          .eq('report_id', reportId)
+          .maybeSingle();
+          
+        if (workforceError) {
+          if (workforceError.code !== 'PGRST116') {
+            console.error("Error fetching workforce data:", workforceError);
+          }
+        } else if (workforceData && workforceData.total_employees) {
+          setTotalEmployees(workforceData.total_employees);
+        }
       } catch (error) {
         console.error("Unexpected error fetching BP11 data:", error);
         toast.error("Errore nel caricamento dei dati sugli apprendisti");
@@ -53,6 +70,21 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
 
     fetchData();
   }, [reportId]);
+
+  // Update percentage automatically when apprentices number or total employees changes
+  useEffect(() => {
+    if (formData.hasApprentices && formData.apprenticesNumber !== undefined && totalEmployees && totalEmployees > 0) {
+      const calculatedPercentage = (formData.apprenticesNumber / totalEmployees) * 100;
+      
+      // Only update if the calculated percentage is different from the current one
+      if (formData.apprenticesPercentage !== calculatedPercentage) {
+        setFormData(prev => ({
+          ...prev,
+          apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
+        }));
+      }
+    }
+  }, [formData.apprenticesNumber, totalEmployees, formData.hasApprentices]);
 
   // Update needsSaving state when form data changes
   useEffect(() => {
@@ -132,6 +164,7 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
     isLoading,
     saveData,
     lastSaved,
-    needsSaving
+    needsSaving,
+    totalEmployees
   };
 };
