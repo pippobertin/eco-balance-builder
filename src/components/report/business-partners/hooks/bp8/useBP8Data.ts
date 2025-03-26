@@ -27,7 +27,7 @@ export const useBP8Data = (reportId: string): BP8HookResult => {
           .from('bp8_compliance_processes')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -68,17 +68,43 @@ export const useBP8Data = (reportId: string): BP8HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingData, error: checkError } = await supabase
         .from('bp8_compliance_processes')
-        .upsert({
-          report_id: reportId,
-          has_compliance_processes: formData.hasComplianceProcesses,
-          compliance_processes_details: formData.complianceProcessesDetails,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
+        .select('id')
+        .eq('report_id', reportId);
         
-      if (error) {
-        console.error("Error saving BP8 data:", error);
+      if (checkError) {
+        console.error("Error checking for existing BP8 record:", checkError);
+        throw checkError;
+      }
+      
+      let result;
+      
+      if (existingData && existingData.length > 0) {
+        // Update existing record
+        result = await supabase
+          .from('bp8_compliance_processes')
+          .update({
+            has_compliance_processes: formData.hasComplianceProcesses,
+            compliance_processes_details: formData.complianceProcessesDetails,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp8_compliance_processes')
+          .insert({
+            report_id: reportId,
+            has_compliance_processes: formData.hasComplianceProcesses,
+            compliance_processes_details: formData.complianceProcessesDetails,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP8 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sui processi di conformità");
         return false;
       }

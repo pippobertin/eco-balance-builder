@@ -65,7 +65,7 @@ export interface BP7FormData {
 }
 
 export interface BP8FormData {
-  hasComplianceProcesses?: boolean;
+  hasComplianceProcesses: boolean;
   complianceProcessesDetails?: string;
 }
 
