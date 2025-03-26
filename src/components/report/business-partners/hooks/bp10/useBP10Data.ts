@@ -14,6 +14,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
   });
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
 
@@ -67,7 +68,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
   const saveData = async (): Promise<boolean> => {
     if (!reportId) return false;
     
-    setIsLoading(true);
+    setIsSaving(true);
     
     try {
       const now = new Date();
@@ -86,7 +87,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record
+        // Update existing record - IMPORTANT: Use the correct database column names
         result = await supabase
           .from('bp10_work_life_balance')
           .update({
@@ -98,7 +99,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           })
           .eq('report_id', reportId);
       } else {
-        // Insert new record
+        // Insert new record - IMPORTANT: Use the correct database column names
         result = await supabase
           .from('bp10_work_life_balance')
           .insert({
@@ -126,7 +127,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       toast.error("Errore nel salvataggio dei dati sull'equilibrio vita-lavoro");
       return false;
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -134,6 +135,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
     formData,
     setFormData,
     isLoading,
+    isSaving,
     saveData,
     lastSaved,
     needsSaving

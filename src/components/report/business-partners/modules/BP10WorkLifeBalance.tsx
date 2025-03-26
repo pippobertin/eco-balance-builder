@@ -5,35 +5,24 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-react';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { useSectionData } from '../hooks/useSectionData';
+import { useBP10Data } from '../hooks/bp10';
 
 interface BP10WorkLifeBalanceProps {
   reportId: string;
 }
 
-interface BP10FormData {
-  maleParentalLeaveEligible?: number;
-  femaleParentalLeaveEligible?: number;
-  maleParentalLeaveUsed?: number;
-  femaleParentalLeaveUsed?: number;
-}
-
 const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) => {
   const {
-    data: formData,
-    setData: setFormData,
+    formData,
+    setFormData,
     isLoading,
     isSaving,
     lastSaved,
     needsSaving,
     saveData
-  } = useSectionData<BP10FormData>({
-    reportId,
-    tableName: 'bp10_work_life_balance',
-    initialData: {}
-  });
+  } = useBP10Data(reportId);
 
-  const handleInputChange = (field: keyof BP10FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value === '' ? undefined : Number(e.target.value);
     setFormData(prev => ({
       ...prev,
@@ -121,7 +110,7 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
             />
             <SaveButton
               onClick={async () => {
-                await saveData(formData);
+                await saveData();
               }}
               isLoading={isLoading || isSaving}
             >
