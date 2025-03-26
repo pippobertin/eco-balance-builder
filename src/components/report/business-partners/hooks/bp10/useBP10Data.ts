@@ -29,7 +29,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           .from('bp10_work_life_balance')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -37,10 +37,10 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           }
         } else if (data) {
           setFormData({
-            maleParentalLeaveEligible: data.male_parental_leave_eligible,
-            femaleParentalLeaveEligible: data.female_parental_leave_eligible,
-            maleParentalLeaveUsed: data.male_parental_leave_used,
-            femaleParentalLeaveUsed: data.female_parental_leave_used
+            maleParentalLeaveEligible: data.male_family_leave_eligible,
+            femaleParentalLeaveEligible: data.female_family_leave_eligible,
+            maleParentalLeaveUsed: data.male_family_leave_used,
+            femaleParentalLeaveUsed: data.female_family_leave_used
           });
           setLastSaved(new Date(data.updated_at));
         }
@@ -72,19 +72,43 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingRecord } = await supabase
         .from('bp10_work_life_balance')
-        .upsert({
-          report_id: reportId,
-          male_parental_leave_eligible: formData.maleParentalLeaveEligible,
-          female_parental_leave_eligible: formData.femaleParentalLeaveEligible,
-          male_parental_leave_used: formData.maleParentalLeaveUsed,
-          female_parental_leave_used: formData.femaleParentalLeaveUsed,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
-        
-      if (error) {
-        console.error("Error saving BP10 data:", error);
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      let result;
+      
+      if (existingRecord) {
+        // Update existing record
+        result = await supabase
+          .from('bp10_work_life_balance')
+          .update({
+            male_family_leave_eligible: formData.maleParentalLeaveEligible,
+            female_family_leave_eligible: formData.femaleParentalLeaveEligible,
+            male_family_leave_used: formData.maleParentalLeaveUsed,
+            female_family_leave_used: formData.femaleParentalLeaveUsed,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp10_work_life_balance')
+          .insert({
+            report_id: reportId,
+            male_family_leave_eligible: formData.maleParentalLeaveEligible,
+            female_family_leave_eligible: formData.femaleParentalLeaveEligible,
+            male_family_leave_used: formData.maleParentalLeaveUsed,
+            female_family_leave_used: formData.femaleParentalLeaveUsed,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP10 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sull'equilibrio vita-lavoro");
         return false;
       }

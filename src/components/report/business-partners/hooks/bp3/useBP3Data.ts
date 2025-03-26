@@ -31,7 +31,7 @@ export const useBP3Data = (reportId: string): BP3HookResult => {
           .from('bp3_ghg_targets')
           .select('*')
           .eq('report_id', reportId)
-          .single();
+          .maybeSingle();
           
         if (error) {
           if (error.code !== 'PGRST116') { // Not found error is expected for new reports
@@ -76,21 +76,47 @@ export const useBP3Data = (reportId: string): BP3HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // Check if record exists
+      const { data: existingRecord } = await supabase
         .from('bp3_ghg_targets')
-        .upsert({
-          report_id: reportId,
-          has_ghg_reduction_targets: formData.hasGhgReductionTargets,
-          ghg_reduction_target_scope1: formData.ghgReductionTargetScope1,
-          ghg_reduction_target_scope2: formData.ghgReductionTargetScope2,
-          ghg_reduction_target_scope3: formData.ghgReductionTargetScope3,
-          ghg_reduction_target_year: formData.ghgReductionTargetYear,
-          ghg_reduction_baseline_year: formData.ghgReductionBaselineYear,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
-        
-      if (error) {
-        console.error("Error saving BP3 data:", error);
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      let result;
+      
+      if (existingRecord) {
+        // Update existing record
+        result = await supabase
+          .from('bp3_ghg_targets')
+          .update({
+            has_ghg_reduction_targets: formData.hasGhgReductionTargets,
+            ghg_reduction_target_scope1: formData.ghgReductionTargetScope1,
+            ghg_reduction_target_scope2: formData.ghgReductionTargetScope2,
+            ghg_reduction_target_scope3: formData.ghgReductionTargetScope3,
+            ghg_reduction_target_year: formData.ghgReductionTargetYear,
+            ghg_reduction_baseline_year: formData.ghgReductionBaselineYear,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp3_ghg_targets')
+          .insert({
+            report_id: reportId,
+            has_ghg_reduction_targets: formData.hasGhgReductionTargets,
+            ghg_reduction_target_scope1: formData.ghgReductionTargetScope1,
+            ghg_reduction_target_scope2: formData.ghgReductionTargetScope2,
+            ghg_reduction_target_scope3: formData.ghgReductionTargetScope3,
+            ghg_reduction_target_year: formData.ghgReductionTargetYear,
+            ghg_reduction_baseline_year: formData.ghgReductionBaselineYear,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP3 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sugli obiettivi di riduzione GHG");
         return false;
       }
