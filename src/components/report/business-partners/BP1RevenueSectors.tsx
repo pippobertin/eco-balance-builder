@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Factory } from 'lucide-react';
+import { Factory, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { SaveButton, SectionAutoSaveIndicator } from './components';
 import { useBP1Data } from './hooks/bp1';
 import { useReport } from '@/hooks/use-report-context';
+import { Button } from '@/components/ui/button';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -205,9 +206,14 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
         </div>
         
         <div className="flex justify-end mt-4">
-          <SaveButton onClick={handleSave} isLoading={isLoading}>
-            Salva dati ricavi
-          </SaveButton>
+          <Button 
+            onClick={handleSave} 
+            disabled={isLoading || !needsSaving}
+            className="flex items-center space-x-2"
+          >
+            <Save className="h-4 w-4" />
+            <span>Salva dati ricavi</span>
+          </Button>
         </div>
       </div>
     </GlassmorphicCard>
