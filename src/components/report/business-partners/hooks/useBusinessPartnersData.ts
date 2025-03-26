@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { BusinessPartnersFormData, BusinessPartnersHookResult } from './types';
 import { supabase } from '@/integrations/supabase/client';
@@ -843,4 +844,71 @@ export const useBusinessPartnersData = (reportId: string): BusinessPartnersHookR
               .from('bp11_apprentices')
               .update({
                 has_apprentices: formData.bp11.hasApprentices,
-                apprent
+                apprentices_number: formData.bp11.apprenticesNumber,
+                apprentices_percentage: formData.bp11.apprenticesPercentage,
+                updated_at: now.toISOString()
+              })
+              .eq('report_id', reportId);
+              
+            if (error) throw new Error(error.message);
+          } else {
+            // Insert new record
+            const { error } = await supabase
+              .from('bp11_apprentices')
+              .insert({
+                report_id: reportId,
+                has_apprentices: formData.bp11.hasApprentices,
+                apprentices_number: formData.bp11.apprenticesNumber,
+                apprentices_percentage: formData.bp11.apprenticesPercentage,
+                updated_at: now.toISOString()
+              });
+              
+            if (error) throw new Error(error.message);
+          }
+        } catch (error: any) {
+          console.error(`Error saving BP11 data:`, error);
+          success = false;
+        }
+      }
+      
+      if (success) {
+        setLastSaved(now);
+        setSectionNeedsSaving({
+          bp1: false,
+          bp2: false,
+          bp3: false,
+          bp4: false,
+          bp5: false,
+          bp6: false,
+          bp7: false,
+          bp8: false,
+          bp9: false,
+          bp10: false,
+          bp11: false
+        });
+        setNeedsSaving(false);
+        toast.success("Dati sui partner commerciali salvati con successo");
+      } else {
+        toast.error("Si è verificato un errore durante il salvataggio dei dati sui partner commerciali");
+      }
+      
+    } catch (error) {
+      console.error("Error saving business partners data:", error);
+      toast.error("Errore nel salvataggio dei dati sui partner commerciali");
+      success = false;
+    } finally {
+      setIsLoading(false);
+    }
+    
+    return success;
+  };
+
+  return {
+    formData,
+    setFormData,
+    isLoading,
+    saveData,
+    lastSaved,
+    needsSaving
+  };
+};
