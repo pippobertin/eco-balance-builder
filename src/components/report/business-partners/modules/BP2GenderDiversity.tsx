@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,23 +24,28 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
 
   // Calculate gender diversity index when member counts change
   React.useEffect(() => {
-    if (formData.maleGovernanceMembers !== undefined && 
-        formData.femaleGovernanceMembers !== undefined) {
-      const total = (formData.maleGovernanceMembers || 0) + 
-                  (formData.femaleGovernanceMembers || 0) + 
-                  (formData.otherGenderGovernanceMembers || 0);
+    if (formData.maleGovernanceMembers !== undefined || 
+        formData.femaleGovernanceMembers !== undefined || 
+        formData.otherGenderGovernanceMembers !== undefined) {
+      
+      const maleCount = formData.maleGovernanceMembers || 0;
+      const femaleCount = formData.femaleGovernanceMembers || 0;
+      const otherCount = formData.otherGenderGovernanceMembers || 0;
+      
+      const total = maleCount + femaleCount + otherCount;
       
       if (total > 0) {
         // Calculate percentage of non-male members
-        const nonMalePercentage = ((formData.femaleGovernanceMembers || 0) + 
-                                 (formData.otherGenderGovernanceMembers || 0)) / total;
-        
-        // Round to 2 decimal places
-        const diversityIndex = Math.round(nonMalePercentage * 100) / 100;
+        const nonMalePercentage = (femaleCount + otherCount) / total;
         
         setFormData(prev => ({
           ...prev,
-          genderDiversityIndex: diversityIndex
+          genderDiversityIndex: nonMalePercentage
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          genderDiversityIndex: 0
         }));
       }
     }
@@ -59,6 +64,7 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}
           needsSaving={needsSaving}
+          isLoading={isLoading}
         />
       </CardHeader>
       <CardContent>

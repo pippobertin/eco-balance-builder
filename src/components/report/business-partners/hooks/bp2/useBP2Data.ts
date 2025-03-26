@@ -73,19 +73,43 @@ export const useBP2Data = (reportId: string): BP2HookResult => {
     try {
       const now = new Date();
       
-      const { error } = await supabase
+      // First check if record exists
+      const { data: existingData } = await supabase
         .from('bp2_gender_diversity')
-        .upsert({
-          report_id: reportId,
-          male_governance_members: formData.maleGovernanceMembers,
-          female_governance_members: formData.femaleGovernanceMembers,
-          other_gender_governance_members: formData.otherGenderGovernanceMembers,
-          gender_diversity_index: formData.genderDiversityIndex,
-          updated_at: now.toISOString()
-        }, { onConflict: 'report_id' });
-        
-      if (error) {
-        console.error("Error saving BP2 data:", error);
+        .select('id')
+        .eq('report_id', reportId)
+        .maybeSingle();
+      
+      let result;
+      
+      if (existingData) {
+        // Update existing record
+        result = await supabase
+          .from('bp2_gender_diversity')
+          .update({
+            male_governance_members: formData.maleGovernanceMembers,
+            female_governance_members: formData.femaleGovernanceMembers,
+            other_gender_governance_members: formData.otherGenderGovernanceMembers,
+            gender_diversity_index: formData.genderDiversityIndex,
+            updated_at: now.toISOString()
+          })
+          .eq('report_id', reportId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('bp2_gender_diversity')
+          .insert({
+            report_id: reportId,
+            male_governance_members: formData.maleGovernanceMembers,
+            female_governance_members: formData.femaleGovernanceMembers,
+            other_gender_governance_members: formData.otherGenderGovernanceMembers,
+            gender_diversity_index: formData.genderDiversityIndex,
+            updated_at: now.toISOString()
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving BP2 data:", result.error);
         toast.error("Errore nel salvataggio dei dati sulla diversità di genere");
         return false;
       }

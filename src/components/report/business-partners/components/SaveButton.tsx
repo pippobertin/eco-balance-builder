@@ -8,7 +8,8 @@ const SaveButton: React.FC<SaveButtonProps> = ({
   onClick, 
   isLoading = false, 
   children, 
-  className,
+  className = '',
+  disabled = false,
   ...props 
 }) => {
   return (
@@ -16,7 +17,7 @@ const SaveButton: React.FC<SaveButtonProps> = ({
       onClick={async () => {
         await onClick();
       }}
-      disabled={isLoading}
+      disabled={disabled || isLoading}
       className={`flex items-center space-x-2 ${className}`}
       {...props}
     >
