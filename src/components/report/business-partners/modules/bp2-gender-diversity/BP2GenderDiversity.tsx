@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -60,15 +59,16 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
     try {
       await saveData();
       console.log("BP2: Save completed successfully");
-    } catch (error) {
-      console.error("BP2: Error during save:", error);
-    } finally {
-      // Add a small delay before removing the saving state
-      // to ensure user sees the feedback
+      
+      // Keep isSaving true for a moment after save completes
+      // This ensures the indicator shows the saved state properly
       setTimeout(() => {
         setIsSaving(false);
         console.log("BP2: Save process finished, isSaving set to false");
-      }, 500);
+      }, 1000); // Longer delay to ensure the indicator has time to update
+    } catch (error) {
+      console.error("BP2: Error during save:", error);
+      setIsSaving(false);
     }
   };
 

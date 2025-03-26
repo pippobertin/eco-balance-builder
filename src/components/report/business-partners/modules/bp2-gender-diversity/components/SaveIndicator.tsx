@@ -19,48 +19,33 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
 }) => {
   console.log('SaveIndicator render:', { isLoading, isSaving, needsSaving, lastSaved: lastSaved ? lastSaved.toISOString() : null });
   
-  // Local state to prevent flickering and maintain saved state
-  const [displayState, setDisplayState] = useState({
-    isLoading,
-    isSaving,
-    needsSaving,
-    lastSaved
-  });
-
-  // Update local state only when props change significantly
+  // Create a simpler display state that doesn't try to be too clever with state transitions
+  // This helps ensure we show the correct state without overthinking it
+  const [showSaved, setShowSaved] = useState(false);
+  
   useEffect(() => {
-    // When save operation completes (isSaving transitions from true to false)
-    if (displayState.isSaving && !isSaving) {
-      console.log('SaveIndicator: Save operation completed');
-      setDisplayState({
-        isLoading,
-        isSaving,
-        needsSaving: false, // Force needsSaving to false after saving
-        lastSaved
-      });
+    // When we complete a save operation (isSaving changes from true to false)
+    if (isSaving === false && lastSaved) {
+      console.log('SaveIndicator: Save completed, showing saved state');
+      setShowSaved(true);
+      // Only reset to unsaved state when user actually makes changes
     } 
-    // For other state transitions
-    else if (
-      displayState.isLoading !== isLoading ||
-      displayState.isSaving !== isSaving ||
-      // Only update if needsSaving becomes true or if lastSaved has changed
-      (needsSaving && !displayState.needsSaving) ||
-      (lastSaved && (!displayState.lastSaved || lastSaved.getTime() !== displayState.lastSaved.getTime()))
-    ) {
-      console.log('SaveIndicator: Updating display state due to prop changes');
-      setDisplayState({ isLoading, isSaving, needsSaving, lastSaved });
+    
+    // If needsSaving becomes true, we're no longer in saved state
+    if (needsSaving) {
+      console.log('SaveIndicator: Changes detected, resetting saved state');
+      setShowSaved(false);
     }
-  }, [isLoading, isSaving, needsSaving, lastSaved]);
+  }, [isSaving, needsSaving, lastSaved]);
   
   // Format the time since last save
   const formatSaveTime = () => {
-    if (!displayState.lastSaved) return "Non salvato";
+    if (!lastSaved) return "Non salvato";
     
     try {
-      // Use formatDistanceToNow to show elapsed time in readable form
-      return formatDistanceToNow(displayState.lastSaved, { addSuffix: true, locale: it });
+      return formatDistanceToNow(lastSaved, { addSuffix: true, locale: it });
     } catch (error) {
-      console.error("Error formatting date:", error, displayState.lastSaved);
+      console.error("Error formatting date:", error, lastSaved);
       return "Invalid date";
     }
   };
@@ -69,17 +54,27 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   const baseClasses = "flex items-center text-sm px-3 py-1.5 rounded-md";
   
   // Check loading or saving state
-  if (displayState.isLoading || displayState.isSaving) {
+  if (isLoading || isSaving) {
     return (
       <div className={`${baseClasses} text-blue-600 bg-blue-50 border border-blue-200`} data-testid="save-indicator-loading">
         <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-        <span>{displayState.isSaving ? "Salvataggio in corso..." : "Caricamento..."}</span>
+        <span>{isSaving ? "Salvataggio in corso..." : "Caricamento..."}</span>
+      </div>
+    );
+  }
+  
+  // If we're showing saved state and not in needsSaving state
+  if (showSaved && !needsSaving && lastSaved) {
+    return (
+      <div className={`${baseClasses} text-green-600 bg-green-50 border border-green-200`} data-testid="save-indicator-saved">
+        <Check className="h-4 w-4 mr-1" />
+        <span>Salvato {formatSaveTime()}</span>
       </div>
     );
   }
   
   // Check unsaved changes
-  if (displayState.needsSaving) {
+  if (needsSaving) {
     return (
       <div className={`${baseClasses} text-amber-600 bg-amber-50 border border-amber-200`} data-testid="save-indicator-unsaved">
         <Clock className="h-4 w-4 mr-1" />
@@ -88,8 +83,8 @@ const SaveIndicator: React.FC<SaveIndicatorProps> = ({
     );
   }
   
-  // Check last saved
-  if (displayState.lastSaved) {
+  // If we have a last saved time but not showing saved state (fallback)
+  if (lastSaved) {
     return (
       <div className={`${baseClasses} text-green-600 bg-green-50 border border-green-200`} data-testid="save-indicator-saved">
         <Check className="h-4 w-4 mr-1" />
