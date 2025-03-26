@@ -44,7 +44,7 @@ export interface BP4FormData {
 }
 
 export interface BP5FormData {
-  hasPhysicalClimateRisks?: boolean;
+  hasPhysicalClimateRisks: boolean;
   assetsAtRiskAmount?: number;
   assetsAtRiskPercentage?: number;
   adaptationCoverage?: number;
@@ -54,7 +54,7 @@ export interface BP5FormData {
 }
 
 export interface BP6FormData {
-  hasHazardousWaste?: boolean;
+  hasHazardousWaste: boolean;
   hazardousWasteTotal?: number;
   radioactiveWasteTotal?: number;
 }

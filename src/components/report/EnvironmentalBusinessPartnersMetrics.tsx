@@ -6,7 +6,8 @@ import {
   BP2GenderDiversity,
   BP3GHGReductionTargets,
   BP4TransitionPlan,
-  BP5PhysicalClimateRisks
+  BP5PhysicalClimateRisks,
+  BP6HazardousWaste
 } from './business-partners/modules';
 
 interface EnvironmentalBusinessPartnersMetricsProps {
@@ -28,6 +29,7 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
   const bp3Ref = useRef<HTMLDivElement>(null);
   const bp4Ref = useRef<HTMLDivElement>(null);
   const bp5Ref = useRef<HTMLDivElement>(null);
+  const bp6Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialField) {
@@ -41,6 +43,8 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
         bp4Ref.current.scrollIntoView({ behavior: 'smooth' });
       } else if (initialField === 'bp5' && bp5Ref.current) {
         bp5Ref.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (initialField === 'bp6' && bp6Ref.current) {
+        bp6Ref.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [initialField]);
@@ -77,6 +81,11 @@ const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartne
       {/* BP5 - Rischi fisici legati al clima */}
       <div ref={bp5Ref}>
         <BP5PhysicalClimateRisks reportId={reportId} />
+      </div>
+
+      {/* BP6 - Rifiuti pericolosi */}
+      <div ref={bp6Ref}>
+        <BP6HazardousWaste reportId={reportId} />
       </div>
     </div>
   );
