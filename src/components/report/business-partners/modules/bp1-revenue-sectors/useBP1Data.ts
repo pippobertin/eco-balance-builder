@@ -1,8 +1,8 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { BP1FormData, BP1HookResult } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { BP1FormData, BP1HookResult } from './types';
 
 export const useBP1Data = (reportId: string): BP1HookResult => {
   const [formData, setFormData] = useState<BP1FormData>({
@@ -14,9 +14,8 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [needsSaving, setNeedsSaving] = useState(false);
+  const [needsSaving, setNeedsSaving] = useState<boolean>(false);
 
-  // Load data from database
   useEffect(() => {
     const fetchData = async () => {
       if (!reportId) return;
@@ -24,76 +23,65 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       setIsLoading(true);
       
       try {
-        // Use .eq and don't use .single() to avoid 406 errors
+        // BP1 - don't use .single() to avoid 406 errors
         const { data, error } = await supabase
           .from('bp1_revenue_sectors')
           .select('*')
           .eq('report_id', reportId);
           
-        if (error) {
-          console.error("Error fetching BP1 data:", error);
-          toast.error("Errore nel caricamento dei dati sui ricavi per settore");
-        } else if (data && data.length > 0) {
-          // Get the first record if there are multiple (should be only one)
-          const record = data[0];
+        if (!error && data && data.length > 0) {
           setFormData({
-            controversialWeapons: record.controversial_weapons || false,
-            tobacco: record.tobacco || false,
-            fossilFuels: record.fossil_fuels || false,
-            chemicals: record.chemicals || false,
-            controversialWeaponsRevenue: record.controversial_weapons_revenue,
-            tobaccoRevenue: record.tobacco_revenue,
-            coalRevenue: record.coal_revenue,
-            oilRevenue: record.oil_revenue,
-            gasRevenue: record.gas_revenue,
-            chemicalsRevenue: record.chemicals_revenue
+            controversialWeapons: data[0].controversial_weapons || false,
+            tobacco: data[0].tobacco || false,
+            fossilFuels: data[0].fossil_fuels || false,
+            chemicals: data[0].chemicals || false,
+            controversialWeaponsRevenue: data[0].controversial_weapons_revenue,
+            tobaccoRevenue: data[0].tobacco_revenue,
+            coalRevenue: data[0].coal_revenue,
+            oilRevenue: data[0].oil_revenue,
+            gasRevenue: data[0].gas_revenue,
+            chemicalsRevenue: data[0].chemicals_revenue
           });
-          setLastSaved(new Date(record.updated_at));
+          
+          setLastSaved(new Date(data[0].updated_at));
         }
       } catch (error) {
-        console.error("Unexpected error fetching BP1 data:", error);
-        toast.error("Errore nel caricamento dei dati sui ricavi per settore");
+        console.error("Error fetching BP1 data:", error);
+        toast.error("Errore nel caricamento dei dati sui settori di ricavo");
       } finally {
-        setIsLoading(false);
         setNeedsSaving(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, [reportId]);
 
-  // Update needsSaving state when form data changes
+  // Track changes and set needsSaving flag
   useEffect(() => {
     if (!isLoading) {
       setNeedsSaving(true);
     }
   }, [formData, isLoading]);
 
-  // Save data to the database
-  const saveData = useCallback(async (): Promise<void> => {
+  const saveData = async (): Promise<void> => {
     if (!reportId) return;
     
     setIsLoading(true);
+    const now = new Date();
     
     try {
-      const now = new Date();
-      
-      // First check if the record exists
+      // Check if record exists
       const { data: existingData, error: checkError } = await supabase
         .from('bp1_revenue_sectors')
         .select('id')
         .eq('report_id', reportId);
-      
-      if (checkError) {
-        console.error("Error checking BP1 data:", checkError);
-        throw new Error(checkError.message);
-      }
-
-      let result;
+        
+      if (checkError) throw new Error(checkError.message);
       
       if (existingData && existingData.length > 0) {
         // Update existing record
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('bp1_revenue_sectors')
           .update({
             controversial_weapons: formData.controversialWeapons,
@@ -109,15 +97,11 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
             updated_at: now.toISOString()
           })
           .eq('report_id', reportId);
-        
-        if (error) {
-          console.error("Error updating BP1 data:", error);
-          throw new Error(error.message);
-        }
-        result = data;
+          
+        if (error) throw new Error(error.message);
       } else {
         // Insert new record
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('bp1_revenue_sectors')
           .insert({
             report_id: reportId,
@@ -133,24 +117,20 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
             chemicals_revenue: formData.chemicalsRevenue,
             updated_at: now.toISOString()
           });
-        
-        if (error) {
-          console.error("Error inserting BP1 data:", error);
-          throw new Error(error.message);
-        }
-        result = data;
+          
+        if (error) throw new Error(error.message);
       }
       
       setLastSaved(now);
       setNeedsSaving(false);
-      toast.success("Dati sui ricavi per settore salvati con successo");
+      toast.success("Dati sui settori di ricavo salvati con successo");
     } catch (error: any) {
-      console.error("Unexpected error saving BP1 data:", error);
-      toast.error(`Errore nel salvataggio dei dati sui ricavi per settore: ${error.message}`);
+      console.error("Error saving BP1 data:", error);
+      toast.error("Errore nel salvataggio dei dati sui settori di ricavo");
     } finally {
       setIsLoading(false);
     }
-  }, [reportId, formData]);
+  };
 
   return {
     formData,
