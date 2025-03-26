@@ -30,7 +30,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   };
 
   return (
-    <Card>
+    <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span className="bg-orange-100 text-orange-700 p-1 rounded">BP1</span>

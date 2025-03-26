@@ -27,23 +27,24 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
         const { data, error } = await supabase
           .from('bp1_revenue_sectors')
           .select('*')
-          .eq('report_id', reportId);
+          .eq('report_id', reportId)
+          .maybeSingle();
           
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           setFormData({
-            controversialWeapons: data[0].controversial_weapons || false,
-            tobacco: data[0].tobacco || false,
-            fossilFuels: data[0].fossil_fuels || false,
-            chemicals: data[0].chemicals || false,
-            controversialWeaponsRevenue: data[0].controversial_weapons_revenue,
-            tobaccoRevenue: data[0].tobacco_revenue,
-            coalRevenue: data[0].coal_revenue,
-            oilRevenue: data[0].oil_revenue,
-            gasRevenue: data[0].gas_revenue,
-            chemicalsRevenue: data[0].chemicals_revenue
+            controversialWeapons: data.controversial_weapons || false,
+            tobacco: data.tobacco || false,
+            fossilFuels: data.fossil_fuels || false,
+            chemicals: data.chemicals || false,
+            controversialWeaponsRevenue: data.controversial_weapons_revenue,
+            tobaccoRevenue: data.tobacco_revenue,
+            coalRevenue: data.coal_revenue,
+            oilRevenue: data.oil_revenue,
+            gasRevenue: data.gas_revenue,
+            chemicalsRevenue: data.chemicals_revenue
           });
           
-          setLastSaved(new Date(data[0].updated_at));
+          setLastSaved(new Date(data.updated_at));
         }
       } catch (error) {
         console.error("Error fetching BP1 data:", error);
@@ -64,70 +65,46 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     }
   }, [formData, isLoading]);
 
-  const saveData = async (): Promise<void> => {
-    if (!reportId) return;
+  const saveData = async (): Promise<boolean> => {
+    if (!reportId) return false;
     
     setIsLoading(true);
     
     try {
-      // Check if record exists
-      const { data: existingData, error: checkError } = await supabase
-        .from('bp1_revenue_sectors')
-        .select('id')
-        .eq('report_id', reportId);
-        
-      if (checkError) throw new Error(checkError.message);
-      
       const now = new Date();
       
-      if (existingData && existingData.length > 0) {
-        // Update existing record
-        const { error } = await supabase
-          .from('bp1_revenue_sectors')
-          .update({
-            controversial_weapons: formData.controversialWeapons,
-            tobacco: formData.tobacco,
-            fossil_fuels: formData.fossilFuels,
-            chemicals: formData.chemicals,
-            controversial_weapons_revenue: formData.controversialWeaponsRevenue,
-            tobacco_revenue: formData.tobaccoRevenue,
-            coal_revenue: formData.coalRevenue,
-            oil_revenue: formData.oilRevenue,
-            gas_revenue: formData.gasRevenue,
-            chemicals_revenue: formData.chemicalsRevenue,
-            updated_at: now.toISOString()
-          })
-          .eq('report_id', reportId);
+      // Using .upsert() like BP8 does to handle both insert and update cases
+      const { error } = await supabase
+        .from('bp1_revenue_sectors')
+        .upsert({
+          report_id: reportId,
+          controversial_weapons: formData.controversialWeapons,
+          tobacco: formData.tobacco,
+          fossil_fuels: formData.fossilFuels,
+          chemicals: formData.chemicals,
+          controversial_weapons_revenue: formData.controversialWeaponsRevenue,
+          tobacco_revenue: formData.tobaccoRevenue,
+          coal_revenue: formData.coalRevenue,
+          oil_revenue: formData.oilRevenue,
+          gas_revenue: formData.gasRevenue,
+          chemicals_revenue: formData.chemicalsRevenue,
+          updated_at: now.toISOString()
+        }, { onConflict: 'report_id' });
           
-        if (error) throw new Error(error.message);
-      } else {
-        // Insert new record
-        const { error } = await supabase
-          .from('bp1_revenue_sectors')
-          .insert({
-            report_id: reportId,
-            controversial_weapons: formData.controversialWeapons,
-            tobacco: formData.tobacco,
-            fossil_fuels: formData.fossilFuels,
-            chemicals: formData.chemicals,
-            controversial_weapons_revenue: formData.controversialWeaponsRevenue,
-            tobacco_revenue: formData.tobaccoRevenue,
-            coal_revenue: formData.coalRevenue,
-            oil_revenue: formData.oilRevenue,
-            gas_revenue: formData.gasRevenue,
-            chemicals_revenue: formData.chemicalsRevenue,
-            updated_at: now.toISOString()
-          });
-          
-        if (error) throw new Error(error.message);
+      if (error) {
+        console.error("Error saving BP1 data:", error);
+        toast.error("Errore nel salvataggio dei dati sui settori di ricavo");
+        return false;
       }
       
       setLastSaved(now);
       setNeedsSaving(false);
       toast.success("Dati sui settori di ricavo salvati con successo");
+      return true;
     } catch (error: any) {
       console.error("Error saving BP1 data:", error);
       toast.error("Errore nel salvataggio dei dati sui settori di ricavo");
+      return false;
     } finally {
       setIsLoading(false);
     }
