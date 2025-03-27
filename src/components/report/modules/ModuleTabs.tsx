@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Leaf, Users, Building2, FileText, Briefcase, Layers } from 'lucide-react';
+import { Leaf, Users, Building2, FileText, Layers } from 'lucide-react';
 
 interface ModuleTabsProps {
   activeSection: 'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt';
@@ -54,22 +54,12 @@ const ModuleTabs: React.FC<ModuleTabsProps> = ({
       )}
       {showBusinessPartnersModule && (
         <Button 
-          variant={activeSection === 'business-partners' ? 'default' : 'outline'} 
-          onClick={() => setActiveSection('business-partners')} 
-          className="flex items-center"
-        >
-          <Briefcase className="mr-2 h-4 w-4" />
-          Partner Commerciali
-        </Button>
-      )}
-      {showBusinessPartnersModule && (
-        <Button 
           variant={activeSection === 'business-partners-alt' ? 'default' : 'outline'} 
           onClick={() => setActiveSection('business-partners-alt')} 
           className="flex items-center"
         >
           <Layers className="mr-2 h-4 w-4" />
-          Partner (Alt)
+          Partner Commerciali
         </Button>
       )}
     </div>
