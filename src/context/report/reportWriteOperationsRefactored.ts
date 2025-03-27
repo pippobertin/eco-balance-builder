@@ -1,31 +1,38 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { supabase, withRetry } from '@/integrations/supabase/client';
 import { Report } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
-export const useReportWriteOperationsRefactored = () => {
+export const useReportWriteOperations = () => {
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
 
+  // Create a new report
   const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
-      if (!report.company_id || !report.report_year || !report.report_type) {
-        throw new Error('Missing required report fields');
+      if (!user) {
+        throw new Error('User must be logged in to create a report');
       }
       
-      const { data, error } = await supabase
-        .from('reports')
-        .insert([report])
-        .select()
-        .single();
+      return await withRetry(async () => {
+        const { data, error } = await supabase
+          .from('reports')
+          .insert([report])
+          .select('*')
+          .single();
+
+        if (error) {
+          throw error;
+        }
         
-      if (error) throw error;
-      
-      toast({
-        title: "Successo",
-        description: `Report ${data.report_year} creato con successo`,
+        toast({
+          title: "Successo",
+          description: `Report creato con successo`,
+        });
+        
+        return data.id;
       });
-      
-      return data.id;
     } catch (error: any) {
       console.error('Error creating report:', error.message);
       toast({
@@ -37,26 +44,52 @@ export const useReportWriteOperationsRefactored = () => {
     }
   };
 
+  // Delete a report
   const deleteReport = async (reportId: string): Promise<boolean> => {
     try {
-      await supabase
-        .from('subsidiaries')
-        .delete()
-        .eq('report_id', reportId);
+      if (!user) {
+        throw new Error('User must be logged in to delete a report');
+      }
+
+      return await withRetry(async () => {
+        // Check if user has access to this report
+        let query = supabase
+          .from('reports')
+          .select('*, companies!inner(created_by)')
+          .eq('id', reportId);
         
-      const { error } = await supabase
-        .from('reports')
-        .delete()
-        .eq('id', reportId);
+        // For regular users, only allow deleting reports from companies they created
+        if (!isAdmin) {
+          query = query.eq('companies.created_by', user.id);
+        }
         
-      if (error) throw error;
-      
-      toast({
-        title: "Successo",
-        description: "Report eliminato con successo",
+        const { data, error: accessError } = await query.single();
+        
+        if (accessError || !data) {
+          throw new Error('You do not have permission to delete this report');
+        }
+        
+        // First delete any subsidiaries associated with this report
+        await supabase
+          .from('subsidiaries')
+          .delete()
+          .eq('report_id', reportId);
+        
+        // Then delete the report
+        const { error } = await supabase
+          .from('reports')
+          .delete()
+          .eq('id', reportId);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Report eliminato con successo",
+        });
+        
+        return true;
       });
-      
-      return true;
     } catch (error: any) {
       console.error('Error deleting report:', error.message);
       toast({

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,8 @@ import { Info, FileText, CheckCircle2, Save } from 'lucide-react';
 import { Textarea } from "@/components/ui/textarea";
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
 import { useToast } from '@/hooks/use-toast';
-import { Subsidiary, Report } from '@/context/types';
+import { Subsidiary } from '@/context/ReportContext';
+import { Report } from '@/context/types';
 import { useSustainabilityPractices } from './basic-info/hooks/useSustainabilityPractices';
 import AutoSaveIndicator from './AutoSaveIndicator';
 
@@ -22,7 +24,6 @@ interface BasicInfoSectionProps {
   removeSubsidiary: (index: number) => void;
   onContinue: () => void;
 }
-
 const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   isConsolidated,
   subsidiaries,
@@ -50,6 +51,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     }
   };
 
+  // Use our custom hook for sustainability practices
   const {
     practices,
     setPractices,
@@ -61,16 +63,17 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     reportId: currentReport?.id
   });
 
+  // Sync the practices from DB with the form state
   useEffect(() => {
     if (practices && practices !== sustainabilityPractices) {
       setSustainabilityPractices(practices);
     }
   }, [practices, setSustainabilityPractices]);
 
+  // Handler for saving practices
   const handleSavePractices = async () => {
     await savePractices(sustainabilityPractices);
   };
-
   return <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-6">
       <GlassmorphicCard>
         <div className="flex items-center mb-4">
@@ -136,6 +139,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             Non includere attività filantropiche, ma piuttosto iniziative concrete per migliorare l'impatto ambientale e sociale dell'impresa.
           </p>
           
+          {/* Auto Save Indicator */}
           <div className="flex justify-end mb-4">
             <AutoSaveIndicator 
               needsSaving={false} 
@@ -167,5 +171,4 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
       </div>
     </motion.div>;
 };
-
 export default BasicInfoSection;

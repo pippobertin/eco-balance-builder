@@ -1,8 +1,5 @@
 
-// Re-export all types from various type files
+// Re-export all types
 export * from './companyTypes';
 export * from './reportTypes';
 export * from './metricsTypes';
-
-// Export the default report data
-export { defaultReportData } from './reportTypes';

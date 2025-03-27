@@ -36,5 +36,4 @@ export interface Subsidiary {
   report_id?: string;
   name: string;
   location: string;
-  created_at?: string;
 }

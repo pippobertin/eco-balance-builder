@@ -1,11 +1,11 @@
 
 import { useReportFetchOperations } from './reportFetchOperationsRefactored';
-import { useReportWriteOperationsRefactored } from './reportWriteOperationsRefactored';
+import { useReportWriteOperations } from './reportWriteOperationsRefactored';
 import { useReportDataOperations } from './reportDataOperationsRefactored';
 
 export const useReportOperations = () => {
   const { loadReports, loadReport } = useReportFetchOperations();
-  const { createReport, deleteReport } = useReportWriteOperationsRefactored();
+  const { createReport, deleteReport } = useReportWriteOperations();
   const { saveReportData, saveSubsidiaries } = useReportDataOperations();
 
   return { 

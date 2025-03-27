@@ -1,12 +1,11 @@
 
-// Re-export the types from the main types files
+// Re-export the types from the new types files
 export type { 
   Company, 
   Report, 
   Subsidiary, 
   ReportData,
-  ReportContextType,
-  LocationEnvironmentalMetrics
-} from '@/context/types';
+  ReportContextType
+} from '../types';
 
-export { defaultReportData } from '@/context/types';
+export { defaultReportData } from '../types';
