@@ -1,33 +1,30 @@
-
-import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Report } from '@/context/types';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Report } from '../types';
 
 export const useReportWriteOperations = () => {
   const { toast } = useToast();
 
-  // Create a new report
   const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
-      return await withRetry(async () => {
-        // Fix: Pass the report correctly wrapped in an array
-        const { data, error } = await supabase
-          .from('reports')
-          .insert([report])
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        toast({
-          title: "Successo",
-          description: `Report ${data.report_year} creato con successo`,
-        });
+      if (!report.company_id || !report.report_year || !report.report_type) {
+        throw new Error('Missing required report fields');
+      }
+      
+      const { data, error } = await supabase
+        .from('reports')
+        .insert([report])
+        .select()
+        .single();
         
-        return data.id;
+      if (error) throw error;
+      
+      toast({
+        title: "Successo",
+        description: `Report ${data.report_year} creato con successo`,
       });
+      
+      return data.id;
     } catch (error: any) {
       console.error('Error creating report:', error.message);
       toast({
@@ -39,19 +36,14 @@ export const useReportWriteOperations = () => {
     }
   };
 
-  // Delete a report
   const deleteReport = async (reportId: string): Promise<boolean> => {
     try {
       return await withRetry(async () => {
-        // Delete all related data for this report
-        
-        // Delete subsidiaries
         await supabase
           .from('subsidiaries')
           .delete()
           .eq('report_id', reportId);
           
-        // Delete the report itself
         const { error } = await supabase
           .from('reports')
           .delete()
@@ -77,5 +69,8 @@ export const useReportWriteOperations = () => {
     }
   };
 
-  return { createReport, deleteReport };
+  return {
+    createReport,
+    deleteReport
+  };
 };

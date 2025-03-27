@@ -7,6 +7,6 @@ export type {
   ReportData,
   ReportContextType,
   LocationEnvironmentalMetrics
-} from '@/context/types';
+} from '../types';
 
-export { defaultReportData } from '@/context/types';
+export { defaultReportData } from '../types';
