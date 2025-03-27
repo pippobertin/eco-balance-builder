@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Leaf, Users, Building2, FileText, Layers } from 'lucide-react';
@@ -59,7 +60,7 @@ const ModuleTabs: React.FC<ModuleTabsProps> = ({
           className="flex items-center"
         >
           <Layers className="mr-2 h-4 w-4" />
-          Partner (Alt)
+          Business Partner
         </Button>
       )}
     </div>
