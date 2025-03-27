@@ -106,6 +106,14 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
       setLastSaved(now);
       setNeedsSaving(false);
       toast.success("Dati sui ricavi per settore salvati con successo");
+      
+      // Update the global context
+      updateReportData({
+        businessPartnersMetrics: {
+          bp1: { ...formData }
+        }
+      });
+      
       return true;
     } catch (error) {
       console.error("Unexpected error saving BP1 data:", error);
@@ -114,7 +122,7 @@ export const useBP1Data = (reportId: string): BP1HookResult => {
     } finally {
       setIsLoading(false);
     }
-  }, [reportId, formData]);
+  }, [reportId, formData, updateReportData]);
 
   return {
     formData,
