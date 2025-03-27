@@ -5,4 +5,4 @@ export * from './reportTypes';
 export * from './metricsTypes';
 
 // Export the default report data
-export { defaultReportData } from './metricsTypes';
+export { defaultReportData } from './reportTypes';

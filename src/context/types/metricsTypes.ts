@@ -1,139 +1,35 @@
-
-import { BP1FormData, BP2FormData, BP3FormData, BP4FormData, BP5FormData, BP6FormData, BP7FormData, BP8FormData, BP9FormData, BP10FormData, BP11FormData } from '@/components/report/business-partners/hooks/types';
-import { PollutionRecord } from '@/components/report/environmental/hooks/pollution/types';
-
-// Environmental metrics
-export interface LocationEnvironmentalMetrics {
-  id: string;
-  name?: string;
-  address?: string;
-  location_id?: string;
-  location_name?: string;
-  location_type?: string;
-  metrics: Record<string, any>;
+// Define metrics-related interfaces
+export interface MetricsBase {
+  id?: string;
+  report_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface EnvironmentalMetrics {
-  // GHG Emissions
-  totalScope1Emissions?: number;
-  totalScope2Emissions?: number;
-  totalScope3Emissions?: number;
-  totalScopeEmissions?: number;
-  emissionCalculationLogs?: any;
-  
-  // Pollution
-  pollutionRecords?: PollutionRecord[];
-  
-  // Water
-  waterUsage?: number;
-  waterConsumption?: number;
-  waterStressAreas?: number;
-  
-  // Land use and biodiversity
-  landUse?: number;
-  impermeableSurface?: number;
-  natureSurfaceOnSite?: number;
-  natureSurfaceOffSite?: number;
-  
-  // Waste
-  totalWaste?: number;
-  recycledWaste?: number;
-  hazardousWaste?: number;
-  
-  // Circular economy
-  recycledContent?: number;
-  recyclableContent?: number;
-  
-  // Location-specific metrics
-  locationMetrics?: LocationEnvironmentalMetrics[];
-  
-  [key: string]: any;
+export interface EnvironmentalMetrics extends MetricsBase {
+  // Environmental metrics properties
+  emissions_total?: number;
+  energy_consumption?: number;
+  renewable_percentage?: number;
+  water_usage?: number;
+  waste_total?: number;
+  recycled_percentage?: number;
 }
 
-// Social metrics
-export interface SocialMetrics {
-  [key: string]: any;
+export interface SocialMetrics extends MetricsBase {
+  // Social metrics properties
+  total_employees?: number;
+  female_employees?: number;
+  male_employees?: number;
+  other_gender_employees?: number;
+  gender_pay_gap?: number;
+  work_accidents_number?: number;
 }
 
-// Conduct metrics
-export interface ConductMetrics {
-  [key: string]: any;
+export interface ConductMetrics extends MetricsBase {
+  // Conduct metrics properties
+  convictions_number?: number;
+  sanctions_amount?: number;
+  compliance_processes?: boolean;
+  has_violations?: boolean;
 }
-
-// Narrative PAT metrics
-export interface NarrativePATMetrics {
-  [key: string]: any;
-}
-
-// Business Partners metrics
-export interface BusinessPartnersMetrics {
-  bp1?: BP1FormData;
-  bp2?: BP2FormData;
-  bp3?: BP3FormData;
-  bp4?: BP4FormData;
-  bp5?: BP5FormData;
-  bp6?: BP6FormData;
-  bp7?: BP7FormData;
-  bp8?: BP8FormData;
-  bp9?: BP9FormData;
-  bp10?: BP10FormData;
-  bp11?: BP11FormData;
-  [key: string]: any;
-}
-
-// Materiality analysis
-export interface StakeholderData {
-  id: string;
-  name: string;
-  category: string;
-  influence: number;
-  interest: number;
-  contact?: string;
-  email?: string;
-  notes?: string;
-}
-
-export interface MaterialityIssue {
-  id: string;
-  name: string;
-  description?: string;
-  isCustom?: boolean;
-  category?: string;
-  subcategory?: string;
-  financialRelevance: number;
-  impactRelevance: number;
-  stakeholderRelevance: number;
-  isMaterial: boolean;
-  isSelected?: boolean;
-}
-
-export interface MaterialityAnalysis {
-  issues: MaterialityIssue[];
-  stakeholders: StakeholderData[];
-  esgScore?: number; // ESG score field
-  [key: string]: any;
-}
-
-// Combined Report Data
-export interface ReportData {
-  environmentalMetrics: EnvironmentalMetrics;
-  socialMetrics: SocialMetrics;
-  conductMetrics: ConductMetrics;
-  narrativePATMetrics: NarrativePATMetrics;
-  businessPartnersMetrics?: BusinessPartnersMetrics;
-  materialityAnalysis: MaterialityAnalysis;
-  [key: string]: any;
-}
-
-// Default state
-export const defaultReportData: ReportData = {
-  environmentalMetrics: {},
-  socialMetrics: {},
-  conductMetrics: {},
-  narrativePATMetrics: {},
-  businessPartnersMetrics: {},
-  materialityAnalysis: {
-    issues: [],
-    stakeholders: []
-  }
-};

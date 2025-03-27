@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -5,7 +6,7 @@ import React, {
   useContext,
   useCallback,
 } from 'react';
-import { Company, Report, Subsidiary, ReportContextType } from './types';
+import { Company, Report, Subsidiary, ReportContextType } from '@/context/types';
 import { useCompanyOperations } from './companyOperations';
 import { useReportReadOperations } from './report/reportReadOperations';
 import { useReportWriteOperations } from './report/reportWriteOperations';

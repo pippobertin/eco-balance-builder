@@ -1,49 +1,73 @@
 
-import { Company } from './companyTypes';
-import { ReportData } from './metricsTypes';
-import { Subsidiary } from './companyTypes';
-
+// Define report-related interfaces
 export interface Report {
   id: string;
   company_id: string;
-  company?: Company;
   report_year: string;
   report_type: string;
   is_consolidated: boolean;
   environmental_metrics: any;
   social_metrics: any;
   conduct_metrics: any;
-  narrative_pat_metrics?: any;
-  materiality_analysis?: any;
-  business_partners_metrics?: any;
-  status: string;
+  narrative_pat_metrics: any;
+  materiality_analysis: any;
+  status: 'draft' | 'published' | string;
   created_at?: string;
   updated_at?: string;
 }
 
-// Context type definition
+export interface ReportData {
+  environmentalMetrics: any;
+  socialMetrics: any;
+  conductMetrics: any;
+  materialityAnalysis: {
+    issues: any[];
+    stakeholders: any[];
+  };
+  narrativePATMetrics: any;
+}
+
+export interface LocationEnvironmentalMetrics {
+  id?: string;
+  location_id: string;
+  location_name: string;
+  energy_consumption?: number;
+  water_usage?: number;
+  waste_production?: number;
+  carbon_emissions?: number;
+  report_id?: string;
+}
+
+// Default values for report data
+export const defaultReportData: ReportData = {
+  environmentalMetrics: {},
+  socialMetrics: {},
+  conductMetrics: {},
+  materialityAnalysis: { issues: [], stakeholders: [] },
+  narrativePATMetrics: {}
+};
+
 export interface ReportContextType {
-  reportData: ReportData;
-  updateReportData: (data: Partial<ReportData>) => void;
-  resetReportData?: () => void;
   companies: Company[];
   reports: Report[];
   currentCompany: Company | null;
+  setCurrentCompany: (company: Company) => void;
   currentReport: Report | null;
+  setCurrentReport: (report: Report | null) => void;
   loadCompanies: () => Promise<void>;
-  createCompany: (company: Omit<Company, 'id'>) => Promise<string | null>;
-  createReport: (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => Promise<string | null>;
-  deleteReport: (reportId: string) => Promise<boolean>;
   loadReports: (companyId: string) => Promise<Report[]>;
-  loadReport: (reportId: string) => Promise<{report: Report | null, subsidiaries?: Subsidiary[]}>;
-  setCurrentCompany: React.Dispatch<React.SetStateAction<Company | null>>;
-  setCurrentReport: React.Dispatch<React.SetStateAction<Report | null>>;
-  saveSubsidiaries: (subsidiaries: Subsidiary[], reportId: string) => Promise<void>;
+  loadReport: (reportId: string) => Promise<any>;
+  createCompany: (company: Omit<Company, 'id'>) => Promise<string | null>;
+  deleteReport: (reportId: string) => Promise<boolean>;
+  createReport: (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => Promise<string | null>;
+  isLoading: boolean;
+  isAdmin: boolean;
+  reportData: any;
+  updateReportData: (data: any) => void;
   saveCurrentReport: () => Promise<void>;
+  saveSubsidiaries: (subsidiaries: any[], reportId: string) => Promise<void>;
   needsSaving: boolean;
-  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>;
+  setNeedsSaving: (needsSaving: boolean) => void;
   lastSaved: Date | null;
-  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>;
-  isLoading?: boolean;
-  isAdmin?: boolean;
+  setLastSaved: (lastSaved: Date | null) => void;
 }
