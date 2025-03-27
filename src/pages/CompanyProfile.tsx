@@ -1,21 +1,27 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Building, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
 import { useReport } from '@/context/ReportContext';
 import CompanyGeneralInfo from '@/components/report/company-information/CompanyGeneralInfo';
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
 import { useCompanyInfo } from '@/components/report/company-information/hooks';
 import { useToast } from '@/hooks/use-toast';
+import DeleteCompanyDialog from '@/components/companies/dialogs/DeleteCompanyDialog';
+import { useCompanyOperations } from '@/context/companyOperations';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { currentCompany } = useReport();
+  const { currentCompany, setCurrentCompany } = useReport();
+  const { deleteCompany } = useCompanyOperations();
+  
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const {
     companyData,
@@ -46,6 +52,24 @@ const CompanyProfile = () => {
       navigate('/companies');
     }
   }, [currentCompany, navigate]);
+
+  const handleDeleteCompany = async () => {
+    if (!currentCompany) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await deleteCompany(currentCompany.id);
+      if (success) {
+        setIsDeleteDialogOpen(false);
+        setCurrentCompany(null);
+        navigate('/companies');
+      }
+    } catch (error) {
+      console.error('Error deleting company:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const containerAnimation = {
     hidden: {
@@ -107,17 +131,29 @@ const CompanyProfile = () => {
             transition={{ duration: 0.5 }} 
             className="mb-8"
           >
-            <div className="flex items-center mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="mr-2"
+                  onClick={() => navigate('/companies')}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Indietro
+                </Button>
+                <h1 className="text-3xl font-bold">Anagrafica Azienda</h1>
+              </div>
+              
               <Button 
-                variant="ghost" 
-                size="sm" 
-                className="mr-2"
-                onClick={() => navigate('/companies')}
+                variant="destructive" 
+                size="sm"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                disabled={isDeleting}
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Indietro
+                <Trash2 className="h-4 w-4 mr-1" />
+                Elimina azienda
               </Button>
-              <h1 className="text-3xl font-bold">Anagrafica Azienda</h1>
             </div>
             <div className="flex items-center">
               <Building className="h-5 w-5 text-blue-500 mr-2" />
@@ -171,6 +207,13 @@ const CompanyProfile = () => {
           </motion.div>
         </div>
       </main>
+      
+      <DeleteCompanyDialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onDelete={handleDeleteCompany}
+        companyName={currentCompany.name}
+      />
       
       <Footer />
     </div>

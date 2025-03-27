@@ -1,4 +1,3 @@
-
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { Company } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
@@ -113,5 +112,89 @@ export const useCompanyOperations = () => {
     }
   };
 
-  return { loadCompanies, createCompany, loadCompanyById };
+  // Delete a company from the database
+  const deleteCompany = async (companyId: string): Promise<boolean> => {
+    try {
+      if (!user) {
+        throw new Error('User must be logged in to delete a company');
+      }
+
+      return await withRetry(async () => {
+        // Check if the user has permission to delete this company
+        let query = supabase
+          .from('companies')
+          .select('*')
+          .eq('id', companyId);
+        
+        if (!isAdmin) {
+          query = query.eq('created_by', user.id);
+        }
+        
+        const { data: company, error: accessError } = await query.single();
+        
+        if (accessError || !company) {
+          throw new Error('You do not have permission to delete this company');
+        }
+        
+        // Delete all reports associated with this company
+        const { data: reports } = await supabase
+          .from('reports')
+          .select('id')
+          .eq('company_id', companyId);
+          
+        if (reports && reports.length > 0) {
+          // Delete subsidiaries for each report
+          for (const report of reports) {
+            await supabase
+              .from('subsidiaries')
+              .delete()
+              .eq('report_id', report.id);
+          }
+          
+          // Delete the reports
+          await supabase
+            .from('reports')
+            .delete()
+            .eq('company_id', companyId);
+        }
+        
+        // Delete group companies associated with this company
+        await supabase
+          .from('group_companies')
+          .delete()
+          .eq('company_id', companyId);
+          
+        // Delete company locations
+        await supabase
+          .from('company_locations')
+          .delete()
+          .eq('company_id', companyId);
+        
+        // Finally, delete the company itself
+        const { error } = await supabase
+          .from('companies')
+          .delete()
+          .eq('id', companyId);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Azienda eliminata con successo",
+        });
+        
+        return true;
+      });
+    } catch (error: any) {
+      console.error('Error deleting company:', error.message);
+      toast({
+        title: "Errore",
+        description: `Impossibile eliminare l'azienda: ${error.message}`,
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
+  return { loadCompanies, createCompany, loadCompanyById, deleteCompany };
 };
