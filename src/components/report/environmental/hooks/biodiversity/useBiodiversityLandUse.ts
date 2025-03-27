@@ -78,7 +78,11 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
         .eq('report_id', reportId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code !== 'PGRST116') { // Not found error is expected for new reports
+          throw error;
+        }
+      }
 
       if (biodiversityData) {
         setData({
@@ -126,7 +130,9 @@ export const useBiodiversityLandUse = ({ reportId }: BiodiversityLandUseOptions)
         .eq('report_id', reportId)
         .maybeSingle();
 
-      if (checkError) throw checkError;
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
 
       const now = new Date();
       const dbData = {

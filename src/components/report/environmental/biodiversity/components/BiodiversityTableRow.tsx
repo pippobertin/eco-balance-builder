@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
+import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import TooltipRenderer from './TooltipRenderer';
 
 interface BiodiversityTableRowProps {
@@ -26,41 +27,60 @@ const BiodiversityTableRow: React.FC<BiodiversityTableRowProps> = ({
   currentFieldName,
   handleChange
 }) => {
-  // Format percentage change with sign and decimals
-  const formatPercentage = (value: number | null) => {
+  const formatPercentage = (value: number | null): string => {
     if (value === null) return '-';
-    const sign = value > 0 ? '+' : '';
-    return `${sign}${value.toFixed(2)}%`;
+    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+  };
+
+  const getPercentageColor = (value: number | null): string => {
+    if (value === null) return 'text-gray-500';
+    if (value > 0) return 'text-green-500';
+    if (value < 0) return 'text-red-500';
+    return 'text-gray-500';
+  };
+
+  const getPercentageIcon = (value: number | null) => {
+    if (value === null || value === 0) return null;
+    if (value > 0) return <ArrowUpIcon className="h-4 w-4" />;
+    return <ArrowDownIcon className="h-4 w-4" />;
   };
 
   return (
-    <tr>
-      <td className="border p-2 flex items-center">
-        <span className="font-medium">{label}</span>
-        <TooltipRenderer title={tooltipTitle} content={tooltipContent} />
+    <tr className="border-b border-gray-200 hover:bg-gray-50">
+      <td className="py-3">
+        <div className="flex items-center">
+          <TooltipRenderer title={tooltipTitle} content={tooltipContent}>
+            <span>{label}</span>
+          </TooltipRenderer>
+        </div>
       </td>
-      <td className="border p-2">
-        <Input 
-          type="number" 
-          name={previousFieldName} 
-          value={previousValue ?? ''} 
-          onChange={handleChange} 
-          step="0.01"
+      <td className="py-3 px-2">
+        <Input
+          type="number"
+          name={previousFieldName}
+          value={previousValue ?? ''}
+          onChange={handleChange}
+          placeholder="0"
           className="text-center"
+          step="0.01"
         />
       </td>
-      <td className="border p-2">
-        <Input 
-          type="number" 
-          name={currentFieldName} 
-          value={currentValue ?? ''} 
-          onChange={handleChange} 
-          step="0.01"
+      <td className="py-3 px-2">
+        <Input
+          type="number"
+          name={currentFieldName}
+          value={currentValue ?? ''}
+          onChange={handleChange}
+          placeholder="0"
           className="text-center"
+          step="0.01"
         />
       </td>
-      <td className="border p-2 text-center">
-        {formatPercentage(percentageChange)}
+      <td className="py-3 px-2 text-center">
+        <div className={`flex items-center justify-center ${getPercentageColor(percentageChange)}`}>
+          {getPercentageIcon(percentageChange)}
+          <span>{formatPercentage(percentageChange)}</span>
+        </div>
       </td>
     </tr>
   );

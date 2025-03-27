@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { TreePine } from 'lucide-react';
-import BiodiversityMetrics from './biodiversity/BiodiversityMetrics';
-import SectionAutoSaveIndicator from './components/SectionAutoSaveIndicator';
+import BiodiversityLandUse from './biodiversity/BiodiversityLandUse';
 
 type BiodiversitySectionProps = {
   formValues: any;
@@ -20,13 +19,8 @@ const BiodiversitySection: React.FC<BiodiversitySectionProps> = ({
         <h3 className="text-xl font-semibold">B5 - Biodiversità</h3>
       </div>
       
-      <SectionAutoSaveIndicator className="mb-4" />
-      
-      <div className="space-y-6 mt-6"> {/* Added mt-6 to create space after auto-save indicator */}
-        <BiodiversityMetrics 
-          formValues={formValues} 
-          setFormValues={setFormValues} 
-        />
+      <div className="space-y-6 mt-6">
+        <BiodiversityLandUse />
       </div>
     </div>
   );
