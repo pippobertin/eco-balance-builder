@@ -29,3 +29,23 @@ export interface StrategyFormData {
   businessRelations: string;
   sustainabilityStrategy: string;
 }
+
+// Add the missing SaveButtonProps interface
+export interface SaveButtonProps {
+  onClick: () => void;
+  isLoading?: boolean;
+}
+
+// Add the missing SectionHookResult interface
+export interface SectionHookResult<T> {
+  formData: T;
+  setFormData: React.Dispatch<React.SetStateAction<T>>;
+  initialFormData?: T;
+  setInitialFormData?: React.Dispatch<React.SetStateAction<T>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  lastSaved: Date | null;
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>;
+  needsSaving: boolean;
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>;
+}

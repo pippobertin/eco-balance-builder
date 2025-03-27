@@ -16,10 +16,12 @@ export const useStakeholdersData = (reportId: string) => {
     stakeholderEngagement: ''
   });
 
-  // Update formData with setter that tracks changes against initialFormData
-  const updateFormData = (newData: Partial<StakeholdersFormData>) => {
+  // Create a wrapper function that conforms to React.Dispatch<SetStateAction<StakeholdersFormData>>
+  const updateFormData = (value: React.SetStateAction<StakeholdersFormData>) => {
+    // Handle both function and object updates
     setFormData(prev => {
-      const updated = { ...prev, ...newData };
+      // If value is a function, call it with prev
+      const updated = typeof value === 'function' ? value(prev) : value;
       
       // Only set needsSaving if there's a difference between updated and initial data
       if (updated.keyStakeholders !== initialFormData.keyStakeholders || 

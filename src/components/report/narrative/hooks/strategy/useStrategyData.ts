@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { StrategyFormData, SectionHookResult } from '../types';
+import { StrategyFormData } from '../types';
 
-export const useStrategyData = (reportId: string): SectionHookResult => {
+export const useStrategyData = (reportId: string) => {
   const [formData, setFormData] = useState<StrategyFormData>({
     productsServices: '',
     markets: '',

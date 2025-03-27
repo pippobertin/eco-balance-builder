@@ -14,12 +14,14 @@ export const useGovernanceData = (reportId: string) => {
     sustainabilityGovernance: ''
   });
 
-  // Update formData with setter that tracks changes against initialFormData
-  const updateFormData = (newData: Partial<GovernanceFormData>) => {
+  // Create a wrapper function that conforms to React.Dispatch<SetStateAction<GovernanceFormData>>
+  const updateFormData = (value: React.SetStateAction<GovernanceFormData>) => {
+    // Handle both function and object updates
     setFormData(prev => {
-      const updated = { ...prev, ...newData };
+      // If value is a function, call it with prev
+      const updated = typeof value === 'function' ? value(prev) : value;
       
-      // Only set needsSaving if there's a difference between updated and initial data
+      // Compare with initialFormData to determine if we need saving
       if (updated.sustainabilityGovernance !== initialFormData.sustainabilityGovernance) {
         setNeedsSaving(true);
       } else {
