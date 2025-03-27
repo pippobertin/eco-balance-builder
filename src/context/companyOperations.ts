@@ -1,6 +1,6 @@
 
 import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Company } from '@/context/types';
+import { Company } from './types/companyTypes';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
@@ -87,6 +87,57 @@ export const useCompanyOperations = () => {
     }
   };
 
+  // Delete a company and all related data
+  const deleteCompany = async (companyId: string): Promise<boolean> => {
+    try {
+      if (!user) {
+        throw new Error('User must be logged in to delete a company');
+      }
+
+      return await withRetry(async () => {
+        // Check if user has permission to delete this company
+        let query = supabase
+          .from('companies')
+          .select('*')
+          .eq('id', companyId);
+        
+        // For regular users, ensure they can only delete their own companies
+        if (!isAdmin) {
+          query = query.eq('created_by', user.id);
+        }
+        
+        const { data: company, error: accessError } = await query.single();
+        
+        if (accessError || !company) {
+          throw new Error('You do not have permission to delete this company');
+        }
+        
+        // The database has cascading deletes configured, so deleting the company will delete all related data
+        const { error } = await supabase
+          .from('companies')
+          .delete()
+          .eq('id', companyId);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: `Azienda ${company.name} eliminata con successo`,
+        });
+        
+        return true;
+      });
+    } catch (error: any) {
+      console.error('Error deleting company:', error.message);
+      toast({
+        title: "Errore",
+        description: `Impossibile eliminare l'azienda: ${error.message}`,
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   // Load a specific company by ID
   const loadCompanyById = async (companyId: string): Promise<Company | null> => {
     try {
@@ -113,5 +164,5 @@ export const useCompanyOperations = () => {
     }
   };
 
-  return { loadCompanies, createCompany, loadCompanyById };
+  return { loadCompanies, createCompany, loadCompanyById, deleteCompany };
 };
