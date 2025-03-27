@@ -27,7 +27,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       
       try {
         const { data, error } = await supabase
-          .from('bp10_family_leave')
+          .from('bp10_work_life_balance')
           .select('*')
           .eq('report_id', reportId)
           .maybeSingle();
@@ -75,7 +75,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       
       // Check if record exists
       const { data: existingData, error: checkError } = await supabase
-        .from('bp10_family_leave')
+        .from('bp10_work_life_balance')
         .select('id')
         .eq('report_id', reportId);
         
@@ -89,7 +89,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       if (existingData && existingData.length > 0) {
         // Update existing record
         result = await supabase
-          .from('bp10_family_leave')
+          .from('bp10_work_life_balance')
           .update({
             male_family_leave_eligible: formData.maleFamilyLeaveEligible,
             female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
@@ -101,7 +101,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       } else {
         // Insert new record
         result = await supabase
-          .from('bp10_family_leave')
+          .from('bp10_work_life_balance')
           .insert({
             report_id: reportId,
             male_family_leave_eligible: formData.maleFamilyLeaveEligible,
