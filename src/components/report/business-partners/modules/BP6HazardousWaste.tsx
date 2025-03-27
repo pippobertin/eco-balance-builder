@@ -13,7 +13,7 @@ interface BP6HazardousWasteProps {
 }
 
 const BP6HazardousWaste: React.FC<BP6HazardousWasteProps> = ({ reportId }) => {
-  const { formData, setFormData, isLoading, isSaving, saveData, lastSaved, needsSaving } = useBP6Data(reportId);
+  const { formData, setFormData, isLoading, saveData, lastSaved, needsSaving } = useBP6Data(reportId);
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({
@@ -102,13 +102,12 @@ const BP6HazardousWaste: React.FC<BP6HazardousWasteProps> = ({ reportId }) => {
             <SectionAutoSaveIndicator
               lastSaved={lastSaved}
               needsSaving={needsSaving}
-              isLoading={isSaving}
             />
             <SaveButton
               onClick={async () => {
                 await saveData();
               }}
-              isLoading={isLoading || isSaving}
+              isLoading={isLoading}
             >
               Salva
             </SaveButton>
