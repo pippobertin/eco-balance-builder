@@ -33,13 +33,19 @@ const BP6HazardousWaste: React.FC<BP6HazardousWasteProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP6</span>
-          Rifiuti pericolosi
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa produce rifiuti pericolosi e, in caso affermativo, le quantità prodotte.
-        </CardDescription>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP6</span>
+            Rifiuti pericolosi
+          </CardTitle>
+          <CardDescription>
+            Indicare se l'impresa produce rifiuti pericolosi e, in caso affermativo, le quantità prodotte.
+          </CardDescription>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -98,11 +104,7 @@ const BP6HazardousWaste: React.FC<BP6HazardousWasteProps> = ({ reportId }) => {
             </div>
           )}
           
-          <div className="flex justify-between items-center pt-4 border-t">
-            <SectionAutoSaveIndicator
-              lastSaved={lastSaved}
-              needsSaving={needsSaving}
-            />
+          <div className="flex justify-end mt-4 pt-4 border-t">
             <SaveButton
               onClick={async () => {
                 await saveData();

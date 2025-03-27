@@ -60,21 +60,19 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
-            <CardDescription>
-              Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
-            </CardDescription>
-          </div>
-          <div className="mt-2">
-            <SaveIndicator
-              isLoading={isLoading}
-              isSaving={saving}
-              needsSaving={needsSaving}
-              lastSaved={lastSaved}
-            />
-          </div>
+        <div>
+          <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
+          <CardDescription>
+            Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
+          </CardDescription>
+        </div>
+        <div className="mt-2">
+          <SaveIndicator
+            isLoading={isLoading}
+            isSaving={saving}
+            needsSaving={needsSaving}
+            lastSaved={lastSaved}
+          />
         </div>
       </CardHeader>
       <CardContent>

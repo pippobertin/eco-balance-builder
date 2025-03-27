@@ -32,13 +32,19 @@ const BP9Violations: React.FC<BP9ViolationsProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP9</span>
-          Violazioni
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa ha avuto violazioni di leggi o regolamenti ambientali o sociali negli ultimi anni.
-        </CardDescription>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP9</span>
+            Violazioni
+          </CardTitle>
+          <CardDescription>
+            Indicare se l'impresa ha avuto violazioni di leggi o regolamenti ambientali o sociali negli ultimi anni.
+          </CardDescription>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -75,11 +81,7 @@ const BP9Violations: React.FC<BP9ViolationsProps> = ({ reportId }) => {
             </div>
           )}
           
-          <div className="flex justify-between items-center pt-4 border-t">
-            <SectionAutoSaveIndicator
-              lastSaved={lastSaved}
-              needsSaving={needsSaving}
-            />
+          <div className="flex justify-end mt-4 pt-4 border-t">
             <SaveButton
               onClick={async () => {
                 await saveData();

@@ -84,23 +84,21 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <span className="bg-orange-100 text-orange-700 p-1 rounded">BP2</span>
-              Diversità di genere negli organi di governance
-            </CardTitle>
-            <CardDescription>
-              Inserisci il numero di membri degli organi di governance suddivisi per genere.
-            </CardDescription>
-          </div>
-          <SaveIndicator 
-            isLoading={isLoading}
-            isSaving={isSaving}
-            needsSaving={needsSaving}
-            lastSaved={lastSaved}
-          />
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP2</span>
+            Diversità di genere negli organi di governance
+          </CardTitle>
+          <CardDescription>
+            Inserisci il numero di membri degli organi di governance suddivisi per genere.
+          </CardDescription>
         </div>
+        <SaveIndicator 
+          isLoading={isLoading}
+          isSaving={isSaving}
+          needsSaving={needsSaving}
+          lastSaved={lastSaved}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
