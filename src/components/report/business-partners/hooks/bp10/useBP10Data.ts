@@ -26,10 +26,8 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       setIsLoading(true);
       
       try {
-        console.log("Fetching BP10 data for report:", reportId);
-        
         const { data, error } = await supabase
-          .from('bp10_work_life_balance')
+          .from('bp10_family_leave')
           .select('*')
           .eq('report_id', reportId)
           .maybeSingle();
@@ -39,8 +37,6 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
             console.error("Error fetching BP10 data:", error);
           }
         } else if (data) {
-          console.log("BP10 data loaded:", data);
-          // Map database columns to form fields
           setFormData({
             maleFamilyLeaveEligible: data.male_family_leave_eligible,
             femaleFamilyLeaveEligible: data.female_family_leave_eligible,
@@ -51,7 +47,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
         }
       } catch (error) {
         console.error("Unexpected error fetching BP10 data:", error);
-        toast.error("Errore nel caricamento dei dati sull'equilibrio vita-lavoro");
+        toast.error("Errore nel caricamento dei dati sui congedi familiari");
       } finally {
         setIsLoading(false);
         setNeedsSaving(false);
@@ -63,10 +59,10 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
 
   // Update needsSaving state when form data changes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !isSaving) {
       setNeedsSaving(true);
     }
-  }, [formData, isLoading]);
+  }, [formData, isLoading, isSaving]);
 
   // Save data to the database
   const saveData = async (): Promise<boolean> => {
@@ -79,7 +75,7 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       
       // Check if record exists
       const { data: existingData, error: checkError } = await supabase
-        .from('bp10_work_life_balance')
+        .from('bp10_family_leave')
         .select('id')
         .eq('report_id', reportId);
         
@@ -91,16 +87,9 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record - Map form fields to database columns
-        console.log("Updating BP10 data with:", {
-          male_family_leave_eligible: formData.maleFamilyLeaveEligible,
-          female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
-          male_family_leave_used: formData.maleFamilyLeaveUsed,
-          female_family_leave_used: formData.femaleFamilyLeaveUsed
-        });
-        
+        // Update existing record
         result = await supabase
-          .from('bp10_work_life_balance')
+          .from('bp10_family_leave')
           .update({
             male_family_leave_eligible: formData.maleFamilyLeaveEligible,
             female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
@@ -110,16 +99,9 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
           })
           .eq('report_id', reportId);
       } else {
-        // Insert new record - Map form fields to database columns
-        console.log("Inserting new BP10 record with:", {
-          male_family_leave_eligible: formData.maleFamilyLeaveEligible,
-          female_family_leave_eligible: formData.femaleFamilyLeaveEligible,
-          male_family_leave_used: formData.maleFamilyLeaveUsed,
-          female_family_leave_used: formData.femaleFamilyLeaveUsed
-        });
-        
+        // Insert new record
         result = await supabase
-          .from('bp10_work_life_balance')
+          .from('bp10_family_leave')
           .insert({
             report_id: reportId,
             male_family_leave_eligible: formData.maleFamilyLeaveEligible,
@@ -132,17 +114,17 @@ export const useBP10Data = (reportId: string): BP10HookResult => {
       
       if (result.error) {
         console.error("Error saving BP10 data:", result.error);
-        toast.error("Errore nel salvataggio dei dati sull'equilibrio vita-lavoro");
+        toast.error("Errore nel salvataggio dei dati sui congedi familiari");
         return false;
       }
       
       setLastSaved(now);
       setNeedsSaving(false);
-      toast.success("Dati sull'equilibrio vita-lavoro salvati con successo");
+      toast.success("Dati sui congedi familiari salvati con successo");
       return true;
     } catch (error) {
       console.error("Unexpected error saving BP10 data:", error);
-      toast.error("Errore nel salvataggio dei dati sull'equilibrio vita-lavoro");
+      toast.error("Errore nel salvataggio dei dati sui congedi familiari");
       return false;
     } finally {
       setIsSaving(false);

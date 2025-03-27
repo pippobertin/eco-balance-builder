@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import AutoSaveIndicator from '../components/AutoSaveIndicator';
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
+import { Save, Info } from 'lucide-react';
 import { useSectionData } from '../hooks/useSectionData';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BP11ApprenticesProps {
   reportId: string;
@@ -26,6 +27,8 @@ const BP11ApprenticesSection: React.FC<BP11ApprenticesProps> = ({
   formValues, 
   setFormValues 
 }) => {
+  const [totalEmployees, setTotalEmployees] = React.useState<number | null>(null);
+  
   const {
     data: sectionData,
     setData: setSectionData,
@@ -42,6 +45,33 @@ const BP11ApprenticesSection: React.FC<BP11ApprenticesProps> = ({
     }
   });
 
+  // Fetch total employees
+  React.useEffect(() => {
+    const fetchTotalEmployees = async () => {
+      if (!reportId) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('workforce_distribution')
+          .select('total_employees')
+          .eq('report_id', reportId)
+          .maybeSingle();
+          
+        if (error) {
+          if (error.code !== 'PGRST116') {
+            console.error("Error fetching workforce data:", error);
+          }
+        } else if (data && data.total_employees) {
+          setTotalEmployees(data.total_employees);
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching total employees:", error);
+      }
+    };
+
+    fetchTotalEmployees();
+  }, [reportId]);
+
   // Aggiorna il formValues globale quando i dati della sezione cambiano
   React.useEffect(() => {
     setFormValues(prevValues => ({
@@ -49,6 +79,24 @@ const BP11ApprenticesSection: React.FC<BP11ApprenticesProps> = ({
       bp11Apprentices: sectionData
     }));
   }, [sectionData, setFormValues]);
+
+  // Calculate percentage automatically
+  React.useEffect(() => {
+    if (sectionData.hasApprentices && 
+        sectionData.apprenticesNumber !== undefined && 
+        totalEmployees && 
+        totalEmployees > 0) {
+      
+      const calculatedPercentage = (sectionData.apprenticesNumber / totalEmployees) * 100;
+      
+      if (sectionData.apprenticesPercentage !== calculatedPercentage) {
+        setSectionData(prev => ({
+          ...prev,
+          apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
+        }));
+      }
+    }
+  }, [sectionData.apprenticesNumber, totalEmployees, sectionData.hasApprentices]);
 
   const handleCheckboxChange = () => {
     setSectionData(prev => ({
@@ -88,6 +136,14 @@ const BP11ApprenticesSection: React.FC<BP11ApprenticesProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          <div className="flex items-start space-x-2 p-3 bg-blue-50 text-blue-700 rounded-md">
+            <Info className="h-5 w-5 mt-0.5" />
+            <p className="text-sm">
+              L'apprendistato è una forma di lavoro che combina formazione professionale e lavoro retribuito, tipicamente rivolta ai giovani.
+              {totalEmployees ? ` Il numero totale di dipendenti rilevato è: ${totalEmployees}.` : ' Nessun dato sul numero totale di dipendenti rilevato.'}
+            </p>
+          </div>
+          
           <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-md">
             <Checkbox 
               id="hasApprentices" 
@@ -125,10 +181,15 @@ const BP11ApprenticesSection: React.FC<BP11ApprenticesProps> = ({
                   min="0"
                   max="100"
                   step="0.01"
-                  placeholder="Inserisci la percentuale"
+                  placeholder="Calcolato automaticamente"
                   value={sectionData.apprenticesPercentage ?? ''}
-                  onChange={(e) => handleInputChange('apprenticesPercentage', e.target.value)}
+                  disabled
+                  readOnly
+                  className="bg-gray-100"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Calcolato automaticamente dal numero di apprendisti e dal numero totale di dipendenti.
+                </p>
               </div>
             </div>
           )}

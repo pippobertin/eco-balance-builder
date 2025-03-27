@@ -27,6 +27,22 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
       setIsLoading(true);
       
       try {
+        // Fetch total employees first from workforce_distribution table
+        const { data: workforceData, error: workforceError } = await supabase
+          .from('workforce_distribution')
+          .select('total_employees')
+          .eq('report_id', reportId)
+          .maybeSingle();
+          
+        if (workforceError) {
+          if (workforceError.code !== 'PGRST116') {
+            console.error("Error fetching workforce data:", workforceError);
+            handleSupabaseError(workforceError, "Errore nel caricamento dei dati sui dipendenti");
+          }
+        } else if (workforceData && workforceData.total_employees) {
+          setTotalEmployees(workforceData.total_employees);
+        }
+        
         // Fetch BP11 data
         const { data, error } = await supabase
           .from('bp11_apprentices')
@@ -46,22 +62,6 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
             apprenticesPercentage: data.apprentices_percentage
           });
           setLastSaved(new Date(data.updated_at));
-        }
-
-        // Fetch total employees from workforce_distribution
-        const { data: workforceData, error: workforceError } = await supabase
-          .from('workforce_distribution')
-          .select('total_employees')
-          .eq('report_id', reportId)
-          .maybeSingle();
-          
-        if (workforceError) {
-          if (workforceError.code !== 'PGRST116') {
-            console.error("Error fetching workforce data:", workforceError);
-            handleSupabaseError(workforceError, "Errore nel caricamento dei dati sui dipendenti");
-          }
-        } else if (workforceData && workforceData.total_employees) {
-          setTotalEmployees(workforceData.total_employees);
         }
       } catch (error) {
         console.error("Unexpected error fetching BP11 data:", error);
@@ -86,8 +86,6 @@ export const useBP11Data = (reportId: string): BP11HookResult => {
           ...prev,
           apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
         }));
-        // Mark as needing save when we update this calculation
-        setNeedsSaving(true);
       }
     }
   }, [formData.apprenticesNumber, totalEmployees, formData.hasApprentices]);

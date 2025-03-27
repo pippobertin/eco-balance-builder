@@ -1,84 +1,28 @@
-import React, { useEffect } from 'react';
+
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Info } from 'lucide-react';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { useSectionData } from '../hooks/useSectionData';
-import { supabase } from '@/integrations/supabase/client';
+import { useBP11Data } from '../hooks/bp11';
 
 interface BP11ApprenticesProps {
   reportId: string;
 }
 
-interface BP11FormData {
-  hasApprentices: boolean;
-  apprenticesNumber?: number;
-  apprenticesPercentage?: number;
-}
-
 const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
-  const [totalEmployees, setTotalEmployees] = React.useState<number | null>(null);
-  
   const {
-    data: formData,
-    setData: setFormData,
+    formData,
+    setFormData,
     isLoading,
     isSaving,
     lastSaved,
     needsSaving,
-    saveData
-  } = useSectionData<BP11FormData>({
-    reportId,
-    tableName: 'bp11_apprentices',
-    initialData: {
-      hasApprentices: false
-    }
-  });
-
-  React.useEffect(() => {
-    const fetchTotalEmployees = async () => {
-      if (!reportId) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('workforce_distribution')
-          .select('total_employees')
-          .eq('report_id', reportId)
-          .maybeSingle();
-          
-        if (error) {
-          if (error.code !== 'PGRST116') {
-            console.error("Error fetching workforce data:", error);
-          }
-        } else if (data && data.total_employees) {
-          setTotalEmployees(data.total_employees);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching total employees:", error);
-      }
-    };
-
-    fetchTotalEmployees();
-  }, [reportId]);
-
-  React.useEffect(() => {
-    if (formData.hasApprentices && 
-        formData.apprenticesNumber !== undefined && 
-        totalEmployees && 
-        totalEmployees > 0) {
-      
-      const calculatedPercentage = (formData.apprenticesNumber / totalEmployees) * 100;
-      
-      if (formData.apprenticesPercentage !== calculatedPercentage) {
-        setFormData(prev => ({
-          ...prev,
-          apprenticesPercentage: parseFloat(calculatedPercentage.toFixed(2))
-        }));
-      }
-    }
-  }, [formData.apprenticesNumber, totalEmployees, formData.hasApprentices]);
+    saveData,
+    totalEmployees
+  } = useBP11Data(reportId);
 
   const handleCheckboxChange = () => {
     setFormData(prev => ({
@@ -160,11 +104,9 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
                     disabled
                     className="bg-gray-100"
                   />
-                  {formData.apprenticesPercentage !== undefined && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Calcolato automaticamente dal numero di apprendisti e dal numero totale di dipendenti.
-                    </p>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Calcolato automaticamente dal numero di apprendisti e dal numero totale di dipendenti.
+                  </p>
                 </div>
               </div>
             </div>
@@ -178,7 +120,7 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
             />
             <SaveButton
               onClick={async () => {
-                await saveData(formData);
+                await saveData();
               }}
               isLoading={isLoading || isSaving}
             >
