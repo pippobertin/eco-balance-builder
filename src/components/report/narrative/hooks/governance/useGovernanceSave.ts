@@ -5,9 +5,11 @@ import { GovernanceFormData } from '../types';
 import { useSaveFeedback } from '@/components/report/hooks/useSaveFeedback';
 
 export const useGovernanceSave = (
-  reportId: string, 
+  reportId: string,
   formData: GovernanceFormData,
-  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
+  setInitialFormData: React.Dispatch<React.SetStateAction<GovernanceFormData>>,
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const saveOperation = useCallback(async () => {
     if (!reportId) return;
@@ -49,7 +51,12 @@ export const useGovernanceSave = (
     if (result.error) {
       throw result.error;
     }
-  }, [reportId, formData]);
+    
+    // Update initialFormData after successful save
+    setInitialFormData({...formData});
+    // Reset needsSaving flag
+    setNeedsSaving(false);
+  }, [reportId, formData, setInitialFormData, setNeedsSaving]);
 
   // Use the common save feedback hook
   const { saveWithFeedback, isSaving } = useSaveFeedback({

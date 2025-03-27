@@ -6,6 +6,7 @@ import { StakeholdersFormData } from '../types';
 export const useStakeholdersLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<StakeholdersFormData>>,
+  setInitialFormData: React.Dispatch<React.SetStateAction<StakeholdersFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,10 +32,14 @@ export const useStakeholdersLoad = (
       }
       
       if (data) {
-        setFormData({
+        const loadedData = {
           keyStakeholders: data.stakeholder_categories || '',
           stakeholderEngagement: data.engagement_methods || ''
-        });
+        };
+        
+        // Set both form data and initial form data to track changes
+        setFormData(loadedData);
+        setInitialFormData(loadedData);
         
         // Set last saved date from the updated_at timestamp
         if (data.updated_at) {

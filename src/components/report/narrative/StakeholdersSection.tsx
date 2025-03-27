@@ -17,7 +17,9 @@ interface StakeholdersSectionProps {
 const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) => {
   const { 
     formData, 
-    setFormData, 
+    setFormData,
+    initialFormData,
+    setInitialFormData, 
     isLoading, 
     setIsLoading, 
     lastSaved, 
@@ -27,18 +29,17 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) =
   } = useStakeholdersData(reportId);
   
   // Load data
-  useStakeholdersLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
+  useStakeholdersLoad(reportId, setFormData, setInitialFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
-  const { saveData, isSaving } = useStakeholdersSave(reportId, formData, setLastSaved);
+  const { saveData, isSaving } = useStakeholdersSave(reportId, formData, setLastSaved, setInitialFormData, setNeedsSaving);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: value
-    }));
-    setNeedsSaving(true);
+    });
   };
 
   if (isLoading) {
@@ -86,10 +87,7 @@ const StakeholdersSection: React.FC<StakeholdersSectionProps> = ({ reportId }) =
         <div className="flex justify-start">
           <SaveButton 
             onClick={async () => {
-              const success = await saveData();
-              if (success) {
-                setNeedsSaving(false);
-              }
+              await saveData();
             }} 
             isLoading={isSaving} 
           />

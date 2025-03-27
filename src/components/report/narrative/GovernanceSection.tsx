@@ -17,7 +17,9 @@ interface GovernanceSectionProps {
 const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
   const { 
     formData, 
-    setFormData, 
+    setFormData,
+    initialFormData,
+    setInitialFormData, 
     isLoading, 
     setIsLoading, 
     lastSaved, 
@@ -27,18 +29,17 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
   } = useGovernanceData(reportId);
   
   // Load data
-  useGovernanceLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
+  useGovernanceLoad(reportId, setFormData, setInitialFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
-  const { saveData, isSaving } = useGovernanceSave(reportId, formData, setLastSaved);
+  const { saveData, isSaving } = useGovernanceSave(reportId, formData, setLastSaved, setInitialFormData, setNeedsSaving);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: value
-    }));
-    setNeedsSaving(true);
+    });
   };
 
   if (isLoading) {
@@ -74,10 +75,7 @@ const GovernanceSection: React.FC<GovernanceSectionProps> = ({ reportId }) => {
         <div className="flex justify-start">
           <SaveButton 
             onClick={async () => {
-              const success = await saveData();
-              if (success) {
-                setNeedsSaving(false);
-              }
+              await saveData();
             }} 
             isLoading={isSaving} 
           />

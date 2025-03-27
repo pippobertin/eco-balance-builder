@@ -1,62 +1,40 @@
 
-import { useState, useEffect } from 'react';
-import { MaterialIssuesFormData, SectionHookResult } from '../types';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { MaterialIssuesFormData } from '../types';
 
-export const useMaterialIssuesData = (reportId: string): SectionHookResult => {
+export const useMaterialIssuesData = (reportId: string) => {
   const [formData, setFormData] = useState<MaterialIssuesFormData>({
     materialIssuesDescription: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  // Track initial data state to detect actual changes
+  const [initialFormData, setInitialFormData] = useState<MaterialIssuesFormData>({
+    materialIssuesDescription: ''
+  });
 
-  // Load data from database
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!reportId) return;
+  // Update formData with setter that tracks changes against initialFormData
+  const updateFormData = (newData: Partial<MaterialIssuesFormData>) => {
+    setFormData(prev => {
+      const updated = { ...prev, ...newData };
       
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('narrative_material_issues')
-          .select('*')
-          .eq('report_id', reportId)
-          .single();
-        
-        if (error) {
-          console.error("Error fetching material issues data:", error);
-          if (error.code !== 'PGRST116') { // Not found error
-            toast.error("Errore nel caricamento dei dati sulle questioni materiali");
-          }
-        } else if (data) {
-          setFormData({
-            materialIssuesDescription: data.material_issues_description || ''
-          });
-          setLastSaved(new Date(data.updated_at));
-          setNeedsSaving(false);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching material issues data:", error);
-      } finally {
-        setIsLoading(false);
+      // Only set needsSaving if there's a difference between updated and initial data
+      if (updated.materialIssuesDescription !== initialFormData.materialIssuesDescription) {
+        setNeedsSaving(true);
+      } else {
+        setNeedsSaving(false);
       }
-    };
-
-    fetchData();
-  }, [reportId]);
-
-  // Set needsSaving to true when form data changes
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData]);
+      
+      return updated;
+    });
+  };
 
   return {
     formData,
-    setFormData,
+    setFormData: updateFormData,
+    initialFormData,
+    setInitialFormData,
     isLoading,
     setIsLoading,
     lastSaved,

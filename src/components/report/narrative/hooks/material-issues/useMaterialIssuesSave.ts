@@ -7,7 +7,9 @@ import { useSaveFeedback } from '@/components/report/hooks/useSaveFeedback';
 export const useMaterialIssuesSave = (
   reportId: string,
   formData: MaterialIssuesFormData,
-  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
+  setInitialFormData: React.Dispatch<React.SetStateAction<MaterialIssuesFormData>>,
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const saveOperation = useCallback(async () => {
     if (!reportId) return;
@@ -48,7 +50,12 @@ export const useMaterialIssuesSave = (
         
       if (error) throw error;
     }
-  }, [reportId, formData]);
+    
+    // Update initialFormData after successful save
+    setInitialFormData({...formData});
+    // Reset needsSaving flag
+    setNeedsSaving(false);
+  }, [reportId, formData, setInitialFormData, setNeedsSaving]);
 
   // Use the common save feedback hook
   const { saveWithFeedback, isSaving } = useSaveFeedback({

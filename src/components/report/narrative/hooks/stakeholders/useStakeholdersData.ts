@@ -1,10 +1,8 @@
 
-import { useState, useEffect } from 'react';
-import { StakeholdersFormData, SectionHookResult } from '../types';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { StakeholdersFormData } from '../types';
 
-export const useStakeholdersData = (reportId: string): SectionHookResult => {
+export const useStakeholdersData = (reportId: string) => {
   const [formData, setFormData] = useState<StakeholdersFormData>({
     keyStakeholders: '',
     stakeholderEngagement: ''
@@ -12,53 +10,34 @@ export const useStakeholdersData = (reportId: string): SectionHookResult => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  // Track initial data state to detect actual changes
+  const [initialFormData, setInitialFormData] = useState<StakeholdersFormData>({
+    keyStakeholders: '',
+    stakeholderEngagement: ''
+  });
 
-  // Load data from database
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!reportId) return;
+  // Update formData with setter that tracks changes against initialFormData
+  const updateFormData = (newData: Partial<StakeholdersFormData>) => {
+    setFormData(prev => {
+      const updated = { ...prev, ...newData };
       
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('narrative_stakeholders')
-          .select('*')
-          .eq('report_id', reportId)
-          .single();
-        
-        if (error) {
-          console.error("Error fetching stakeholders data:", error);
-          if (error.code !== 'PGRST116') { // Not found error
-            toast.error("Errore nel caricamento dei dati sugli stakeholder");
-          }
-        } else if (data) {
-          setFormData({
-            keyStakeholders: data.stakeholder_categories || '',
-            stakeholderEngagement: data.engagement_methods || ''
-          });
-          setLastSaved(new Date(data.updated_at));
-          setNeedsSaving(false);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching stakeholders data:", error);
-      } finally {
-        setIsLoading(false);
+      // Only set needsSaving if there's a difference between updated and initial data
+      if (updated.keyStakeholders !== initialFormData.keyStakeholders || 
+          updated.stakeholderEngagement !== initialFormData.stakeholderEngagement) {
+        setNeedsSaving(true);
+      } else {
+        setNeedsSaving(false);
       }
-    };
-
-    fetchData();
-  }, [reportId]);
-
-  // Set needsSaving to true when form data changes
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData]);
+      
+      return updated;
+    });
+  };
 
   return {
     formData,
-    setFormData,
+    setFormData: updateFormData,
+    initialFormData,
+    setInitialFormData,
     isLoading,
     setIsLoading,
     lastSaved,

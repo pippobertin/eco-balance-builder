@@ -6,6 +6,7 @@ import { GovernanceFormData } from '../types';
 export const useGovernanceLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<GovernanceFormData>>,
+  setInitialFormData: React.Dispatch<React.SetStateAction<GovernanceFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,9 +32,13 @@ export const useGovernanceLoad = (
       }
       
       if (data) {
-        setFormData({
+        const loadedData = {
           sustainabilityGovernance: data.sustainability_governance || ''
-        });
+        };
+        
+        // Set both form data and initial form data to track changes
+        setFormData(loadedData);
+        setInitialFormData(loadedData);
         
         // Set last saved date from the updated_at timestamp
         if (data.updated_at) {

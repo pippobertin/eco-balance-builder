@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +17,8 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
   const { 
     formData, 
     setFormData, 
+    initialFormData,
+    setInitialFormData,
     isLoading, 
     setIsLoading, 
     lastSaved, 
@@ -27,18 +28,17 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
   } = useMaterialIssuesData(reportId);
   
   // Load data
-  useMaterialIssuesLoad(reportId, setFormData, setIsLoading, setLastSaved, setNeedsSaving);
+  useMaterialIssuesLoad(reportId, setFormData, setInitialFormData, setIsLoading, setLastSaved, setNeedsSaving);
   
   // Get save function
-  const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData, setLastSaved);
+  const { saveData, isSaving } = useMaterialIssuesSave(reportId, formData, setLastSaved, setInitialFormData, setNeedsSaving);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: value
-    }));
-    setNeedsSaving(true);
+    });
   };
 
   if (isLoading) {
@@ -81,10 +81,7 @@ const MaterialIssuesSection: React.FC<MaterialIssuesSectionProps> = ({ reportId 
         <div className="flex justify-start">
           <SaveButton 
             onClick={async () => {
-              const success = await saveData();
-              if (success) {
-                setNeedsSaving(false);
-              }
+              await saveData();
             }} 
             isLoading={isSaving} 
           />

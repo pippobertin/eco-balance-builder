@@ -6,6 +6,7 @@ import { MaterialIssuesFormData } from '../types';
 export const useMaterialIssuesLoad = (
   reportId: string,
   setFormData: React.Dispatch<React.SetStateAction<MaterialIssuesFormData>>,
+  setInitialFormData: React.Dispatch<React.SetStateAction<MaterialIssuesFormData>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>,
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,9 +32,13 @@ export const useMaterialIssuesLoad = (
       }
       
       if (data) {
-        setFormData({
+        const loadedData = {
           materialIssuesDescription: data.material_issues_description || ''
-        });
+        };
+        
+        // Set both form data and initial form data to track changes
+        setFormData(loadedData);
+        setInitialFormData(loadedData);
         
         // Set last saved date from the updated_at timestamp
         if (data.updated_at) {

@@ -1,62 +1,40 @@
 
-import { useState, useEffect } from 'react';
-import { GovernanceFormData, SectionHookResult } from '../types';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { GovernanceFormData } from '../types';
 
-export const useGovernanceData = (reportId: string): SectionHookResult => {
+export const useGovernanceData = (reportId: string) => {
   const [formData, setFormData] = useState<GovernanceFormData>({
     sustainabilityGovernance: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
+  // Track initial data state to detect actual changes
+  const [initialFormData, setInitialFormData] = useState<GovernanceFormData>({
+    sustainabilityGovernance: ''
+  });
 
-  // Load data from database
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!reportId) return;
+  // Update formData with setter that tracks changes against initialFormData
+  const updateFormData = (newData: Partial<GovernanceFormData>) => {
+    setFormData(prev => {
+      const updated = { ...prev, ...newData };
       
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('narrative_governance')
-          .select('*')
-          .eq('report_id', reportId)
-          .single();
-        
-        if (error) {
-          console.error("Error fetching governance data:", error);
-          if (error.code !== 'PGRST116') { // Not found error
-            toast.error("Errore nel caricamento dei dati sulla governance");
-          }
-        } else if (data) {
-          setFormData({
-            sustainabilityGovernance: data.sustainability_governance || ''
-          });
-          setLastSaved(new Date(data.updated_at));
-          setNeedsSaving(false);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching governance data:", error);
-      } finally {
-        setIsLoading(false);
+      // Only set needsSaving if there's a difference between updated and initial data
+      if (updated.sustainabilityGovernance !== initialFormData.sustainabilityGovernance) {
+        setNeedsSaving(true);
+      } else {
+        setNeedsSaving(false);
       }
-    };
-
-    fetchData();
-  }, [reportId]);
-
-  // Set needsSaving to true when form data changes
-  useEffect(() => {
-    if (!isLoading) {
-      setNeedsSaving(true);
-    }
-  }, [formData]);
+      
+      return updated;
+    });
+  };
 
   return {
     formData,
-    setFormData,
+    setFormData: updateFormData,
+    initialFormData,
+    setInitialFormData,
     isLoading,
     setIsLoading,
     lastSaved,
