@@ -25,7 +25,7 @@ export interface Report {
 export interface ReportContextType {
   reportData: ReportData;
   updateReportData: (data: Partial<ReportData>) => void;
-  resetReportData: () => void;
+  resetReportData?: () => void;
   companies: Company[];
   reports: Report[];
   currentCompany: Company | null;
@@ -44,4 +44,6 @@ export interface ReportContextType {
   setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>;
   lastSaved: Date | null;
   setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>;
+  isLoading?: boolean;
+  isAdmin?: boolean;
 }
