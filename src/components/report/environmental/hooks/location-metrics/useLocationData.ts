@@ -1,7 +1,8 @@
+
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { LocationEnvironmentalMetrics } from '@/context/types';
-import { useToast } from '@/hooks/use-toast';
+import { LocationEnvironmentalMetrics } from './types';
+import { toast } from 'sonner';
 import { useReport } from '@/hooks/use-report-context';
 
 // Helper function to format the location name
@@ -15,7 +16,6 @@ export const useLocationData = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
-  const { toast } = useToast();
   const { currentReport, updateReportData } = useReport();
 
   // Load locations for the current report
@@ -29,7 +29,7 @@ export const useLocationData = () => {
     try {
       console.log("Loading locations for report:", currentReport.id);
       const { data, error } = await supabase
-        .from('location_environmental_metrics')
+        .from('location_metrics')
         .select('*')
         .eq('report_id', currentReport.id);
 
@@ -44,8 +44,26 @@ export const useLocationData = () => {
       }
 
       console.log("Locations loaded:", data);
-      setLocations(data as LocationEnvironmentalMetrics[]);
-      setHasMultipleLocations(data.length > 1);
+      
+      // Transform data to match our expected format
+      const transformedData: LocationEnvironmentalMetrics[] = data.map(item => ({
+        id: item.id,
+        report_id: item.report_id,
+        locationId: item.location_id || '',
+        name: item.location_name || '',
+        location_type: item.location_type,
+        metrics: item.metrics || {},
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
+      
+      setLocations(transformedData);
+      setHasMultipleLocations(transformedData.length > 1);
+      
+      // Select the first location by default if none is selected
+      if (transformedData.length > 0 && !selectedLocationId) {
+        setSelectedLocationId(transformedData[0].locationId);
+      }
     } catch (error) {
       console.error("Error loading locations:", error);
       toast({
@@ -56,7 +74,7 @@ export const useLocationData = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentReport?.id, toast]);
+  }, [currentReport?.id, selectedLocationId, toast]);
 
   // Add a new location
   const addLocation = useCallback(async (name: string, locationId: string) => {
@@ -70,10 +88,11 @@ export const useLocationData = () => {
       const formattedName = formatLocationName(name);
       console.log(`Adding location: ${formattedName} with ID: ${locationId}`);
 
-      const newLocation: LocationEnvironmentalMetrics = {
+      const newLocation = {
         report_id: currentReport.id,
-        locationId: locationId,
-        name: formattedName,
+        location_id: locationId,
+        location_name: formattedName,
+        location_type: 'operation',
         metrics: {
           energyConsumption: 0,
           waterConsumption: 0,
@@ -82,7 +101,7 @@ export const useLocationData = () => {
       };
 
       const { error } = await supabase
-        .from('location_environmental_metrics')
+        .from('location_metrics')
         .insert([newLocation]);
 
       if (error) {
@@ -118,10 +137,18 @@ export const useLocationData = () => {
     try {
       console.log("Updating location:", location);
 
+      // Convert to database format
+      const dbLocation = {
+        location_id: location.locationId,
+        location_name: location.name,
+        location_type: location.location_type,
+        metrics: location.metrics
+      };
+
       const { error } = await supabase
-        .from('location_environmental_metrics')
-        .update(location)
-        .eq('locationId', location.locationId);
+        .from('location_metrics')
+        .update(dbLocation)
+        .eq('id', location.id);
 
       if (error) {
         console.error("Error updating location:", error);
@@ -160,9 +187,18 @@ export const useLocationData = () => {
     try {
       console.log("Saving location:", location);
 
+      // Convert to database format
+      const dbLocation = {
+        report_id: currentReport.id,
+        location_id: location.locationId,
+        location_name: location.name,
+        location_type: location.location_type || 'operation',
+        metrics: location.metrics || {}
+      };
+
       const { error } = await supabase
-        .from('location_environmental_metrics')
-        .upsert(location);
+        .from('location_metrics')
+        .upsert(dbLocation);
 
       if (error) {
         console.error("Error saving location:", error);

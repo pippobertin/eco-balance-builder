@@ -65,7 +65,8 @@ export const useReportSave = (
     
     try {
       console.log(`Saving ${subsidiaries.length} subsidiaries for report ${currentReport.id}`);
-      await saveSubsidiaries(subsidiaries, currentReport.id);
+      const result = await saveSubsidiaries(subsidiaries, currentReport.id);
+      // Don't check if result is truthy, just proceed
       toast.success("Controllate salvate con successo");
     } catch (error) {
       console.error("Error saving subsidiaries:", error);
