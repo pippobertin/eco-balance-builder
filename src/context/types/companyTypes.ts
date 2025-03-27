@@ -28,7 +28,6 @@ export interface Company {
   address_postal_code?: string;
   address_city?: string;
   address_province?: string;
-  company_id?: string;
 }
 
 // Define subsidiary company
@@ -37,5 +36,4 @@ export interface Subsidiary {
   report_id?: string;
   name: string;
   location: string;
-  company_id?: string;
 }

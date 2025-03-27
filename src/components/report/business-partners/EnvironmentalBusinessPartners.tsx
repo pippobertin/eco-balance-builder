@@ -1,19 +1,17 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useReport } from '@/hooks/use-report-context';
-import {
-  BP1RevenueSectors,
-  BP2GenderDiversity,
-  BP3GHGReductionTargets,
-  BP4TransitionPlan,
-  BP5PhysicalClimateRisks,
-  BP6HazardousWaste,
-  BP7PolicyAlignment,
-  BP8ComplianceProcesses,
-  BP9Violations,
-  BP10WorkLifeBalance,
-  BP11Apprentices
-} from './modules';
+import BP1RevenueSectorsSection from './sections/BP1RevenueSectorsSection';
+import BP2GenderDiversitySection from './sections/BP2GenderDiversitySection';
+import BP3GHGReductionTargetsSection from './sections/BP3GHGReductionTargetsSection';
+import BP4TransitionPlanSection from './sections/BP4TransitionPlanSection';
+import BP5PhysicalClimateRisksSection from './sections/BP5PhysicalClimateRisksSection';
+import BP6HazardousWasteSection from './sections/BP6HazardousWasteSection';
+import BP7PolicyAlignmentSection from './sections/BP7PolicyAlignmentSection';
+import BP8ComplianceProcessesSection from './sections/BP8ComplianceProcessesSection';
+import BP9ViolationsSection from './sections/BP9ViolationsSection';
+import BP10WorkLifeBalanceSection from './sections/BP10WorkLifeBalanceSection';
+import BP11ApprenticesSection from './sections/BP11ApprenticesSection';
 
 interface EnvironmentalBusinessPartnersProps {
   formValues: any;
@@ -83,57 +81,101 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
       
       {/* BP1 - Ricavi in settori controversi */}
       <div ref={bp1Ref}>
-        <BP1RevenueSectors reportId={reportId} />
+        <BP1RevenueSectorsSection 
+          reportId={reportId} 
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
       
       {/* BP2 - Diversità di genere nella governance */}
       <div ref={bp2Ref}>
-        <BP2GenderDiversity reportId={reportId} />
+        <BP2GenderDiversitySection 
+          reportId={reportId} 
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
       
       {/* BP3 - Obiettivi riduzione GHG */}
       <div ref={bp3Ref}>
-        <BP3GHGReductionTargets reportId={reportId} />
+        <BP3GHGReductionTargetsSection 
+          reportId={reportId} 
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP4 - Piano di transizione climatica */}
       <div ref={bp4Ref}>
-        <BP4TransitionPlan reportId={reportId} />
+        <BP4TransitionPlanSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP5 - Rischi fisici legati al clima */}
       <div ref={bp5Ref}>
-        <BP5PhysicalClimateRisks reportId={reportId} />
+        <BP5PhysicalClimateRisksSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP6 - Rifiuti pericolosi */}
       <div ref={bp6Ref}>
-        <BP6HazardousWaste reportId={reportId} />
+        <BP6HazardousWasteSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP7 - Allineamento delle politiche */}
       <div ref={bp7Ref}>
-        <BP7PolicyAlignment reportId={reportId} />
+        <BP7PolicyAlignmentSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP8 - Processi di conformità */}
       <div ref={bp8Ref}>
-        <BP8ComplianceProcesses reportId={reportId} />
+        <BP8ComplianceProcessesSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
 
       {/* BP9 - Violazioni */}
       <div ref={bp9Ref}>
-        <BP9Violations reportId={reportId} />
+        <BP9ViolationsSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
       
       {/* BP10 - Equilibrio vita-lavoro */}
       <div ref={bp10Ref}>
-        <BP10WorkLifeBalance reportId={reportId} />
+        <BP10WorkLifeBalanceSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
       
       {/* BP11 - Apprendisti */}
       <div ref={bp11Ref}>
-        <BP11Apprentices reportId={reportId} />
+        <BP11ApprenticesSection 
+          reportId={reportId}
+          formValues={formValues}
+          setFormValues={setFormValues}
+        />
       </div>
     </div>
   );

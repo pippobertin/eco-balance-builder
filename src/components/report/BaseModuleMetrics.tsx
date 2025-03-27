@@ -27,23 +27,16 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   initialField
 }) => {
   const { toast } = useToast();
-  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt'>('environmental');
+  const [activeSection, setActiveSection] = React.useState<'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners'>('environmental');
 
   // Determine which modules to show based on the selected option
   const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
   const showBusinessPartnersModule = selectedOption === 'C' || selectedOption === 'D';
 
-  // Always redirect business-partners to business-partners-alt
-  React.useEffect(() => {
-    if (activeSection === 'business-partners') {
-      setActiveSection('business-partners-alt');
-    }
-  }, [activeSection]);
-
   // Reset to environmental if the active section isn't available for the selected option
   React.useEffect(() => {
     if (activeSection === 'narrative' && !showNarrativeModule || 
-        activeSection === 'business-partners-alt' && !showBusinessPartnersModule) {
+        activeSection === 'business-partners' && !showBusinessPartnersModule) {
       setActiveSection('environmental');
     }
   }, [selectedOption, activeSection, showNarrativeModule, showBusinessPartnersModule]);
@@ -67,9 +60,8 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           }
           break;
         case 'business-partners':
-        case 'business-partners-alt':
           if (showBusinessPartnersModule) {
-            setActiveSection('business-partners-alt');
+            setActiveSection('business-partners');
           }
           break;
         default:
