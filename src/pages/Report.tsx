@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useBeforeUnload } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -16,7 +15,8 @@ const Report = () => {
   const [pendingTab, setPendingTab] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<() => void | null>(() => null);
   
-  const { needsSaving, saveCurrentReport } = useReport();
+  const reportContext = useReport();
+  const { needsSaving, saveCurrentReport } = reportContext;
   const { currentCompany, currentReport, isLoading } = useReportNavigation();
   
   const {
@@ -39,7 +39,6 @@ const Report = () => {
     removeSubsidiary
   } = useReportForm();
 
-  // Warn user when navigating away with unsaved changes
   useBeforeUnload(
     React.useCallback(
       (event) => {
@@ -53,16 +52,13 @@ const Report = () => {
     )
   );
 
-  // Track changes in form values to set needsSaving flag
   useEffect(() => {
     if (formValues && Object.keys(formValues).length > 0) {
       console.log("Form values changed, marking as needs saving");
-      // This will be picked up when the user clicks Save manually
     }
   }, [formValues]);
 
   const handleTabChange = (value: string) => {
-    // Always try to save current changes before changing tabs
     if (needsSaving) {
       setPendingTab(value);
       setShowUnsavedDialog(true);

@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -7,13 +8,13 @@ import React, {
 } from 'react';
 import { Company, Report } from './types';
 import { useCompanyOperations } from './companyOperations';
-import { useReportReadOperations } from './report/reportReadOperations';
-import { useReportWriteOperations } from './report/reportWriteOperations';
+import { useReportReadOperations } from '@/context/report/reportReadOperations';
+import { useReportWriteOperations } from '@/context/report/reportWriteOperations';
 import { useAuth } from './AuthContext';
 import { localStorageUtils } from './report/localStorageUtils';
-import { useReportEntityState } from './reportEntityState';
+import { useReportEntityState } from '@/context/report/reportEntityState';
 
-interface ReportContextType {
+export interface ReportContextType {
   companies: Company[];
   reports: Report[];
   currentCompany: Company | null;
@@ -21,15 +22,24 @@ interface ReportContextType {
   currentReport: Report | null;
   setCurrentReport: (report: Report | null) => void;
   loadCompanies: () => Promise<void>;
-  loadReports: (companyId: string) => Promise<void>;
+  loadReports: (companyId: string) => Promise<Report[]>;
+  loadReport: (reportId: string) => Promise<any>;
   createCompany: (company: Omit<Company, 'id'>) => Promise<string | null>;
   deleteReport: (reportId: string) => Promise<boolean>;
   createReport: (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>) => Promise<string | null>;
   isLoading: boolean;
   isAdmin: boolean;
+  reportData: any;
+  updateReportData: (data: any) => void;
+  saveCurrentReport: () => Promise<void>;
+  saveSubsidiaries: (subsidiaries: any[], reportId: string) => Promise<void>;
+  needsSaving: boolean;
+  setNeedsSaving: (value: boolean) => void;
+  lastSaved: Date | null;
+  setLastSaved: (date: Date) => void;
 }
 
-const ReportContext = createContext<ReportContextType | undefined>(undefined);
+export const ReportContext = createContext<ReportContextType | undefined>(undefined);
 
 interface ReportProviderProps {
   children: React.ReactNode;
@@ -38,7 +48,7 @@ interface ReportProviderProps {
 export const ReportProvider: React.FC<ReportProviderProps> = ({ children }) => {
   const { user, isAdmin } = useAuth();
   const { loadCompanies: loadCompaniesFromApi, createCompany: createCompanyInApi } = useCompanyOperations();
-  const { loadReports: loadReportsFromApi } = useReportReadOperations();
+  const { loadReports: loadReportsFromApi, loadReport: loadReportFromApi } = useReportReadOperations();
   const { deleteReport: deleteReportInApi, createReport: createReportInApi } = useReportWriteOperations();
   const {
     companies,
@@ -52,6 +62,28 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children }) => {
     loading,
     setLoading
   } = useReportEntityState();
+
+  // Dummy reportData state to be later replaced with the actual implementation
+  const [reportData, setReportData] = useState<any>({});
+  const [needsSaving, setNeedsSaving] = useState<boolean>(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const updateReportData = (data: any) => {
+    setReportData(prevData => ({ ...prevData, ...data }));
+    setNeedsSaving(true);
+  };
+
+  const saveCurrentReport = async (): Promise<void> => {
+    console.log("Saving current report (placeholder)");
+    setNeedsSaving(false);
+    setLastSaved(new Date());
+  };
+
+  const saveSubsidiaries = async (subsidiaries: any[], reportId: string): Promise<void> => {
+    console.log("Saving subsidiaries (placeholder)");
+    setNeedsSaving(false);
+    setLastSaved(new Date());
+  };
 
   // Load companies
   const loadCompanies = useCallback(async () => {
@@ -74,12 +106,28 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children }) => {
     try {
       const reports = await loadReportsFromApi(companyId);
       setReports(reports);
+      return reports;
     } catch (error) {
       console.error("Failed to load reports", error);
+      return [];
     } finally {
       setLoading(false);
     }
   }, [loadReportsFromApi, setReports, setLoading]);
+
+  // Load a specific report
+  const loadReport = useCallback(async (reportId: string) => {
+    setLoading(true);
+    try {
+      const result = await loadReportFromApi(reportId);
+      return result;
+    } catch (error) {
+      console.error("Failed to load report", error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadReportFromApi, setLoading]);
 
   // Create a new company
   const createCompany = useCallback(async (company: Omit<Company, 'id'>): Promise<string | null> => {
@@ -152,11 +200,20 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children }) => {
     setCurrentReport,
     loadCompanies,
     loadReports,
+    loadReport,
     createCompany,
     deleteReport,
     createReport,
     isLoading: loading,
-    isAdmin: isAdmin
+    isAdmin,
+    reportData,
+    updateReportData,
+    saveCurrentReport,
+    saveSubsidiaries,
+    needsSaving,
+    setNeedsSaving,
+    lastSaved,
+    setLastSaved
   };
 
   return (
