@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Factory, Save } from 'lucide-react';
 import GlassmorphicCard from '@/components/ui/GlassmorphicCard';
-import { SaveButton, SectionAutoSaveIndicator } from './components';
+import { SaveButton, SaveIndicator } from './components';
 import { useBP1Data } from './hooks/bp1';
 import { useReport } from '@/hooks/use-report-context';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
     lastSaved,
     needsSaving
   } = useBP1Data(reportId);
+  const [saving, setSaving] = useState(false);
 
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData(prev => ({
@@ -44,20 +45,21 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   };
 
   const handleSave = async () => {
-    const success = await saveData();
-    if (success) {
-      // Update the global report data context with the new values
-      updateReportData({
-        businessPartnersMetrics: {
-          bp1: formData
-        }
-      });
+    setSaving(true);
+    try {
+      const success = await saveData();
+      if (success) {
+        // Update the global report data context with the new values
+        updateReportData({
+          businessPartnersMetrics: {
+            bp1: formData
+          }
+        });
+      }
+    } finally {
+      setSaving(false);
     }
   };
-
-  if (isLoading) {
-    return <div className="p-4">Caricamento dati...</div>;
-  }
 
   return (
     <GlassmorphicCard>
@@ -66,10 +68,14 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
           <Factory className="mr-2 h-5 w-5 text-gray-600" />
           <h3 className="text-xl font-semibold">BP1 - Ricavi in alcuni settori</h3>
         </div>
-        <SectionAutoSaveIndicator 
-          needsSaving={needsSaving} 
-          lastSaved={lastSaved} 
-        />
+        <div>
+          <SaveIndicator
+            isLoading={isLoading}
+            isSaving={saving}
+            needsSaving={needsSaving}
+            lastSaved={lastSaved}
+          />
+        </div>
       </div>
       
       <div className="space-y-4">

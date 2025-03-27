@@ -10,6 +10,7 @@ export const useStrategyData = (reportId: string) => {
     sustainabilityStrategy: ''
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
 
@@ -18,6 +19,8 @@ export const useStrategyData = (reportId: string) => {
     setFormData,
     isLoading,
     setIsLoading,
+    isSaving,
+    setIsSaving,
     lastSaved,
     setLastSaved,
     needsSaving,

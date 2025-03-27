@@ -1,6 +1,6 @@
 
 // Export types
-export * from './types';
+export type * from './types';
 
 // Export individual BP hooks
 export * from './bp1';
@@ -18,3 +18,6 @@ export * from './bp11';
 
 // Legacy hook - will be deprecated
 export * from './useBusinessPartnersData';
+
+// Export useSaveIndicator hook
+export * from './useSaveIndicator';
