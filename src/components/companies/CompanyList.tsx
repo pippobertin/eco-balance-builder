@@ -1,8 +1,9 @@
 
 import React, { useCallback, memo } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Building } from 'lucide-react';
 import { Company } from '@/context/types';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface CompanyListProps {
   companies: Company[];
@@ -20,15 +21,20 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
     // Only trigger the callback if this is a new selection
     if (!selectedCompany || selectedCompany.id !== company.id) {
       onSelectCompany(company);
-      
-      // Allow the company selection to complete before navigating
-      setTimeout(() => {
-        console.log("CompanyList: Navigating to company profile");
-        // Navigate to company profile page
-        navigate('/company-profile');
-      }, 50);
     }
-  }, [onSelectCompany, selectedCompany, navigate]);
+  }, [onSelectCompany, selectedCompany]);
+  
+  // Handler for navigating to company profile
+  const handleGoToProfile = useCallback((company: Company, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    console.log("CompanyList: Navigating to company profile for:", company.name);
+    onSelectCompany(company);
+    
+    // Allow the company selection to complete before navigating
+    setTimeout(() => {
+      navigate('/company-profile');
+    }, 50);
+  }, [navigate, onSelectCompany]);
   
   if (companies.length === 0) {
     return (
@@ -62,7 +68,19 @@ const CompanyList = ({ companies, selectedCompany, onSelectCompany, isAdmin }: C
                 <p className="text-sm text-gray-500">{company.country}</p>
               )}
             </div>
-            <ChevronRight className="h-5 w-5 text-gray-400" />
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                onClick={(e) => handleGoToProfile(company, e)}
+                title="Vai all'anagrafica aziendale"
+              >
+                <Building className="h-4 w-4" />
+                <span className="sr-only md:not-sr-only md:inline-block">Anagrafica</span>
+              </Button>
+              <ChevronRight className="h-5 w-5 text-gray-400" />
+            </div>
           </div>
         </div>
       ))}
