@@ -13,7 +13,7 @@ export * from './bp10';
 export * from './bp11';
 
 // Re-export common types but avoid duplicate export of BP1FormData
-export { BaseHookResult } from './types';
+export type { BaseHookResult } from './types';
 
 // Export top-level hooks
 export * from './useBusinessPartnersData';
