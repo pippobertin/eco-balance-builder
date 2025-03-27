@@ -12,3 +12,6 @@ export interface Subsidiary {
   report_id?: string;
   created_at?: string;
 }
+
+// Export the default report data
+export { defaultReportData } from './metricsTypes';

@@ -65,6 +65,7 @@ export const useCompanyOperations = () => {
           created_by: user.id 
         };
 
+        // Fix: Ensure we're passing an array with a single company object
         const { data, error } = await supabase
           .from('companies')
           .insert([companyWithCreator])

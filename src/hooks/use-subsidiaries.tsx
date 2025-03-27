@@ -4,12 +4,22 @@ import { Subsidiary } from '@/context/types';
 
 export const useSubsidiaries = (initialSubsidiaries: Subsidiary[] = []) => {
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>(initialSubsidiaries);
-  const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({ name: '', location: '' });
+  const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({ 
+    name: '', 
+    location: '', 
+    id: undefined, 
+    report_id: undefined 
+  });
 
   const handleAddSubsidiary = () => {
     if (newSubsidiary.name && newSubsidiary.location) {
       setSubsidiaries([...subsidiaries, { ...newSubsidiary, id: `temp-${Date.now()}` }]);
-      setNewSubsidiary({ name: '', location: '' });
+      setNewSubsidiary({ 
+        name: '', 
+        location: '', 
+        id: undefined, 
+        report_id: undefined 
+      });
     }
   };
 

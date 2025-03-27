@@ -10,10 +10,10 @@ export const useReportWriteOperations = () => {
   const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
       return await withRetry(async () => {
-        // Fix: Pass the report directly as an object, not as an array
+        // Fix: Pass the report correctly wrapped in an array
         const { data, error } = await supabase
           .from('reports')
-          .insert([report]) // Correctly wrap in an array here
+          .insert([report])
           .select()
           .single();
 

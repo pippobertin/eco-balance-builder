@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Report } from '@/context/types';
@@ -12,7 +13,7 @@ export const useReportWriteOperationsRefactored = () => {
         throw new Error('Missing required report fields');
       }
 
-      // Insert the report record, passing report as a single object in an array
+      // Fix: Ensure we're passing an array with a single report object
       const { data, error } = await supabase
         .from('reports')
         .insert([reportData])
