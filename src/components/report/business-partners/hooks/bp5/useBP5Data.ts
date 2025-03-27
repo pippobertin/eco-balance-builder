@@ -35,7 +35,9 @@ export const useBP5Data = (reportId: string): BP5HookResult => {
           .maybeSingle();
           
         if (error) {
-          console.error("Error fetching BP5 data:", error);
+          if (error.code !== 'PGRST116') { // Not found error is expected for new reports
+            console.error("Error fetching BP5 data:", error);
+          }
         } else if (data) {
           setFormData({
             hasPhysicalClimateRisks: data.has_physical_climate_risks,
