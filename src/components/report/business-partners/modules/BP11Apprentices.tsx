@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Info } from 'lucide-react';
+import { Info, GraduationCap } from 'lucide-react';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { useBP11Data } from '../hooks/bp11';
 
@@ -42,13 +41,22 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP11</span>
-          Apprendisti
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa impiega apprendisti e, in caso affermativo, il loro numero e percentuale.
-        </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-violet-100 flex items-center justify-center">
+            <GraduationCap className="h-5 w-5 text-violet-700" />
+          </div>
+          <div>
+            <CardTitle>BP11 - Apprendisti</CardTitle>
+            <CardDescription>
+              Indicare se l'impresa impiega apprendisti e, in caso affermativo, il loro numero e percentuale.
+            </CardDescription>
+          </div>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+          isLoading={isSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -113,11 +121,6 @@ const BP11Apprentices: React.FC<BP11ApprenticesProps> = ({ reportId }) => {
           )}
           
           <div className="flex justify-between items-center pt-4 border-t">
-            <SectionAutoSaveIndicator
-              lastSaved={lastSaved}
-              needsSaving={needsSaving}
-              isLoading={isSaving}
-            />
             <SaveButton
               onClick={async () => {
                 await saveData();

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP9Data } from '../hooks/bp9';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { Info, AlertTriangle } from 'lucide-react';
 
 interface BP9ViolationsProps {
   reportId: string;
@@ -32,14 +32,16 @@ const BP9Violations: React.FC<BP9ViolationsProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP9</span>
-            Violazioni
-          </CardTitle>
-          <CardDescription>
-            Indicare se l'impresa ha avuto violazioni di leggi o regolamenti ambientali o sociali negli ultimi anni.
-          </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
+            <AlertTriangle className="h-5 w-5 text-amber-700" />
+          </div>
+          <div>
+            <CardTitle>BP9 - Violazioni</CardTitle>
+            <CardDescription>
+              Indicare se l'impresa ha avuto violazioni di leggi o regolamenti ambientali o sociali negli ultimi anni.
+            </CardDescription>
+          </div>
         </div>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}

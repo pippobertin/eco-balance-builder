@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP3Data } from '../hooks/bp3';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { Info, Leaf } from 'lucide-react';
 
 interface BP3GHGReductionTargetsProps {
   reportId: string;
@@ -33,13 +32,21 @@ const BP3GHGReductionTargets: React.FC<BP3GHGReductionTargetsProps> = ({ reportI
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP3</span>
-          Obiettivi di riduzione dei gas serra
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa ha obiettivi di riduzione delle emissioni di gas serra e, in caso affermativo, i dettagli degli obiettivi.
-        </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+            <Leaf className="h-5 w-5 text-green-700" />
+          </div>
+          <div>
+            <CardTitle>BP3 - Obiettivi di riduzione dei gas serra</CardTitle>
+            <CardDescription>
+              Indicare se l'impresa ha obiettivi di riduzione delle emissioni di gas serra e, in caso affermativo, i dettagli degli obiettivi.
+            </CardDescription>
+          </div>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

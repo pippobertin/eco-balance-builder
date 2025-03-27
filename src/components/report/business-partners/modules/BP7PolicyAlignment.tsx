@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP7Data } from '../hooks/bp7';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { Info, Globe } from 'lucide-react';
 
 interface BP7PolicyAlignmentProps {
   reportId: string;
@@ -32,14 +32,16 @@ const BP7PolicyAlignment: React.FC<BP7PolicyAlignmentProps> = ({ reportId }) => 
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP7</span>
-            Allineamento delle politiche
-          </CardTitle>
-          <CardDescription>
-            Indicare se le politiche dell'impresa sono allineate con gli obiettivi dell'Accordo di Parigi sui cambiamenti climatici.
-          </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+            <Globe className="h-5 w-5 text-blue-700" />
+          </div>
+          <div>
+            <CardTitle>BP7 - Allineamento delle politiche</CardTitle>
+            <CardDescription>
+              Indicare se le politiche dell'impresa sono allineate con gli obiettivi dell'Accordo di Parigi sui cambiamenti climatici.
+            </CardDescription>
+          </div>
         </div>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}

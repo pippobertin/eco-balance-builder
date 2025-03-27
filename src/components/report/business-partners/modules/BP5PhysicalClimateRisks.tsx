@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP5Data } from '../hooks/bp5';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { Info, CloudLightning } from 'lucide-react';
 
 interface BP5PhysicalClimateRisksProps {
   reportId: string;
@@ -41,13 +41,21 @@ const BP5PhysicalClimateRisks: React.FC<BP5PhysicalClimateRisksProps> = ({ repor
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP5</span>
-          Rischi fisici legati al clima
-        </CardTitle>
-        <CardDescription>
-          Indicare se l'impresa è esposta a rischi fisici legati al clima e, in caso affermativo, i dettagli dell'esposizione.
-        </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+            <CloudLightning className="h-5 w-5 text-yellow-700" />
+          </div>
+          <div>
+            <CardTitle>BP5 - Rischi fisici legati al clima</CardTitle>
+            <CardDescription>
+              Indicare se l'impresa è esposta a rischi fisici legati al clima e, in caso affermativo, i dettagli dell'esposizione.
+            </CardDescription>
+          </div>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

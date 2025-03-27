@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP6Data } from '../hooks/bp6';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info } from 'lucide-react';
+import { Info, Trash2 } from 'lucide-react';
 
 interface BP6HazardousWasteProps {
   reportId: string;
@@ -33,14 +33,16 @@ const BP6HazardousWaste: React.FC<BP6HazardousWasteProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP6</span>
-            Rifiuti pericolosi
-          </CardTitle>
-          <CardDescription>
-            Indicare se l'impresa produce rifiuti pericolosi e, in caso affermativo, le quantità prodotte.
-          </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+            <Trash2 className="h-5 w-5 text-red-700" />
+          </div>
+          <div>
+            <CardTitle>BP6 - Rifiuti pericolosi</CardTitle>
+            <CardDescription>
+              Indicare se l'impresa produce rifiuti pericolosi e, in caso affermativo, le quantità prodotte.
+            </CardDescription>
+          </div>
         </div>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}

@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Info } from 'lucide-react';
+import { Info, Clock } from 'lucide-react';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
 import { useBP10Data } from '../hooks/bp10';
 
@@ -33,13 +32,22 @@ const BP10WorkLifeBalance: React.FC<BP10WorkLifeBalanceProps> = ({ reportId }) =
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP10</span>
-          Equilibrio vita-lavoro e congedi familiari
-        </CardTitle>
-        <CardDescription>
-          Indicare i dati sui congedi familiari, suddivisi per genere.
-        </CardDescription>
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+            <Clock className="h-5 w-5 text-indigo-700" />
+          </div>
+          <div>
+            <CardTitle>BP10 - Equilibrio vita-lavoro e congedi familiari</CardTitle>
+            <CardDescription>
+              Indicare i dati sui congedi familiari, suddivisi per genere.
+            </CardDescription>
+          </div>
+        </div>
+        <SectionAutoSaveIndicator
+          lastSaved={lastSaved}
+          needsSaving={needsSaving}
+          isLoading={isSaving}
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
