@@ -33,7 +33,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   const showNarrativeModule = selectedOption === 'B' || selectedOption === 'D';
   const showBusinessPartnersModule = selectedOption === 'C' || selectedOption === 'D';
 
-  // Redirect business-partners to business-partners-alt
+  // Always redirect business-partners to business-partners-alt
   React.useEffect(() => {
     if (activeSection === 'business-partners') {
       setActiveSection('business-partners-alt');
@@ -67,10 +67,6 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
           }
           break;
         case 'business-partners':
-          if (showBusinessPartnersModule) {
-            setActiveSection('business-partners-alt');
-          }
-          break;
         case 'business-partners-alt':
           if (showBusinessPartnersModule) {
             setActiveSection('business-partners-alt');
