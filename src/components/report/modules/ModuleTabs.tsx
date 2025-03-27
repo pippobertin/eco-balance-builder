@@ -52,7 +52,6 @@ const ModuleTabs: React.FC<ModuleTabsProps> = ({
           Narrativo-PAT
         </Button>
       )}
-      {/* Hide "Partner Commerciali" button but keep "Partner (Alt)" button */}
       {showBusinessPartnersModule && (
         <Button 
           variant={activeSection === 'business-partners-alt' ? 'default' : 'outline'} 
@@ -60,7 +59,7 @@ const ModuleTabs: React.FC<ModuleTabsProps> = ({
           className="flex items-center"
         >
           <Layers className="mr-2 h-4 w-4" />
-          Business Partner
+          Partner Commerciali
         </Button>
       )}
     </div>

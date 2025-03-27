@@ -13,15 +13,15 @@ import {
   BP9Violations,
   BP10WorkLifeBalance,
   BP11Apprentices
-} from './modules';
+} from './business-partners/modules';
 
-interface EnvironmentalBusinessPartnersProps {
+interface EnvironmentalBusinessPartnersMetricsProps {
   formValues: any;
   setFormValues: React.Dispatch<React.SetStateAction<any>>;
   initialField?: string;
 }
 
-const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps> = ({
+const EnvironmentalBusinessPartnersMetrics: React.FC<EnvironmentalBusinessPartnersMetricsProps> = ({
   formValues,
   setFormValues,
   initialField
@@ -29,7 +29,6 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
   const { currentReport } = useReport();
   const reportId = currentReport?.id;
   
-  // Refs for scroll navigation
   const bp1Ref = useRef<HTMLDivElement>(null);
   const bp2Ref = useRef<HTMLDivElement>(null);
   const bp3Ref = useRef<HTMLDivElement>(null);
@@ -70,9 +69,7 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
     }
   }, [initialField]);
 
-  if (!reportId) {
-    return <div className="p-4 text-center">Seleziona un report per visualizzare i dati sui partner commerciali</div>;
-  }
+  if (!reportId) return null;
 
   return (
     <div className="space-y-6">
@@ -81,7 +78,7 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
         Compila i dati relativi ai partner commerciali dell'impresa. Ogni sezione può essere compilata e salvata indipendentemente.
       </p>
       
-      {/* BP1 - Ricavi in settori controversi */}
+      {/* BP1 - Ricavi in settori specifici */}
       <div ref={bp1Ref}>
         <BP1RevenueSectors reportId={reportId} />
       </div>
@@ -91,7 +88,7 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
         <BP2GenderDiversity reportId={reportId} />
       </div>
       
-      {/* BP3 - Obiettivi riduzione GHG */}
+      {/* BP3 - Obiettivi riduzione emissioni GHG */}
       <div ref={bp3Ref}>
         <BP3GHGReductionTargets reportId={reportId} />
       </div>
@@ -139,4 +136,4 @@ const EnvironmentalBusinessPartners: React.FC<EnvironmentalBusinessPartnersProps
   );
 };
 
-export default EnvironmentalBusinessPartners;
+export default EnvironmentalBusinessPartnersMetrics;

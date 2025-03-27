@@ -1,145 +1,83 @@
 
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { Report, ReportData, Subsidiary } from '@/context/types';
+import { useReportOperations } from '../reportOperations';
 import { toast } from 'sonner';
-import { ReportData } from '@/context/types';
-import { Subsidiary } from '@/context/types';
-
-export type ReportSaveHook = {
-  isSaving: boolean;
-  saveReport: (reportId: string, data: ReportData) => Promise<boolean>;
-  saveCurrentReport: () => Promise<void>;
-  saveSubsidiaries: (subsidiaries: Subsidiary[], reportId: string) => Promise<void>;
-  loading?: boolean;
-};
 
 export const useReportSave = (
-  currentReport?: any,
-  reportData?: ReportData,
-  setNeedsSaving?: React.Dispatch<React.SetStateAction<boolean>>,
-  setLastSaved?: React.Dispatch<React.SetStateAction<Date | null>>
-): ReportSaveHook => {
-  const [isSaving, setIsSaving] = useState(false);
+  currentReport: Report | null,
+  reportData: ReportData,
+  setNeedsSaving: React.Dispatch<React.SetStateAction<boolean>>,
+  setLastSaved: React.Dispatch<React.SetStateAction<Date | null>>
+) => {
+  const [loading, setLoading] = useState(false);
+  const { saveReportData, saveSubsidiaries } = useReportOperations();
 
-  const saveReport = useCallback(async (reportId: string, data: ReportData): Promise<boolean> => {
-    if (!reportId) return false;
-    
-    setIsSaving(true);
-    
-    try {
-      const { error } = await supabase
-        .from('reports')
-        .update({
-          environmental_metrics: data.environmentalMetrics || {},
-          social_metrics: data.socialMetrics || {},
-          conduct_metrics: data.conductMetrics || {},
-          materiality_analysis: data.materialityAnalysis || { issues: [], stakeholders: [] },
-          narrative_pat_metrics: data.narrativePATMetrics || {},
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', reportId);
-        
-      if (error) {
-        console.error("Error saving report data:", error);
-        toast.error("Errore nel salvataggio dei dati del report");
-        return false;
-      }
-      
-      toast.success("Report salvato con successo");
-      return true;
-    } catch (error) {
-      console.error("Unexpected error saving report data:", error);
-      toast.error("Errore nel salvataggio dei dati del report");
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  }, []);
-
-  // Save current report data
-  const saveCurrentReport = useCallback(async (): Promise<void> => {
-    if (!currentReport || !currentReport.id || !reportData) {
-      console.log("Cannot save report: missing current report or data");
+  // Save current report
+  const saveCurrentReport = async (): Promise<void> => {
+    if (!currentReport) {
+      console.log("No current report to save");
       return;
     }
     
-    setIsSaving(true);
+    // Set loading state
+    setLoading(true);
     
     try {
-      const success = await saveReport(currentReport.id, reportData);
+      console.log("Saving report data to database...");
+      console.log("Report data being saved:", JSON.stringify(reportData));
       
-      if (success && setNeedsSaving && setLastSaved) {
-        setNeedsSaving(false);
-        setLastSaved(new Date());
+      if (currentReport?.id) {
+        console.log("Current report exists:", currentReport.id);
+        const success = await saveReportData(currentReport.id, reportData);
+        
+        if (success) {
+          console.log("Report saved to database successfully");
+          setNeedsSaving(false);
+          setLastSaved(new Date());
+          // Show success toast
+          toast.success("Dati salvati con successo");
+        } else {
+          console.error("Failed to save report data");
+          toast.error("Non è stato possibile salvare il report");
+        }
+      } else {
+        console.error("Report ID is undefined, cannot save");
+        toast.error("ID Report non valido, impossibile salvare");
       }
     } catch (error) {
-      console.error("Error saving current report:", error);
-      toast.error("Errore nel salvataggio del report");
+      console.error("Error saving report:", error);
+      toast.error("Si è verificato un errore durante il salvataggio del report");
     } finally {
-      setIsSaving(false);
+      // Always reset loading state
+      setLoading(false);
     }
-  }, [currentReport, reportData, saveReport, setNeedsSaving, setLastSaved]);
+  };
 
   // Save subsidiaries
-  const saveSubsidiaries = useCallback(async (subsidiaries: Subsidiary[], reportId: string): Promise<void> => {
-    if (!reportId) {
-      console.log("Cannot save subsidiaries: missing report ID");
+  const saveSubsidiariesHandler = async (subsidiaries: Subsidiary[]): Promise<void> => {
+    if (!currentReport?.id) {
+      console.log("No report ID provided for saving subsidiaries");
       return;
     }
     
-    setIsSaving(true);
+    setLoading(true);
     
     try {
-      // First, delete existing subsidiaries for this report
-      const { error: deleteError } = await supabase
-        .from('subsidiaries')
-        .delete()
-        .eq('report_id', reportId);
-        
-      if (deleteError) {
-        console.error("Error deleting existing subsidiaries:", deleteError);
-        toast.error("Errore nell'aggiornamento delle imprese figlie");
-        return;
-      }
-      
-      // Then, insert new subsidiaries
-      if (subsidiaries.length > 0) {
-        const subsidiariesToInsert = subsidiaries.map(sub => ({
-          name: sub.name,
-          location: sub.location,
-          report_id: reportId
-        }));
-        
-        const { error: insertError } = await supabase
-          .from('subsidiaries')
-          .insert(subsidiariesToInsert);
-          
-        if (insertError) {
-          console.error("Error inserting subsidiaries:", insertError);
-          toast.error("Errore nel salvataggio delle imprese figlie");
-          return;
-        }
-      }
-      
-      toast.success("Imprese figlie salvate con successo");
-      
-      if (setNeedsSaving && setLastSaved) {
-        setNeedsSaving(false);
-        setLastSaved(new Date());
-      }
+      console.log(`Saving ${subsidiaries.length} subsidiaries for report ${currentReport.id}`);
+      await saveSubsidiaries(subsidiaries, currentReport.id);
+      toast.success("Controllate salvate con successo");
     } catch (error) {
-      console.error("Unexpected error saving subsidiaries:", error);
-      toast.error("Errore nel salvataggio delle imprese figlie");
+      console.error("Error saving subsidiaries:", error);
+      toast.error("Non è stato possibile salvare le controllate");
     } finally {
-      setIsSaving(false);
+      setLoading(false);
     }
-  }, [setNeedsSaving, setLastSaved]);
+  };
 
-  return { 
-    isSaving, 
-    saveReport, 
-    saveCurrentReport, 
-    saveSubsidiaries,
-    loading: isSaving 
+  return {
+    loading,
+    saveCurrentReport,
+    saveSubsidiaries: saveSubsidiariesHandler
   };
 };

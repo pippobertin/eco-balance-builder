@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBP2Data } from '../hooks/bp2';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info, Users } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP2GenderDiversityProps {
   reportId: string;
@@ -54,17 +54,13 @@ const BP2GenderDiversity: React.FC<BP2GenderDiversityProps> = ({ reportId }) => 
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
-            <Users className="h-5 w-5 text-purple-700" />
-          </div>
-          <div>
-            <CardTitle>BP2 - Diversità di genere negli organi di governance</CardTitle>
-            <CardDescription>
-              Inserisci il numero di membri degli organi di governance suddivisi per genere.
-            </CardDescription>
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <span className="bg-orange-100 text-orange-700 p-1 rounded">BP2</span>
+          Diversità di genere negli organi di governance
+        </CardTitle>
+        <CardDescription>
+          Inserisci il numero di membri degli organi di governance suddivisi per genere.
+        </CardDescription>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}
           needsSaving={needsSaving}

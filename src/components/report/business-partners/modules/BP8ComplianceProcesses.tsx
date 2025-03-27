@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP8Data } from '../hooks/bp8';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info, ShieldCheck } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP8ComplianceProcessesProps {
   reportId: string;
@@ -32,16 +32,14 @@ const BP8ComplianceProcesses: React.FC<BP8ComplianceProcessesProps> = ({ reportI
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-            <ShieldCheck className="h-5 w-5 text-green-700" />
-          </div>
-          <div>
-            <CardTitle>BP8 - Processi di conformità</CardTitle>
-            <CardDescription>
-              Indicare se l'impresa ha processi per garantire la conformità con le leggi e i regolamenti ambientali e sociali.
-            </CardDescription>
-          </div>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP8</span>
+            Processi di conformità
+          </CardTitle>
+          <CardDescription>
+            Indicare se l'impresa ha processi per garantire la conformità con le leggi e i regolamenti ambientali e sociali.
+          </CardDescription>
         </div>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}

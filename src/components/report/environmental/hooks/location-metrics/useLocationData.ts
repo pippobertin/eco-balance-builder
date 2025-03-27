@@ -1,174 +1,237 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { CompanyLocation } from '@/components/report/company-information/CompanyGeneralInfo';
 import { LocationEnvironmentalMetrics } from '@/context/types';
-
-export const formatLocationName = (location: CompanyLocation): string => {
-  const parts = [];
-  if (location.address_street_type) parts.push(location.address_street_type);
-  if (location.address_street) parts.push(location.address_street);
-  if (location.address_number) parts.push(location.address_number);
-  if (location.address_city) parts.push(location.address_city);
-  
-  return parts.join(' ');
-};
+import { useToast } from '@/hooks/use-toast';
+import { safeJsonParse, safeJsonStringify, prepareJsonForDb } from '@/integrations/supabase/utils/jsonUtils';
 
 export const useLocationData = (
-  companyId?: string, 
-  formValues: any = {}, 
-  setFormValues?: React.Dispatch<React.SetStateAction<any>>
+  companyId: string | undefined, 
+  formValues: any, 
+  setFormValues: React.Dispatch<React.SetStateAction<any>>,
+  reportId?: string
 ) => {
+  const { toast } = useToast();
   const [locations, setLocations] = useState<CompanyLocation[]>([]);
-  const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Load company locations
+  const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
+
   useEffect(() => {
-    const fetchLocations = async () => {
-      if (!companyId) return;
-      
+    if (!companyId) return;
+    
+    const loadLocations = async () => {
       setIsLoading(true);
-      
       try {
-        const { data, error } = await supabase
-          .from('company_locations')
-          .select('*')
-          .eq('company_id', companyId);
-        
-        if (error) {
-          console.error("Error fetching company locations:", error);
-          toast.error("Errore nel caricamento delle sedi dell'azienda");
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          setLocations(data);
-          setHasMultipleLocations(data.length > 1);
+        const { data: companyData, error: companyError } = await supabase
+          .from('companies')
+          .select('has_multiple_locations, address_street_type, address_street, address_number, address_postal_code, address_city, address_province')
+          .eq('id', companyId)
+          .single();
           
-          // If no location is selected, select the first one
-          if (!selectedLocationId) {
-            setSelectedLocationId(data[0].id);
-          }
-        } else {
-          // If no locations are found, create a default location
-          const defaultLocation: CompanyLocation = {
-            id: 'default-location',
-            company_id: companyId,
-            location_type: 'headquarters',
-            address_street_type: '',
-            address_street: '',
-            address_number: '',
-            address_postal_code: '',
-            address_city: '',
-            address_province: '',
-            created_at: new Date().toISOString()
+        if (companyError) throw companyError;
+        
+        setHasMultipleLocations(companyData?.has_multiple_locations || false);
+        
+        if (companyData?.has_multiple_locations) {
+          const mainLocation: CompanyLocation = {
+            id: 'main-location',
+            location_type: 'sede_legale',
+            address_street_type: companyData.address_street_type,
+            address_street: companyData.address_street,
+            address_number: companyData.address_number,
+            address_postal_code: companyData.address_postal_code,
+            address_city: companyData.address_city,
+            address_province: companyData.address_province
           };
           
-          setLocations([defaultLocation]);
-          setHasMultipleLocations(false);
-          setSelectedLocationId('default-location');
+          const { data, error } = await supabase
+            .from('company_locations')
+            .select('*')
+            .eq('company_id', companyId)
+            .order('created_at');
+            
+          if (error) throw error;
+          
+          const allLocations = [mainLocation, ...(data || [])];
+          setLocations(allLocations);
+          
+          if (reportId) {
+            // Load location metrics from database
+            await loadLocationMetricsFromDatabase(reportId, allLocations);
+          } else {
+            // Fallback to initializing from form values
+            initializeLocationMetrics(allLocations, formValues, setFormValues);
+          }
+          
+          if (!selectedLocationId && allLocations.length > 0) {
+            setSelectedLocationId(allLocations[0].id || 'main-location');
+          }
         }
       } catch (error) {
-        console.error("Unexpected error fetching company locations:", error);
-        toast.error("Errore nel caricamento delle sedi dell'azienda");
+        console.error('Error loading company locations:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare le sedi dell'azienda",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchLocations();
-  }, [companyId, selectedLocationId]);
-  
-  // Load location metrics based on report_id and location_id
-  useEffect(() => {
-    const fetchLocationMetrics = async () => {
-      if (!formValues?.reportId || !selectedLocationId) return;
-      
-      try {
-        // Check if metrics for this location already exist in form values
-        const existingLocationMetrics = formValues.environmentalMetrics?.locationMetrics || [];
-        const locationMetric = existingLocationMetrics.find(
-          (metric: LocationEnvironmentalMetrics) => metric.location_id === selectedLocationId
-        );
+    loadLocations();
+  }, [companyId, reportId]);
+
+  // Load location metrics from database
+  const loadLocationMetricsFromDatabase = async (reportId: string, locationData: CompanyLocation[]) => {
+    try {
+      const { data, error } = await supabase
+        .from('location_metrics')
+        .select('*')
+        .eq('report_id', reportId);
         
-        if (locationMetric) {
-          // Location metrics already loaded, no need to fetch from the database
-          return;
-        }
-        
-        const { data, error } = await supabase
-          .from('location_metrics')
-          .select('*')
-          .eq('report_id', formValues.reportId)
-          .eq('location_id', selectedLocationId);
-          
-        if (error) {
-          console.error("Error fetching location metrics:", error);
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          // Add location metrics to form values
-          const newLocationMetrics = [...existingLocationMetrics];
-          const locationMetrics = data.map((item: any) => ({
-            id: item.id,
-            location_id: item.location_id,
-            name: item.location_name,
-            locationType: item.location_type,
-            metrics: item.metrics || {}
-          }));
-          
-          const updatedLocationMetrics = [...newLocationMetrics, ...locationMetrics];
-          
-          if (setFormValues) {
-            setFormValues((prev: any) => ({
-              ...prev,
-              environmentalMetrics: {
-                ...prev.environmentalMetrics,
-                locationMetrics: updatedLocationMetrics
-              }
-            }));
-          }
-        } else {
-          // If no metrics found for this location, create an empty entry
-          const selectedLocation = locations.find(loc => loc.id === selectedLocationId);
-          
-          if (selectedLocation) {
-            const newLocationMetric: LocationEnvironmentalMetrics = {
-              id: `temp-${selectedLocationId}`,
-              location_id: selectedLocationId,
-              name: formatLocationName(selectedLocation),
-              locationType: selectedLocation.location_type || 'headquarters',
-              metrics: {}
-            };
-            
-            if (setFormValues) {
-              setFormValues((prev: any) => ({
-                ...prev,
-                environmentalMetrics: {
-                  ...prev.environmentalMetrics,
-                  locationMetrics: [...(prev.environmentalMetrics?.locationMetrics || []), newLocationMetric]
-                }
-              }));
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching location metrics:", error);
+      if (error) {
+        console.error("Error loading location metrics:", error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare i dati ambientali delle sedi",
+          variant: "destructive"
+        });
+        return;
       }
-    };
+      
+      if (data && data.length > 0) {
+        console.log("Loaded location metrics from database:", data.length);
+        
+        // Format the data for the form
+        const locationMetrics = data.map(item => ({
+          location_id: item.location_id,
+          location_name: item.location_name,
+          location_type: item.location_type,
+          metrics: safeJsonParse(item.metrics.toString(), {})
+        }));
+        
+        // Update the form values
+        setFormValues((prev: any) => ({
+          ...prev,
+          environmentalMetrics: {
+            ...prev.environmentalMetrics,
+            locationMetrics: locationMetrics
+          }
+        }));
+      } else {
+        // Initialize from the location data
+        initializeLocationMetrics(locationData, formValues, setFormValues);
+      }
+    } catch (error) {
+      console.error("Error loading location metrics from database:", error);
+      // Fallback to initializing from location data
+      initializeLocationMetrics(locationData, formValues, setFormValues);
+    }
+  };
+
+  // Helper function to initialize location metrics
+  const initializeLocationMetrics = (
+    locationData: CompanyLocation[], 
+    formValues: any,
+    setFormValues: React.Dispatch<React.SetStateAction<any>>
+  ) => {
+    const existingLocationMetrics = formValues.environmentalMetrics?.locationMetrics || [];
     
-    fetchLocationMetrics();
-  }, [formValues, formValues?.reportId, selectedLocationId, locations, setFormValues]);
+    const existingLocationIds = existingLocationMetrics.map((lm: LocationEnvironmentalMetrics) => lm.location_id);
+    const newLocations = locationData.filter(loc => !existingLocationIds.includes(loc.id!));
+    
+    if (newLocations.length > 0) {
+      const newLocationMetrics = newLocations.map(loc => ({
+        location_id: loc.id!,
+        location_name: formatLocationName(loc),
+        location_type: loc.location_type,
+        metrics: {}
+      }));
+      
+      const updatedLocationMetrics = [...existingLocationMetrics, ...newLocationMetrics];
+      
+      setFormValues((prev: any) => ({
+        ...prev,
+        environmentalMetrics: {
+          ...prev.environmentalMetrics,
+          locationMetrics: updatedLocationMetrics
+        }
+      }));
+      
+      // If report ID is provided, save to database
+      if (reportId) {
+        saveLocationMetricsToDatabase(reportId, updatedLocationMetrics);
+      }
+    }
+  };
   
+  // Save location metrics to database
+  const saveLocationMetricsToDatabase = async (reportId: string, locationMetrics: LocationEnvironmentalMetrics[]) => {
+    try {
+      // Prepare the data for insertion
+      const dataToInsert = locationMetrics.map(lm => ({
+        report_id: reportId,
+        location_id: lm.location_id,
+        location_name: lm.location_name,
+        location_type: lm.location_type,
+        metrics: safeJsonStringify(prepareJsonForDb(lm.metrics)),
+        updated_at: new Date().toISOString()
+      }));
+      
+      // Insert or update the location metrics
+      const { error } = await supabase
+        .from('location_metrics')
+        .upsert(dataToInsert, { onConflict: 'report_id,location_id' });
+        
+      if (error) {
+        throw error;
+      }
+      
+      console.log("Location metrics saved to database successfully");
+    } catch (error) {
+      console.error("Error saving location metrics to database:", error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare i dati ambientali delle sedi",
+        variant: "destructive"
+      });
+    }
+  };
+
   return {
     locations,
     hasMultipleLocations,
     isLoading,
     selectedLocationId,
-    setSelectedLocationId
+    setSelectedLocationId,
+    saveLocationMetrics: (reportId: string, locationMetrics: LocationEnvironmentalMetrics[]) => 
+      saveLocationMetricsToDatabase(reportId, locationMetrics)
   };
+};
+
+// Utility function to format location name for display
+export const formatLocationName = (location: CompanyLocation): string => {
+  const locationType = location.location_type ? 
+    (location.location_type === 'sede_legale' ? 'Sede Legale' :
+     location.location_type === 'sede_operativa' ? 'Sede Operativa' :
+     location.location_type === 'stabilimento' ? 'Stabilimento' :
+     location.location_type === 'magazzino' ? 'Magazzino' :
+     location.location_type === 'ufficio' ? 'Ufficio' : 'Altro') : 'Sede';
+  
+  const address = [
+    location.address_street_type, 
+    location.address_street, 
+    location.address_number
+  ].filter(Boolean).join(' ');
+  
+  const cityInfo = [
+    location.address_postal_code,
+    location.address_city,
+    location.address_province ? `(${location.address_province})` : ''
+  ].filter(Boolean).join(' ');
+  
+  return `${locationType}${address ? ': ' + address : ''}${cityInfo ? ', ' + cityInfo : ''}`;
 };

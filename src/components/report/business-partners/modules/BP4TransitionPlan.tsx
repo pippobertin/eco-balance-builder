@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP4Data } from '../hooks/bp4';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info, Thermometer } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface BP4TransitionPlanProps {
   reportId: string;
@@ -32,16 +32,14 @@ const BP4TransitionPlan: React.FC<BP4TransitionPlanProps> = ({ reportId }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <Thermometer className="h-5 w-5 text-blue-700" />
-          </div>
-          <div>
-            <CardTitle>BP4 - Piano di transizione climatica</CardTitle>
-            <CardDescription>
-              Indicare se l'impresa ha adottato un piano di transizione climatica e, in caso affermativo, i dettagli del piano.
-            </CardDescription>
-          </div>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span className="bg-orange-100 text-orange-700 p-1 rounded">BP4</span>
+            Piano di transizione climatica
+          </CardTitle>
+          <CardDescription>
+            Indicare se l'impresa ha adottato un piano di transizione climatica e, in caso affermativo, i dettagli del piano.
+          </CardDescription>
         </div>
         <SectionAutoSaveIndicator
           lastSaved={lastSaved}

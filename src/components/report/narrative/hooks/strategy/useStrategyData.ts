@@ -1,9 +1,15 @@
 
 import { useState } from 'react';
-import { StrategyFormData } from '../types';
+import { StrategyFormData, SectionHookResult } from '../types';
 
-export const useStrategyData = (reportId: string) => {
+export const useStrategyData = (reportId: string): SectionHookResult<StrategyFormData> => {
   const [formData, setFormData] = useState<StrategyFormData>({
+    productsServices: '',
+    markets: '',
+    businessRelations: '',
+    sustainabilityStrategy: ''
+  });
+  const [initialFormData, setInitialFormData] = useState<StrategyFormData>({
     productsServices: '',
     markets: '',
     businessRelations: '',
@@ -16,6 +22,8 @@ export const useStrategyData = (reportId: string) => {
   return {
     formData,
     setFormData,
+    initialFormData,
+    setInitialFormData,
     isLoading,
     setIsLoading,
     lastSaved,

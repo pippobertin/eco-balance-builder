@@ -30,13 +30,15 @@ export interface StrategyFormData {
   sustainabilityStrategy: string;
 }
 
-// Add the missing SaveButtonProps interface
+// Add the SaveButtonProps interface
 export interface SaveButtonProps {
   onClick: () => void;
   isLoading?: boolean;
+  children?: React.ReactNode;
+  className?: string;
 }
 
-// Add the missing SectionHookResult interface
+// Define the SectionHookResult interface
 export interface SectionHookResult<T> {
   formData: T;
   setFormData: React.Dispatch<React.SetStateAction<T>>;

@@ -1,12 +1,11 @@
 
 import React from 'react';
+import { useBP1Data } from './bp1-revenue-sectors/useBP1Data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useBP1Data } from '../hooks/bp1';
-import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { DollarSign } from 'lucide-react';
+import { SaveButton, SectionAutoSaveIndicator } from '../common';
 
 interface BP1RevenueSectorsProps {
   reportId: string;
@@ -33,17 +32,10 @@ const BP1RevenueSectors: React.FC<BP1RevenueSectorsProps> = ({ reportId }) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-            <DollarSign className="h-5 w-5 text-orange-700" />
-          </div>
-          <div>
-            <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
-            <CardDescription>
-              Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
-            </CardDescription>
-          </div>
-        </div>
+        <CardTitle>BP1 - Ricavi in settori specifici</CardTitle>
+        <CardDescription>
+          Indica se l'azienda opera nei seguenti settori sensibili e, in caso affermativo, la percentuale di ricavi derivanti da tali attività.
+        </CardDescription>
         <SectionAutoSaveIndicator 
           lastSaved={lastSaved} 
           needsSaving={needsSaving} 

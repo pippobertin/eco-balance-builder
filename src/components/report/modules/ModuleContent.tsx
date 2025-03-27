@@ -5,8 +5,7 @@ import EnvironmentalMetrics from '../EnvironmentalMetrics';
 import SocialMetrics from '../SocialMetrics'; 
 import ConductMetrics from '../ConductMetrics';
 import NarrativePATMetrics from '../NarrativePATMetrics';
-import BusinessPartnersMetrics from '../business-partners/BusinessPartnersMetrics';
-import EnvironmentalBusinessPartners from '../business-partners/EnvironmentalBusinessPartners';
+import EnvironmentalBusinessPartnersMetrics from '../EnvironmentalBusinessPartnersMetrics';
 
 export interface ModuleContentProps {
   activeSection: 'environmental' | 'social' | 'conduct' | 'narrative' | 'business-partners' | 'business-partners-alt';
@@ -61,16 +60,9 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
         }
         return <div className="p-6 text-center">Modulo narrativo non disponibile per questo tipo di report</div>;
       case 'business-partners':
-        if (showBusinessPartnersModule) {
-          return <BusinessPartnersMetrics 
-            formValues={formValues} 
-            setFormValues={setFormValues} 
-          />;
-        }
-        return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;
       case 'business-partners-alt':
         if (showBusinessPartnersModule) {
-          return <EnvironmentalBusinessPartners 
+          return <EnvironmentalBusinessPartnersMetrics 
             formValues={formValues} 
             setFormValues={setFormValues}
             initialField={initialField}

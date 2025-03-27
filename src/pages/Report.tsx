@@ -39,7 +39,14 @@ const Report = () => {
     removeSubsidiary
   } = useReportForm();
 
-  // Warn user when navigating away with unsaved changes
+  useEffect(() => {
+    const state = location.state as any;
+    if (state && state.section === 'business-partners') {
+      const newState = { ...state, section: 'business-partners-alt' };
+      window.history.replaceState(newState, '');
+    }
+  }, [location.state]);
+
   useBeforeUnload(
     React.useCallback(
       (event) => {
@@ -53,16 +60,13 @@ const Report = () => {
     )
   );
 
-  // Track changes in form values to set needsSaving flag
   useEffect(() => {
     if (formValues && Object.keys(formValues).length > 0) {
       console.log("Form values changed, marking as needs saving");
-      // This will be picked up when the user clicks Save manually
     }
   }, [formValues]);
 
   const handleTabChange = (value: string) => {
-    // Always try to save current changes before changing tabs
     if (needsSaving) {
       setPendingTab(value);
       setShowUnsavedDialog(true);
@@ -145,7 +149,7 @@ const Report = () => {
             removeSubsidiary={removeSubsidiary}
             saveBasicInfo={saveBasicInfo}
             saveMetrics={saveMetrics}
-            initialSection={initialSection}
+            initialSection={initialSection?.replace('business-partners', 'business-partners-alt')}
             initialField={initialField}
           />
         </div>
