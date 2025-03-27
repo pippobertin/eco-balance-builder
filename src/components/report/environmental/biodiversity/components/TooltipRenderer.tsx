@@ -11,7 +11,7 @@ import {
 interface TooltipRendererProps {
   title: string;
   content: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const TooltipRenderer: React.FC<TooltipRendererProps> = ({ 
