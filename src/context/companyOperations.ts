@@ -1,3 +1,4 @@
+
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { Company } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
@@ -58,9 +59,15 @@ export const useCompanyOperations = () => {
       }
 
       return await withRetry(async () => {
+        // Fix: Add the created_by to the company object directly before inserting
+        const companyWithCreator = { 
+          ...company, 
+          created_by: user.id 
+        };
+
         const { data, error } = await supabase
           .from('companies')
-          .insert([{ ...company, created_by: user.id }])
+          .insert([companyWithCreator])
           .select('*')
           .single();
 

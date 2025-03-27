@@ -1,6 +1,6 @@
 
 import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Report } from '../types';
+import { Report } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
 
 export const useReportWriteOperations = () => {
@@ -10,9 +10,10 @@ export const useReportWriteOperations = () => {
   const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
       return await withRetry(async () => {
+        // Fix: Pass the report directly as an object, not as an array
         const { data, error } = await supabase
           .from('reports')
-          .insert([report])
+          .insert([report]) // Correctly wrap in an array here
           .select()
           .single();
 

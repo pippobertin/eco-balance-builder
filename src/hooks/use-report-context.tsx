@@ -1,6 +1,7 @@
 
 import { useContext } from 'react';
-import { ReportContext, ReportContextType } from '@/context/ReportContext';
+import { ReportContext } from '@/context/ReportContext';
+import { ReportContextType } from '@/context/types';
 
 export const useReport = (): ReportContextType => {
   const context = useContext(ReportContext);

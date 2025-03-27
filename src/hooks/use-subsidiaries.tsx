@@ -1,34 +1,18 @@
 
 import { useState } from 'react';
-import { Subsidiary } from '@/context/ReportContext';
-import { useToast } from '@/hooks/use-toast';
+import { Subsidiary } from '@/context/types';
 
-export const useSubsidiaries = () => {
-  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
-  const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({
-    name: '',
-    location: ''
-  });
-  const { toast } = useToast();
+export const useSubsidiaries = (initialSubsidiaries: Subsidiary[] = []) => {
+  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>(initialSubsidiaries);
+  const [newSubsidiary, setNewSubsidiary] = useState<Subsidiary>({ name: '', location: '' });
 
   const handleAddSubsidiary = () => {
-    if (newSubsidiary.name.trim() && newSubsidiary.location.trim()) {
-      setSubsidiaries([...subsidiaries, {
-        ...newSubsidiary
-      }]);
-      setNewSubsidiary({
-        name: '',
-        location: ''
-      });
-    } else {
-      toast({
-        title: "Informazione mancante",
-        description: "Per favore inserisci sia il nome che la sede legale dell'impresa figlia.",
-        variant: "destructive"
-      });
+    if (newSubsidiary.name && newSubsidiary.location) {
+      setSubsidiaries([...subsidiaries, { ...newSubsidiary, id: `temp-${Date.now()}` }]);
+      setNewSubsidiary({ name: '', location: '' });
     }
   };
-  
+
   const removeSubsidiary = (index: number) => {
     const updatedSubsidiaries = [...subsidiaries];
     updatedSubsidiaries.splice(index, 1);
