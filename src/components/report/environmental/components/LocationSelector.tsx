@@ -4,19 +4,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { CompanyLocation } from "@/components/report/company-information/CompanyGeneralInfo";
 import { MapPin } from 'lucide-react';
-import { LocationEnvironmentalMetrics } from '../hooks/location-metrics/types';
+import { formatLocationName } from '../hooks/location-metrics';
 
 interface LocationSelectorProps {
-  locations: LocationEnvironmentalMetrics[];
+  locations: CompanyLocation[];
   selectedLocationId: string;
   onLocationChange: (locationId: string) => void;
   isLoading: boolean;
 }
-
-// Helper function to format the location name
-export const formatLocationName = (location: LocationEnvironmentalMetrics): string => {
-  return location.name || 'Sede principale';
-};
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({
   locations,
@@ -44,7 +39,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         </SelectTrigger>
         <SelectContent>
           {locations.map((location) => (
-            <SelectItem key={location.id || location.locationId} value={location.locationId}>
+            <SelectItem key={location.id || 'main-location'} value={location.id || 'main-location'}>
               {formatLocationName(location)}
             </SelectItem>
           ))}

@@ -1,25 +1,21 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building, CheckCircle2, Loader2, Trash } from 'lucide-react';
+import { ArrowLeft, Building, CheckCircle2, Loader2 } from 'lucide-react';
 import { useReport } from '@/context/ReportContext';
 import CompanyGeneralInfo from '@/components/report/company-information/CompanyGeneralInfo';
 import CompanyProfileInfo from '@/components/report/company-information/CompanyProfileInfo';
 import { useCompanyInfo } from '@/components/report/company-information/hooks';
 import { useToast } from '@/hooks/use-toast';
-import DeleteCompanyDialog from '@/components/companies/dialogs/DeleteCompanyDialog';
-import { useCompanyOperations } from '@/context/companyOperations';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { currentCompany } = useReport();
-  const { deleteCompany } = useCompanyOperations();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const {
     companyData,
@@ -153,16 +149,7 @@ const CompanyProfile = () => {
               handleInputChange={handleInputChange} 
             />
             
-            <div className="flex justify-between">
-              <Button 
-                variant="destructive"
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="flex items-center"
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Elimina azienda
-              </Button>
-              
+            <div className="flex justify-end">
               <Button 
                 onClick={saveCompanyInfo} 
                 className="bg-blue-500 hover:bg-blue-600"
@@ -186,13 +173,6 @@ const CompanyProfile = () => {
       </main>
       
       <Footer />
-      
-      <DeleteCompanyDialog
-        company={currentCompany}
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onDelete={deleteCompany}
-      />
     </div>
   );
 };

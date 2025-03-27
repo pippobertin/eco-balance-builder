@@ -1,26 +1,19 @@
 
 import { useReportFetchOperations } from './reportFetchOperationsRefactored';
 import { useReportWriteOperations } from './reportWriteOperationsRefactored';
-import { saveCompleteReportData, saveReportData, prepareReportDataForSave } from './reportDataOperationsRefactored';
-
-// Export the utility functions
-export { saveCompleteReportData, saveReportData, prepareReportDataForSave };
+import { useReportDataOperations } from './reportDataOperationsRefactored';
 
 export const useReportOperations = () => {
   const { loadReports, loadReport } = useReportFetchOperations();
   const { createReport, deleteReport } = useReportWriteOperations();
+  const { saveReportData, saveSubsidiaries } = useReportDataOperations();
 
   return { 
     loadReports, 
     createReport, 
     loadReport, 
-    saveReportData,
-    saveCompleteReportData, 
-    saveSubsidiaries: async (subsidiaries: any[], reportId: string) => {
-      // Implementation for saving subsidiaries
-      console.log("Saving subsidiaries for report:", reportId);
-      return true;
-    },
+    saveReportData, 
+    saveSubsidiaries,
     deleteReport
   };
 };

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ReportData, Subsidiary } from '@/context/types';
@@ -9,7 +10,7 @@ export const useReportDataOperations = () => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Save report data
-  const saveReportData = async (reportId: string, reportData: ReportData): Promise<void> => {
+  const saveReportData = async (reportId: string, data: ReportData): Promise<boolean> => {
     setIsSaving(true);
 
     try {
@@ -17,11 +18,11 @@ export const useReportDataOperations = () => {
       
       // Convert data for database storage - need to prepare JSON fields
       const dataForDb = prepareJsonForDb({
-        environmental_metrics: reportData.environmentalMetrics || {},
-        social_metrics: reportData.socialMetrics || {},
-        conduct_metrics: reportData.conductMetrics || {},
-        materiality_analysis: reportData.materialityAnalysis || {},
-        narrative_pat_metrics: reportData.narrativePATMetrics || {},
+        environmental_metrics: data.environmentalMetrics || {},
+        social_metrics: data.socialMetrics || {},
+        conduct_metrics: data.conductMetrics || {},
+        materiality_analysis: data.materialityAnalysis || {},
+        narrative_pat_metrics: data.narrativePATMetrics || {},
         updated_at: new Date().toISOString()
       });
 
@@ -33,13 +34,15 @@ export const useReportDataOperations = () => {
 
       if (error) {
         console.error("Error updating report:", error);
-        return;
+        return false;
       }
 
       // Update last saved timestamp
       setLastSaved(new Date());
+      return true;
     } catch (error) {
       console.error("Error in saveReportData:", error);
+      return false;
     } finally {
       setIsSaving(false);
     }

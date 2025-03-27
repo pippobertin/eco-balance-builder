@@ -110,19 +110,13 @@ export const useDashboardData = (initialYear: string = "") => {
           
           if (loadReportResult && loadReportResult.report) {
             setSelectedReport(loadReportResult.report);
-            
-            // Create a new report data object with the correct structure
-            const newReportData: ReportData = {
-              generalInfo: reportData.generalInfo, // Keep the existing generalInfo
+            const newReportData = {
               environmentalMetrics: loadReportResult.report.environmental_metrics || {},
               socialMetrics: loadReportResult.report.social_metrics || {},
-              governanceMetrics: reportData.governanceMetrics || {}, // Keep existing governanceMetrics
               conductMetrics: loadReportResult.report.conduct_metrics || {},
-              businessPartnersMetrics: reportData.businessPartnersMetrics || {}, // Keep existing businessPartnersMetrics
               materialityAnalysis: loadReportResult.report.materiality_analysis || { issues: [], stakeholders: [] },
               narrativePATMetrics: loadReportResult.report.narrative_pat_metrics || {}
             };
-            
             setDisplayData(newReportData);
             setAccessError(false);
           } else {
