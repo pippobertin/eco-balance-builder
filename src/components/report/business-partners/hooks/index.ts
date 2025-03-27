@@ -1,8 +1,5 @@
 
-// Export types
-export * from './types';
-
-// Export individual BP hooks
+// Export all hooks for business partners
 export * from './bp1';
 export * from './bp2';
 export * from './bp3';
@@ -12,9 +9,12 @@ export * from './bp6';
 export * from './bp7';
 export * from './bp8';
 export * from './bp9';
-// Export BP10 hook without types (since they're already exported from './types')
-export { useBP10Data } from './bp10';
+export * from './bp10';
 export * from './bp11';
 
-// Legacy hook - will be deprecated
+// Re-export common types but avoid duplicate export of BP1FormData
+export { BaseHookResult } from './types';
+
+// Export top-level hooks
 export * from './useBusinessPartnersData';
+export * from './useSectionData';

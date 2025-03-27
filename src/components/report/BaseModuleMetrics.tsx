@@ -43,7 +43,7 @@ const BaseModuleMetrics: React.FC<BaseModuleMetricsProps> = ({
   // Reset to environmental if the active section isn't available for the selected option
   React.useEffect(() => {
     if (activeSection === 'narrative' && !showNarrativeModule || 
-        (activeSection === 'business-partners' || activeSection === 'business-partners-alt') && !showBusinessPartnersModule) {
+        activeSection === 'business-partners-alt' && !showBusinessPartnersModule) {
       setActiveSection('environmental');
     }
   }, [selectedOption, activeSection, showNarrativeModule, showBusinessPartnersModule]);
