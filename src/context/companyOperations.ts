@@ -1,8 +1,8 @@
 
 import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Company } from '@/context/types';
+import { Company } from './types';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from './AuthContext';
 
 export const useCompanyOperations = () => {
   const { toast } = useToast();
@@ -65,7 +65,7 @@ export const useCompanyOperations = () => {
           created_by: user.id 
         };
 
-        // Fix: Make sure we're passing a properly formatted object
+        // Fix: Make sure we're passing a properly formatted object in an array
         const { data, error } = await supabase
           .from('companies')
           .insert([companyWithCreator])

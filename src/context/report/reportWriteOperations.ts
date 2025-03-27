@@ -12,6 +12,7 @@ export const useReportWriteOperations = () => {
         throw new Error('Missing required report fields');
       }
       
+      // Fixed: Pass the report object in an array as required by Supabase
       const { data, error } = await supabase
         .from('reports')
         .insert([report])

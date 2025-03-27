@@ -8,7 +8,8 @@ export const useSubsidiaries = (initialSubsidiaries: Subsidiary[] = []) => {
     name: '', 
     location: '', 
     id: undefined, 
-    report_id: undefined 
+    report_id: undefined,
+    created_at: undefined
   });
 
   const handleAddSubsidiary = () => {
@@ -18,7 +19,8 @@ export const useSubsidiaries = (initialSubsidiaries: Subsidiary[] = []) => {
         name: '', 
         location: '', 
         id: undefined, 
-        report_id: undefined 
+        report_id: undefined,
+        created_at: undefined
       });
     }
   };
