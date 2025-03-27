@@ -1,28 +1,38 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { LocationEnvironmentalMetrics } from '@/context/types';
+import { useToast } from '@/hooks/use-toast';
+import { useReport } from '@/hooks/use-report-context';
 
-export const useLocationData = (reportId: string | undefined) => {
+// Helper function to format the location name
+export const formatLocationName = (name: string): string => {
+  return name.trim();
+};
+
+export const useLocationData = () => {
   const [locations, setLocations] = useState<LocationEnvironmentalMetrics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const { toast } = useToast();
-  
-  useEffect(() => {
-    loadLocations();
-  }, [reportId]);
-  
-  const loadLocations = async () => {
-    if (!reportId) return;
-    
+  const { currentReport, updateReportData } = useReport();
+
+  // Load locations for the current report
+  const loadLocations = useCallback(async () => {
+    if (!currentReport?.id) {
+      console.log("No current report ID, cannot load locations");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      console.log("Loading locations for report:", currentReport.id);
       const { data, error } = await supabase
-        .from('location_metrics')
+        .from('location_environmental_metrics')
         .select('*')
-        .eq('report_id', reportId);
-        
+        .eq('report_id', currentReport.id);
+
       if (error) {
         console.error("Error loading locations:", error);
         toast({
@@ -32,26 +42,12 @@ export const useLocationData = (reportId: string | undefined) => {
         });
         return;
       }
-      
-      if (data && data.length > 0) {
-        const mappedLocations: LocationEnvironmentalMetrics[] = data.map(item => ({
-          id: item.id,
-          name: item.location_name || '',
-          locationId: item.location_id || '', // Use location_id but map it to locationId
-          metrics: item.metrics || {},
-          location_id: item.location_id, // Keep original for backward compatibility
-          location_name: item.location_name,
-          location_type: item.location_type
-        }));
-        
-        console.log("Loaded locations:", mappedLocations);
-        setLocations(mappedLocations);
-      } else {
-        console.log("No locations found");
-        setLocations([]);
-      }
+
+      console.log("Locations loaded:", data);
+      setLocations(data as LocationEnvironmentalMetrics[]);
+      setHasMultipleLocations(data.length > 1);
     } catch (error) {
-      console.error("Error in loadLocations:", error);
+      console.error("Error loading locations:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante il caricamento delle sedi",
@@ -60,33 +56,35 @@ export const useLocationData = (reportId: string | undefined) => {
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  const addLocation = async (name: string, locationId: string): Promise<LocationEnvironmentalMetrics | null> => {
-    if (!reportId) return null;
-    
+  }, [currentReport?.id, toast]);
+
+  // Add a new location
+  const addLocation = useCallback(async (name: string, locationId: string) => {
+    if (!currentReport?.id) {
+      console.error("No current report ID, cannot add location");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      
+      const formattedName = formatLocationName(name);
+      console.log(`Adding location: ${formattedName} with ID: ${locationId}`);
+
       const newLocation: LocationEnvironmentalMetrics = {
-        name,
-        locationId,
-        location_id: locationId, // Add for backwards compatibility
-        metrics: {}
+        report_id: currentReport.id,
+        locationId: locationId,
+        name: formattedName,
+        metrics: {
+          energyConsumption: 0,
+          waterConsumption: 0,
+          wasteGenerated: 0
+        }
       };
-      
-      const { data, error } = await supabase
-        .from('location_metrics')
-        .insert([{ 
-          report_id: reportId,
-          location_id: newLocation.locationId,
-          location_name: newLocation.name,
-          location_type: newLocation.location_type || 'site',
-          metrics: newLocation.metrics || {}
-        }])
-        .select('*')
-        .single();
-        
+
+      const { error } = await supabase
+        .from('location_environmental_metrics')
+        .insert([newLocation]);
+
       if (error) {
         console.error("Error adding location:", error);
         toast({
@@ -94,49 +92,37 @@ export const useLocationData = (reportId: string | undefined) => {
           description: "Impossibile aggiungere la sede",
           variant: "destructive"
         });
-        return null;
+        return;
       }
-      
-      const addedLocation: LocationEnvironmentalMetrics = {
-        id: data.id,
-        name: data.location_name || '',
-        locationId: data.location_id || '',
-        metrics: data.metrics || {},
-        location_id: data.location_id, // Keep original for backward compatibility
-        location_name: data.location_name,
-        location_type: data.location_type
-      };
-      
-      setLocations(current => [...current, addedLocation]);
-      return addedLocation;
+
+      await loadLocations();
+      toast({
+        title: "Sede aggiunta",
+        description: "La sede è stata aggiunta con successo",
+      });
     } catch (error) {
-      console.error("Error in addLocation:", error);
+      console.error("Error adding location:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante l'aggiunta della sede",
         variant: "destructive"
       });
-      return null;
     } finally {
       setIsSaving(false);
     }
-  };
-  
-  const updateLocation = async (location: LocationEnvironmentalMetrics): Promise<boolean> => {
-    if (!reportId || !location.id) return false;
-    
+  }, [currentReport?.id, loadLocations, toast]);
+
+  // Update an existing location
+  const updateLocation = useCallback(async (location: LocationEnvironmentalMetrics) => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      
+      console.log("Updating location:", location);
+
       const { error } = await supabase
-        .from('location_metrics')
-        .update({
-          location_name: location.name,
-          location_type: location.location_type || 'site',
-          metrics: location.metrics || {}
-        })
-        .eq('id', location.id);
-        
+        .from('location_environmental_metrics')
+        .update(location)
+        .eq('locationId', location.locationId);
+
       if (error) {
         console.error("Error updating location:", error);
         toast({
@@ -144,46 +130,40 @@ export const useLocationData = (reportId: string | undefined) => {
           description: "Impossibile aggiornare la sede",
           variant: "destructive"
         });
-        return false;
+        return;
       }
-      
-      setLocations(current => 
-        current.map(loc => loc.id === location.id ? location : loc)
-      );
-      return true;
+
+      toast({
+        title: "Sede aggiornata",
+        description: "La sede è stata aggiornata con successo",
+      });
     } catch (error) {
-      console.error("Error in updateLocation:", error);
+      console.error("Error updating location:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante l'aggiornamento della sede",
         variant: "destructive"
       });
-      return false;
     } finally {
       setIsSaving(false);
     }
-  };
-  
-  const saveLocation = async (location: LocationEnvironmentalMetrics): Promise<boolean> => {
-    if (!reportId) return false;
-    
+  }, [toast]);
+
+  // Save location data
+  const saveLocation = useCallback(async (location: LocationEnvironmentalMetrics) => {
+    if (!currentReport?.id) {
+      console.error("No current report ID, cannot save location");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      
-      const locationData = {
-        report_id: reportId,
-        location_id: location.locationId, // Use locationId but save as location_id
-        location_name: location.name,
-        location_type: location.location_type || 'site',
-        metrics: location.metrics || {}
-      };
-      
-      const { data, error } = await supabase
-        .from('location_metrics')
-        .upsert([locationData], { onConflict: 'report_id, location_id' })
-        .select('*')
-        .single();
-        
+      console.log("Saving location:", location);
+
+      const { error } = await supabase
+        .from('location_environmental_metrics')
+        .upsert(location);
+
       if (error) {
         console.error("Error saving location:", error);
         toast({
@@ -191,77 +171,43 @@ export const useLocationData = (reportId: string | undefined) => {
           description: "Impossibile salvare la sede",
           variant: "destructive"
         });
-        return false;
+        return;
       }
-      
-      // Update the location in the state
-      setLocations(current =>
-        current.map(loc =>
-          loc.locationId === location.locationId
-            ? { ...loc, ...location }
-            : loc
-        )
-      );
-      
-      return true;
+
+      await loadLocations();
+      toast({
+        title: "Sede salvata",
+        description: "La sede è stata salvata con successo",
+      });
+
+      // Update report data with the new location metrics
+      updateReportData({
+        environmentalMetrics: {
+          locationMetrics: locations
+        }
+      });
     } catch (error) {
-      console.error("Error in saveLocation:", error);
+      console.error("Error saving location:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante il salvataggio della sede",
         variant: "destructive"
       });
-      return false;
     } finally {
       setIsSaving(false);
     }
-  };
-  
-  const deleteLocation = async (locationId: string): Promise<boolean> => {
-    if (!reportId) return false;
-    
-    try {
-      setIsSaving(true);
-      
-      const { error } = await supabase
-        .from('location_metrics')
-        .delete()
-        .eq('report_id', reportId)
-        .eq('location_id', locationId);
-        
-      if (error) {
-        console.error("Error deleting location:", error);
-        toast({
-          title: "Errore",
-          description: "Impossibile eliminare la sede",
-          variant: "destructive"
-        });
-        return false;
-      }
-      
-      setLocations(current => current.filter(loc => loc.locationId !== locationId));
-      return true;
-    } catch (error) {
-      console.error("Error in deleteLocation:", error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante l'eliminazione della sede",
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  }, [currentReport?.id, loadLocations, toast, locations, updateReportData]);
 
   return {
     locations,
     isLoading,
     isSaving,
+    hasMultipleLocations,
+    selectedLocationId,
+    setSelectedLocationId,
     loadLocations,
     addLocation,
     updateLocation,
-    saveLocation,
-    deleteLocation
+    saveLocation
   };
 };

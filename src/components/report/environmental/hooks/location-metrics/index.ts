@@ -1,37 +1,19 @@
 
-import { useLocationData, formatLocationName } from './useLocationData';
+export * from './types';
+export { useLocationData } from './useLocationData';
+export { useLocationMetricsHandlers } from './useLocationMetricsHandlers';
+export { formatLocationName } from './useLocationData';
+
+// Create a convenience hook that combines both hooks
+import { useLocationData } from './useLocationData';
 import { useLocationMetricsHandlers } from './useLocationMetricsHandlers';
 
-export const useLocationMetrics = (
-  companyId: string | undefined, 
-  formValues: any, 
-  setFormValues: React.Dispatch<React.SetStateAction<any>>
-) => {
-  // Get location data
-  const {
-    locations,
-    hasMultipleLocations,
-    isLoading,
-    selectedLocationId,
-    setSelectedLocationId
-  } = useLocationData(companyId, formValues, setFormValues);
-  
-  // Get location metrics handlers
-  const {
-    getCurrentLocationMetrics,
-    handleLocationMetricsChange
-  } = useLocationMetricsHandlers(selectedLocationId, formValues, setFormValues);
+export const useLocationMetrics = () => {
+  const locationData = useLocationData();
+  const metricsHandlers = useLocationMetricsHandlers();
   
   return {
-    locations,
-    hasMultipleLocations,
-    isLoading,
-    selectedLocationId,
-    setSelectedLocationId,
-    getCurrentLocationMetrics,
-    handleLocationMetricsChange
+    ...locationData,
+    ...metricsHandlers
   };
 };
-
-// Export formatLocationName so it can be used in LocationSelector.tsx
-export { formatLocationName };
