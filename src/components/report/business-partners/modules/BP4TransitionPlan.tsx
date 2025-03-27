@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBP4Data } from '../hooks/bp4';
 import { SaveButton, SectionAutoSaveIndicator } from '../components';
-import { Info, BarChart3 } from 'lucide-react';
+import { Info, Thermometer } from 'lucide-react';
 
 interface BP4TransitionPlanProps {
   reportId: string;
@@ -34,7 +34,7 @@ const BP4TransitionPlan: React.FC<BP4TransitionPlanProps> = ({ reportId }) => {
       <CardHeader>
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <BarChart3 className="h-5 w-5 text-blue-700" />
+            <Thermometer className="h-5 w-5 text-blue-700" />
           </div>
           <div>
             <CardTitle>BP4 - Piano di transizione climatica</CardTitle>
