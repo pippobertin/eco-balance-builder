@@ -10,6 +10,31 @@ export interface BaseHookResult<T> {
   needsSaving: boolean;
 }
 
+// Save button props type
+export interface SaveButtonProps {
+  onClick: () => Promise<any>;
+  isLoading?: boolean;
+  children?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  [key: string]: any;
+}
+
+// Generic business partners form data
+export interface BusinessPartnersFormData {
+  [key: string]: any;
+}
+
+// Generic business partners hook result
+export interface BusinessPartnersHookResult {
+  formData: BusinessPartnersFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BusinessPartnersFormData>>;
+  isLoading: boolean;
+  saveData: () => Promise<boolean>;
+  lastSaved: Date | null;
+  needsSaving: boolean;
+}
+
 // BP1 types
 export interface BP1FormData {
   controversialWeapons: boolean;
