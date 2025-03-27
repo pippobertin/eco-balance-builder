@@ -13,6 +13,7 @@ export const useBP6Data = (reportId: string): BP6HookResult => {
   });
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [needsSaving, setNeedsSaving] = useState(false);
 
@@ -56,16 +57,16 @@ export const useBP6Data = (reportId: string): BP6HookResult => {
 
   // Update needsSaving state when form data changes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !isSaving) {
       setNeedsSaving(true);
     }
-  }, [formData, isLoading]);
+  }, [formData, isLoading, isSaving]);
 
   // Save data to the database
   const saveData = async (): Promise<boolean> => {
     if (!reportId) return false;
     
-    setIsLoading(true);
+    setIsSaving(true);
     
     try {
       const now = new Date();
@@ -122,7 +123,7 @@ export const useBP6Data = (reportId: string): BP6HookResult => {
       toast.error("Errore nel salvataggio dei dati sui rifiuti pericolosi");
       return false;
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -130,6 +131,7 @@ export const useBP6Data = (reportId: string): BP6HookResult => {
     formData,
     setFormData,
     isLoading,
+    isSaving,
     saveData,
     lastSaved,
     needsSaving
