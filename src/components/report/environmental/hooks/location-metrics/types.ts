@@ -1,6 +1,13 @@
 
 import { CompanyLocation } from '@/components/report/company-information/CompanyGeneralInfo';
-import { LocationEnvironmentalMetrics } from '@/context/types';
+
+export interface LocationEnvironmentalMetrics {
+  id: string;
+  location_id: string;
+  name: string;
+  locationType: string;
+  metrics: Record<string, any>;
+}
 
 export interface LocationMetricsState {
   locations: CompanyLocation[];

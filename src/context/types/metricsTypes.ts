@@ -1,139 +1,93 @@
 
-import { BP1FormData, BP2FormData, BP3FormData, BP4FormData, BP5FormData, BP6FormData, BP7FormData, BP8FormData, BP9FormData, BP10FormData, BP11FormData } from '@/components/report/business-partners/hooks/types';
-import { PollutionRecord } from '@/components/report/environmental/hooks/pollution/types';
+export interface DefaultMetricsState {
+  [key: string]: any;
+}
 
 // Environmental metrics
 export interface LocationEnvironmentalMetrics {
   id: string;
+  location_id: string;
   name: string;
-  address?: string;
-  location_id?: string; // Added to match database schema
-  location_name?: string; // Added to match database schema
-  location_type?: string; // Added to match database schema
+  locationType: string;
   metrics: Record<string, any>;
 }
 
-export interface EnvironmentalMetrics {
-  // GHG Emissions
-  totalScope1Emissions?: number;
-  totalScope2Emissions?: number;
-  totalScope3Emissions?: number;
-  totalScopeEmissions?: number;
-  emissionCalculationLogs?: any;
-  
-  // Pollution
-  pollutionRecords?: PollutionRecord[];
-  
-  // Water
-  waterUsage?: number;
-  waterConsumption?: number;
-  waterStressAreas?: number;
-  
-  // Land use and biodiversity
-  landUse?: number;
-  impermeableSurface?: number;
-  natureSurfaceOnSite?: number;
-  natureSurfaceOffSite?: number;
-  
-  // Waste
-  totalWaste?: number;
-  recycledWaste?: number;
-  hazardousWaste?: number;
-  
-  // Circular economy
-  recycledContent?: number;
-  recyclableContent?: number;
-  
-  // Location-specific metrics
+export interface EnvironmentalMetrics extends DefaultMetricsState {
   locationMetrics?: LocationEnvironmentalMetrics[];
-  
-  [key: string]: any;
 }
 
 // Social metrics
-export interface SocialMetrics {
-  [key: string]: any;
+export interface SocialMetrics extends DefaultMetricsState {
+  workforceDistribution?: any;
 }
 
 // Conduct metrics
-export interface ConductMetrics {
-  [key: string]: any;
+export interface ConductMetrics extends DefaultMetricsState {
+  antiCorruption?: any;
 }
 
 // Narrative PAT metrics
-export interface NarrativePATMetrics {
-  [key: string]: any;
+export interface NarrativePATMetrics extends DefaultMetricsState {
+  strategySection?: any;
 }
 
 // Business Partners metrics
-export interface BusinessPartnersMetrics {
-  bp1?: BP1FormData;
-  bp2?: BP2FormData;
-  bp3?: BP3FormData;
-  bp4?: BP4FormData;
-  bp5?: BP5FormData;
-  bp6?: BP6FormData;
-  bp7?: BP7FormData;
-  bp8?: BP8FormData;
-  bp9?: BP9FormData;
-  bp10?: BP10FormData;
-  bp11?: BP11FormData;
-  [key: string]: any;
+export interface BusinessPartnersMetrics extends DefaultMetricsState {
+  bp1?: any;
+  bp2?: any;
+  bp3?: any;
+  bp4?: any;
+  bp5?: any;
+  bp6?: any;
+  bp7?: any;
+  bp8?: any;
+  bp9?: any;
+  bp10?: any;
+  bp11?: any;
 }
 
-// Materiality analysis
-export interface StakeholderData {
-  id: string;
+// Materiality Analysis
+export interface MaterialityIssue {
+  id?: string;
   name: string;
-  category: string;
-  influence: number;
-  interest: number;
-  contact?: string;
+  description?: string;
+  impact_relevance?: number;
+  financial_relevance?: number;
+  stakeholder_relevance?: number;
+  is_material?: boolean;
+}
+
+export interface Stakeholder {
+  id?: string;
+  name: string;
+  category?: string;
+  influence?: number;
+  interest?: number;
+  priority?: string;
+  contact_info?: string;
   email?: string;
   notes?: string;
 }
 
-export interface MaterialityIssue {
-  id: string;
-  name: string;
-  description?: string;
-  isCustom?: boolean;
-  category?: string;
-  subcategory?: string;
-  financialRelevance: number;
-  impactRelevance: number;
-  stakeholderRelevance: number;
-  isMaterial: boolean;
-  isSelected?: boolean;
-}
-
-export interface MaterialityAnalysis {
+export interface MaterialityAnalysis extends DefaultMetricsState {
   issues: MaterialityIssue[];
-  stakeholders: StakeholderData[];
-  esgScore?: number; // ESG score field
-  [key: string]: any;
+  stakeholders: Stakeholder[];
 }
 
-// Combined Report Data
+// Complete Report Data
 export interface ReportData {
   environmentalMetrics: EnvironmentalMetrics;
   socialMetrics: SocialMetrics;
   conductMetrics: ConductMetrics;
+  materialityAnalysis: MaterialityAnalysis;
   narrativePATMetrics: NarrativePATMetrics;
   businessPartnersMetrics?: BusinessPartnersMetrics;
-  materialityAnalysis: MaterialityAnalysis;
-  [key: string]: any;
 }
 
-// Default state
 export const defaultReportData: ReportData = {
   environmentalMetrics: {},
   socialMetrics: {},
   conductMetrics: {},
-  narrativePATMetrics: {},
-  businessPartnersMetrics: {},
-  materialityAnalysis: {
-    issues: [],
-    stakeholders: []
-  }
+  materialityAnalysis: { issues: [], stakeholders: [] },
+  narrativePATMetrics: {}
 };

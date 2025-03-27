@@ -91,7 +91,7 @@ export const useLocationData = (
         // Check if metrics for this location already exist in form values
         const existingLocationMetrics = formValues.environmentalMetrics?.locationMetrics || [];
         const locationMetric = existingLocationMetrics.find(
-          (metric: LocationEnvironmentalMetrics) => metric.locationId === selectedLocationId
+          (metric: LocationEnvironmentalMetrics) => metric.location_id === selectedLocationId
         );
         
         if (locationMetric) {
@@ -115,7 +115,7 @@ export const useLocationData = (
           const newLocationMetrics = [...existingLocationMetrics];
           const locationMetrics = data.map((item: any) => ({
             id: item.id,
-            locationId: item.location_id,
+            location_id: item.location_id,
             name: item.location_name,
             locationType: item.location_type,
             metrics: item.metrics || {}
@@ -139,7 +139,7 @@ export const useLocationData = (
           if (selectedLocation) {
             const newLocationMetric: LocationEnvironmentalMetrics = {
               id: `temp-${selectedLocationId}`,
-              locationId: selectedLocationId,
+              location_id: selectedLocationId,
               name: formatLocationName(selectedLocation),
               locationType: selectedLocation.location_type || 'headquarters',
               metrics: {}

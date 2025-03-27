@@ -1,6 +1,6 @@
 
 import { toast } from '@/components/ui/use-toast';
-import { LocationEnvironmentalMetrics } from '@/context/types';
+import { LocationEnvironmentalMetrics } from './types';
 
 export const useLocationMetricsHandlers = (
   selectedLocationId: string,
