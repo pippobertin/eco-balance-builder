@@ -131,7 +131,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           type={sectorData.length > 0 ? "donut" : "empty"}
           data={[{ ring: 'inner', data: sectorData, colors: ['#0EA5E9', '#F97316', '#DC2626', '#84CC16'] }]}
           dataKey="name"
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp1' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp1' } })}
         />
         
         <MetricChart
@@ -140,7 +140,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           type={genderData.length > 0 ? "donut" : "empty"}
           data={[{ ring: 'inner', data: genderData, colors: ['#3B82F6', '#EC4899', '#A855F7'] }]}
           dataKey="name"
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp2' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp2' } })}
         />
         
         <MetricChart
@@ -151,7 +151,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           dataKey="name"
           categories={["value"]}
           colors={['#10B981']}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp3' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp3' } })}
         />
         
         <MetricChart
@@ -162,7 +162,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           dataKey="name"
           categories={["value"]}
           colors={['#F59E0B']}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp6' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp6' } })}
         />
 
         <MetricChart
@@ -173,7 +173,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           dataKey="name"
           categories={["male", "female"]}
           colors={['#3B82F6', '#EC4899']}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp10' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp10' } })}
         />
         
         <MetricChart
@@ -184,7 +184,7 @@ const BusinessPartnersSection: React.FC<BusinessPartnersSectionProps> = ({ repor
           dataKey="name"
           categories={["value"]}
           colors={['#8B5CF6']}
-          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners-alt', field: 'bp11' } })}
+          onTitleClick={() => navigate('/report', { state: { activeTab: 'metrics', section: 'business-partners', field: 'bp11' } })}
         />
       </div>
     </div>

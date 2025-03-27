@@ -1,17 +1,9 @@
 
 import { useState } from 'react';
-import { IssuesManagementFormData, SectionHookResult } from '../types';
+import { IssuesManagementFormData } from '../types';
 
-export const useIssuesManagementData = (reportId: string): SectionHookResult<IssuesManagementFormData> => {
+export const useIssuesManagementData = (reportId: string) => {
   const [formData, setFormData] = useState<IssuesManagementFormData>({
-    policiesActions: '',
-    policiesDescription: '',
-    actionsDescription: '',
-    energyEfficiencyActions: '',
-    stakeholdersImpacts: '',
-    antiCorruptionMeasures: ''
-  });
-  const [initialFormData, setInitialFormData] = useState<IssuesManagementFormData>({
     policiesActions: '',
     policiesDescription: '',
     actionsDescription: '',
@@ -26,8 +18,6 @@ export const useIssuesManagementData = (reportId: string): SectionHookResult<Iss
   return {
     formData,
     setFormData,
-    initialFormData,
-    setInitialFormData,
     isLoading,
     setIsLoading,
     lastSaved,
