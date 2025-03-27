@@ -1,7 +1,7 @@
 
 import { supabase, withRetry } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Report } from '../types';
+import { Report } from '@/context/types';
 
 export const useReportWriteOperations = () => {
   const { toast } = useToast();

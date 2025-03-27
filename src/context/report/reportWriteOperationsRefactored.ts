@@ -1,29 +1,24 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Report } from '../types';
+import { Report } from '@/context/types';
 
 export const useReportWriteOperationsRefactored = () => {
   const { toast } = useToast();
 
-  // Create a new report
-  const createReport = async (reportData: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
+  const createReport = async (report: Omit<Report, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     try {
-      if (!reportData.company_id || !reportData.report_year || !reportData.report_type) {
+      if (!report.company_id || !report.report_year || !report.report_type) {
         throw new Error('Missing required report fields');
       }
-
-      // Fix: Ensure we're passing an array with a single report object
+      
       const { data, error } = await supabase
         .from('reports')
-        .insert([reportData])
+        .insert([report])
         .select()
         .single();
-
-      if (error) {
-        throw error;
-      }
-
+        
+      if (error) throw error;
+      
       toast({
         title: "Successo",
         description: `Report ${data.report_year} creato con successo`,
@@ -41,18 +36,13 @@ export const useReportWriteOperationsRefactored = () => {
     }
   };
 
-  // Delete a report
   const deleteReport = async (reportId: string): Promise<boolean> => {
     try {
-      // Delete all related data for this report
-      
-      // Delete subsidiaries
       await supabase
         .from('subsidiaries')
         .delete()
         .eq('report_id', reportId);
         
-      // Delete the report itself
       const { error } = await supabase
         .from('reports')
         .delete()
@@ -77,5 +67,8 @@ export const useReportWriteOperationsRefactored = () => {
     }
   };
 
-  return { createReport, deleteReport };
+  return {
+    createReport,
+    deleteReport
+  };
 };

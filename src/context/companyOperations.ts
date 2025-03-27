@@ -1,6 +1,5 @@
-
 import { supabase, withRetry } from '@/integrations/supabase/client';
-import { Company } from './types';
+import { Company } from '@/context/types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 
