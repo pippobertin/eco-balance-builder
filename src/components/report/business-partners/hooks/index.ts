@@ -12,7 +12,8 @@ export * from './bp6';
 export * from './bp7';
 export * from './bp8';
 export * from './bp9';
-export * from './bp10';
+// Export BP10 hook without types (since they're already exported from './types')
+export { useBP10Data } from './bp10';
 export * from './bp11';
 
 // Legacy hook - will be deprecated
