@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useReport } from '@/context/ReportContext';
 import EnvironmentalMetrics from '../EnvironmentalMetrics';
@@ -62,9 +61,10 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
         return <div className="p-6 text-center">Modulo narrativo non disponibile per questo tipo di report</div>;
       case 'business-partners':
         if (showBusinessPartnersModule) {
-          return <BusinessPartnersMetrics 
+          return <EnvironmentalBusinessPartners 
             formValues={formValues} 
-            setFormValues={setFormValues} 
+            setFormValues={setFormValues}
+            initialField={initialField}
           />;
         }
         return <div className="p-6 text-center">Modulo partner commerciali non disponibile per questo tipo di report</div>;
