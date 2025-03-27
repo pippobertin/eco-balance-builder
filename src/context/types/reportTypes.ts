@@ -1,4 +1,6 @@
 
+import { Company } from './companyTypes';
+
 // Define report-related interfaces
 export interface Report {
   id: string;
