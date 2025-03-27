@@ -1,137 +1,70 @@
-
-import { toast } from '@/components/ui/use-toast';
+import { useState } from 'react';
+import { useReport } from '@/hooks/use-report-context';
 import { LocationEnvironmentalMetrics } from '@/context/types';
 
-export const useLocationMetricsHandlers = (
-  selectedLocationId: string,
-  formValues: any,
-  setFormValues: React.Dispatch<React.SetStateAction<any>>
-) => {
-  // Get current location metrics
-  const getCurrentLocationMetrics = () => {
-    if (!selectedLocationId || !formValues.environmentalMetrics?.locationMetrics) {
-      return {};
-    }
-    
-    const locationMetric = formValues.environmentalMetrics.locationMetrics.find(
-      (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
-    );
-    
-    return locationMetric?.metrics || {};
+export const useLocationMetricsHandlers = (setLocations: React.Dispatch<React.SetStateAction<LocationEnvironmentalMetrics[]>>) => {
+  const { updateReportData } = useReport();
+  
+  const addLocation = (name: string, locationId: string) => {
+  if (!name || !locationId) return;
+  
+  const newLocation: LocationEnvironmentalMetrics = {
+    name,
+    locationId,
+    location_id: locationId, // Add for backwards compatibility
+    metrics: {}
   };
-
-  // Handle location metrics changes
-  const handleLocationMetricsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    
-    if (name === 'resetEmissions') {
-      handleEmissionsReset(value as 'current' | 'all');
-      return;
-    }
-    
-    setFormValues((prev: any) => {
-      const locationMetrics = [...(prev.environmentalMetrics?.locationMetrics || [])];
-      
-      const locationIndex = locationMetrics.findIndex(
-        (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
-      );
-      
-      if (locationIndex !== -1) {
-        locationMetrics[locationIndex] = {
-          ...locationMetrics[locationIndex],
-          metrics: {
-            ...locationMetrics[locationIndex].metrics,
-            [name]: value
+  
+    setLocations(current => [...current, newLocation]);
+  };
+  
+  const removeLocation = (id: string) => {
+    setLocations(current => current.filter(location => location.id !== id));
+  };
+  
+  const updateLocation = (id: string, data: Partial<LocationEnvironmentalMetrics>) => {
+    setLocations(current => 
+      current.map(location => {
+        if (location.id === id) {
+          // If updating locationId, also update location_id for backward compatibility
+          if (data.locationId) {
+            data.location_id = data.locationId;
           }
-        };
-      }
-      
-      return {
-        ...prev,
-        environmentalMetrics: {
-          ...prev.environmentalMetrics,
-          locationMetrics
+          return { ...location, ...data };
         }
-      };
-    });
+        return location;
+      })
+    );
   };
-
-  // Handle emissions reset
-  const handleEmissionsReset = (resetScope: 'current' | 'all') => {
-    setFormValues((prev: any) => {
-      const environmentalMetrics = { ...prev.environmentalMetrics };
-      const locationMetrics = [...(environmentalMetrics.locationMetrics || [])];
-      
-      if (resetScope === 'current' && selectedLocationId) {
-        const locationIndex = locationMetrics.findIndex(
-          (lm: LocationEnvironmentalMetrics) => lm.location_id === selectedLocationId
-        );
-        
-        if (locationIndex !== -1) {
-          locationMetrics[locationIndex] = {
-            ...locationMetrics[locationIndex],
-            metrics: {
-              ...locationMetrics[locationIndex].metrics,
-              totalScope1Emissions: "0",
-              totalScope2Emissions: "0",
-              totalScope3Emissions: "0",
-              totalScopeEmissions: "0",
-              scope1CalculationDetails: "",
-              scope2CalculationDetails: "",
-              scope3CalculationDetails: ""
-            }
+  
+  const updateLocationMetrics = (id: string, metricName: string, value: number | string | null) => {
+    setLocations(current => 
+      current.map(location => {
+        if (location.id === id) {
+          // Ensure metrics object exists
+          const existingMetrics = location.metrics || {};
+          
+          // Create updated metrics with the new value
+          const updatedMetrics = {
+            ...existingMetrics,
+            [metricName]: value
           };
           
-          toast({
-            title: "Dati azzerati",
-            description: "I calcoli delle emissioni per la sede corrente sono stati azzerati.",
-            duration: 3000
-          });
-        }
-      } else if (resetScope === 'all') {
-        // Reset all locations
-        locationMetrics.forEach((lm: LocationEnvironmentalMetrics, index: number) => {
-          locationMetrics[index] = {
-            ...lm,
-            metrics: {
-              ...lm.metrics,
-              totalScope1Emissions: "0",
-              totalScope2Emissions: "0",
-              totalScope3Emissions: "0",
-              totalScopeEmissions: "0",
-              scope1CalculationDetails: "",
-              scope2CalculationDetails: "",
-              scope3CalculationDetails: "",
-              energyConsumption: "",
-              fossilFuelEnergy: "",
-              renewableEnergy: "",
-              energyEmissionsDetails: ""
-            }
+          // Return the updated location
+          return {
+            ...location,
+            metrics: updatedMetrics
           };
-        });
-        
-        toast({
-          title: "Dati azzerati",
-          description: "I calcoli delle emissioni per tutte le sedi sono stati azzerati.",
-          duration: 3000
-        });
-      }
-      
-      // Create a new state object to ensure React detects the change
-      const updatedState = {
-        ...prev,
-        environmentalMetrics: {
-          ...environmentalMetrics,
-          locationMetrics
         }
-      };
-      
-      return updatedState;
-    });
+        return location;
+      })
+    );
   };
 
   return {
-    getCurrentLocationMetrics,
-    handleLocationMetricsChange
+    addLocation,
+    removeLocation,
+    updateLocation,
+    updateLocationMetrics
   };
 };

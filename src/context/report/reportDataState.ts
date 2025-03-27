@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { ReportData, defaultReportData } from '../types';
 
@@ -59,3 +58,4 @@ export const useReportDataState = () => {
     setLastSaved
   };
 };
+

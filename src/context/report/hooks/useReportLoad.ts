@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Company, Report, ReportData, defaultReportData } from '@/context/types';
 import { useReportOperations } from '../reportOperations';
@@ -124,12 +123,18 @@ export const useReportLoad = (
         
         // Always use safeJsonParse to handle the different ways data might be stored
         const newReportData: ReportData = {
+          generalInfo: {
+            companyName: '',
+            year: new Date().getFullYear().toString(),
+            reportType: 'sustainability',
+          },
           environmentalMetrics: safeJsonParse(result.report.environmental_metrics, {}),
           socialMetrics: safeJsonParse(result.report.social_metrics, {}),
+          governanceMetrics: {}, // Initialize with empty object
           conductMetrics: safeJsonParse(result.report.conduct_metrics, {}),
+          businessPartnersMetrics: {}, // Initialize with empty object
           materialityAnalysis: safeJsonParse(result.report.materiality_analysis, { issues: [], stakeholders: [] }),
-          narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {}),
-          businessPartnersMetrics: safeJsonParse(result.report.business_partners_metrics, {})
+          narrativePATMetrics: safeJsonParse(result.report.narrative_pat_metrics, {})
         };
         
         console.log("Parsed report data:", {
@@ -142,11 +147,11 @@ export const useReportLoad = (
           conductMetrics: Object.keys(newReportData.conductMetrics).length > 0 
             ? "Populated object with " + Object.keys(newReportData.conductMetrics).length + " keys" 
             : "Empty object",
-          materialityAnalysis: Object.keys(newReportData.materialityAnalysis).length > 0 
-            ? "Populated object with " + Object.keys(newReportData.materialityAnalysis).length + " keys" 
+          materialityAnalysis: Object.keys(newReportData.materialityAnalysis || {}).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.materialityAnalysis || {}).length + " keys" 
             : "Empty object",
-          narrativePATMetrics: Object.keys(newReportData.narrativePATMetrics).length > 0 
-            ? "Populated object with " + Object.keys(newReportData.narrativePATMetrics).length + " keys" 
+          narrativePATMetrics: Object.keys(newReportData.narrativePATMetrics || {}).length > 0 
+            ? "Populated object with " + Object.keys(newReportData.narrativePATMetrics || {}).length + " keys" 
             : "Empty object",
           businessPartnersMetrics: Object.keys(newReportData.businessPartnersMetrics || {}).length > 0 
             ? "Populated object with " + Object.keys(newReportData.businessPartnersMetrics || {}).length + " keys" 

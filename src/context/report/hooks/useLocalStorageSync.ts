@@ -1,8 +1,11 @@
-
 import { useEffect } from 'react';
-import { Company, Report, ReportData } from '@/context/types';
+import { ReportData } from '@/context/types';
 import { localStorageUtils } from '../localStorageUtils';
+import { useToast } from '@/hooks/use-toast';
+import { Report } from '@/context/types';
+import { Company } from '@/context/types';
 
+// Hook to sync report data with local storage
 export const useLocalStorageSync = (
   loadCompanyById: (companyId: string) => Promise<Company | null>,
   loadReport: (reportId: string) => Promise<{report: Report | null, subsidiaries?: any[]}>,
@@ -12,53 +15,88 @@ export const useLocalStorageSync = (
   setCurrentReport: React.Dispatch<React.SetStateAction<Report | null>>,
   setReportData: React.Dispatch<React.SetStateAction<ReportData>>
 ) => {
-  // Restore current company and report from localStorage
+  const { toast } = useToast();
+  
+  // Load data from localStorage on mount
   useEffect(() => {
-    try {
-      const savedCompanyId = localStorageUtils.getCurrentCompanyId();
-      const savedReportId = localStorageUtils.getCurrentReportId();
-      
-      if (savedCompanyId && savedReportId) {
-        // Load current company and report on initial load
-        const loadCurrentData = async () => {
-          setLoading(true);
-          
-          // Load company
-          const companyData = await loadCompanyById(savedCompanyId);
-          
-          if (companyData) {
-            setCurrentCompany(companyData);
-            
-            // Load report
-            const { report, subsidiaries } = await loadReport(savedReportId);
-            
-            if (report) {
-              setCurrentReport(report as Report);
-              
-              // Load report data
-              const newReportData: ReportData = {
-                environmentalMetrics: report.environmental_metrics || {},
-                socialMetrics: report.social_metrics || {},
-                conductMetrics: report.conduct_metrics || {},
-                materialityAnalysis: report.materiality_analysis || { issues: [], stakeholders: [] },
-                narrativePATMetrics: report.narrative_pat_metrics || {}
-              };
-              
-              setReportData(newReportData);
-              
-              // Also fetch all other reports for this company to have them available
-              await loadReports(savedCompanyId);
-            }
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        // Load current company ID from localStorage
+        const currentCompanyId = localStorageUtils.getCurrentCompanyId();
+        if (currentCompanyId) {
+          console.log("Found company ID in localStorage:", currentCompanyId);
+          const company = await loadCompanyById(currentCompanyId);
+          if (company) {
+            console.log("Loaded company from ID:", company.name);
+            setCurrentCompany(company);
+            await loadReports(company.id);
+          } else {
+            console.warn("Company ID in localStorage not found in database");
+            localStorageUtils.removeCurrentCompanyId();
           }
-          
-          setLoading(false);
-        };
+        }
         
-        loadCurrentData();
+        // Load current report ID from localStorage
+        const currentReportId = localStorageUtils.getCurrentReportId();
+        if (currentReportId) {
+          console.log("Found report ID in localStorage:", currentReportId);
+          const reportResult = await loadReport(currentReportId);
+          if (reportResult.report) {
+            console.log("Loaded report from ID:", reportResult.report.id);
+            setCurrentReport(reportResult.report);
+          } else {
+            console.warn("Report ID in localStorage not found in database");
+            localStorageUtils.removeCurrentReportId();
+          }
+        }
+      } catch (error: any) {
+        console.error("Error loading data from localStorage:", error.message);
+        toast({
+          title: "Errore",
+          description: `Impossibile caricare i dati dalla cache locale: ${error.message}`,
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error retrieving data from localStorage:', error);
-      setLoading(false);
+    };
+    
+    loadData();
+  }, [loadCompanyById, loadReport, loadReports, setCurrentCompany, setCurrentReport, setLoading, toast]);
+  
+  // Save report data to localStorage on change
+  useEffect(() => {
+    const saveReportData = (data: ReportData) => {
+      try {
+        // We now have materialityAnalysis in the ReportData type
+        const serializedData = JSON.stringify({
+          environmentalMetrics: data.environmentalMetrics,
+          socialMetrics: data.socialMetrics,
+          governanceMetrics: data.governanceMetrics,
+          conductMetrics: data.conductMetrics,
+          businessPartnersMetrics: data.businessPartnersMetrics,
+          materialityAnalysis: data.materialityAnalysis,
+          narrativePATMetrics: data.narrativePATMetrics
+        });
+        
+        localStorage.setItem('reportData', serializedData);
+        console.log("Report data saved to localStorage");
+      } catch (error) {
+        console.error("Error saving report data to localStorage:", error);
+      }
+    };
+    
+    // Retrieve reportData from localStorage
+    const storedReportData = localStorage.getItem('reportData');
+    if (storedReportData) {
+      try {
+        const parsedReportData = JSON.parse(storedReportData);
+        setReportData(parsedReportData);
+      } catch (error) {
+        console.error("Error parsing report data from localStorage:", error);
+      }
     }
-  }, []);
+    
+  }, [setReportData]);
 };

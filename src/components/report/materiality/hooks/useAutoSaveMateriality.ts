@@ -1,87 +1,56 @@
-
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useReport } from '@/hooks/use-report-context';
 
-interface UseAutoSaveMaterialityProps {
-  materialityData: any;
+interface AutoSaveMaterialityProps {
+  formValues: any;
+  needsSaving: boolean;
+  updateReportData: (data: any) => void;
+  reportId: string | undefined;
 }
 
-export const useAutoSaveMateriality = ({ materialityData }: UseAutoSaveMaterialityProps) => {
-  const { updateReportData, saveCurrentReport, needsSaving } = useReport();
-  const saveTimeoutRef = useRef<number | null>(null);
-  const lastSavedDataRef = useRef<string>('');
-
-  // Update report context whenever materiality data changes
-  useEffect(() => {
-    if (!materialityData) return;
+export const useAutoSaveMateriality = ({
+  formValues,
+  needsSaving,
+  updateReportData,
+  reportId
+}: AutoSaveMaterialityProps) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const { saveCurrentReport } = useReport();
+  
+  const saveData = async () => {
+    if (!needsSaving || !formValues || !reportId) return;
     
     try {
-      // Stringify data for comparison to avoid unnecessary saves
-      const materialityDataString = JSON.stringify(materialityData);
+      setIsSaving(true);
       
-      // Only proceed if data has changed
-      if (materialityDataString !== lastSavedDataRef.current) {
-        console.log("Materiality data changed, updating report context...");
-        
-        // Update the last saved data reference
-        lastSavedDataRef.current = materialityDataString;
-        
-        // Clear any existing timeout
-        if (saveTimeoutRef.current) {
-          window.clearTimeout(saveTimeoutRef.current);
-          saveTimeoutRef.current = null;
-        }
-        
-        // First, update the report data in context
-        updateReportData({ materialityAnalysis: materialityData });
-        
-        // Set a shorter timeout to auto-save after data changes
-        saveTimeoutRef.current = window.setTimeout(() => {
-          console.log("Auto-saving materiality data changes...");
-          saveCurrentReport().then(() => {
-            console.log("Materiality data auto-saved successfully");
-          }).catch(error => {
-            console.error("Error auto-saving materiality data:", error);
-          });
-        }, 1500); // Reduced from 3000 to 1500ms for quicker saves
-      }
+      // Update the report data with the materiality analysis
+      updateReportData({
+        // This property now exists in the ReportData type
+        materialityAnalysis: formValues.materialityAnalysis || { issues: [], stakeholders: [] }
+      });
+      
+      // Save the current report
+      await saveCurrentReport();
+      
+      // Update the last saved timestamp
+      setLastSaved(new Date());
     } catch (error) {
-      console.error("Error in materiality data processing:", error);
+      console.error("Error saving materiality analysis:", error);
+    } finally {
+      setIsSaving(false);
     }
-    
-    // Cleanup timeout on unmount
-    return () => {
-      if (saveTimeoutRef.current) {
-        window.clearTimeout(saveTimeoutRef.current);
-        saveTimeoutRef.current = null;
-      }
-    };
-  }, [materialityData, updateReportData, saveCurrentReport]);
+  };
+  
+  // Use useCallback to memoize the saveData function
+  const memoizedSaveData = useCallback(saveData, [needsSaving, formValues, reportId, updateReportData, saveCurrentReport]);
 
-  // Add another effect to save on tab/page change
+  // Automatically save data when needsSaving changes
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      try {
-        if (needsSaving) {
-          // Auto-save on page navigation if there are unsaved changes
-          saveCurrentReport().catch(console.error);
-          
-          // Show confirmation dialog if needed
-          e.preventDefault();
-          e.returnValue = '';
-          return '';
-        }
-      } catch (error) {
-        console.error("Error in beforeunload handler:", error);
-      }
-      return undefined;
-    };
-    
-    // Save when navigating away
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [needsSaving, saveCurrentReport]);
+    if (needsSaving && reportId) {
+      memoizedSaveData();
+    }
+  }, [needsSaving, reportId, memoizedSaveData]);
+
+  return { isSaving, lastSaved };
 };
