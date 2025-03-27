@@ -13,7 +13,7 @@ import {
   BP9Violations,
   BP10WorkLifeBalance,
   BP11Apprentices
-} from './business-partners/modules';
+} from './modules';
 
 interface EnvironmentalBusinessPartnersProps {
   formValues: any;
