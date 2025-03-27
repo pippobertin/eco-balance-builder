@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+
+import { supabase, withRetry } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Report } from '@/context/types';
 

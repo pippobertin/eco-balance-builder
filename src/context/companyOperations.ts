@@ -58,13 +58,13 @@ export const useCompanyOperations = () => {
       }
 
       return await withRetry(async () => {
-        // Fix: Add the created_by to the company object directly before inserting
+        // Add the created_by to the company object directly before inserting
         const companyWithCreator = { 
           ...company, 
           created_by: user.id 
         };
 
-        // Fix: Make sure we're passing a properly formatted object in an array
+        // Make sure we're passing a properly formatted object in an array
         const { data, error } = await supabase
           .from('companies')
           .insert([companyWithCreator])
